@@ -5,17 +5,19 @@
   "license": "MIT",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "concurrently \"ts-node-dev --respawn --transpile-only src/index.ts\" \"ts-node-dev --respawn --transpile-only src/deploy-commands.ts\"",
     "build": "tsc"
   },
   "dependencies": {
     "@discordjs/builders": "^0.15.0",
     "@discordjs/rest": "^0.5.0",
+    "concurrently": "^7.2.2",
     "discord-api-types": "^0.34.0",
     "discord.js": "^13.8.0"
   },
   "devDependencies": {
     "dotenv": "^16.0.1",
+    "eslint": "^8.18.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.7.4"
   }

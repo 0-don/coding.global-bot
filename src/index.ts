@@ -1,9 +1,7 @@
-require('dotenv').config();
+import 'dotenv/config';
 import { Client, Intents } from 'discord.js';
 
-// const clientId = process.env.CLIENT_ID!;
-// const guildId = process.env.GUILD_ID!;
-const token = process.env.TOKEN!;
+const token = process.env.TOKEN;
 
 // Create a new client instance
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
