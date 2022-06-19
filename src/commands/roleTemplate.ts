@@ -1,36 +1,54 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { Message, MessageEmbed } from 'discord.js';
+import {
+  CacheType,
+  CommandInteraction,
+  Message,
+  MessageEmbed,
+} from 'discord.js';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('roleTemplate')
-    .setDescription('Create a role template from JSON'),
-  async execute(interaction: Message) {
+    .setName('role-template')
+    .setDescription('Create a role template from JSON')
+    .addStringOption(
+      (option) =>
+        option
+          .setName('input')
+          .setDescription('JSON input for the role template')
+      // .setRequired(true)
+    ),
+  async execute(interaction: CommandInteraction<CacheType>) {
+    console.log();
+    const string = interaction.options.getString('input');
+    // console.log(string);
     const exampleEmbed = new MessageEmbed()
-      .setColor('#0099ff')
-      .setTitle('Some title')
-      .setURL('https://discord.js.org/')
+      .setColor('#fd0000')
+      .setTitle('Server Roles')
       .setAuthor({
-        name: 'Some name',
+        name: 'discord.global',
         iconURL:
           'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png',
-        url: 'https://discord.js.org',
+        url: 'https://coding.global',
       })
-      .setDescription('Some description here')
-      .setThumbnail('https://i.imgur.com/AfFp7pu.png')
+      .setDescription('Select your roles')
+      .setThumbnail(
+        'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png'
+      )
       .addFields(
         { name: 'Regular field title', value: 'Some value here' },
-        { name: '\u200B', value: '\u200B' },
-        { name: 'Inline field title', value: 'Some value here', inline: true },
-        { name: 'Inline field title', value: 'Some value here', inline: true }
+        { name: '\u200B', value: '\u200B' }
       )
-      .addField('Inline field title', 'Some value here', true)
-      .setImage('https://i.imgur.com/AfFp7pu.png')
-      .setTimestamp()
       .setFooter({
         text: 'Some footer text here',
-        iconURL: 'https://i.imgur.com/AfFp7pu.png',
+        iconURL:
+          'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png',
       });
-    await interaction.reply({ embeds: [exampleEmbed] });
+    const message = await interaction.reply({
+      embeds: [exampleEmbed],
+      // content: 'Select your roles',
+      fetchReply: true,
+    });
+
+    (message as Message<boolean>).react('😄');
   },
 };
