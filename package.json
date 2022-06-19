@@ -16,6 +16,7 @@
     "discord.js": "^13.8.0"
   },
   "devDependencies": {
+    "@types/node": "^18.0.0",
     "dotenv": "^16.0.1",
     "eslint": "^8.18.0",
     "ts-node-dev": "^2.0.0",
