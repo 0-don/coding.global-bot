@@ -6,7 +6,7 @@ import type {
 } from 'discord.js';
 
 export default {
-  name: 'messageReactionAdd',
+  name: 'messageReactionRemove',
   once: true,
   async execute(
     reaction: MessageReaction | PartialMessageReaction,

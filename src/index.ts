@@ -5,7 +5,14 @@ import { Client, Collection, Intents } from 'discord.js';
 
 const token = process.env.TOKEN;
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({
+  intents: [
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+    Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+  ],
+  partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
+});
 
 client.commands = new Collection();
 
@@ -35,9 +42,6 @@ for (const file of eventFiles) {
   }
 }
 
-// client.once('ready', () => {
-//   console.log('Ready!');
-// });
 
 // client.on('interactionCreate', async (interaction) => {
 //   if (!interaction.isCommand()) return;
