@@ -13,7 +13,8 @@
     "@discordjs/rest": "^0.5.0",
     "concurrently": "^7.2.2",
     "discord-api-types": "^0.34.0",
-    "discord.js": "^13.8.0"
+    "discord.js": "^13.8.0",
+    "megajs": "^1.0.4"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",

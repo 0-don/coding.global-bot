@@ -1,0 +1,106 @@
+{
+  "title": "Programming Languages",
+  "description": "Select your programming languages:",
+  "reactions": [
+    {
+      "name": "Visual Basic",
+      "value": "[docs](https://docs.microsoft.com/en-gb/dotnet/visual-basic/)",
+      "emoji": "visualbasic"
+    },
+    {
+      "name": "Assembly",
+      "value": "[guide](https://www.tutorialspoint.com/assembly_programming/index.htm)",
+      "emoji": "assembly"
+    },
+    {
+      "name": "Shell",
+      "value": "[guide](https://www.shellscript.sh/)",
+      "emoji": "shell"
+    },
+    {
+      "name": "Lua",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "lua"
+    },
+    {
+      "name": "Dart",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "dart"
+    },
+    {
+      "name": "Rust",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "rust"
+    },
+    {
+      "name": "Kotlin",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "kotlin"
+    },
+    {
+      "name": "PowerShell",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "powershell"
+    },
+    {
+      "name": "Go",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "go"
+    },
+    {
+      "name": "Scala",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "scala"
+    },
+    {
+      "name": "Objective-C",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "objectivec"
+    },
+    {
+      "name": "Swift",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "swift"
+    },
+    {
+      "name": "C",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "clang"
+    },
+    {
+      "name": "Ruby",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "ruby"
+    },
+    {
+      "name": "C++",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "cplusplus"
+    },
+    {
+      "name": "C#",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "csharp"
+    },
+    {
+      "name": "PHP",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "php"
+    },
+    {
+      "name": "Java",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "java"
+    },
+    {
+      "name": "Python",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "python"
+    },
+    {
+      "name": "Javascript",
+      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "emoji": "javascript"
+    }
+  ]
+}

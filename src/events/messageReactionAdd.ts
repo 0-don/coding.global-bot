@@ -12,7 +12,6 @@ export default {
     reaction: MessageReaction | PartialMessageReaction,
     user: User | PartialUser
   ) {
-    console.log(reaction)
     // When a reaction is received, check if the structure is partial
     if (reaction.partial) {
       // If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled

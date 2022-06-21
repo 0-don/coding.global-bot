@@ -12,7 +12,7 @@ export default {
     reaction: MessageReaction | PartialMessageReaction,
     user: User | PartialUser
   ) {
-    console.log(reaction)
+
     // When a reaction is received, check if the structure is partial
     if (reaction.partial) {
       // If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
@@ -24,14 +24,14 @@ export default {
         return;
       }
     }
-
+    console.log(reaction.message);
     // Now the message has been cached and is fully available
-    console.log(
-      `${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`
-    );
-    // The reaction is now also fully available and the properties will be reflected accurately:
-    console.log(
-      `${reaction.count} user(s) have given the same reaction to this message!`
-    );
+    // console.log(
+    //   `${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`
+    // );
+    // // The reaction is now also fully available and the properties will be reflected accurately:
+    // console.log(
+    //   `${reaction.count} user(s) have given the same reaction to this message!`
+    // );
   },
 };

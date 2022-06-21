@@ -1,33 +1,32 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import {
+import fs from 'fs';
+import type {
   CacheType,
   CommandInteraction,
   Message,
-  MessageEmbed,
+  MessageEmbedOptions,
 } from 'discord.js';
+import type { RoleTemplateReaction } from '../types/types';
+import path from 'path';
 
-const exampleEmbed = new MessageEmbed()
-  .setColor('#fd0000')
-  .setTitle('Server Roles')
-  .setAuthor({
-    name: 'discord.global',
-    iconURL:
+const exampleEmbed: MessageEmbedOptions = {
+  color: '#fd0000',
+  title: 'Server Roles',
+  description: 'Select your roles',
+  fields: [],
+  timestamp: new Date(),
+  footer: {
+    text: 'coding.global',
+    icon_url:
       'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png',
-    url: 'https://coding.global',
-  })
-  .setDescription('Select your roles')
-  .setThumbnail(
-    'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png'
-  )
-  .addFields(
-    { name: 'Regular field title', value: 'Some value here' },
-    { name: '\u200B', value: '\u200B' }
-  )
-  .setFooter({
-    text: 'Some footer text here',
-    iconURL:
-      'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png',
-  });
+  },
+};
+
+const roleTemplatePath = path.join(
+  __dirname,
+  '../roleTemplates',
+  'roleTemplate.json'
+);
 
 export default {
   data: new SlashCommandBuilder()
@@ -41,17 +40,49 @@ export default {
       // .setRequired(true)
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
-    const string = interaction.options.getString('input');
+    // const string = interaction.options.getString('input');
+
+    const template = JSON.parse(
+      fs.readFileSync(roleTemplatePath, 'utf8')
+    ) as RoleTemplateReaction;
+
+    const emojis = template.reactions.map((reaction) => {
+      if (!reaction?.emoji) return;
+      const serverEmoji = interaction.client.emojis.cache.find(
+        (emoji) => emoji.name === reaction.emoji
+      );
+      return `<:${reaction.emoji}:${serverEmoji?.id}>`;
+    });
+
+    exampleEmbed.title = template.title ?? exampleEmbed.title;
+    exampleEmbed.description = template.description ?? exampleEmbed.description;
+
+    template.reactions.forEach((reaction, i) => {
+      if (!reaction) return;
+      exampleEmbed.fields?.push({
+        name: `${emojis[i]} ${reaction.name}`,
+        value: reaction.value,
+        inline: true,
+      });
+    });
+
+    // push empty to make it look nice if uneven ammount
+    if (template.reactions.length % 3 === 2) {
+      exampleEmbed.fields?.push({
+        name: '\u200b',
+        value: '\u200b',
+        inline: true,
+      });
+    }
 
     const message = await interaction.reply({
       embeds: [exampleEmbed],
-      // content: 'Select your roles',
       fetchReply: true,
     });
 
-    (message as Message<boolean>).react(
-      interaction.client.emojis.cache.find((emoji) => emoji.name === 'windows')!
-        .id
-    );
+    emojis.forEach((emoji) => {
+      if (!emoji) return;
+      (message as Message<boolean>).react(emoji);
+    });
   },
 };
