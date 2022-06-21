@@ -24,82 +24,82 @@
     },
     {
       "name": "Dart",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://dart.dev/guides)",
       "emoji": "dart"
     },
     {
       "name": "Rust",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[guide](https://www.rust-lang.org/learn)",
       "emoji": "rust"
     },
     {
       "name": "Kotlin",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://kotlinlang.org/docs/home.html)",
       "emoji": "kotlin"
     },
     {
       "name": "PowerShell",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://docs.microsoft.com/en-gb/powershell/)",
       "emoji": "powershell"
     },
     {
       "name": "Go",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://go.dev/doc/) || [guide](https://go.dev/learn/)",
       "emoji": "go"
     },
     {
       "name": "Scala",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://docs.scala-lang.org/)",
       "emoji": "scala"
     },
     {
       "name": "Objective-C",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ProgrammingWithObjectiveC/Introduction/Introduction.html)",
       "emoji": "objectivec"
     },
     {
       "name": "Swift",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://www.swift.org/documentation/)",
       "emoji": "swift"
     },
     {
       "name": "C",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://devdocs.io/c/)",
       "emoji": "clang"
     },
     {
       "name": "Ruby",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://www.ruby-lang.org/en/documentation/)",
       "emoji": "ruby"
     },
     {
       "name": "C++",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://docs.microsoft.com/en-gb/cpp/?view=msvc-170)",
       "emoji": "cplusplus"
     },
     {
       "name": "C#",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://docs.microsoft.com/en-gb/dotnet/csharp/)",
       "emoji": "csharp"
     },
     {
       "name": "PHP",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://www.php.net/manual/de/intro-whatis.php)",
       "emoji": "php"
     },
     {
       "name": "Java",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://docs.oracle.com/en/java/)",
       "emoji": "java"
     },
     {
       "name": "Python",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://docs.python.org/3/) || [guide](https://docs.python.org/3/tutorial/)",
       "emoji": "python"
     },
     {
       "name": "Javascript",
-      "value": "[docs](https://www.lua.org/docs.html) || [guide](https://www.lua.org/pil/1.html)",
+      "value": "[docs](https://developer.mozilla.org/en/docs/Web/JavaScript) || [guide](https://developer.mozilla.org/en-US/docs/Learn/JavaScript)",
       "emoji": "javascript"
     }
   ]

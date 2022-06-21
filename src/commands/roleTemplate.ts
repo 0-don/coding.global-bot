@@ -25,7 +25,7 @@ const exampleEmbed: MessageEmbedOptions = {
 const roleTemplatePath = path.join(
   __dirname,
   '../roleTemplates',
-  'roleTemplate.json'
+  'programming-languages.json'
 );
 
 export default {
@@ -35,7 +35,7 @@ export default {
     .addStringOption(
       (option) =>
         option
-          .setName('input')
+          .setName('json')
           .setDescription('JSON input for the role template')
       // .setRequired(true)
     ),
@@ -46,6 +46,7 @@ export default {
       fs.readFileSync(roleTemplatePath, 'utf8')
     ) as RoleTemplateReaction;
 
+    // parse emojis
     const emojis = template.reactions.map((reaction) => {
       if (!reaction?.emoji) return;
       const serverEmoji = interaction.client.emojis.cache.find(
@@ -57,6 +58,7 @@ export default {
     exampleEmbed.title = template.title ?? exampleEmbed.title;
     exampleEmbed.description = template.description ?? exampleEmbed.description;
 
+    // push template values into embed fields
     template.reactions.forEach((reaction, i) => {
       if (!reaction) return;
       exampleEmbed.fields?.push({
@@ -75,11 +77,13 @@ export default {
       });
     }
 
+    // create embeded message
     const message = await interaction.reply({
       embeds: [exampleEmbed],
       fetchReply: true,
     });
 
+    // create emoji reactions
     emojis.forEach((emoji) => {
       if (!emoji) return;
       (message as Message<boolean>).react(emoji);
