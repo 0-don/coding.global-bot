@@ -7,7 +7,7 @@ import type {
 
 export default {
   name: 'messageReactionAdd',
-  once: true,
+  once: false,
   async execute(
     reaction: MessageReaction | PartialMessageReaction,
     user: User | PartialUser

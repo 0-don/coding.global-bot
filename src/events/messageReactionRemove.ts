@@ -7,7 +7,7 @@ import type {
 
 export default {
   name: 'messageReactionRemove',
-  once: true,
+  once: false,
   async execute(
     reaction: MessageReaction | PartialMessageReaction,
     user: User | PartialUser

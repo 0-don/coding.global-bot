@@ -1,3 +1,5 @@
+import type { MessageEmbedOptions } from 'discord.js';
+
 export type RoleTemplateReactionValues = {
   name: string;
   value: string;
@@ -30,4 +32,10 @@ export type RoleTemplateReaction = {
   title: string;
   description: string;
   reactions: RoleTemplateReactionTuple;
+};
+
+export type CreateRoleTemplateEmbed = {
+  error: string | undefined;
+  emojis: (string | undefined)[] | undefined;
+  roleTemplateEmbed: MessageEmbedOptions | undefined;
 };

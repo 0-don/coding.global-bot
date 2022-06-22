@@ -42,11 +42,9 @@ for (const file of eventFiles) {
   }
 }
 
-
-// client.once('', () => {
-//   console.log('Ready!');
+// client.on('messageCreate', (msg, test) => {
+//   console.log(msg);
 // });
-
 
 // client.on('interactionCreate', async (interaction) => {
 //   if (!interaction.isCommand()) return;

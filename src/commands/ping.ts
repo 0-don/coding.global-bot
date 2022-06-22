@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import type { CacheType, CommandInteraction, Message } from 'discord.js';
+import type { CacheType, CommandInteraction } from 'discord.js';
 
 export default {
   data: new SlashCommandBuilder()
