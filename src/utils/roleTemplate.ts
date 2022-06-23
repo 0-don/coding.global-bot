@@ -4,7 +4,6 @@ import type {
   RoleTemplateReaction,
 } from '../types/types';
 
-
 export const roleTemplateExampleEmbed: MessageEmbedOptions = {
   color: '#fd0000',
   title: 'Server Roles',
@@ -73,14 +72,37 @@ export function createRoleTemplateEmbed(
 export function parseRoleTemplateFromMsg(
   msg: Message<boolean>
 ): RoleTemplateReaction {
+  // get embed from message
   const embed = msg.embeds[0];
 
+  // parse emojis data from msg
+  const emojis = msg.reactions.cache.map(
+    // @ts-ignore
+    (emoji) => ({ name: emoji._emoji.name, id: emoji._emoji.id })
+  ) as { name: string; id: string }[];
+
+  // recreate input role template json
   const roleTemplate = {
     title: embed?.title!,
     description: embed?.description!,
-    reactions: embed?.fields.map((field, i) => {
-      return { name: field.name, value: field.value, emoji: '' };
-    })!,
+    reactions: embed?.fields
+      // remove invisible whitespace
+      .filter((reaction) => reaction.name !== '\u200b')
+      .map((field, i) => {
+        const emojiId = emojis[i]!.id;
+        const emojiName = emojis[i]!.name;
+        const emojiString = `<:${emojiName}:${emojiId}>`;
+        return {
+          name: field.name
+            // remove invisible whitespace
+            .replaceAll('\u2800', '')
+            // remove emnoji
+            .replaceAll(emojiString, '')
+            .trim(),
+          value: field.value,
+          emoji: emojiName,
+        };
+      })!,
   } as RoleTemplateReaction;
 
   return roleTemplate;
