@@ -1,34 +1,30 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import fs from 'fs';
 import type { CacheType, CommandInteraction, Message } from 'discord.js';
 import type { RoleTemplateReaction } from '../types/types';
-import path from 'path';
 import { createRoleTemplateEmbed } from '../utils/roleTemplate';
-
-const roleTemplatePath = path.join(
-  __dirname,
-  '../roleTemplates',
-  'programming-languages.json'
-);
+import { PermissionFlagsBits } from 'discord-api-types/v9';
+import { parseJSON } from '../utils/parseJSON';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('role-template')
+    .setName('create-role-template')
     .setDescription('Create a role template from JSON')
-    .addStringOption(
-      (option) =>
-        option
-          .setName('json')
-          .setDescription('JSON input for the role template')
-      // .setRequired(true)
+    .addStringOption((option) =>
+      option
+        .setName('json')
+        .setDescription('JSON input for the role template')
+        .setRequired(true)
+    )
+    .setDefaultMemberPermissions(
+      PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
-    // const string = interaction.options.getString('input');
-
-    const inputTemplate = JSON.parse(
-      fs.readFileSync(roleTemplatePath, 'utf8')
+    // get message id
+    const inputTemplate = parseJSON(
+      interaction.options.getString('json')!
     ) as RoleTemplateReaction;
 
+    // create role template from input or get error
     const { roleTemplateEmbed, emojis } = createRoleTemplateEmbed(
       inputTemplate,
       interaction.client
@@ -42,6 +38,8 @@ export default {
       embeds: [roleTemplateEmbed],
       fetchReply: true,
     });
+
+    console.log(emojis);
 
     // create emoji reactions
     emojis.forEach((emoji) => {

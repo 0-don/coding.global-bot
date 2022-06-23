@@ -1,6 +1,4 @@
-import { Client, Message, MessageEmbedOptions, Permissions } from 'discord.js';
-import path from 'path';
-import fs from 'fs';
+import type { Client, MessageEmbedOptions } from 'discord.js';
 import type {
   CreateRoleTemplateEmbed,
   RoleTemplateReaction,
@@ -19,16 +17,11 @@ export const roleTemplateExampleEmbed: MessageEmbedOptions = {
   },
 };
 
-const roleTemplatePath = path.join(
-  __dirname,
-  '../roleTemplates',
-  'programming-languages.json'
-);
-
 export const createRoleTemplateEmbed = (
   inputTemplate: RoleTemplateReaction,
   client: Client<boolean>
 ): CreateRoleTemplateEmbed => {
+  // copy embed example
   const roleTemplateEmbed = JSON.parse(
     JSON.stringify(roleTemplateExampleEmbed)
   ) as MessageEmbedOptions;
@@ -42,6 +35,7 @@ export const createRoleTemplateEmbed = (
     return `<:${reaction.emoji}:${serverEmoji?.id}>`;
   });
 
+  // set embed title and description
   roleTemplateEmbed.title = inputTemplate.title;
   roleTemplateEmbed.description = inputTemplate.description;
 
@@ -69,55 +63,4 @@ export const createRoleTemplateEmbed = (
     emojis,
     roleTemplateEmbed,
   };
-};
-
-export const editRoleTemplateEmbed = async (msg: Message<boolean>) => {
-  if (
-    msg.type === 'REPLY' &&
-    msg.reference?.messageId &&
-    msg.content.includes('/editRoleTemplate')
-  ) {
-    const user = await msg.guild?.members.fetch(msg.author.id);
-
-    // check if user has permission to edit the message
-    if (
-      !user?.permissions.has([
-        Permissions.FLAGS.KICK_MEMBERS,
-        Permissions.FLAGS.BAN_MEMBERS,
-      ])
-    ) {
-      return;
-    }
-
-    const json = msg.content
-      .replace('/editRoleTemplate', '')
-      .replaceAll('```', '')
-      .trim();
-    console.log(json);
-    const inputTemplate = JSON.parse(json) as RoleTemplateReaction;
-
-    // parse input template
-    // const inputTemplate = JSON.parse(
-    //   fs.readFileSync(roleTemplatePath, 'utf8')
-    // ) as RoleTemplateReaction;
-
-    // create embeded message or error
-    const { roleTemplateEmbed } = createRoleTemplateEmbed(
-      inputTemplate,
-      msg.client
-    );
-
-    console.log(roleTemplateEmbed);
-
-    if (!roleTemplateEmbed) {
-      return;
-    }
-
-    // get reply message by id
-    const replyMsg = await msg.channel.messages.fetch(msg.reference?.messageId);
-    // edit embeded message
-    await replyMsg.edit({ embeds: [roleTemplateEmbed] });
-
-    await msg.delete();
-  }
 };
