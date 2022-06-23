@@ -38,9 +38,11 @@ export default {
 
     // check if exits and if it is an embeded message
     if (!msg || msg.type !== 'APPLICATION_COMMAND') {
-      interaction.reply(
-        "I can't find the message you're referring to or it's not an embeded message."
-      );
+      interaction.reply({
+        content:
+          "I can't find the message you're referring to or it's not an embeded message.",
+        ephemeral: true,
+      });
       return;
     }
 
@@ -52,11 +54,20 @@ export default {
 
     // error found while creating role template
     if (!roleTemplateEmbed || error) {
-      await interaction.reply(error ?? 'Something went wrong.');
+      interaction.reply({
+        content: error ?? 'Something went wrong.',
+        ephemeral: true,
+      });
       return;
     }
 
     // edit embeded message
-    await msg.edit({ embeds: [roleTemplateEmbed] });
+    msg.edit({ embeds: [roleTemplateEmbed] });
+
+    // notify it worked
+    interaction.reply({
+      content: "I've edited the message.",
+      ephemeral: true,
+    });
   },
 };

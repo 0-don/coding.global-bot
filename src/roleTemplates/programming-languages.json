@@ -3,7 +3,7 @@
   "description": "Select your programming languages:",
   "reactions": [
     {
-      "name": "Visual Basic",
+      "name": "Visual Basic xxx",
       "value": "[docs](https://docs.microsoft.com/en-gb/dotnet/visual-basic/)",
       "emoji": "visualbasic"
     },

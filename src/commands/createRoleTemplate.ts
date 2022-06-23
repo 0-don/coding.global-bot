@@ -25,12 +25,17 @@ export default {
     ) as RoleTemplateReaction;
 
     // create role template from input or get error
-    const { roleTemplateEmbed, emojis } = createRoleTemplateEmbed(
+    const { roleTemplateEmbed, emojis, error } = createRoleTemplateEmbed(
       inputTemplate,
       interaction.client
     );
 
-    if (!roleTemplateEmbed || !emojis) {
+    // error found while creating role template
+    if (!roleTemplateEmbed || !emojis || error) {
+      interaction.reply({
+        content: error ?? 'Something went wrong.',
+        ephemeral: true,
+      });
       return;
     }
     // create embeded message
@@ -38,8 +43,6 @@ export default {
       embeds: [roleTemplateEmbed],
       fetchReply: true,
     });
-
-    console.log(emojis);
 
     // create emoji reactions
     emojis.forEach((emoji) => {

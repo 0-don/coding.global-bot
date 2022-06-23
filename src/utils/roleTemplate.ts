@@ -17,10 +17,14 @@ export const roleTemplateExampleEmbed: MessageEmbedOptions = {
   },
 };
 
-export const createRoleTemplateEmbed = (
+export function createRoleTemplateEmbed(
   inputTemplate: RoleTemplateReaction,
   client: Client<boolean>
-): CreateRoleTemplateEmbed => {
+): CreateRoleTemplateEmbed {
+  //validate input
+  const error = validateRoleTemplate(inputTemplate, client);
+  if (error) return { roleTemplateEmbed: undefined, emojis: undefined, error };
+
   // copy embed example
   const roleTemplateEmbed = JSON.parse(
     JSON.stringify(roleTemplateExampleEmbed)
@@ -63,4 +67,24 @@ export const createRoleTemplateEmbed = (
     emojis,
     roleTemplateEmbed,
   };
-};
+}
+
+export function validateRoleTemplate(
+  inputTemplate: RoleTemplateReaction,
+  client: Client<boolean>
+) {
+  let error = '';
+  if (!inputTemplate) return 'No input provided.';
+  if (!inputTemplate.title) return 'Title is required';
+  if (!inputTemplate.description) return 'Description is required';
+
+  inputTemplate.reactions.forEach((reaction, i) => {
+    const emoji = client.emojis.cache.find(
+      (emoji) => emoji.name === reaction?.emoji
+    );
+    if (!reaction?.name) error += `${i + 1}. Name is required\n`;
+    if (!emoji) error += `${i + 1}. Emoji is required or didnt found\n`;
+  });
+
+  return error;
+}
