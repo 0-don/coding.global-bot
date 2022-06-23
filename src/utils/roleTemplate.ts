@@ -1,8 +1,9 @@
-import type { Client, MessageEmbedOptions } from 'discord.js';
+import type { Client, Message, MessageEmbedOptions } from 'discord.js';
 import type {
   CreateRoleTemplateEmbed,
   RoleTemplateReaction,
 } from '../types/types';
+
 
 export const roleTemplateExampleEmbed: MessageEmbedOptions = {
   color: '#fd0000',
@@ -11,7 +12,7 @@ export const roleTemplateExampleEmbed: MessageEmbedOptions = {
   fields: [],
   timestamp: new Date(),
   footer: {
-    text: 'coding.global',
+    text: 'role template',
     icon_url:
       'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png',
   },
@@ -67,6 +68,22 @@ export function createRoleTemplateEmbed(
     emojis,
     roleTemplateEmbed,
   };
+}
+
+export function parseRoleTemplateFromMsg(
+  msg: Message<boolean>
+): RoleTemplateReaction {
+  const embed = msg.embeds[0];
+
+  const roleTemplate = {
+    title: embed?.title!,
+    description: embed?.description!,
+    reactions: embed?.fields.map((field, i) => {
+      return { name: field.name, value: field.value, emoji: '' };
+    })!,
+  } as RoleTemplateReaction;
+
+  return roleTemplate;
 }
 
 export function validateRoleTemplate(

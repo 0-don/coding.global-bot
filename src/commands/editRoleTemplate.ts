@@ -37,13 +37,12 @@ export default {
     const msg = await interaction.channel?.messages.fetch(messageID!);
 
     // check if exits and if it is an embeded message
-    if (!msg || msg.type !== 'APPLICATION_COMMAND') {
-      interaction.reply({
+    if (!msg || msg.embeds[0]?.footer?.text !== 'role template') {
+      return interaction.reply({
         content:
-          "I can't find the message you're referring to or it's not an embeded message.",
+          "I can't find the message you're referring to OR\nit's not a role template.",
         ephemeral: true,
       });
-      return;
     }
 
     // create role template from input or get error
@@ -54,11 +53,10 @@ export default {
 
     // error found while creating role template
     if (!roleTemplateEmbed || error) {
-      interaction.reply({
+      return interaction.reply({
         content: error ?? 'Something went wrong.',
         ephemeral: true,
       });
-      return;
     }
 
     // edit embeded message
