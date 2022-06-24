@@ -14,7 +14,7 @@ jobs:
       - name: Create env file
         run: |
           touch .env
-          echo TOKEN=${{ secrets.PORT }} >> .env
+          echo TOKEN=${{ secrets.TOKEN }} >> .env
           echo CLIENT_ID=${{ secrets.CLIENT_ID }} >> .env
           echo GUILD_ID=${{ secrets.GUILD_ID }} >> .env
           echo MEGA_EMAIL=${{ secrets.MEGA_EMAIL }} >> .env
