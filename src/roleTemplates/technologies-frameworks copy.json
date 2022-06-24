@@ -1,0 +1,106 @@
+{
+  "title": "Technologies & Frameworks",
+  "description": "Select technologies & frameworks that you are familiar with:",
+  "reactions": [
+    {
+      "name": "CSS",
+      "value": "[docs](https://developer.mozilla.org/en/docs/Web/CSS)",
+      "emoji": "css"
+    },
+    {
+      "name": "HTML",
+      "value": "[docs](https://developer.mozilla.org/en/docs/Web/HTML)",
+      "emoji": "html"
+    },
+    {
+      "name": "JQuery",
+      "value": "[guide](https://jquery.com/)",
+      "emoji": "jquery"
+    },
+    {
+      "name": "Flask",
+      "value": "[docs](https://flask.palletsprojects.com/en/2.1.x/)",
+      "emoji": "flask"
+    },
+    {
+      "name": "Django",
+      "value": "[docs](https://www.djangoproject.com/)",
+      "emoji": "django"
+    },
+    {
+      "name": "Electron",
+      "value": "[docs](https://www.electronjs.org/docs/latest)",
+      "emoji": "electron"
+    },
+    {
+      "name": "Spring",
+      "value": "[docs](https://docs.spring.io/spring-framework/docs/current/reference/html/)",
+      "emoji": "spring"
+    },
+    {
+      "name": "ASP.NET",
+      "value": "[docs](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-6.0)",
+      "emoji": "aspnet"
+    },
+    {
+      "name": "Docker",
+      "value": "[docs](https://docs.docker.com/)",
+      "emoji": "docker"
+    },
+    {
+      "name": "Laravel",
+      "value": "[docs](https://laravel.com/docs/9.x/installation)",
+      "emoji": "laravel"
+    },
+    {
+      "name": "Xamarin",
+      "value": "[docs](https://docs.microsoft.com/en-us/xamarin/)",
+      "emoji": "xamarin"
+    },
+    {
+      "name": "Flutter",
+      "value": "[docs](https://docs.flutter.dev/)",
+      "emoji": "flutter"
+    },
+    {
+      "name": "React Native",
+      "value": "[docs](https://reactnative.dev/docs/getting-started)",
+      "emoji": "reactnative"
+    },
+    {
+      "name": "REST",
+      "value": "[docs](https://restfulapi.net/rest-api-design-tutorial-with-example/)",
+      "emoji": "rest"
+    },
+    {
+      "name": "GraphQL",
+      "value": "[guide](https://graphql.org/learn/)",
+      "emoji": "graphql"
+    },
+    {
+      "name": "Typescript",
+      "value": "[docs](https://devdocs.io/c/)",
+      "emoji": "typescript"
+    },
+    {
+      "name": "Nodejs",
+      "value": "[docs](https://nodejs.org/en/docs/)",
+      "emoji": "nodejs"
+    },
+    {
+      "name": "Vue.js",
+      "value": "[guide](https://vuejs.org/guide/introduction.html)",
+      "emoji": "vuejs"
+    },
+    {
+      "name": "Angular",
+      "value": "[docs](https://angular.io/docs)",
+      "emoji": "angular"
+    },
+    {
+      "name": "React",
+      "value": "[docs](https://reactjs.org/docs/getting-started.html)",
+      "emoji": "react"
+    }
+  ]
+}

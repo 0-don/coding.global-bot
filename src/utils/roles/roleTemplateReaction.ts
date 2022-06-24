@@ -18,6 +18,7 @@ export const switchRoleFromTemplate = (
 ) => {
   const isTemplate = reaction.message.embeds[0]?.footer?.text;
   if (!isTemplate) return;
+  if (user.id === reaction.message.author?.id) return;
 
   // @ts-ignore
   const roleString = reaction._emoji.name;

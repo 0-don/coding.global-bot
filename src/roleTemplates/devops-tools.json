@@ -1,0 +1,106 @@
+{
+  "title": "DevOps & Tools",
+  "description": "Select devops & tools that you are familiar with:",
+  "reactions": [
+    {
+      "name": "SQL",
+      "value": "[guide](https://www.w3schools.com/sql/)",
+      "emoji": "sql"
+    },
+    {
+      "name": "MSSQL",
+      "value": "[guide](https://docs.microsoft.com/en-us/sql/?view=sql-server-ver16)",
+      "emoji": "mssql"
+    },
+    {
+      "name": "Firebase",
+      "value": "[guide](https://firebase.google.com/docs)",
+      "emoji": "firebase"
+    },
+    {
+      "name": "MongoDB",
+      "value": "[docs](https://www.mongodb.com/docs/)",
+      "emoji": "mongodb"
+    },
+    {
+      "name": "OracleDB",
+      "value": "[docs](https://docs.oracle.com/en/database/l)",
+      "emoji": "oracledb"
+    },
+    {
+      "name": "MySQL",
+      "value": "[docs](https://dev.mysql.com/doc/)",
+      "emoji": "mysql"
+    },
+    {
+      "name": "MariaDB",
+      "value": "[docs](https://mariadb.com/kb/en/documentation/)",
+      "emoji": "mariadb"
+    },
+    {
+      "name": "PostgreSQL",
+      "value": "[guide](https://www.postgresql.org/docs/)",
+      "emoji": "postgresql"
+    },
+    {
+      "name": "CMS",
+      "value": "[docs](https://en.wikipedia.org/wiki/Content-Management-System)",
+      "emoji": "cms"
+    },
+    {
+      "name": "Mac OS",
+      "value": "[docs](https://developer.apple.com/macos/)",
+      "emoji": "macos"
+    },
+    {
+      "name": "Linux",
+      "value": "[docs](https://docs.kernel.org/)",
+      "emoji": "linux"
+    },
+    {
+      "name": "Windows",
+      "value": "[docs](https://docs.microsoft.com/en-us/windows/)",
+      "emoji": "windows"
+    },
+    {
+      "name": "Windows Server",
+      "value": "[docs](https://docs.microsoft.com/en-us/windows-server/)",
+      "emoji": "winserver"
+    },
+    {
+      "name": "DevOps",
+      "value": "[docs](https://en.wikipedia.org/wiki/DevOps)",
+      "emoji": "devops"
+    },
+    {
+      "name": "IT-Security",
+      "value": "[docs](https://en.wikipedia.org/wiki/Information_security)",
+      "emoji": "itsecurity"
+    },
+    {
+      "name": "Sysadmin",
+      "value": "[docs](https://en.wikipedia.org/wiki/System_administrator)",
+      "emoji": "sysadmin"
+    },
+    {
+      "name": "Google Cloud",
+      "value": "[docs](https://cloud.google.com/docs?hl=de)",
+      "emoji": "gcloud"
+    },
+    {
+      "name": "Azure",
+      "value": "[docs](https://docs.microsoft.com/en-us/azure/?product=popular)",
+      "emoji": "azure"
+    },
+    {
+      "name": "AWS",
+      "value": "[docs](https://docs.aws.amazon.com/)",
+      "emoji": "aws"
+    },
+    {
+      "name": "Scratch",
+      "value": "[guide](https://scratch.mit.edu/developers)",
+      "emoji": "scratch"
+    }
+  ]
+}
