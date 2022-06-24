@@ -2,6 +2,7 @@
   // Mapped from https://www.typescriptlang.org/tsconfig
   "compilerOptions": {
     // Type Checking
+    "skipLibCheck": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     // if true: conflicts with discord-api-types
@@ -21,7 +22,7 @@
     "resolveJsonModule": true,
 
     // Emit
-    "declaration": true,
+    "declaration": false,
     "importHelpers": true,
     "importsNotUsedAsValues": "error",
     "inlineSources": true,

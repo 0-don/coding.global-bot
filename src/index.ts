@@ -2,6 +2,7 @@ import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 import { Client, Collection, Intents } from 'discord.js';
+import './deploy-commands';
 
 const token = process.env.TOKEN;
 
