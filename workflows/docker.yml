@@ -1,0 +1,26 @@
+name: Docker Prod
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Create env file
+        run: |
+          touch .env
+          echo TOKEN=${{ secrets.PORT }} >> .env
+          echo CLIENT_ID=${{ secrets.CLIENT_ID }} >> .env
+          echo GUILD_ID=${{ secrets.GUILD_ID }} >> .env
+          echo MEGA_EMAIL=${{ secrets.MEGA_EMAIL }} >> .env
+          echo MEGA_PASSWORD=${{ secrets.MEGA_PASSWORD }} >> .env
+          echo MEGA_DIR=${{ secrets.MEGA_DIR }} >> .env
+          cat .env
+
+      - name: Docker run
+        run: docker-compose up -d --force-recreate --build
