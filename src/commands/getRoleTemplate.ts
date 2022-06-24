@@ -1,10 +1,9 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
-import fs from 'fs';
-import { Storage } from 'megajs';
 import { parseRoleTemplateFromMsg } from '../utils/roleTemplate';
 import { v4 as uuidv4 } from 'uuid';
+import { megaUpload } from '../utils/megaUpload';
 
 export default {
   data: new SlashCommandBuilder()
@@ -34,46 +33,18 @@ export default {
         ephemeral: true,
       });
     }
-
-    // get role template from message
-    const roleTemplate = parseRoleTemplateFromMsg(msg);
+    // await for response
     await interaction.deferReply();
 
-    // send role template as json
-    const storage = await new Storage({
-      email: process.env.MEGA_EMAIL,
-      password: process.env.MEGA_PASSWORD,
-    }).ready;
+    // get role template from message
+    const roleTemplate = JSON.stringify(parseRoleTemplateFromMsg(msg), null, 4);
+    // unique id for the file
+    const fileName = `./${uuidv4()}-roleTemplate.json`;
 
-    try {
-      // unique id for the file
-      const fileName = `./${uuidv4()}-roleTemplate.json`;
-      // create temp file with formatted json
-      fs.writeFileSync(fileName, JSON.stringify(roleTemplate, null, 4));
-      // read file as buffer
-      const jsonFile = fs.readFileSync(fileName);
-      // delete temp file
-      fs.unlinkSync(fileName);
+    // upload file to mega
+    const content = await megaUpload(roleTemplate, fileName);
 
-      // create folder if it doesn't exist
-      await storage.mkdir(process.env.MEGA_DIR);
-
-      // upload file to mega
-      storage.root.children
-        // search for created folder
-        ?.find((e) => e.name === process.env.MEGA_DIR)
-        // upload to specifc folder
-        ?.upload(fileName.replace('./', ''), jsonFile, async (_, file) => {
-          // create link from uploaded file
-          const link = await file.link({ noKey: false });
-          // send link to channel
-          interaction.editReply({ content: link });
-        });
-    } catch (error) {
-      // catch error and send it to user
-      interaction.editReply({
-        content: 'Something went wrong while uploading the file.',
-      });
-    }
+    // respond with either error or link
+    interaction.editReply({ content });
   },
 };
