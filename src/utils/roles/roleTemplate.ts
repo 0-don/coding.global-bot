@@ -1,8 +1,8 @@
 import type { Client, Message, MessageEmbedOptions } from 'discord.js';
 import type {
-  CreateRoleTemplateEmbed,
   RoleTemplateReaction,
-} from '../types/types';
+  CreateRoleTemplateEmbed,
+} from '../../types/types';
 
 export const roleTemplateExampleEmbed: MessageEmbedOptions = {
   color: '#fd0000',

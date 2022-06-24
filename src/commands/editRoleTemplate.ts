@@ -3,7 +3,8 @@ import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
 import type { RoleTemplateReaction } from '../types/types';
 import { parseJSON } from '../utils/parseJSON';
-import { createRoleTemplateEmbed } from '../utils/roleTemplate';
+import { createRoleTemplateEmbed } from '../utils/roles/roleTemplate';
+
 
 export default {
   data: new SlashCommandBuilder()

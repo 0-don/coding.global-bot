@@ -1,9 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
-import { parseRoleTemplateFromMsg } from '../utils/roleTemplate';
+
 import { v4 as uuidv4 } from 'uuid';
 import { megaUpload } from '../utils/megaUpload';
+import { parseRoleTemplateFromMsg } from '../utils/roles/roleTemplate';
 
 export default {
   data: new SlashCommandBuilder()
