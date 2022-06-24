@@ -37,7 +37,7 @@ export default {
     await interaction.deferReply();
 
     // get role template from message
-    const roleTemplate = JSON.stringify(parseRoleTemplateFromMsg(msg), null, 4);
+    const roleTemplate = JSON.stringify(parseRoleTemplateFromMsg(msg), null, 1);
     // unique id for the file
     const fileName = `./${uuidv4()}-roleTemplate.json`;
 
