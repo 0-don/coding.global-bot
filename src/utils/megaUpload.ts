@@ -19,7 +19,7 @@ export const megaUpload = async (input: string, fileName: string) => {
     let folder = storage.root.children?.find(
       (e) => e.name === process.env.MEGA_DIR
     );
-    
+
     // create folder if it doesn't exist
     if (!folder) folder = await storage.mkdir({ name: process.env.MEGA_DIR });
 

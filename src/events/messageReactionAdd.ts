@@ -4,6 +4,8 @@ import type {
   PartialUser,
   User,
 } from 'discord.js';
+import { switchRoleFromTemplate } from '../utils/roles/roleTemplateReaction';
+
 import { validateMessageReaction } from '../utils/validatemessageReaction';
 
 export default {
@@ -14,7 +16,6 @@ export default {
     user: User | PartialUser
   ) {
     if (!validateMessageReaction(reaction)) return;
-
-    console.log(reaction.message.embeds[0]?.footer?.text);
+    switchRoleFromTemplate(reaction, user, 'add');
   },
 };
