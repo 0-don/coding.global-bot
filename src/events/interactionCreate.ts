@@ -3,19 +3,27 @@ import type { Interaction } from 'discord.js';
 export default {
   name: 'interactionCreate',
   async execute(interaction: Interaction<'raw'>) {
-    if (!interaction.isCommand()) return;
+    // check if the interaction is a select menu
+    if (interaction.isSelectMenu()) {
+      if (interaction?.customId === 'select') {
+        console.log(interaction.values);
+        await interaction.deferUpdate();
+        return;
+      }
+      // check if the interaction is a command interaction
+    } else if (interaction.isCommand()) {
+      const command = interaction.client.commands.get(interaction.commandName);
+      if (!command) return;
 
-    const command = interaction.client.commands.get(interaction.commandName);
-    if (!command) return;
-
-    try {
-      await command.execute(interaction);
-    } catch (error) {
-      console.error(error);
-      await interaction.reply({
-        content: 'There was an error while executing this command!',
-        ephemeral: true,
-      });
+      try {
+        await command.execute(interaction);
+      } catch (error) {
+        console.error(error);
+        await interaction.reply({
+          content: 'There was an error while executing this command!',
+          ephemeral: true,
+        });
+      }
     }
   },
 };
