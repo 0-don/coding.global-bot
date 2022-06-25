@@ -11,7 +11,7 @@ const adminPermissions = [
   Permissions.FLAGS.BAN_MEMBERS,
 ];
 
-export const switchRoleFromTemplate = (
+export const switchRoleFromTemplate = async (
   reaction: MessageReaction | PartialMessageReaction,
   user: User | PartialUser,
   type: 'add' | 'remove'
@@ -31,7 +31,9 @@ export const switchRoleFromTemplate = (
   if (!member || !role) return;
   if (role.permissions.has(adminPermissions)) return;
 
-  const memberRoleExist = member.roles.cache.find(
+  await member.fetch();
+
+  const memberRoleExist = member.roles.cache.some(
     ({ name }) => name === roleString
   );
 

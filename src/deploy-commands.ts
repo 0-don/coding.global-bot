@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
-
+import { log, error } from 'console';
 
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
@@ -25,14 +25,14 @@ const rest = new REST({ version: '9' }).setToken(token);
 
 (async () => {
   try {
-    console.log('Started refreshing application (/) commands.');
+    log('Started refreshing application (/) commands.');
 
     await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
       body: commands,
     });
 
-    console.log('Successfully reloaded application (/) commands.');
-  } catch (error) {
-    console.error(error);
+    log('Successfully reloaded application (/) commands.');
+  } catch (err) {
+    error(err);
   }
 })();
