@@ -35,12 +35,12 @@ export default {
       });
     }
     // await for response
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     // get role template from message
     const roleTemplate = JSON.stringify(parseRoleTemplateFromMsg(msg), null, 1);
     // unique id for the file
-    const fileName = `./${uuidv4()}-roleTemplate.json`;
+    const fileName = `${uuidv4()}-roleTemplate.json`;
 
     // upload file to mega
     const content = await megaUpload(roleTemplate, fileName);
