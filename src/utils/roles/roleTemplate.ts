@@ -122,7 +122,10 @@ export function validateRoleTemplate(
       (emoji) => emoji.name === reaction?.emoji
     );
     if (!reaction?.name) error += `${i + 1}. Name is required\n`;
-    if (!emoji) error += `${i + 1}. Emoji is required or didnt found\n`;
+    if (!emoji)
+      error += `${i + 1}. Emoji is required or didnt found: **${
+        reaction?.emoji
+      }**\n`;
   });
 
   return error;
