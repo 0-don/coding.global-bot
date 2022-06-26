@@ -4,16 +4,21 @@ import type {
   CacheType,
   CommandInteraction,
   MessageEmbedOptions,
+  TextChannel,
 } from 'discord.js';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('verify-embed')
+    .setName('create-verify-embed')
     .setDescription('verify all users in the server')
     .setDefaultMemberPermissions(
       PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
+    const channel = (await interaction.channel?.fetch()) as TextChannel;
+
+    if (channel.name !== 'verify') return;
+
     const embed: MessageEmbedOptions = {
       color: '#fd0000',
       title: 'Verification process...',
