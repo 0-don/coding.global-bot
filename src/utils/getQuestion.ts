@@ -13,15 +13,15 @@ export const getQuestion = async (): Promise<QuestionRequest> => {
   };
 
   let i = 0;
-  while (
-    questionRequest.data.q?.length > MAX_QUESTION_LENGTH ||
-    i > MAX_RETRIES
-  ) {
+  while (questionRequest.data.q?.length > MAX_QUESTION_LENGTH) {
     try {
       questionRequest = await axios.get<QuestionRequest>(
-        'http://api.textcaptcha.com/example.json'
+        'http://api.textcaptcha.com/example.json',
+        { timeout: 750 }
       );
     } catch (_) {}
+
+    if (i > MAX_RETRIES) break;
     i++;
   }
 
