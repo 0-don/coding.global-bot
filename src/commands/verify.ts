@@ -1,45 +1,41 @@
 import path from 'path';
 import fs from 'fs';
-import { v4 as uuidv4 } from 'uuid';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import {
   CacheType,
   CommandInteraction,
   MessageActionRow,
   Modal,
+  TextChannel,
   TextInputComponent,
 } from 'discord.js';
-import axios from 'axios';
-import type { QuestionRequest } from '../types/types';
+import { v4 as uuidv4 } from 'uuid';
+import { getQuestion } from '../utils/getQuestion';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('verify')
     .setDescription('verify yourself with a catpcha question'),
   async execute(interaction: CommandInteraction<CacheType>) {
+    const channel = (await interaction.channel?.fetch()) as TextChannel;
+
+    if (channel.name !== 'verify') return;
+
     const uniqueId = uuidv4();
 
-    let questionRequest: { data: QuestionRequest } = {
-      data: {
-        q: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        a: [],
-      },
-    };
+    const question = await getQuestion();
 
-    while (questionRequest.data.q.length > 45) {
-      console.log(questionRequest.data.q.length);
-      try {
-        questionRequest = await axios.get<QuestionRequest>(
-          'http://api.textcaptcha.com/example.json'
-        );
-      } catch (_) {}
-    }
+    // create a answer file for the modal event
+    const fileName = `${uniqueId}.txt`;
+    const filePath = path.join(path.resolve(), fileName);
+    fs.writeFileSync(filePath, question.a.join('\n'));
 
     const modal = new Modal().setCustomId('verify').setTitle('Verify');
 
     const questionInput = new TextInputComponent()
       .setCustomId('questionInput')
-      .setLabel(questionRequest.data.q)
+      .setValue('')
+      .setLabel(question.q)
       .setStyle('SHORT');
 
     const idInput = new TextInputComponent()
@@ -55,6 +51,6 @@ export default {
     // @ts-ignore
     modal.addComponents(firstActionRow, secondActionRow);
 
-    await interaction.showModal(modal);
+    interaction.showModal(modal);
   },
 };
