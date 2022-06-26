@@ -7,10 +7,11 @@ export const updateUserCount = async (member: GuildMember) => {
 
   if (!memberCountChannel) return;
 
-  const memberCount = member.guild.memberCount;
-  const botCount = member.guild.members.cache.filter(
+  await member.guild.members.fetch();
+
+  const memberCount = member.guild.members.cache.filter(
     (member) => !member.user.bot
   ).size;
 
-  await memberCountChannel.setName(`Members: ${memberCount - botCount}`);
+  await memberCountChannel.setName(`Members: ${memberCount}`);
 };
