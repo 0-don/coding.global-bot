@@ -1,3 +1,4 @@
+import { error } from 'console';
 import type { Interaction } from 'discord.js';
 
 export default {
@@ -6,7 +7,6 @@ export default {
     // check if the interaction is a select menu
     if (interaction.isSelectMenu()) {
       if (interaction?.customId === 'select') {
-        console.log(interaction.values);
         await interaction.deferUpdate();
         return;
       }
@@ -17,8 +17,8 @@ export default {
 
       try {
         await command.execute(interaction);
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        error(err);
         await interaction.reply({
           content: 'There was an error while executing this command!',
           ephemeral: true,

@@ -12,6 +12,5 @@ export const updateUserCount = async (member: GuildMember) => {
     (member) => !member.user.bot
   ).size;
 
-  console.log(memberCount, botCount);
   await memberCountChannel.setName(`Members: ${memberCount - botCount}`);
 };
