@@ -39,3 +39,8 @@ export type CreateRoleTemplateEmbed = {
   emojis: (string | undefined)[] | undefined;
   roleTemplateEmbed: MessageEmbedOptions | undefined;
 };
+
+export type QuestionRequest = {
+  q: string;
+  a: string[];
+};
