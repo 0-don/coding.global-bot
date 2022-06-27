@@ -27,10 +27,30 @@ export const isModalSubmit = async (interaction: Interaction<'raw'>) => {
       );
 
       if (correct) {
-        await interaction.reply({
+        interaction.reply({
           content: 'Your submission was recieved successfully!',
           ephemeral: true,
         });
+        await interaction.channel?.guild.fetch();
+        const verifiedRole = interaction.channel?.guild.roles.cache.find(
+          (role) => role.name === 'verified'
+        );
+        const unverifiedRole = interaction.channel?.guild.roles.cache.find(
+          (role) => role.name === 'unverified'
+        );
+        const member = interaction.channel?.guild.members.cache.get(
+          interaction.user.id
+        );
+        
+        if (!verifiedRole || !member || !unverifiedRole) {
+          return interaction.reply({
+            content: 'Something went wrong, contact the admins',
+            ephemeral: true,
+          });
+        }
+
+        member.roles.remove(unverifiedRole);
+        member.roles.add(verifiedRole);
       } else {
         await interaction.reply({
           content: 'Your submission was not successfull, please try again!',
