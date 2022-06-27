@@ -45,6 +45,6 @@ for (const file of eventFiles) {
   }
 }
 // console.log(path.resolve(''));
-// client.on('voiceStateUpdate', (one, two) => {});
+// client.on('messageCreate', (one) => {});
 
 client.login(token);
