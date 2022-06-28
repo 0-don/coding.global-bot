@@ -26,7 +26,7 @@ export default {
     ) as RoleTemplateReaction;
 
     // create role template from input or get error
-    const { roleTemplateEmbed, emojis, error } = createRoleTemplateEmbed(
+    const { roleTemplateEmbed, emojis, error } = await createRoleTemplateEmbed(
       inputTemplate,
       interaction.client
     );

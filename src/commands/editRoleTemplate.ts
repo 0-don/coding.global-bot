@@ -47,7 +47,7 @@ export default {
     }
 
     // create role template from input or get error
-    const { roleTemplateEmbed, error } = createRoleTemplateEmbed(
+    const { roleTemplateEmbed, error } = await createRoleTemplateEmbed(
       inputTemplate,
       interaction.client
     );

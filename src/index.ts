@@ -44,7 +44,7 @@ for (const file of eventFiles) {
     client.on(event.name, (...args) => event.execute(...args));
   }
 }
-
-// client.on('voiceStateUpdate', (one, two) => {});
+// console.log(path.resolve(''));
+// client.on('messageCreate', (one) => {});
 
 client.login(token);
