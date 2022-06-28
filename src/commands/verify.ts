@@ -29,7 +29,7 @@ export default {
 
     // create a answer file for the modal event
     const fileName = `${uniqueId}.txt`;
-    const filePath = path.join(path.resolve(), fileName);
+    const filePath = path.join(path.resolve(), 'verifyFiles', fileName);
     fs.writeFileSync(filePath, question.a.join('\n'));
 
     const modal = new Modal().setCustomId('verify').setTitle('Verify');

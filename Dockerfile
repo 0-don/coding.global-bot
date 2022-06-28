@@ -30,6 +30,7 @@ RUN adduser -S server -u 1001
 
 
 COPY --from=builder --chown=server:nodejs /app/dist ./dist
+COPY --from=builder --chown=server:nodejs /app/verifyFiles ./verifyFiles
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.env ./.env
