@@ -60,7 +60,6 @@ export const isModalSubmit = async (interaction: Interaction<'raw'>) => {
           });
         }
 
-        member.roles.remove(unverifiedRole);
         member.roles.add(verifiedRole);
       } else {
         await interaction.reply({

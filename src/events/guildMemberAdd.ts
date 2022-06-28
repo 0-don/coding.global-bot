@@ -6,6 +6,7 @@ export default {
   name: 'guildMemberAdd',
   once: false,
   async execute(member: GuildMember) {
+
     await joinRole(member);
     await updateUserCount(member);
   },
