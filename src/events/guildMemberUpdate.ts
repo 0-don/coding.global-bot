@@ -7,7 +7,11 @@ export default {
     oldMember: GuildMember | PartialGuildMember,
     newMember: GuildMember | PartialGuildMember
   ) {
-    oldMember;
-    newMember;
+    oldMember.roles.cache.forEach((role) => {
+      console.log('old', role.name);
+    });
+    newMember.roles.cache.forEach((role) => {
+      console.log('new', role.name);
+    });
   },
 };

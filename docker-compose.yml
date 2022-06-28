@@ -1,8 +1,8 @@
 version: "3.8"
 
 services:
-  discord-global-bot:
-    container_name: discord-global-bot
+  coding-global-bot:
+    container_name: coding-global-bot
     build:
       context: ./
       dockerfile: Dockerfile
