@@ -4,3 +4,4 @@ package-lock.json
 .env
 dist
 *-roleTemplate.json
+*.txt

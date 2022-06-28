@@ -17,12 +17,12 @@ export const roleTemplateExampleEmbed: MessageEmbedOptions = {
   },
 };
 
-export function createRoleTemplateEmbed(
+export async function createRoleTemplateEmbed(
   inputTemplate: RoleTemplateReaction,
   client: Client<boolean>
-): CreateRoleTemplateEmbed {
+): Promise<CreateRoleTemplateEmbed> {
   //validate input
-  const error = validateRoleTemplate(inputTemplate, client);
+  const error = await validateRoleTemplate(inputTemplate, client);
   if (error) return { roleTemplateEmbed: undefined, emojis: undefined, error };
 
   // copy embed example
@@ -108,10 +108,11 @@ export function parseRoleTemplateFromMsg(
   return roleTemplate;
 }
 
-export function validateRoleTemplate(
+export async function validateRoleTemplate(
   inputTemplate: RoleTemplateReaction,
   client: Client<boolean>
 ) {
+  await client.guilds.fetch();
   let error = '';
   if (!inputTemplate) return 'No input provided.';
   if (!inputTemplate.title) return 'Title is required';

@@ -1,5 +1,5 @@
 import type { GuildMember } from 'discord.js';
-import { updateUserCount } from '../utils/updateUserCount';
+import { updateUserCount } from '../utils/members/updateUserCount';
 
 export default {
   name: 'guildMemberRemove',
