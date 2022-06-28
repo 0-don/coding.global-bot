@@ -67,6 +67,6 @@ export default {
       await member.roles.add(verifiedRole);
     }
 
-    interaction.editReply({ content: 'All users verified' });
+    return interaction.editReply({ content: 'All users verified' });
   },
 };
