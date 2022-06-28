@@ -11,11 +11,13 @@ import {
 } from 'discord.js';
 import { v4 as uuidv4 } from 'uuid';
 import { getQuestion } from '../utils/getQuestion';
+import { PermissionFlagsBits } from 'discord-api-types/v9';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('verify')
-    .setDescription('verify yourself with a catpcha question'),
+    .setDescription('verify yourself with a catpcha question')
+    .setDefaultMemberPermissions(PermissionFlagsBits.SendTTSMessages),
   async execute(interaction: CommandInteraction<CacheType>) {
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 

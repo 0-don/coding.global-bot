@@ -14,7 +14,18 @@ export const isModalSubmit = async (interaction: Interaction<'raw'>) => {
 
       const fileName = `${id}.txt`;
       const filePath = path.join(path.resolve(), fileName);
-      const answers = fs.readFileSync(filePath, 'utf8').split('\n');
+
+      // the user maybe change the id modal field
+      let answers: string[] = [];
+      try {
+        answers = fs.readFileSync(filePath, 'utf8').split('\n');
+      } catch (_) {
+        return await interaction.reply({
+          content: 'dont change the id field,please try again.',
+          ephemeral: true,
+        });
+      }
+
       fs.unlinkSync(filePath);
 
       // hash the answer and compare it to the hash in the file
@@ -41,7 +52,7 @@ export const isModalSubmit = async (interaction: Interaction<'raw'>) => {
         const member = interaction.channel?.guild.members.cache.get(
           interaction.user.id
         );
-        
+
         if (!verifiedRole || !member || !unverifiedRole) {
           return interaction.reply({
             content: 'Something went wrong, contact the admins',
