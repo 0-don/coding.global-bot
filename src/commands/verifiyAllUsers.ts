@@ -1,4 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
+import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
 
@@ -64,6 +65,7 @@ export default {
       if (member.roles.cache.has(readOnlyRole.id)) continue;
       if (member.roles.cache.has(mutedRole.id)) continue;
       if (member.roles.cache.has(unverifiedRole.id)) continue;
+      log(member.user.username);
       await member.roles.add(verifiedRole);
     }
 
