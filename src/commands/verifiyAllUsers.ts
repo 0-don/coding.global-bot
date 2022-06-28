@@ -33,6 +33,8 @@ export default {
       (role) => role.name === 'unverified'
     );
 
+    await interaction.deferReply({ ephemeral: true });
+
     if (
       !verifiedRole ||
       !voiceOnlyRole ||
@@ -40,7 +42,7 @@ export default {
       !mutedRole ||
       !unverifiedRole
     ) {
-      return interaction.reply({
+      return interaction.editReply({
         content: `verified: ${new Boolean(
           !!verifiedRole
         ).toString()}\nvoiceOnly: ${new Boolean(
@@ -50,7 +52,6 @@ export default {
         ).toString()}\nmute: ${new Boolean(
           !!mutedRole
         ).toString()}\nunverified: ${new Boolean(!!unverifiedRole).toString()}`,
-        ephemeral: true,
       });
     }
 
@@ -66,6 +67,6 @@ export default {
       await member.roles.add(verifiedRole);
     }
 
-    interaction.reply({ content: 'All users verified', ephemeral: true });
+    interaction.editReply({ content: 'All users verified' });
   },
 };
