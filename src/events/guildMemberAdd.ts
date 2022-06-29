@@ -9,15 +9,14 @@ export default {
   name: 'guildMemberAdd',
   once: false,
   async execute(member: GuildMember) {
-    await joinRole(member);
-    await updateUserCount(member);
-    
+    // check user if exists
     const dbUser = await prisma.user.findFirst({
       where: { userId: { equals: member.id } },
       include: { roles: true },
     });
 
     if (!dbUser) {
+      // create user
       await prisma.user.create({
         data: {
           userId: member.id,
@@ -26,9 +25,13 @@ export default {
         },
       });
     } else {
-      dbUser.roles.forEach((role) => {
-        member.roles.add(role.roleId);
-      });
+      // add user roles if left prevously
+      for (let role of dbUser.roles) {
+        await member.roles.add(role.roleId);
+      }
     }
+
+    await joinRole(member);
+    await updateUserCount(member);
   },
 };

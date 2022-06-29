@@ -44,3 +44,13 @@ export type QuestionRequest = {
   q: string;
   a: string[];
 };
+
+export const statusRoles = [
+  'verified',
+  'voiceOnly',
+  'readOnly',
+  'mute',
+  'unverified',
+] as const;
+
+export type StatusRoles = typeof statusRoles[number];

@@ -19,13 +19,27 @@ export const updateDbRoles = async (
     const newAddedRole = newRoles.filter((role) => !oldRoles.includes(role))[0];
     if (!newAddedRole) return;
 
-    await prisma.userRoles.upsert({
-      where: {
-        user_role_unique: { roleId: newAddedRole.id, userId: newMember.id },
-      },
-      create: { roleId: newAddedRole.id, userId: newMember.id },
-      update: { roleId: newAddedRole.id, userId: newMember.id },
-    });
+    // create role in db if i can update it
+    if (newAddedRole.editable) {
+      await prisma.userRoles.upsert({
+        where: {
+          user_role_unique: {
+            roleId: newAddedRole.id,
+            userId: newMember.id,
+          },
+        },
+        create: {
+          roleId: newAddedRole.id,
+          userId: newMember.id,
+          name: newAddedRole.name,
+        },
+        update: {
+          roleId: newAddedRole.id,
+          userId: newMember.id,
+          name: newAddedRole.name,
+        },
+      });
+    }
   } else if (newRoles.length < oldRoles.length) {
     // remove role
     const newRemovedRole = oldRoles.filter(
@@ -33,10 +47,15 @@ export const updateDbRoles = async (
     )[0];
     if (!newRemovedRole) return;
 
-    await prisma.userRoles.delete({
-      where: {
-        user_role_unique: { roleId: newRemovedRole.id, userId: newMember.id },
-      },
-    });
+    try {
+      await prisma.userRoles.delete({
+        where: {
+          user_role_unique: {
+            roleId: newRemovedRole.id,
+            userId: newMember.id,
+          },
+        },
+      });
+    } catch (_) {}
   }
 };

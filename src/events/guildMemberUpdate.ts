@@ -1,9 +1,8 @@
 // import { PrismaClient } from '@prisma/client';
 import type { GuildMember, PartialGuildMember } from 'discord.js';
+import { StatusRoles, statusRoles } from '../types/types';
 import { joinRole } from '../utils/members/joinRole';
 import { updateDbRoles } from '../utils/roles/updateDbRoles';
-
-const statusRoles = ['verified', 'voiceOnly', 'readOnly', 'mute', 'unverified'];
 
 // const prisma = new PrismaClient();
 
@@ -29,9 +28,9 @@ export default {
     // only run if user has a new role
     if (oldRoles.length >= newRoles.length) return;
 
-    const newAddedRole = newRoles.filter((role) => !oldRoles.includes(role))[0];
-
-    if (!newAddedRole) return;
+    const newAddedRole = newRoles.filter(
+      (role) => !oldRoles.includes(role)
+    )[0] as StatusRoles;
 
     // check if role is a status role if yes then remove the unused status role
     if (statusRoles.includes(newAddedRole)) {

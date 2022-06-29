@@ -24,6 +24,7 @@ model UserRoles {
   id     Int    @id @default(autoincrement())
   roleId String
   userId String
+  name   String
   user   User   @relation(fields: [userId], references: [userId])
 
   @@unique([userId, roleId], name: "user_role_unique")
