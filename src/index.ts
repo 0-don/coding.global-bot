@@ -44,7 +44,5 @@ for (const file of eventFiles) {
     client.on(event.name, (...args) => event.execute(...args));
   }
 }
-// console.log(path.resolve(''));
-// client.on('messageCreate', (one) => {});
 
 client.login(token);

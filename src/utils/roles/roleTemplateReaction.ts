@@ -16,6 +16,8 @@ export const switchRoleFromTemplate = async (
   user: User | PartialUser,
   type: 'add' | 'remove'
 ) => {
+  await reaction.fetch();
+
   const isTemplate = reaction.message.embeds[0]?.footer?.text;
   if (!isTemplate) return;
   if (user.id === reaction.message.author?.id) return;
