@@ -15,20 +15,28 @@ export const updateDbRoles = async (
     .map((role) => role);
 
   if (newRoles.length > oldRoles.length) {
+    // add or update new role
     const newAddedRole = newRoles.filter((role) => !oldRoles.includes(role))[0];
     if (!newAddedRole) return;
 
-    await prisma.userRoles.create({
-      data: { userId: newMember.id, roleId: newAddedRole.id },
+    await prisma.userRoles.upsert({
+      where: {
+        user_role_unique: { roleId: newAddedRole.id, userId: newMember.id },
+      },
+      create: { roleId: newAddedRole.id, userId: newMember.id },
+      update: { roleId: newAddedRole.id, userId: newMember.id },
     });
   } else if (newRoles.length < oldRoles.length) {
+    // remove role
     const newRemovedRole = oldRoles.filter(
       (role) => !newRoles.includes(role)
     )[0];
     if (!newRemovedRole) return;
 
-    await prisma.userRoles.deleteMany({
-      where: { roleId: newRemovedRole.id, userId: newMember.id },
+    await prisma.userRoles.delete({
+      where: {
+        user_role_unique: { roleId: newRemovedRole.id, userId: newMember.id },
+      },
     });
   }
 };
