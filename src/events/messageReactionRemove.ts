@@ -13,6 +13,7 @@ export default {
     reaction: MessageReaction | PartialMessageReaction,
     user: User | PartialUser
   ) {
+    // remove role if exist when clicked on role template embed
     await switchRoleFromTemplate(reaction, user, 'remove');
   },
 };
