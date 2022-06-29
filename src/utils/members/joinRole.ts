@@ -1,5 +1,6 @@
 import type { GuildMember } from 'discord.js';
-import { StatusRoles, statusRoles } from '../../types/types';
+import type { StatusRoles } from '../../types/types';
+import { statusRoles } from '../constants';
 
 export const joinRole = async (member: GuildMember) => {
   await member.fetch();
