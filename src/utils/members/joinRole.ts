@@ -6,7 +6,7 @@ export const joinRole = async (member: GuildMember) => {
   await member.fetch();
 
   const unverifiedRole = member.roles.cache.find(
-    (role) => role.name === 'unverified'
+    (role) => role.name === ('unverified' as StatusRoles)
   );
 
   // if status role on user then exit

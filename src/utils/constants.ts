@@ -8,6 +8,9 @@ export const statusRoles = [
   'unverified',
 ] as const;
 
+export const VOICE_EVENT_CHANNEL = 'voice-events';
+export const MEMBERS_COUNT_CHANNEL = 'Members:';
+
 export const voiceEmbedExample: MessageEmbedOptions = {
   color: '#fd0000',
   description: ``,
@@ -19,4 +22,15 @@ export const voiceEmbedExample: MessageEmbedOptions = {
   },
 };
 
-export const VOICE_EVENT_CHANNEL = 'voice-events';
+export const roleTemplateExampleEmbed: MessageEmbedOptions = {
+  color: '#fd0000',
+  title: 'Server Roles',
+  description: 'Select your roles',
+  fields: [],
+  timestamp: new Date(),
+  footer: {
+    text: 'role template',
+    icon_url:
+      'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png',
+  },
+};
