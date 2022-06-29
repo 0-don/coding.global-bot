@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import type { Interaction } from 'discord.js';
+import type { StatusRoles } from '../../types/types';
 
 export const isModalSubmit = async (interaction: Interaction<'raw'>) => {
   if (interaction.isModalSubmit()) {
@@ -44,10 +45,10 @@ export const isModalSubmit = async (interaction: Interaction<'raw'>) => {
         });
         await interaction.channel?.guild.fetch();
         const verifiedRole = interaction.channel?.guild.roles.cache.find(
-          (role) => role.name === 'verified'
+          (role) => role.name === ('verified' as StatusRoles)
         );
         const unverifiedRole = interaction.channel?.guild.roles.cache.find(
-          (role) => role.name === 'unverified'
+          (role) => role.name === ('unverified' as StatusRoles)
         );
         const member = interaction.channel?.guild.members.cache.get(
           interaction.user.id

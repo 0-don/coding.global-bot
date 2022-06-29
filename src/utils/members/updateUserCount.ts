@@ -1,8 +1,9 @@
 import type { GuildMember } from 'discord.js';
+import { MEMBERS_COUNT_CHANNEL } from '../constants';
 
 export const updateUserCount = async (member: GuildMember) => {
   const memberCountChannel = member.guild.channels.cache.find((channel) =>
-    channel.name.includes('Members:')
+    channel.name.includes(MEMBERS_COUNT_CHANNEL)
   );
 
   if (!memberCountChannel) return;
@@ -13,5 +14,5 @@ export const updateUserCount = async (member: GuildMember) => {
     (member) => !member.user.bot
   ).size;
 
-  await memberCountChannel.setName(`Members: ${memberCount}`);
+  await memberCountChannel.setName(`${MEMBERS_COUNT_CHANNEL} ${memberCount}`);
 };
