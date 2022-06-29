@@ -69,11 +69,13 @@ export async function createRoleTemplateEmbed(
   };
 }
 
-export function parseRoleTemplateFromMsg(
+export async function parseRoleTemplateFromMsg(
   msg: Message<boolean>
-): RoleTemplateReaction {
+): Promise<RoleTemplateReaction> {
   // get embed from message
   const embed = msg.embeds[0];
+
+  await msg.guild?.emojis.fetch();
 
   // parse emojis data from msg
   const emojis = msg.reactions.cache.map(
