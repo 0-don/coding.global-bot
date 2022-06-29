@@ -6,11 +6,13 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "prisma": "npx prisma migrate dev & npx prisma generate",
     "build": "tsc"
   },
   "dependencies": {
     "@discordjs/builders": "^0.15.0",
     "@discordjs/rest": "^0.5.0",
+    "@prisma/client": "^4.0.0",
     "axios": "^0.27.2",
     "discord-api-types": "^0.34.0",
     "discord.js": "^13.8.1",
@@ -22,6 +24,7 @@
     "@types/uuid": "^8.3.4",
     "dotenv": "^16.0.1",
     "eslint": "^8.18.0",
+    "prisma": "^4.0.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.7.4"
   }
