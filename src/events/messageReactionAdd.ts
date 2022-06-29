@@ -13,7 +13,6 @@ export default {
     reaction: MessageReaction | PartialMessageReaction,
     user: User | PartialUser
   ) {
-  
-    switchRoleFromTemplate(reaction, user, 'add');
+    await switchRoleFromTemplate(reaction, user, 'add');
   },
 };
