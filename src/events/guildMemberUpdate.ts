@@ -1,10 +1,8 @@
-// import { PrismaClient } from '@prisma/client';
 import type { GuildMember, PartialGuildMember } from 'discord.js';
-import { StatusRoles, statusRoles } from '../types/types';
+import type { StatusRoles } from '../types/types';
+import { statusRoles } from '../utils/constants';
 import { joinRole } from '../utils/members/joinRole';
 import { updateDbRoles } from '../utils/roles/updateDbRoles';
-
-// const prisma = new PrismaClient();
 
 export default {
   name: 'guildMemberUpdate',

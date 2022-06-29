@@ -1,4 +1,5 @@
 import type { MessageEmbedOptions } from 'discord.js';
+import { statusRoles } from '../utils/constants';
 
 export type RoleTemplateReactionValues = {
   name: string;
@@ -44,13 +45,5 @@ export type QuestionRequest = {
   q: string;
   a: string[];
 };
-
-export const statusRoles = [
-  'verified',
-  'voiceOnly',
-  'readOnly',
-  'mute',
-  'unverified',
-] as const;
 
 export type StatusRoles = typeof statusRoles[number];
