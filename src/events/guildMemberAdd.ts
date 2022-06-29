@@ -9,8 +9,12 @@ export default {
   name: 'guildMemberAdd',
   once: false,
   async execute(member: GuildMember) {
+    await joinRole(member);
+    await updateUserCount(member);
+    
     const dbUser = await prisma.user.findFirst({
       where: { userId: { equals: member.id } },
+      include: { roles: true },
     });
 
     if (!dbUser) {
@@ -21,9 +25,10 @@ export default {
           guildId: member.guild.id,
         },
       });
+    } else {
+      dbUser.roles.forEach((role) => {
+        member.roles.add(role.roleId);
+      });
     }
-
-    await joinRole(member);
-    await updateUserCount(member);
   },
 };
