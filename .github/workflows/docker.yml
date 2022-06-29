@@ -21,6 +21,7 @@ jobs:
           echo MEGA_EMAIL=${{ secrets.MEGA_EMAIL }} >> .env
           echo MEGA_PASSWORD=${{ secrets.MEGA_PASSWORD }} >> .env
           echo MEGA_DIR=${{ secrets.MEGA_DIR }} >> .env
+          echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
           cat .env
 
       - name: Docker run
