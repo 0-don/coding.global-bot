@@ -19,15 +19,15 @@ services:
     networks:
       - proxy
     environment:
-      - POSTGRES_DB=coding-global-bot
-      - POSTGRES_USER=postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     labels:
       - 'traefik.enable=true'
-      - 'traefik.tcp.routers.coding-global-db.entrypoints=coding-global-db'
+      - 'traefik.tcp.routers.tcp.tls=true'
       - 'traefik.tcp.routers.coding-global-db.rule=HostSNI(`*`)'
       - 'traefik.tcp.services.coding-global-db.loadbalancer.server.port=5432'
-      - 'traefik.tcp.routers.tcp.tls=true'
+      - 'traefik.tcp.routers.coding-global-db.entrypoints=coding-global-db'
       - 'traefik.tcp.routers.coding-global-db.service=coding-global-db'
 volumes:
   postgres:
