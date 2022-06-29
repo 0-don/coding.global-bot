@@ -13,7 +13,7 @@ export const isModalSubmit = async (interaction: Interaction<'raw'>) => {
       const id = interaction.fields.getTextInputValue('id');
 
       const fileName = `${id}.txt`;
-      const filePath = path.join(path.resolve(), 'verifyFiles', fileName);
+      const filePath = path.join(path.resolve(), fileName);
 
       // the user maybe change the id modal field
       let answers: string[] = [];
