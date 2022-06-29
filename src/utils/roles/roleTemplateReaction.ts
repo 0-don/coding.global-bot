@@ -33,12 +33,6 @@ export const switchRoleFromTemplate = async (
 
   await member.fetch();
 
-  const memberRoleExist = member.roles.cache.some(
-    ({ name }) => name === roleString
-  );
-
-  if (memberRoleExist) return;
-
   if (type === 'add') {
     member.roles.add(role);
     member.send(`role added: **${roleString}**`);
