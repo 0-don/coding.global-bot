@@ -1,7 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
+import { PrismaClient } from '@prisma/client';
 import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
+
+const prisma = new PrismaClient();
 
 export default {
   data: new SlashCommandBuilder()
@@ -58,6 +61,24 @@ export default {
 
     for (let memberCollection of members) {
       const member = memberCollection[1];
+      const dbUser = await prisma.user.findFirst({
+        where: { userId: { equals: member.id } },
+        include: { roles: true },
+      });
+
+      if (!dbUser) {
+        await prisma.user.create({
+          data: {
+            userId: member.id,
+            username: member.user.username,
+            guildId: member.guild.id,
+          },
+        });
+      } else {
+        dbUser.roles.forEach((role) => {
+          member.roles.add(role.roleId);
+        });
+      }
 
       if (member.user.bot) continue;
       if (member.roles.cache.has(verifiedRole.id)) continue;

@@ -13,14 +13,14 @@ datasource db {
 model User {
   id       Int         @id @default(autoincrement())
   userId   String      @unique
-  guilId   String      @unique
+  guildId  String
   username String
   roles    UserRoles[]
 }
 
 model UserRoles {
-  roleId String @id @unique
-  role   String
-  userId String @unique
+  id     Int    @id @default(autoincrement())
+  roleId String
+  userId String 
   user   User   @relation(fields: [userId], references: [userId])
 }
