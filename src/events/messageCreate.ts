@@ -1,13 +1,11 @@
-import type { Message, TextChannel } from 'discord.js';
+import type { Message } from 'discord.js';
+import { cleanUpVerifyChannel } from '../utils/messages/cleanUpVerifyChannel';
 
 export default {
   name: 'messageCreate',
   once: false,
   async execute(message: Message<boolean>) {
-    const channel = (await message.channel?.fetch()) as TextChannel;
-    // remove non command messages in verify channel
-    if (channel.name === 'verify' && message.type !== 'APPLICATION_COMMAND') {
-      message.delete();
-    }
+    // remove regular messages in verify channel
+    await cleanUpVerifyChannel(message);
   },
 };

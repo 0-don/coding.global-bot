@@ -13,6 +13,7 @@ export default {
     reaction: MessageReaction | PartialMessageReaction,
     user: User | PartialUser
   ) {
+    // add role if not exist when clicked on role template embed
     await switchRoleFromTemplate(reaction, user, 'add');
   },
 };
