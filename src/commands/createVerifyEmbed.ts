@@ -42,7 +42,7 @@ Wir mögen es generell nicht so sehr, wenn der einzige Zweck des Aufenthalts der
 
 ------------------- 🙂 Happy Coding 🙂 -------------------
 
-Type **/verfiy** followed by the answer to the captcha question.
+Type **/verify** followed by the answer to the captcha question.
 `,
       timestamp: new Date(),
       footer: {
