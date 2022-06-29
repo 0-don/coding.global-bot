@@ -1,15 +1,22 @@
+// import { PrismaClient } from '@prisma/client';
 import type { GuildMember, PartialGuildMember } from 'discord.js';
 import { joinRole } from '../utils/members/joinRole';
+import { updateDbRoles } from '../utils/roles/updateDbRoles';
 
 const statusRoles = ['verified', 'voiceOnly', 'readOnly', 'mute', 'unverified'];
+
+// const prisma = new PrismaClient();
 
 export default {
   name: 'guildMemberUpdate',
   once: false,
-  execute(
+  async execute(
     oldMember: GuildMember | PartialGuildMember,
     newMember: GuildMember | PartialGuildMember
   ) {
+    // update db roles
+    await updateDbRoles(oldMember, newMember);
+
     const oldRoles = oldMember.roles.cache
       .filter((role) => role.name !== '@everyone')
       .map((role) => role.name);
@@ -26,6 +33,7 @@ export default {
 
     if (!newAddedRole) return;
 
+    // check if role is a status role if yes then remove the unused status role
     if (statusRoles.includes(newAddedRole)) {
       const unusedRoles = statusRoles.filter((role) => newAddedRole !== role);
       unusedRoles.forEach((roleName) => {
