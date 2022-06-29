@@ -5,6 +5,7 @@ export default {
   name: 'guildMemberRemove',
   once: false,
   async execute(member: GuildMember) {
+    // update user count channel
     await updateUserCount(member);
   },
 };

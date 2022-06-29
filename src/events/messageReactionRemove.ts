@@ -13,7 +13,7 @@ export default {
     reaction: MessageReaction | PartialMessageReaction,
     user: User | PartialUser
   ) {
-    await reaction.fetch();
+
     switchRoleFromTemplate(reaction, user, 'remove');
   },
 };
