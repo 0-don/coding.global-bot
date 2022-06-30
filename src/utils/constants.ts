@@ -23,6 +23,7 @@ export const MAX_QUESTION_RETRIES = 3;
 export const MAX_QUESTION_LENGTH = 45;
 
 export const ROLE_TEMPLATE = 'role template';
+export const VERIFY_TEMPLATE = 'verify yourself';
 
 export const voiceEmbedExample: MessageEmbedOptions = {
   color: '#fd0000',
