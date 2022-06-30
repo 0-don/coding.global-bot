@@ -2,9 +2,9 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { PrismaClient } from '@prisma/client';
 import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction, Role } from 'discord.js';
-import type { StatusRoles } from '../types/types';
-import { statusRoles } from '../utils/constants';
+import type { CacheType, CommandInteraction } from 'discord.js';
+import { statusRoles, VERIFIED } from '../utils/constants';
+import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
 
 const prisma = new PrismaClient();
 
@@ -23,13 +23,7 @@ export default {
     if (!members) return;
 
     // create a guild role key object pair
-    let guildStatusRoles: {
-      [x: string]: Role | undefined;
-    } = {};
-    for (let role of statusRoles)
-      guildStatusRoles[role] = interaction.guild?.roles.cache.find(
-        ({ name }) => name === role
-      );
+    let guildStatusRoles = getGuildStatusRoles(interaction.guild);
 
     await interaction.deferReply({ ephemeral: true });
 
@@ -86,7 +80,7 @@ export default {
         continue;
 
       // verify user
-      await member.roles.add(guildStatusRoles['verified' as StatusRoles]!.id);
+      await member.roles.add(guildStatusRoles[VERIFIED]!.id);
     }
 
     return interaction.editReply({ content: 'All users verified' });
