@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import type { GuildMember, PartialGuildMember } from 'discord.js';
 import { EVERYONE } from '../constants';
 
@@ -22,15 +22,19 @@ export const updateDbRoles = async (
 
     // create role in db if i can update it
     if (newAddedRole.editable) {
-      await prisma.memberRole.createMany({
-        data: [
-          {
-            roleId: newAddedRole.id,
-            memberId: newMember.id,
-            name: newAddedRole.name,
-          },
-        ],
-        skipDuplicates: true,
+      const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
+        roleId: newAddedRole.id,
+        memberId: newMember.id,
+        name: newAddedRole.name,
+        guildName: newMember.guild.name,
+        username: newMember.user.username,
+      };
+      await prisma.memberRole.upsert({
+        where: {
+          member_role: { memberId: newMember.id, roleId: newAddedRole.id },
+        },
+        create: memberRole,
+        update: memberRole,
       });
     }
   } else if (newRoles.length < oldRoles.length) {

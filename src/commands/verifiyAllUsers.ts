@@ -49,6 +49,13 @@ export default {
       // refetch user if some roles were reasinged
       await member.fetch();
 
+      // create user roles if missing
+      for (let roleCollection of member.roles.cache) {
+        const role = roleCollection[1];
+
+        pris
+      }
+
       // if one of the status roles is on user, continue
       if (
         statusRoles.some((role) => {
