@@ -7,16 +7,16 @@ export const upsertDbMember = async (
   member: GuildMember | PartialGuildMember
 ) => {
   // check user if exists
-  const dbUser = await prisma.user.findFirst({
-    where: { userId: { equals: member.id } },
+  const dbUser = await prisma.member.findFirst({
+    where: { memberId: member.id },
     include: { roles: true },
   });
 
   if (!dbUser) {
     // create user
-    await prisma.user.create({
+    await prisma.member.create({
       data: {
-        userId: member.id,
+        memberId: member.id,
         username: member.user.username,
         guildId: member.guild.id,
       },
