@@ -13,7 +13,11 @@ export default {
     reaction: MessageReaction | PartialMessageReaction,
     user: User | PartialUser
   ) {
+    // check if reaction is on verify message
+    const verifyTemplate = reaction.message.embeds[0]?.footer?.text;
+    if (verifyTemplate === 'verify yourself') return await reaction.remove();
+
     // add role if not exist when clicked on role template embed
-    await switchRoleFromTemplate(reaction, user, 'add');
+    return await switchRoleFromTemplate(reaction, user, 'add');
   },
 };

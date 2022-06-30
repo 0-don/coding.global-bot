@@ -15,7 +15,7 @@ export const switchRoleFromTemplate = async (
 
   // check if reaction is from bot and its role template
   const isTemplate = reaction.message.embeds[0]?.footer?.text;
-  if (!isTemplate) return;
+  if (isTemplate !== 'role template') return;
   if (user.id === reaction.message.author?.id) return;
 
   // @ts-ignore
