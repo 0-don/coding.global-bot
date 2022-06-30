@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction, Role } from 'discord.js';
+import type { StatusRoles } from '../types/types';
 import { statusRoles } from '../utils/constants';
 
 const prisma = new PrismaClient();
@@ -85,7 +86,7 @@ export default {
         continue;
 
       // verify user
-      await member.roles.add(guildStatusRoles['verified']!.id);
+      await member.roles.add(guildStatusRoles['verified' as StatusRoles]!.id);
     }
 
     return interaction.editReply({ content: 'All users verified' });

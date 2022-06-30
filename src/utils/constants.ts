@@ -8,6 +8,14 @@ export const statusRoles = [
   'unverified',
 ] as const;
 
+export const EVERYONE = '@everyone';
+export const VERIFIED = statusRoles[0];
+export const VOICE_ONLY = statusRoles[1];
+export const READ_ONLY = statusRoles[2];
+export const MUTE = statusRoles[3];
+export const UNVERIFIED = statusRoles[4];
+
+export const VERIFY_CHANNEL = 'verify';
 export const VOICE_EVENT_CHANNEL = 'voice-events';
 export const MEMBERS_COUNT_CHANNEL = 'Members:';
 

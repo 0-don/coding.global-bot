@@ -12,16 +12,17 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { getQuestion } from '../utils/getQuestion';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
+import { VERIFY_CHANNEL } from '../utils/constants';
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('verify')
+    .setName(VERIFY_CHANNEL)
     .setDescription('verify yourself with a catpcha question')
     .setDefaultMemberPermissions(PermissionFlagsBits.SendTTSMessages),
   async execute(interaction: CommandInteraction<CacheType>) {
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
-    if (channel.name !== 'verify') return;
+    if (channel.name !== VERIFY_CHANNEL) return;
 
     const uniqueId = uuidv4();
 
@@ -32,7 +33,9 @@ export default {
     const filePath = path.join(path.resolve(), fileName);
     fs.writeFileSync(filePath, question.a.join('\n'));
 
-    const modal = new Modal().setCustomId('verify').setTitle('Verify');
+    const modal = new Modal()
+      .setCustomId(VERIFY_CHANNEL)
+      .setTitle(VERIFY_CHANNEL);
 
     const questionInput = new TextInputComponent()
       .setCustomId('questionInput')
