@@ -20,7 +20,7 @@ export default {
       PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
-    // get message id
+    // get embed template as json
     const inputTemplate = parseJSON(
       interaction.options.getString('json')!
     ) as RoleTemplateReaction;
@@ -33,11 +33,10 @@ export default {
 
     // error found while creating role template
     if (!roleTemplateEmbed || !emojis || error) {
-      interaction.reply({
+      return interaction.reply({
         content: error ?? 'Something went wrong.',
         ephemeral: true,
       });
-      return;
     }
     // create embeded message
     const message = await interaction.reply({

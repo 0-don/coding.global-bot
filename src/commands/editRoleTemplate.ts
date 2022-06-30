@@ -37,7 +37,7 @@ export default {
     // fetch message if it exists
     const msg = await interaction.channel?.messages.fetch(messageID!);
 
-    // check if exits and if it is an embeded message
+    // check if exits and if it is an embeded role template message
     if (!msg || msg.embeds[0]?.footer?.text !== 'role template') {
       return interaction.reply({
         content:
