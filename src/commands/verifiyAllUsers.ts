@@ -46,18 +46,18 @@ export default {
       log(member.user.username);
 
       // check if user exists in db
-      const dbUser = await prisma.user.findFirst({
-        where: { userId: { equals: member.id } },
+      const dbUser = await prisma.member.findFirst({
+        where: { memberId: { equals: member.id } },
         include: { roles: true },
       });
 
       // create if not exist
       if (!dbUser) {
-        await prisma.user.create({
+        await prisma.member.create({
           data: {
-            userId: member.id,
-            username: member.user.username,
+            memberId: member.id,
             guildId: member.guild.id,
+            username: member.user.username,
           },
         });
       } else {

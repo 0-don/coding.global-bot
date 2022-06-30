@@ -10,22 +10,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id       Int         @id @default(autoincrement())
-  userId   String      @unique
+model Member {
+  id       Int          @id @default(autoincrement())
+  memberId String       @unique
   guildId  String
   username String
-  roles    UserRoles[]
+  roles    MemberRole[]
 
-  @@unique([userId, guildId], name: "user_guild_unique")
+  @@unique([memberId, guildId], name: "member_guild_unique")
 }
 
-model UserRoles {
-  id     Int    @id @default(autoincrement())
-  roleId String
-  userId String
-  name   String
-  user   User   @relation(fields: [userId], references: [userId])
+model MemberRole {
+  id       Int    @id @default(autoincrement())
+  roleId   String
+  memberId String
+  name     String
+  member   Member @relation(fields: [memberId], references: [memberId])
 
-  @@unique([userId, roleId], name: "user_role_unique")
+  @@unique([memberId, roleId], name: "member_role_unique")
 }

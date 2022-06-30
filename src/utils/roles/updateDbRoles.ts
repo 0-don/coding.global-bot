@@ -22,21 +22,21 @@ export const updateDbRoles = async (
 
     // create role in db if i can update it
     if (newAddedRole.editable) {
-      await prisma.userRoles.upsert({
+      await prisma.memberRole.upsert({
         where: {
-          user_role_unique: {
+          member_role_unique: {
             roleId: newAddedRole.id,
-            userId: newMember.id,
+            memberId: newMember.id,
           },
         },
         create: {
           roleId: newAddedRole.id,
-          userId: newMember.id,
+          memberId: newMember.id,
           name: newAddedRole.name,
         },
         update: {
           roleId: newAddedRole.id,
-          userId: newMember.id,
+          memberId: newMember.id,
           name: newAddedRole.name,
         },
       });
@@ -49,11 +49,11 @@ export const updateDbRoles = async (
     if (!newRemovedRole) return;
 
     try {
-      await prisma.userRoles.delete({
+      await prisma.memberRole.delete({
         where: {
-          user_role_unique: {
+          member_role_unique: {
             roleId: newRemovedRole.id,
-            userId: newMember.id,
+            memberId: newMember.id,
           },
         },
       });
