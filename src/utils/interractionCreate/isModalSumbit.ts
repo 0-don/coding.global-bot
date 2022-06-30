@@ -1,9 +1,9 @@
-import fs from 'fs';
-import path from 'path';
 import crypto from 'crypto';
 import type { Interaction } from 'discord.js';
-import type { StatusRoles } from '../../types/types';
-import { VERIFY_CHANNEL } from '../constants';
+import fs from 'fs';
+import path from 'path';
+import { VERIFIED, VERIFY_CHANNEL } from '../constants';
+import { getGuildStatusRoles } from '../roles/getGuildStatusRoles';
 
 export const isModalSubmit = async (interaction: Interaction<'raw'>) => {
   if (interaction.isModalSubmit()) {
@@ -45,24 +45,20 @@ export const isModalSubmit = async (interaction: Interaction<'raw'>) => {
           ephemeral: true,
         });
         await interaction.channel?.guild.fetch();
-        const verifiedRole = interaction.channel?.guild.roles.cache.find(
-          (role) => role.name === ('verified' as StatusRoles)
-        );
-        const unverifiedRole = interaction.channel?.guild.roles.cache.find(
-          (role) => role.name === ('unverified' as StatusRoles)
-        );
         const member = interaction.channel?.guild.members.cache.get(
           interaction.user.id
         );
 
-        if (!verifiedRole || !member || !unverifiedRole) {
+        let guildStatusRoles = getGuildStatusRoles(interaction.channel!.guild);
+
+        if (!guildStatusRoles[VERIFIED]) {
           return interaction.reply({
             content: 'Something went wrong, contact the admins',
             ephemeral: true,
           });
         }
 
-        member.roles.add(verifiedRole);
+        member?.roles.add(guildStatusRoles[VERIFIED]);
       } else {
         await interaction.reply({
           content: 'Your submission was not successfull, please try again!',

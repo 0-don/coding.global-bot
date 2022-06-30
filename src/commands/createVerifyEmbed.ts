@@ -6,6 +6,7 @@ import type {
   MessageEmbedOptions,
   TextChannel,
 } from 'discord.js';
+import { VERIFY_CHANNEL } from '../utils/constants';
 
 export default {
   data: new SlashCommandBuilder()
@@ -17,7 +18,7 @@ export default {
   async execute(interaction: CommandInteraction<CacheType>) {
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
-    if (channel.name !== 'verify') return;
+    if (channel.name !== VERIFY_CHANNEL) return;
 
     const embed: MessageEmbedOptions = {
       color: '#fd0000',
