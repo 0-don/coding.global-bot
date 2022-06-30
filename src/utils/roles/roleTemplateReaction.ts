@@ -4,6 +4,7 @@ import type {
   User,
   PartialUser,
 } from 'discord.js';
+import { ROLE_TEMPLATE } from '../constants';
 
 export const switchRoleFromTemplate = async (
   reaction: MessageReaction | PartialMessageReaction,
@@ -15,7 +16,7 @@ export const switchRoleFromTemplate = async (
 
   // check if reaction is from bot and its role template
   const isTemplate = reaction.message.embeds[0]?.footer?.text;
-  if (isTemplate !== 'role template') return;
+  if (isTemplate !== ROLE_TEMPLATE) return;
   if (user.id === reaction.message.author?.id) return;
 
   // @ts-ignore
