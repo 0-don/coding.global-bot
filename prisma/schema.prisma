@@ -11,21 +11,24 @@ datasource db {
 }
 
 model Member {
-  id       Int          @id @default(autoincrement())
-  memberId String       @unique
-  guildId  String
-  username String
-  roles    MemberRole[]
+  id        Int          @id @default(autoincrement())
+  memberId  String       @unique
+  guildId   String
+  username  String
+  guildName String
+  roles     MemberRole[]
 
   @@unique([memberId, guildId], name: "member_guild")
 }
 
 model MemberRole {
-  id       Int    @id @default(autoincrement())
-  roleId   String
-  memberId String
-  name     String
-  member   Member @relation(fields: [memberId], references: [memberId])
+  id        Int    @id @default(autoincrement())
+  roleId    String
+  memberId  String
+  name      String
+  guildName String
+  username  String
+  member    Member @relation(fields: [memberId], references: [memberId])
 
   @@unique([memberId, roleId], name: "member_role")
 }

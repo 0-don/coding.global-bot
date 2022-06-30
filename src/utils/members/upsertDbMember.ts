@@ -25,6 +25,7 @@ export const upsertDbMember = async (
         memberId: member.id,
         username: member.user.username,
         guildId: member.guild.id,
+        guildName: member.guild.name,
       },
       include: { roles: true },
     });
