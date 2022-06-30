@@ -25,8 +25,10 @@ export const MAX_QUESTION_LENGTH = 45;
 export const ROLE_TEMPLATE = 'role template';
 export const VERIFY_TEMPLATE = 'verify yourself';
 
+export const RED_COLOR = '#fd0000';
+
 export const voiceEmbedExample: MessageEmbedOptions = {
-  color: '#fd0000',
+  color: RED_COLOR,
   description: ``,
   timestamp: new Date(),
   footer: {
@@ -37,7 +39,7 @@ export const voiceEmbedExample: MessageEmbedOptions = {
 };
 
 export const roleTemplateExampleEmbed: MessageEmbedOptions = {
-  color: '#fd0000',
+  color: RED_COLOR,
   title: 'Server Roles',
   description: 'Select your roles',
   fields: [],

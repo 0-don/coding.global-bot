@@ -8,10 +8,10 @@ export const updateDbRoles = async (
   oldMember: GuildMember | PartialGuildMember,
   newMember: GuildMember | PartialGuildMember
 ) => {
-  const oldRoles = oldMember.roles.cache
+  const newRoles = newMember.roles.cache
     .filter(({ name }) => name !== EVERYONE)
     .map((role) => role);
-  const newRoles = newMember.roles.cache
+  const oldRoles = oldMember.roles.cache
     .filter(({ name }) => name !== EVERYONE)
     .map((role) => role);
 
@@ -22,23 +22,15 @@ export const updateDbRoles = async (
 
     // create role in db if i can update it
     if (newAddedRole.editable) {
-      await prisma.memberRole.upsert({
-        where: {
-          member_role: {
-            memberId: newMember.id,
+      await prisma.memberRole.createMany({
+        data: [
+          {
             roleId: newAddedRole.id,
+            memberId: newMember.id,
+            name: newAddedRole.name,
           },
-        },
-        create: {
-          roleId: newAddedRole.id,
-          memberId: newMember.id,
-          name: newAddedRole.name,
-        },
-        update: {
-          roleId: newAddedRole.id,
-          memberId: newMember.id,
-          name: newAddedRole.name,
-        },
+        ],
+        skipDuplicates: true,
       });
     }
   } else if (newRoles.length < oldRoles.length) {

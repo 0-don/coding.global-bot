@@ -6,7 +6,7 @@ import type {
   MessageEmbedOptions,
   TextChannel,
 } from 'discord.js';
-import { VERIFY_CHANNEL, VERIFY_TEMPLATE } from '../utils/constants';
+import { RED_COLOR, VERIFY_CHANNEL, VERIFY_TEMPLATE } from '../utils/constants';
 
 export default {
   data: new SlashCommandBuilder()
@@ -21,7 +21,7 @@ export default {
     if (channel.name !== VERIFY_CHANNEL) return;
 
     const embed: MessageEmbedOptions = {
-      color: '#fd0000',
+      color: RED_COLOR,
       title: 'Verification process...',
       description: `**--- :flag_gb: Welcome to our Coding Server! :flag_gb: ---**
 
