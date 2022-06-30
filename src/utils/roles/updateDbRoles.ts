@@ -31,7 +31,10 @@ export const updateDbRoles = async (
       };
       await prisma.memberRole.upsert({
         where: {
-          member_role: { memberId: newMember.id, roleId: newAddedRole.id },
+          member_role: {
+            memberId: memberRole.memberId,
+            roleId: memberRole.roleId,
+          },
         },
         create: memberRole,
         update: memberRole,

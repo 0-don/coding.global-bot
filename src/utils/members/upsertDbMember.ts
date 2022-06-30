@@ -1,4 +1,4 @@
-import { Member, MemberRole, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import type { GuildMember, PartialGuildMember } from 'discord.js';
 
 const prisma = new PrismaClient();
@@ -6,33 +6,22 @@ const prisma = new PrismaClient();
 export const upsertDbMember = async (
   member: GuildMember | PartialGuildMember
 ) => {
-  let dbMember:
-    | (Member & {
-        roles: MemberRole[];
-      })
-    | null;
+  const dbMemberInput: Prisma.MemberCreateInput = {
+    memberId: member.id,
+    guildId: member.guild.id,
+    username: member.user.username,
+    guildName: member.guild.name,
+  };
 
-  // check user if exists
-  dbMember = await prisma.member.findFirst({
-    where: { memberId: member.id },
+  const dbMember = await prisma.member.upsert({
+    where: { memberId: dbMemberInput.memberId },
+    create: dbMemberInput,
+    update: dbMemberInput,
     include: { roles: true },
   });
 
-  if (!dbMember) {
-    // create user
-    dbMember = await prisma.member.create({
-      data: {
-        memberId: member.id,
-        username: member.user.username,
-        guildId: member.guild.id,
-        guildName: member.guild.name,
-      },
-      include: { roles: true },
-    });
-  } else {
-    // add user roles if left prevously
+  if (dbMember.roles.length)
     for (let role of dbMember.roles) await member.roles.add(role.roleId);
-  }
 
   return dbMember;
 };
