@@ -95,6 +95,8 @@ export async function parseRoleTemplateFromMsg(
       })!,
   } as RoleTemplateReaction;
 
+
+
   return roleTemplate;
 }
 
