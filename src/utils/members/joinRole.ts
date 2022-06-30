@@ -6,7 +6,7 @@ export const joinRole = async (member: GuildMember) => {
   await member.fetch();
 
   // this status role will be given on new memeber join if he has no role
-  const unverifiedRole = member.roles.cache.find(
+  const unverifiedRole = member.guild.roles.cache.find(
     ({ name }) => name === UNVERIFIED
   );
 

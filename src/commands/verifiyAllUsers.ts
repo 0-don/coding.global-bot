@@ -1,12 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { PrismaClient } from '@prisma/client';
 import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
 import { statusRoles, VERIFIED } from '../utils/constants';
+import { upsertDbMember } from '../utils/members/upsertDbMember';
 import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
-
-const prisma = new PrismaClient();
 
 export default {
   data: new SlashCommandBuilder()
@@ -46,26 +44,7 @@ export default {
       log(member.user.username);
 
       // check if user exists in db
-      const dbUser = await prisma.member.findFirst({
-        where: { memberId: { equals: member.id } },
-        include: { roles: true },
-      });
-
-      // create if not exist
-      if (!dbUser) {
-        await prisma.member.create({
-          data: {
-            memberId: member.id,
-            guildId: member.guild.id,
-            username: member.user.username,
-          },
-        });
-      } else {
-        // asign previously created roles to user
-        dbUser.roles.forEach((role) => {
-          member.roles.add(role.roleId);
-        });
-      }
+      await upsertDbMember(member);
 
       // refetch user if some roles were reasinged
       await member.fetch();

@@ -6,7 +6,7 @@ import type {
   MessageEmbedOptions,
   TextChannel,
 } from 'discord.js';
-import { VERIFY_CHANNEL } from '../utils/constants';
+import { VERIFY_CHANNEL, VERIFY_TEMPLATE } from '../utils/constants';
 
 export default {
   data: new SlashCommandBuilder()
@@ -47,7 +47,7 @@ Type **/verify** followed by the answer to the captcha question.
 `,
       timestamp: new Date(),
       footer: {
-        text: 'verify yourself',
+        text: VERIFY_TEMPLATE,
         icon_url:
           'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png',
       },

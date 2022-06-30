@@ -11,9 +11,6 @@ export const switchRoleFromTemplate = async (
   user: User | PartialUser,
   type: 'add' | 'remove'
 ) => {
-  // fetch reaction status and roles
-  await reaction.fetch();
-
   // check if reaction is from bot and its role template
   const isTemplate = reaction.message.embeds[0]?.footer?.text;
   if (isTemplate !== ROLE_TEMPLATE) return;
