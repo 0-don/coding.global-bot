@@ -23,7 +23,7 @@ export const isModalSubmit = async (interaction: Interaction<'raw'>) => {
         answers = fs.readFileSync(filePath, 'utf8').split('\n');
       } catch (_) {
         return await interaction.reply({
-          content: 'dont change the id field,please try again.',
+          content: 'dont change the id field, please try again.',
           ephemeral: true,
         });
       }
