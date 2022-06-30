@@ -5,7 +5,6 @@ import type { RoleTemplateReaction } from '../types/types';
 import { parseJSON } from '../utils/parseJSON';
 import { createRoleTemplateEmbed } from '../utils/roles/roleTemplate';
 
-
 export default {
   data: new SlashCommandBuilder()
     .setName('edit-role-template')

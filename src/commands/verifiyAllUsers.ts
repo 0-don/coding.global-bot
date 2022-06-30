@@ -47,6 +47,9 @@ export default {
     for (let memberCollection of members) {
       // get the user from map collection
       const member = memberCollection[1];
+
+      log(member.user.username);
+
       // check if user exists in db
       const dbUser = await prisma.user.findFirst({
         where: { userId: { equals: member.id } },

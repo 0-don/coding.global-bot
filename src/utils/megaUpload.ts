@@ -5,7 +5,7 @@ import { log } from 'console';
 
 export const megaUpload = async (input: string, fileName: string) => {
   try {
-    const tempFilePath = path.join(__dirname, fileName);
+    const tempFilePath = path.join(path.resolve(), fileName);
 
     // create temp file with formatted json
     fs.writeFileSync(tempFilePath, input);
