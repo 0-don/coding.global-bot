@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
+import { statusRoles } from '../utils/constants';
 
 const prisma = new PrismaClient();
 
@@ -15,48 +16,24 @@ export default {
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
     await interaction.guild?.members.fetch();
+    await interaction.guild?.roles.fetch();
     const members = interaction.guild?.members.cache;
 
     if (!members) return;
 
-    await interaction.guild?.roles.fetch();
-
-    const verifiedRole = interaction.guild?.roles.cache.find(
-      (role) => role.name === 'verified'
-    );
-    const voiceOnlyRole = interaction.guild?.roles.cache.find(
-      (role) => role.name === 'voiceOnly'
-    );
-    const readOnlyRole = interaction.guild?.roles.cache.find(
-      (role) => role.name === 'readOnly'
-    );
-    const mutedRole = interaction.guild?.roles.cache.find(
-      (role) => role.name === 'mute'
-    );
-    const unverifiedRole = interaction.guild?.roles.cache.find(
-      (role) => role.name === 'unverified'
-    );
+    const allStatusRoles = statusRoles.map((role) => ({
+      [role]: interaction.guild?.roles.cache.find((r) => r.name === role),
+    }));
 
     await interaction.deferReply({ ephemeral: true });
 
-    if (
-      !verifiedRole ||
-      !voiceOnlyRole ||
-      !readOnlyRole ||
-      !mutedRole ||
-      !unverifiedRole
-    ) {
-      return interaction.editReply({
-        content: `verified: ${new Boolean(
-          !!verifiedRole
-        ).toString()}\nvoiceOnly: ${new Boolean(
-          !!voiceOnlyRole
-        ).toString()}\nreadOnly: ${new Boolean(
-          !!readOnlyRole
-        ).toString()}\nmute: ${new Boolean(
-          !!mutedRole
-        ).toString()}\nunverified: ${new Boolean(!!unverifiedRole).toString()}`,
-      });
+    if (statusRoles.some((role) => !allStatusRoles[role])) {
+      const content = statusRoles
+        .map(
+          (role) => `${role}: ${new Boolean(!!allStatusRoles[role]).toString()}`
+        )
+        .join('\n');
+      return interaction.editReply({ content });
     }
 
     for (let memberCollection of members) {
@@ -80,14 +57,16 @@ export default {
         });
       }
 
-      if (member.user.bot) continue;
-      if (member.roles.cache.has(verifiedRole.id)) continue;
-      if (member.roles.cache.has(voiceOnlyRole.id)) continue;
-      if (member.roles.cache.has(readOnlyRole.id)) continue;
-      if (member.roles.cache.has(mutedRole.id)) continue;
-      if (member.roles.cache.has(unverifiedRole.id)) continue;
+      if (
+        statusRoles.some((role) => {
+          member.roles.cache.has(allStatusRoles[role].id);
+        }) ||
+        member.user.bot
+      )
+        continue;
+
       log(member.user.username);
-      await member.roles.add(verifiedRole);
+      await member.roles.add(allStatusRoles['verified'].id);
     }
 
     return interaction.editReply({ content: 'All users verified' });

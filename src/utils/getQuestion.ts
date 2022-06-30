@@ -1,8 +1,6 @@
 import axios from 'axios';
 import type { QuestionRequest } from '../types/types';
-
-const MAX_RETRIES = 3;
-const MAX_QUESTION_LENGTH = 45;
+import { MAX_QUESTION_LENGTH, MAX_RETRIES } from './constants';
 
 export const getQuestion = async (): Promise<QuestionRequest> => {
   let questionRequest: { data: QuestionRequest } = {
