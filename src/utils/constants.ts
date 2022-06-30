@@ -11,7 +11,7 @@ export const statusRoles = [
 export const VOICE_EVENT_CHANNEL = 'voice-events';
 export const MEMBERS_COUNT_CHANNEL = 'Members:';
 
-export const MAX_RETRIES = 3;
+export const MAX_QUESTION_RETRIES = 3;
 export const MAX_QUESTION_LENGTH = 45;
 
 export const voiceEmbedExample: MessageEmbedOptions = {

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { QuestionRequest } from '../types/types';
-import { MAX_QUESTION_LENGTH, MAX_RETRIES } from './constants';
+import { MAX_QUESTION_LENGTH, MAX_QUESTION_RETRIES } from './constants';
 
 export const getQuestion = async (): Promise<QuestionRequest> => {
   let questionRequest: { data: QuestionRequest } = {
@@ -19,11 +19,14 @@ export const getQuestion = async (): Promise<QuestionRequest> => {
       );
     } catch (_) {}
 
-    if (i > MAX_RETRIES) break;
+    if (i > MAX_QUESTION_RETRIES) break;
     i++;
   }
 
-  if (questionRequest.data.q?.length > MAX_QUESTION_LENGTH || i > MAX_RETRIES) {
+  if (
+    questionRequest.data.q?.length > MAX_QUESTION_LENGTH ||
+    i > MAX_QUESTION_RETRIES
+  ) {
     questionRequest = {
       data: {
         q: '1 + 1 = ?',
