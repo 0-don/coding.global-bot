@@ -1,6 +1,6 @@
 import type { GuildMember, PartialGuildMember } from 'discord.js';
 import type { StatusRoles } from '../../types/types';
-import { statusRoles } from '../constants';
+import { EVERYONE, statusRoles } from '../constants';
 import { joinRole } from '../members/joinRole';
 
 export const updateStatusRoles = async (
@@ -8,10 +8,10 @@ export const updateStatusRoles = async (
   newMember: GuildMember | PartialGuildMember
 ) => {
   const oldRoles = oldMember.roles.cache
-    .filter((role) => role.name !== '@everyone')
+    .filter(({ name }) => name !== EVERYONE)
     .map((role) => role.name);
   const newRoles = newMember.roles.cache
-    .filter((role) => role.name !== '@everyone')
+    .filter(({ name }) => name !== EVERYONE)
     .map((role) => role.name);
 
   // if somehow user has no role make him unverfied

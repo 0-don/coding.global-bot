@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import type { GuildMember, PartialGuildMember } from 'discord.js';
+import { EVERYONE } from '../constants';
 
 const prisma = new PrismaClient();
 
@@ -8,10 +9,10 @@ export const updateDbRoles = async (
   newMember: GuildMember | PartialGuildMember
 ) => {
   const oldRoles = oldMember.roles.cache
-    .filter((role) => role.name !== '@everyone')
+    .filter(({ name }) => name !== EVERYONE)
     .map((role) => role);
   const newRoles = newMember.roles.cache
-    .filter((role) => role.name !== '@everyone')
+    .filter(({ name }) => name !== EVERYONE)
     .map((role) => role);
 
   if (newRoles.length > oldRoles.length) {

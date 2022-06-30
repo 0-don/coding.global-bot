@@ -3,11 +3,12 @@ import path from 'path';
 import crypto from 'crypto';
 import type { Interaction } from 'discord.js';
 import type { StatusRoles } from '../../types/types';
+import { VERIFY_CHANNEL } from '../constants';
 
 export const isModalSubmit = async (interaction: Interaction<'raw'>) => {
   if (interaction.isModalSubmit()) {
     // verification modal proccess
-    if (interaction.customId === 'verify') {
+    if (interaction.customId === VERIFY_CHANNEL) {
       const questionInput = interaction.fields
         .getTextInputValue('questionInput')
         .toLocaleLowerCase();

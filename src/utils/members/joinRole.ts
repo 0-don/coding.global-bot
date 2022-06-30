@@ -5,8 +5,9 @@ import { statusRoles } from '../constants';
 export const joinRole = async (member: GuildMember) => {
   await member.fetch();
 
+  // this status role will be given on new memeber join if he has no role
   const unverifiedRole = member.roles.cache.find(
-    (role) => role.name === ('unverified' as StatusRoles)
+    ({ name }) => name === ('unverified' as StatusRoles)
   );
 
   // if status role on user then exit
