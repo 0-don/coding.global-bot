@@ -3,6 +3,7 @@ import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
 
 import { v4 as uuidv4 } from 'uuid';
+import { ROLE_TEMPLATE } from '../utils/constants';
 import { megaUpload } from '../utils/megaUpload';
 import { parseRoleTemplateFromMsg } from '../utils/roles/roleTemplate';
 
@@ -27,7 +28,7 @@ export default {
     const msg = await interaction.channel?.messages.fetch(messageID!);
 
     // check if exits and if it is an embeded message
-    if (!msg || msg.embeds[0]?.footer?.text !== 'role template') {
+    if (!msg || msg.embeds[0]?.footer?.text !== ROLE_TEMPLATE) {
       return interaction.reply({
         content:
           "I can't find the message you're referring to OR\nit's not a role template.",

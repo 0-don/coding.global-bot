@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
 import type { RoleTemplateReaction } from '../types/types';
+import { ROLE_TEMPLATE } from '../utils/constants';
 import { parseJSON } from '../utils/parseJSON';
 import { createRoleTemplateEmbed } from '../utils/roles/roleTemplate';
 
@@ -37,10 +38,9 @@ export default {
     const msg = await interaction.channel?.messages.fetch(messageID!);
 
     // check if exits and if it is an embeded role template message
-    if (!msg || msg.embeds[0]?.footer?.text !== 'role template') {
+    if (!msg || msg.embeds[0]?.footer?.text !== ROLE_TEMPLATE) {
       return interaction.reply({
-        content:
-          "I can't find the message you're referring to OR\nit's not a role template.",
+        content: `I can't find the message you're referring to **OR** it's not a ${ROLE_TEMPLATE}.`,
         ephemeral: true,
       });
     }
