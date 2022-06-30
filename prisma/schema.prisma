@@ -17,7 +17,7 @@ model Member {
   username String
   roles    MemberRole[]
 
-  @@unique([memberId, guildId], name: "member_guild_unique")
+  @@unique([memberId, guildId], name: "member_guild")
 }
 
 model MemberRole {
@@ -27,5 +27,5 @@ model MemberRole {
   name     String
   member   Member @relation(fields: [memberId], references: [memberId])
 
-  @@unique([memberId, roleId], name: "member_role_unique")
+  @@unique([memberId, roleId], name: "member_role")
 }

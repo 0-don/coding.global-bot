@@ -24,9 +24,9 @@ export const updateDbRoles = async (
     if (newAddedRole.editable) {
       await prisma.memberRole.upsert({
         where: {
-          member_role_unique: {
-            roleId: newAddedRole.id,
+          member_role: {
             memberId: newMember.id,
+            roleId: newAddedRole.id,
           },
         },
         create: {
@@ -51,9 +51,9 @@ export const updateDbRoles = async (
     try {
       await prisma.memberRole.delete({
         where: {
-          member_role_unique: {
-            roleId: newRemovedRole.id,
+          member_role: {
             memberId: newMember.id,
+            roleId: newRemovedRole.id,
           },
         },
       });
