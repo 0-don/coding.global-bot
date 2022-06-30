@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { PrismaClient } from '@prisma/client';
 import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction } from 'discord.js';
+import type { CacheType, CommandInteraction, Role } from 'discord.js';
 import { statusRoles } from '../utils/constants';
 
 const prisma = new PrismaClient();
@@ -21,28 +21,39 @@ export default {
 
     if (!members) return;
 
-    const allStatusRoles = statusRoles.map((role) => ({
-      [role]: interaction.guild?.roles.cache.find((r) => r.name === role),
-    }));
+    // create a guild role key object pair
+    let guildStatusRoles: {
+      [x: string]: Role | undefined;
+    } = {};
+    for (let role of statusRoles)
+      guildStatusRoles[role] = interaction.guild?.roles.cache.find(
+        ({ name }) => name === role
+      );
 
     await interaction.deferReply({ ephemeral: true });
 
-    if (statusRoles.some((role) => !allStatusRoles[role])) {
+    // if one of the roles is missing, return
+    if (statusRoles.some((role) => !guildStatusRoles[role])) {
       const content = statusRoles
         .map(
-          (role) => `${role}: ${new Boolean(!!allStatusRoles[role]).toString()}`
+          (role) =>
+            `${role}: ${new Boolean(!!guildStatusRoles[role]).toString()}`
         )
         .join('\n');
       return interaction.editReply({ content });
     }
 
+    // loop over all guild members
     for (let memberCollection of members) {
+      // get the user from map collection
       const member = memberCollection[1];
+      // check if user exists in db
       const dbUser = await prisma.user.findFirst({
         where: { userId: { equals: member.id } },
         include: { roles: true },
       });
 
+      // create if not exist
       if (!dbUser) {
         await prisma.user.create({
           data: {
@@ -52,21 +63,26 @@ export default {
           },
         });
       } else {
+        // asign previously created roles to user
         dbUser.roles.forEach((role) => {
           member.roles.add(role.roleId);
         });
       }
 
+      // refetch user if some roles were reasinged
+      await member.fetch();
+
+      // if one of the status roles is on user, continue
       if (
         statusRoles.some((role) => {
-          member.roles.cache.has(allStatusRoles[role].id);
+          member.roles.cache.has(guildStatusRoles[role]!.id);
         }) ||
         member.user.bot
       )
         continue;
 
-      log(member.user.username);
-      await member.roles.add(allStatusRoles['verified'].id);
+      // verify user
+      await member.roles.add(guildStatusRoles['verified']!.id);
     }
 
     return interaction.editReply({ content: 'All users verified' });
