@@ -6,6 +6,10 @@ const prisma = new PrismaClient();
 export const upsertDbMember = async (
   member: GuildMember | PartialGuildMember
 ) => {
+
+  // dont add bots to the list
+  if(member.user.bot) return;
+
   const dbMemberInput: Prisma.MemberCreateInput = {
     memberId: member.id,
     guildId: member.guild.id,
