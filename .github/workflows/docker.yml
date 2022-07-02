@@ -25,7 +25,7 @@ jobs:
           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
           echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env
           echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
-          echo 'DATABASE_URL=postgresql://${{POSTGRES_USER}}:${{POSTGRES_PASSWORD}}@${{POSTGRES_HOST}}:5432/${{POSTGRES_DB}}?schema=public' >> .env
+          echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
           cat .env
 
       - name: Docker run
