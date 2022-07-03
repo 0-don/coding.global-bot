@@ -17,7 +17,7 @@ services:
     image: postgres:14.4-alpine
     restart: always
     volumes:
-      - ~/duplicati-volume/backups/coding-global-db-pgbackup:/backups
+      - ~/duplicati-volume/source/coding-global-db-pgbackup:/backups
     networks:
       - proxy
     environment:
