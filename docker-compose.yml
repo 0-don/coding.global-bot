@@ -29,14 +29,14 @@ services:
       - 'traefik.tcp.services.coding-global-db.loadbalancer.server.port=5432'
       - 'traefik.tcp.routers.coding-global-db.entrypoints=coding-global-db'
       - 'traefik.tcp.routers.coding-global-db.service=coding-global-db'
-  coding-global-pgbackups:
-    container_name: coding-global-pgbackups
+  coding-global-pgbackup:
+    container_name: coding-global-pgbackup
     image: prodrigestivill/postgres-backup-local
     restart: always
     networks:
       - proxy
     volumes:
-      - ~/pgbackups:/backups
+      - ~/duplicati-volume/source/coding-global-db-pgbackup:/backups
     links:
       - coding-global-db
     depends_on:
