@@ -42,7 +42,6 @@ services:
     depends_on:
       - coding-global-db
     environment:
-      - BACKUP_SUFFIX=.sql.zip
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
