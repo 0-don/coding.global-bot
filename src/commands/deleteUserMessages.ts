@@ -48,14 +48,12 @@ export default {
       for (let message of messages) {
         if (
           message.author.id === user.id &&
-          0 > dayjs(message.createdAt).diff(daysTimestamp, 'minutes')
-        ) {
-          console.log(dayjs(message.createdAt).diff(daysTimestamp, 'minutes'));
+          0 < dayjs(message.createdAt).diff(daysTimestamp, 'minutes')
+        )
           await message.delete();
-        }
       }
     }
 
-    interaction.editReply({ content: 'wtf' });
+    interaction.editReply({ content: 'user messages are deleted' });
   },
 };
