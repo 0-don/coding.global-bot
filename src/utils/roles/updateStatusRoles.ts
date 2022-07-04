@@ -14,8 +14,11 @@ export const updateStatusRoles = async (
     .filter(({ name }) => name !== EVERYONE)
     .map((role) => role.name);
 
-  // if somehow user has no role make him unverfied
-  if (!newRoles.length) joinRole(newMember as GuildMember);
+  const activeStatusRoles = statusRoles.some((role) => newRoles.includes(role));
+
+  // if somehow user has no STATUS role make him unverfied
+  if (!newRoles.length || !activeStatusRoles)
+    joinRole(newMember as GuildMember);
   // only run if user has a new role
   if (oldRoles.length >= newRoles.length) return;
 
