@@ -1,17 +1,6 @@
 version: "3.8"
 
 services:
-  coding-global-bot:
-    container_name: coding-global-bot
-    depends_on:
-      - coding-global-db
-    networks:
-      - proxy
-    build:
-      context: ./
-      dockerfile: Dockerfile
-      target: prod
-    restart: always
   coding-global-db:
     container_name: coding-global-db
     image: postgres:14.4-alpine
@@ -52,6 +41,18 @@ services:
       - SCHEDULE=@every 6h
       - BACKUP_KEEP_DAYS=7
       - HEALTHCHECK_PORT=8080
+  coding-global-bot:
+    container_name: coding-global-bot
+    depends_on:
+      - coding-global-db
+    networks:
+      - proxy
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: prod
+    restart: always
+
 volumes:
   postgres:
     driver: local
