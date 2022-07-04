@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export const bumpCount = async (message: Message<boolean>) => {
   if (
-    message.interaction?.type !== 'APPLICATION_COMMAND' &&
+    message.interaction?.type !== 'APPLICATION_COMMAND' ||
     message.interaction?.commandName !== 'bump'
   )
     return;
