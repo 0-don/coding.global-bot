@@ -35,18 +35,21 @@ export default {
       take: 25,
     });
 
-    const fields = bumps.map(({ count, memberId, username }, index) => {
-      const user = interaction.guild!.members.cache.get(memberId);
-      const userAvatar = user?.user.avatarURL({
-        format: 'png',
-        dynamic: true,
-      });
+    const fields = bumps.map(({ count, memberId }, index) => {
+      const member = interaction.guild?.members.cache.get(memberId);
+
+      const userServerName = member?.user.toString();
+      const userGlobalName = member?.user.username;
+      const place = index + 1;
+
+      let medal = '🏅';
+      if (place === 1) medal = '🥇';
+      if (place === 2) medal = '🥈';
+      if (place === 3) medal = '🥉';
 
       return {
-        name: `${index + 1}. ${username}`,
-        value: `${count} bumps`,
-        inline: true,
-        icon_url: userAvatar || BOT_ICON,
+        name: `${medal}${place}. ${userServerName} - ${userGlobalName}`,
+        value: `${medal} **${count}** bumps`,
       };
     });
 
