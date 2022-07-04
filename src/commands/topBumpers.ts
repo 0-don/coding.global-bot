@@ -50,8 +50,8 @@ export default {
       if (place === 3) medal = '🥉';
 
       return {
-        name: `${medal} ${place}${suffix}. ${userGlobalName} with **${count}** bumps`,
-        value: ``,
+        name: `\u200b`,
+        value: `${medal} ${place}${suffix}. ${userGlobalName} with **${count}** bumps`,
       };
     });
 
