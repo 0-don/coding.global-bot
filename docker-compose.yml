@@ -45,6 +45,8 @@ services:
     container_name: coding-global-bot
     depends_on:
       - coding-global-db
+    links:
+      - coding-global-db
     networks:
       - proxy
     build:
