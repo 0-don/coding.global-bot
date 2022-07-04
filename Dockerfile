@@ -17,6 +17,7 @@ WORKDIR /app
 
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
+RUN npx prisma migrate deploy
 RUN yarn build 
 #############################################
 
