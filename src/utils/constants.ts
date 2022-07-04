@@ -16,6 +16,7 @@ export const MUTE = statusRoles[3];
 export const UNVERIFIED = statusRoles[4];
 
 export const VERIFY_CHANNEL = 'verify';
+export const BOT_CHANNEL = 'bot';
 export const VOICE_EVENT_CHANNEL = 'voice-events';
 export const MEMBERS_COUNT_CHANNEL = 'Members:';
 
@@ -24,8 +25,11 @@ export const MAX_QUESTION_LENGTH = 45;
 
 export const ROLE_TEMPLATE = 'role template';
 export const VERIFY_TEMPLATE = 'verify yourself';
+export const BUMP_LEADERBOARDS_TEMPLATE = 'bump leaderboard';
 
 export const RED_COLOR = '#fd0000';
+export const BOT_ICON =
+  'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png';
 
 export const voiceEmbedExample: MessageEmbedOptions = {
   color: RED_COLOR,
@@ -33,8 +37,7 @@ export const voiceEmbedExample: MessageEmbedOptions = {
   timestamp: new Date(),
   footer: {
     text: 'voice event',
-    icon_url:
-      'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png',
+    icon_url: BOT_ICON,
   },
 };
 
@@ -46,7 +49,6 @@ export const roleTemplateExampleEmbed: MessageEmbedOptions = {
   timestamp: new Date(),
   footer: {
     text: ROLE_TEMPLATE,
-    icon_url:
-      'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png',
+    icon_url: BOT_ICON,
   },
 };

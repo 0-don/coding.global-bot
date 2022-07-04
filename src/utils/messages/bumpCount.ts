@@ -10,34 +10,23 @@ export const bumpCount = async (message: Message<boolean>) => {
   )
     return;
 
+  const memberId = message.interaction.user.id;
+  const username = message.interaction.user.username;
+  const guildName = message.guild!.name;
+  const guildId = message.guild!.id;
+
   const memberBump = await prisma.memberBump.findFirst({
-    where: {
-      memberId: message.author.id,
-      guildId: message.guild?.id,
-    },
+    where: { memberId, guildId },
   });
 
   if (!memberBump) {
     await prisma.memberBump.create({
-      data: {
-        memberId: message.author.id,
-        guildId: message.guild!.id,
-        count: 1,
-        guildName: message.guild!.name,
-        username: message.author.username,
-      },
+      data: { memberId, guildId, guildName, username, count: 1 },
     });
   } else {
     await prisma.memberBump.update({
-      where: {
-        member_guild: {
-          memberId: message.author.id,
-          guildId: message.guild!.id,
-        },
-      },
-      data: {
-        count: memberBump.count + 1,
-      },
+      where: { member_guild: { memberId, guildId } },
+      data: { count: memberBump.count + 1 },
     });
   }
 };
