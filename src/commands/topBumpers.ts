@@ -51,7 +51,7 @@ export default {
 
       return {
         name: `\u200b`,
-        value: `${medal} ${place}${suffix}. ${userGlobalName} with **${count}** bumps`,
+        value: `${medal} ${suffix}. ${userGlobalName} with **${count}** bumps`,
       };
     });
 
