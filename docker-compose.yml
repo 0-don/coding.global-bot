@@ -49,7 +49,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_EXTRA_OPTS=-Fc
-      - SCHEDULE=@hourly
+      - SCHEDULE=@every 6h
       - BACKUP_KEEP_DAYS=7
       - HEALTHCHECK_PORT=8080
 volumes:
