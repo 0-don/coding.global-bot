@@ -17,6 +17,7 @@ model Member {
   username  String
   guildName String
   roles     MemberRole[]
+  bumps     MemberBump[]
 
   @@unique([memberId, guildId], name: "member_guild")
 }
@@ -31,4 +32,16 @@ model MemberRole {
   member    Member @relation(fields: [memberId], references: [memberId])
 
   @@unique([memberId, roleId], name: "member_role")
+}
+
+model MemberBump {
+  id        Int    @id @default(autoincrement())
+  memberId  String
+  guildId   String
+  guildName String
+  username  String
+  count     Int
+  member    Member @relation(fields: [memberId], references: [memberId])
+
+  @@unique([memberId, guildId], name: "member_guild")
 }

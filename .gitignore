@@ -5,4 +5,3 @@ package-lock.json
 dist
 *-roleTemplate.json
 *.txt
-migrations
