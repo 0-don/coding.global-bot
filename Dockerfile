@@ -39,10 +39,10 @@ RUN chown -R server:nodejs /app
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.env ./.env
-
+COPY --from=builder /app/prisma ./prisma
 
 USER server
 EXPOSE 4001
 
-CMD ["yarn", "start"]
+CMD ["yarn", "start:migrate:prod"]
 #############################################
