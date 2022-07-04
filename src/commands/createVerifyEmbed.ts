@@ -6,7 +6,12 @@ import type {
   MessageEmbedOptions,
   TextChannel,
 } from 'discord.js';
-import { RED_COLOR, VERIFY_CHANNEL, VERIFY_TEMPLATE } from '../utils/constants';
+import {
+  BOT_ICON,
+  RED_COLOR,
+  VERIFY_CHANNEL,
+  VERIFY_TEMPLATE,
+} from '../utils/constants';
 
 export default {
   data: new SlashCommandBuilder()
@@ -48,8 +53,7 @@ Type **/verify** followed by the answer to the captcha question.
       timestamp: new Date(),
       footer: {
         text: VERIFY_TEMPLATE,
-        icon_url:
-          'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png',
+        icon_url: BOT_ICON,
       },
     };
 
