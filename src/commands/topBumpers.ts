@@ -12,6 +12,7 @@ import {
   BUMP_LEADERBOARDS_TEMPLATE,
   RED_COLOR,
 } from '../utils/constants';
+import { ordinal_suffix_of } from '../utils/helpers';
 
 const prisma = new PrismaClient();
 
@@ -38,18 +39,19 @@ export default {
     const fields = bumps.map(({ count, memberId }, index) => {
       const member = interaction.guild?.members.cache.get(memberId);
 
-      const userServerName = member?.user.toString();
+      // const userServerName = member?.user.toString();
       const userGlobalName = member?.user.username;
       const place = index + 1;
 
+      const suffix = ordinal_suffix_of(place);
       let medal = '🏅';
       if (place === 1) medal = '🥇';
       if (place === 2) medal = '🥈';
       if (place === 3) medal = '🥉';
 
       return {
-        name: `${medal}${place}. ${userServerName} - ${userGlobalName}`,
-        value: `${medal} **${count}** bumps`,
+        name: `${medal} ${place}${suffix}. ${userGlobalName} with **${count}** bumps`,
+        value: ``,
       };
     });
 
