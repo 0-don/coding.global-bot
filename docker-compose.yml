@@ -3,7 +3,7 @@ version: "3.8"
 services:
   coding-global-db:
     container_name: coding-global-db
-    image: timescale/timescaledb:latest-pg14
+    image: postgres:14.4-alpine
     restart: always
     volumes:
       - ~/duplicati-volume/source/coding-global-db-pgbackup:/backups

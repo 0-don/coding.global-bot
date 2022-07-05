@@ -25,6 +25,7 @@ export const updateDbRoles = async (
       const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
         roleId: newAddedRole.id,
         memberId: newMember.id,
+        guildId: newMember.guild.id,
       };
       await prisma.memberRole.upsert({
         where: {
