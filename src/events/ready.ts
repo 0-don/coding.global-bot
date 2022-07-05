@@ -46,7 +46,7 @@ export default {
         memberCount: sortedDates.filter((d) => dayjs(d) <= dayjs(date)).length,
       }));
 
-      await prisma.guildMemberCount.createMany({ data });
+      await prisma.guildMemberCount.createMany({ data, skipDuplicates: true });
     }
   },
 };
