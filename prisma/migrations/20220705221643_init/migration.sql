@@ -8,11 +8,12 @@ CREATE TABLE "Guild" (
 
 -- CreateTable
 CREATE TABLE "GuildMemberCount" (
+    "id" SERIAL NOT NULL,
     "guildId" TEXT NOT NULL,
     "memberCount" INTEGER NOT NULL,
     "date" DATE NOT NULL,
 
-    CONSTRAINT "GuildMemberCount_pkey" PRIMARY KEY ("guildId")
+    CONSTRAINT "GuildMemberCount_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -57,7 +58,7 @@ CREATE TABLE "MemberBump" (
 CREATE UNIQUE INDEX "Guild_guildId_key" ON "Guild"("guildId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "GuildMemberCount_guildId_key" ON "GuildMemberCount"("guildId");
+CREATE UNIQUE INDEX "GuildMemberCount_guildId_date_key" ON "GuildMemberCount"("guildId", "date");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Member_memberId_key" ON "Member"("memberId");

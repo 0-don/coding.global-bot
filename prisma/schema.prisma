@@ -11,20 +11,24 @@ datasource db {
 }
 
 model Guild {
-  guildId          String            @id @unique
+  guildId          String             @id @unique
   guildName        String
-  guildMemberCount GuildMemberCount?
+  guildMemberCount GuildMemberCount[]
   MemberGuild      MemberGuild[]
   MemberBump       MemberBump[]
   MemberRole       MemberRole[]
+
 }
 
 model GuildMemberCount {
-  guildId     String   @id @unique
+  id          Int      @id @default(autoincrement())
+  guildId     String
   memberCount Int
   date        DateTime @db.Date
 
-  guild Guild @relation(fields: [guildId], references: [guildId])
+  guild Guild? @relation(fields: [guildId], references: [guildId])
+
+  @@unique([guildId, date], name: "guild_date")
 }
 
 model Member {
