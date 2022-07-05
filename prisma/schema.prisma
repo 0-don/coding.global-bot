@@ -4,6 +4,7 @@
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -11,16 +12,20 @@ datasource db {
 
 model GuildMemberAdd {
   id       Int      @id @default(autoincrement())
-  memberId Int
-  guildId  Int
+  memberId String
+  guildId  String
   date     DateTime
+
+  @@unique([memberId, guildId, date], name: "member_guild_date")
 }
 
 model GuildMemberRemove {
   id       Int      @id @default(autoincrement())
-  memberId Int
-  guildId  Int
+  memberId String
+  guildId  String
   date     DateTime
+
+  @@unique([memberId, guildId, date], name: "member_guild_date")
 }
 
 model Member {
@@ -45,6 +50,7 @@ model MemberGuild {
 model MemberRole {
   id       Int    @id @default(autoincrement())
   roleId   String
+  guildId  String
   memberId String
   member   Member @relation(fields: [memberId], references: [memberId])
 

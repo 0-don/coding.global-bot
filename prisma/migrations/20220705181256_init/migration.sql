@@ -1,8 +1,8 @@
 -- CreateTable
 CREATE TABLE "GuildMemberAdd" (
     "id" SERIAL NOT NULL,
-    "memberId" INTEGER NOT NULL,
-    "guildId" INTEGER NOT NULL,
+    "memberId" TEXT NOT NULL,
+    "guildId" TEXT NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "GuildMemberAdd_pkey" PRIMARY KEY ("id")
@@ -11,8 +11,8 @@ CREATE TABLE "GuildMemberAdd" (
 -- CreateTable
 CREATE TABLE "GuildMemberRemove" (
     "id" SERIAL NOT NULL,
-    "memberId" INTEGER NOT NULL,
-    "guildId" INTEGER NOT NULL,
+    "memberId" TEXT NOT NULL,
+    "guildId" TEXT NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "GuildMemberRemove_pkey" PRIMARY KEY ("id")
@@ -41,6 +41,7 @@ CREATE TABLE "MemberGuild" (
 CREATE TABLE "MemberRole" (
     "id" SERIAL NOT NULL,
     "roleId" TEXT NOT NULL,
+    "guildId" TEXT NOT NULL,
     "memberId" TEXT NOT NULL,
 
     CONSTRAINT "MemberRole_pkey" PRIMARY KEY ("id")
@@ -55,6 +56,12 @@ CREATE TABLE "MemberBump" (
 
     CONSTRAINT "MemberBump_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GuildMemberAdd_memberId_guildId_date_key" ON "GuildMemberAdd"("memberId", "guildId", "date");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GuildMemberRemove_memberId_guildId_date_key" ON "GuildMemberRemove"("memberId", "guildId", "date");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Member_memberId_key" ON "Member"("memberId");
