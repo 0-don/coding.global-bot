@@ -3,6 +3,7 @@ import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
 import { statusRoles, VERIFIED } from '../utils/constants';
+import { guildMemberAddDb } from '../utils/members/guildMemberAddDb';
 import { upsertDbMember } from '../utils/members/upsertDbMember';
 import { createUserDbRoles } from '../utils/roles/createUserDbRoles';
 import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
@@ -52,6 +53,9 @@ export default {
 
       // create user roles in db if missing
       await createUserDbRoles(member);
+
+      // get the user's join date
+      await guildMemberAddDb(member);
 
       // if one of the status roles is on user, continue
       if (
