@@ -4,44 +4,59 @@
 generator client {
   provider = "prisma-client-js"
 }
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+model GuildMemberAdd {
+  id       Int      @id @default(autoincrement())
+  memberId Int
+  guildId  Int
+  date     DateTime
+}
+
+model GuildMemberRemove {
+  id       Int      @id @default(autoincrement())
+  memberId Int
+  guildId  Int
+  date     DateTime
+}
+
 model Member {
-  id        Int          @id @default(autoincrement())
-  memberId  String       @unique
-  guildId   String
-  username  String
-  guildName String
-  roles     MemberRole[]
-  bumps     MemberBump[]
+  id       Int           @id @default(autoincrement())
+  memberId String        @unique
+  username String
+  roles    MemberRole[]
+  guilds   MemberGuild[]
+  bumps    MemberBump[]
+}
+
+model MemberGuild {
+  id       Int     @id @default(autoincrement())
+  memberId String
+  guildId  String
+  status   Boolean
+  member   Member  @relation(fields: [memberId], references: [memberId])
 
   @@unique([memberId, guildId], name: "member_guild")
 }
 
 model MemberRole {
-  id        Int    @id @default(autoincrement())
-  roleId    String
-  memberId  String
-  name      String
-  guildName String
-  username  String
-  member    Member @relation(fields: [memberId], references: [memberId])
+  id       Int    @id @default(autoincrement())
+  roleId   String
+  memberId String
+  member   Member @relation(fields: [memberId], references: [memberId])
 
   @@unique([memberId, roleId], name: "member_role")
 }
 
 model MemberBump {
-  id        Int    @id @default(autoincrement())
-  memberId  String
-  guildId   String
-  guildName String
-  username  String
-  count     Int
-  member    Member @relation(fields: [memberId], references: [memberId])
+  id       Int    @id @default(autoincrement())
+  memberId String
+  guildId  String
+  count    Int
+  member   Member @relation(fields: [memberId], references: [memberId])
 
   @@unique([memberId, guildId], name: "member_guild")
 }

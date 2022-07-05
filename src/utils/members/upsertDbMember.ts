@@ -11,9 +11,7 @@ export const upsertDbMember = async (
 
   const dbMemberInput: Prisma.MemberCreateInput = {
     memberId: member.id,
-    guildId: member.guild.id,
     username: member.user.username,
-    guildName: member.guild.name,
   };
 
   const dbMember = await prisma.member.upsert({
