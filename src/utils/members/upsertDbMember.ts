@@ -18,6 +18,13 @@ export const upsertDbMember = async (
     username,
   };
 
+  const dbMember = await prisma.member.upsert({
+    where: { memberId: dbMemberInput.memberId },
+    create: dbMemberInput,
+    update: dbMemberInput,
+    include: { roles: true },
+  });
+
   const dbMemberGuildInput: Prisma.MemberGuildUncheckedCreateInput = {
     memberId,
     guildId,
@@ -28,13 +35,6 @@ export const upsertDbMember = async (
     where: { member_guild: { memberId, guildId } },
     create: dbMemberGuildInput,
     update: dbMemberGuildInput,
-  });
-
-  const dbMember = await prisma.member.upsert({
-    where: { memberId: dbMemberInput.memberId },
-    create: dbMemberInput,
-    update: dbMemberInput,
-    include: { roles: true },
   });
 
   if (dbMember.roles.length)

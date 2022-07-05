@@ -1,30 +1,26 @@
 -- CreateTable
-CREATE TABLE "GuildMemberAdd" (
-    "id" SERIAL NOT NULL,
-    "memberId" TEXT NOT NULL,
+CREATE TABLE "Guild" (
     "guildId" TEXT NOT NULL,
-    "date" TIMESTAMP(3) NOT NULL,
+    "guildName" TEXT NOT NULL,
 
-    CONSTRAINT "GuildMemberAdd_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Guild_pkey" PRIMARY KEY ("guildId")
 );
 
 -- CreateTable
-CREATE TABLE "GuildMemberRemove" (
-    "id" SERIAL NOT NULL,
-    "memberId" TEXT NOT NULL,
+CREATE TABLE "GuildMemberCount" (
     "guildId" TEXT NOT NULL,
-    "date" TIMESTAMP(3) NOT NULL,
+    "memberCount" INTEGER NOT NULL,
+    "date" DATE NOT NULL,
 
-    CONSTRAINT "GuildMemberRemove_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "GuildMemberCount_pkey" PRIMARY KEY ("guildId")
 );
 
 -- CreateTable
 CREATE TABLE "Member" (
-    "id" SERIAL NOT NULL,
     "memberId" TEXT NOT NULL,
     "username" TEXT NOT NULL,
 
-    CONSTRAINT "Member_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Member_pkey" PRIMARY KEY ("memberId")
 );
 
 -- CreateTable
@@ -58,10 +54,10 @@ CREATE TABLE "MemberBump" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "GuildMemberAdd_memberId_guildId_date_key" ON "GuildMemberAdd"("memberId", "guildId", "date");
+CREATE UNIQUE INDEX "Guild_guildId_key" ON "Guild"("guildId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "GuildMemberRemove_memberId_guildId_date_key" ON "GuildMemberRemove"("memberId", "guildId", "date");
+CREATE UNIQUE INDEX "GuildMemberCount_guildId_key" ON "GuildMemberCount"("guildId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Member_memberId_key" ON "Member"("memberId");
@@ -76,10 +72,22 @@ CREATE UNIQUE INDEX "MemberRole_memberId_roleId_key" ON "MemberRole"("memberId",
 CREATE UNIQUE INDEX "MemberBump_memberId_guildId_key" ON "MemberBump"("memberId", "guildId");
 
 -- AddForeignKey
+ALTER TABLE "GuildMemberCount" ADD CONSTRAINT "GuildMemberCount_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("guildId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MemberGuild" ADD CONSTRAINT "MemberGuild_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("guildId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "MemberGuild" ADD CONSTRAINT "MemberGuild_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member"("memberId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "MemberRole" ADD CONSTRAINT "MemberRole_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("guildId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "MemberRole" ADD CONSTRAINT "MemberRole_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member"("memberId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MemberBump" ADD CONSTRAINT "MemberBump_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("guildId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MemberBump" ADD CONSTRAINT "MemberBump_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member"("memberId") ON DELETE RESTRICT ON UPDATE CASCADE;

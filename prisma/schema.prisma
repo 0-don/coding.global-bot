@@ -10,27 +10,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model GuildMemberAdd {
-  id       Int      @id @default(autoincrement())
-  memberId String
-  guildId  String
-  date     DateTime
-
-  @@unique([memberId, guildId, date], name: "member_guild_date")
+model Guild {
+  guildId          String            @id @unique
+  guildName        String
+  guildMemberCount GuildMemberCount?
+  MemberGuild      MemberGuild[]
+  MemberBump       MemberBump[]
+  MemberRole       MemberRole[]
 }
 
-model GuildMemberRemove {
-  id       Int      @id @default(autoincrement())
-  memberId String
-  guildId  String
-  date     DateTime
+model GuildMemberCount {
+  guildId     String   @id @unique
+  memberCount Int
+  date        DateTime @db.Date
 
-  @@unique([memberId, guildId, date], name: "member_guild_date")
+  guild Guild @relation(fields: [guildId], references: [guildId])
 }
 
 model Member {
-  id       Int           @id @default(autoincrement())
-  memberId String        @unique
+  memberId String        @id @unique
   username String
   roles    MemberRole[]
   guilds   MemberGuild[]
@@ -43,6 +41,7 @@ model MemberGuild {
   guildId  String
   status   Boolean
   member   Member  @relation(fields: [memberId], references: [memberId])
+  guild    Guild   @relation(fields: [guildId], references: [guildId])
 
   @@unique([memberId, guildId], name: "member_guild")
 }
@@ -53,6 +52,7 @@ model MemberRole {
   guildId  String
   memberId String
   member   Member @relation(fields: [memberId], references: [memberId])
+  guild    Guild  @relation(fields: [guildId], references: [guildId])
 
   @@unique([memberId, roleId], name: "member_role")
 }
@@ -63,6 +63,7 @@ model MemberBump {
   guildId  String
   count    Int
   member   Member @relation(fields: [memberId], references: [memberId])
+  guild    Guild  @relation(fields: [guildId], references: [guildId])
 
   @@unique([memberId, guildId], name: "member_guild")
 }
