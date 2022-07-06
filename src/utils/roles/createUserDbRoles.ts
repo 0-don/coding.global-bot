@@ -20,6 +20,7 @@ export const createUserDbRoles = async (member: GuildMember) => {
 
     if (role.name === EVERYONE) continue;
     if (member.user.bot) continue;
+    if (!role.editable) continue;
 
     const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
       roleId: role.id,

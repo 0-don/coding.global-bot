@@ -26,27 +26,23 @@ export default {
         update: { guildName },
       });
 
-      const members = (await guildDc.members.fetch()).values();
-
-      const dates: Date[] = [];
-      for (let member of members) {
-        if (member.joinedAt) dates.push(member.joinedAt);
-      }
-
-      const sortedDates = dates.sort((a, b) => a.getTime() - b.getTime());
+      const dates = (await guildDc.members.fetch())
+        .map((member) => member.joinedAt || new Date())
+        .sort((a, b) => a.getTime() - b.getTime());
 
       const startEndDateArray = getDaysArray(
-        sortedDates[0]!,
-        sortedDates[sortedDates.length - 1]!
+        dates[0]!,
+        dates[dates.length - 1]!
       );
 
       const data = startEndDateArray.map((date) => ({
         guildId: guildId,
         date: dayjs(date).format(),
-        memberCount: sortedDates.filter((d) => dayjs(d) <= dayjs(date)).length,
+        memberCount: dates.filter((d) => dayjs(d) <= dayjs(date)).length,
       }));
 
       await prisma.guildMemberCount.createMany({ data, skipDuplicates: true });
+      log('Created guild member count');
     }
   },
 };
