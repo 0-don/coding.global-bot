@@ -9,8 +9,10 @@ export default {
   async execute(member: GuildMember) {
     // create or update user with his roles
     await upsertDbMember(member);
+
     // if first time user give him status role
     await joinRole(member);
+
     // update user count channel
     await updateUserCount(member);
   },

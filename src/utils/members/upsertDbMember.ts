@@ -9,11 +9,13 @@ export const upsertDbMember = async (
   // dont add bots to the list
   if (member.user.bot) return;
 
+  const memberId = member.id;
+  const guildId = member.guild.id;
+  const username = member.user.username;
+
   const dbMemberInput: Prisma.MemberCreateInput = {
-    memberId: member.id,
-    guildId: member.guild.id,
-    username: member.user.username,
-    guildName: member.guild.name,
+    memberId,
+    username,
   };
 
   const dbMember = await prisma.member.upsert({
@@ -21,6 +23,18 @@ export const upsertDbMember = async (
     create: dbMemberInput,
     update: dbMemberInput,
     include: { roles: true },
+  });
+
+  const dbMemberGuildInput: Prisma.MemberGuildUncheckedCreateInput = {
+    memberId,
+    guildId,
+    status: true,
+  };
+
+  await prisma.memberGuild.upsert({
+    where: { member_guild: { memberId, guildId } },
+    create: dbMemberGuildInput,
+    update: dbMemberGuildInput,
   });
 
   if (dbMember.roles.length)

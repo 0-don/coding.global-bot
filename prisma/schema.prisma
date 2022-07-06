@@ -10,38 +10,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Guild {
+  guildId          String             @id @unique
+  guildName        String
+  guildMemberCount GuildMemberCount[]
+  MemberGuild      MemberGuild[]
+  MemberBump       MemberBump[]
+  MemberRole       MemberRole[]
+
+}
+
+model GuildMemberCount {
+  id          Int      @id @default(autoincrement())
+  guildId     String
+  memberCount Int
+  date        DateTime @db.Date
+
+  guild Guild? @relation(fields: [guildId], references: [guildId])
+
+  @@unique([guildId, date], name: "guild_date")
+}
+
 model Member {
-  id        Int          @id @default(autoincrement())
-  memberId  String       @unique
-  guildId   String
-  username  String
-  guildName String
-  roles     MemberRole[]
-  bumps     MemberBump[]
+  memberId String        @id @unique
+  username String
+  roles    MemberRole[]
+  guilds   MemberGuild[]
+  bumps    MemberBump[]
+}
+
+model MemberGuild {
+  id       Int     @id @default(autoincrement())
+  memberId String
+  guildId  String
+  status   Boolean
+  member   Member  @relation(fields: [memberId], references: [memberId])
+  guild    Guild   @relation(fields: [guildId], references: [guildId])
 
   @@unique([memberId, guildId], name: "member_guild")
 }
 
 model MemberRole {
-  id        Int    @id @default(autoincrement())
-  roleId    String
-  memberId  String
-  name      String
-  guildName String
-  username  String
-  member    Member @relation(fields: [memberId], references: [memberId])
+  id       Int    @id @default(autoincrement())
+  roleId   String
+  guildId  String
+  memberId String
+  member   Member @relation(fields: [memberId], references: [memberId])
+  guild    Guild  @relation(fields: [guildId], references: [guildId])
 
   @@unique([memberId, roleId], name: "member_role")
 }
 
 model MemberBump {
-  id        Int    @id @default(autoincrement())
-  memberId  String
-  guildId   String
-  guildName String
-  username  String
-  count     Int
-  member    Member @relation(fields: [memberId], references: [memberId])
+  id       Int    @id @default(autoincrement())
+  memberId String
+  guildId  String
+  count    Int
+  member   Member @relation(fields: [memberId], references: [memberId])
+  guild    Guild  @relation(fields: [guildId], references: [guildId])
 
   @@unique([memberId, guildId], name: "member_guild")
 }
