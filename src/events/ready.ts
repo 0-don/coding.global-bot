@@ -1,6 +1,7 @@
 import { log } from 'console';
 import type { Client } from 'discord.js';
 import { guildMemberCountDb } from '../utils/guilds/guildMemberCountDb';
+import { CronJob } from 'cron';
 
 export default {
   name: 'ready',
@@ -11,7 +12,17 @@ export default {
     const guilds = (await client.guilds.fetch()).values();
 
     for (let guild of guilds) {
-      await guildMemberCountDb(guild, client);
+      new CronJob(
+        '55 23 * * *',
+        async function () {
+          await guildMemberCountDb(guild, client);
+        },
+        null,
+        true,
+        'Europe/Berlin',
+        null,
+        true
+      );
     }
   },
 };
