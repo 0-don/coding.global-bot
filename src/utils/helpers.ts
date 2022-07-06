@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 export function ordinal_suffix_of(i: number) {
   var j = i % 10,
     k = i % 100;
@@ -13,7 +12,6 @@ export function ordinal_suffix_of(i: number) {
   }
   return i + 'th';
 }
-=======
 export const getDaysArray = (s: Date, e: Date) => {
   for (
     var a = [], d = new Date(s);
@@ -24,4 +22,3 @@ export const getDaysArray = (s: Date, e: Date) => {
   }
   return a;
 };
->>>>>>> testing
