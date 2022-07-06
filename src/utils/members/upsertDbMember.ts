@@ -4,7 +4,8 @@ import type { GuildMember, PartialGuildMember } from 'discord.js';
 const prisma = new PrismaClient();
 
 export const upsertDbMember = async (
-  member: GuildMember | PartialGuildMember
+  member: GuildMember | PartialGuildMember,
+  status: 'join' | 'leave'
 ) => {
   // dont add bots to the list
   if (member.user.bot) return;
@@ -28,7 +29,7 @@ export const upsertDbMember = async (
   const dbMemberGuildInput: Prisma.MemberGuildUncheckedCreateInput = {
     memberId,
     guildId,
-    status: true,
+    status: status === 'join' ? true : false,
   };
 
   await prisma.memberGuild.upsert({
@@ -37,7 +38,7 @@ export const upsertDbMember = async (
     update: dbMemberGuildInput,
   });
 
-  if (dbMember.roles.length)
+  if (status === 'join' && dbMember.roles.length)
     for (let role of dbMember.roles) await member.roles.add(role.roleId);
 
   return dbMember;
