@@ -14,7 +14,14 @@ const client = new Client({
     Intents.FLAGS.GUILD_MESSAGES,
     Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
   ],
-  partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'GUILD_MEMBER'],
+  partials: [
+    'MESSAGE',
+    'CHANNEL',
+    'REACTION',
+    'GUILD_MEMBER',
+    'GUILD_SCHEDULED_EVENT',
+    'USER',
+  ],
 });
 
 client.commands = new Collection();

@@ -5,24 +5,33 @@ import { EVERYONE } from '../constants';
 const prisma = new PrismaClient();
 
 export const createUserDbRoles = async (member: GuildMember) => {
+  const memberId = member.id;
+  const guildId = member.guild.id;
+
+  await prisma.memberRole.deleteMany({
+    where: {
+      memberId,
+      guildId,
+    },
+  });
+
   for (let roleCollection of member.roles.cache) {
     const role = roleCollection[1];
 
     if (role.name === EVERYONE) continue;
     if (member.user.bot) continue;
+    if (!role.editable) continue;
 
     const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
-      memberId: member.id,
       roleId: role.id,
-      name: role.name,
-      guildName: member.guild.name,
-      username: member.user.username,
+      memberId,
+      guildId,
     };
 
     await prisma.memberRole.upsert({
       where: {
         member_role: {
-          memberId: memberRole.memberId,
+          memberId,
           roleId: memberRole.roleId,
         },
       },
