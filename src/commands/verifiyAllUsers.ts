@@ -45,7 +45,7 @@ export default {
       log(member.user.username);
 
       // check if user exists in db
-      await upsertDbMember(member);
+      await upsertDbMember(member, 'join');
 
       // refetch user if some roles were reasinged
       await member.fetch();
