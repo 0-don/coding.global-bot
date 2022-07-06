@@ -1,7 +1,7 @@
 import type { GuildMember } from 'discord.js';
 import { MEMBERS_COUNT_CHANNEL } from '../constants';
 
-export const updateUserCount = async (member: GuildMember) => {
+export const updateMemberCount = async (member: GuildMember) => {
   // dont add bots to the list
   if (member.user.bot) return;
 
