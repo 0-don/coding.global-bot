@@ -12,6 +12,7 @@ export function ordinal_suffix_of(i: number) {
   }
   return i + 'th';
 }
+
 export const getDaysArray = (s: Date, e: Date) => {
   for (
     var a = [], d = new Date(s);

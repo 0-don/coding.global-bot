@@ -48,7 +48,7 @@ Wir mögen es generell nicht so sehr, wenn der einzige Zweck des Aufenthalts der
 
 ------------------- 🙂 Happy Coding 🙂 -------------------
 
-Type **/verify** followed by the answer to the captcha question.
+add 👍 to get verified
 `,
       timestamp: new Date(),
       footer: {
