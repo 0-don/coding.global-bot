@@ -12,7 +12,7 @@ import {
   BUMP_LEADERBOARDS_TEMPLATE,
   RED_COLOR,
 } from '../utils/constants';
-import { ordinal_suffix_of } from '../utils/helpers';
+import { placementSuffix } from '../utils/helpers';
 
 const prisma = new PrismaClient();
 
@@ -43,7 +43,7 @@ export default {
       const userGlobalName = member?.user.username;
       const place = index + 1;
 
-      const suffix = ordinal_suffix_of(place);
+      const suffix = placementSuffix(place);
       let medal = '🏅';
       if (place === 1) medal = '🥇';
       if (place === 2) medal = '🥈';

@@ -1,4 +1,6 @@
-export function ordinal_suffix_of(i: number) {
+
+
+export function placementSuffix(i: number) {
   var j = i % 10,
     k = i % 100;
   if (j == 1 && k != 11) {
@@ -23,3 +25,4 @@ export const getDaysArray = (s: Date, e: Date) => {
   }
   return a;
 };
+

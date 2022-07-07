@@ -1,8 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
-
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 import { ROLE_TEMPLATE } from '../utils/constants';
 import { megaUpload } from '../utils/megaUpload';
 import { parseRoleTemplateFromMsg } from '../utils/roles/roleTemplate';
@@ -45,7 +44,7 @@ export default {
       1
     );
     // unique id for the file
-    const fileName = `${uuidv4()}-roleTemplate.json`;
+    const fileName = `${crypto.randomUUID()}-roleTemplate.json`;
 
     // upload file to mega
     const content = await megaUpload(roleTemplate, fileName);
