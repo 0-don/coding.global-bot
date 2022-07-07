@@ -4,7 +4,7 @@ import { EVERYONE } from '../constants';
 
 const prisma = new PrismaClient();
 
-export const createUserDbRoles = async (member: GuildMember) => {
+export const recreateMemberDbRoles = async (member: GuildMember) => {
   const memberId = member.id;
   const guildId = member.guild.id;
 
@@ -16,6 +16,8 @@ export const createUserDbRoles = async (member: GuildMember) => {
   });
 
   if (member.user.bot) return;
+
+  const roles: Prisma.MemberRoleUncheckedCreateInput[] = [];
 
   for (let roleCollection of member.roles.cache) {
     const role = roleCollection[1];
@@ -29,15 +31,8 @@ export const createUserDbRoles = async (member: GuildMember) => {
       guildId,
     };
 
-    await prisma.memberRole.upsert({
-      where: {
-        member_role: {
-          memberId,
-          roleId: memberRole.roleId,
-        },
-      },
-      create: memberRole,
-      update: memberRole,
-    });
+    roles.push(memberRole);
   }
+
+  await prisma.memberRole.createMany({ data: roles, skipDuplicates: true });
 };

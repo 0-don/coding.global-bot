@@ -4,8 +4,8 @@ import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
 import { statusRoles, VERIFIED } from '../utils/constants';
 import { upsertDbMember } from '../utils/members/upsertDbMember';
-import { createUserDbRoles } from '../utils/roles/createUserDbRoles';
 import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
+import { recreateMemberDbRoles } from '../utils/roles/recreateMemberDbRoles';
 
 export default {
   data: new SlashCommandBuilder()
@@ -52,14 +52,16 @@ export default {
       });
       i++;
 
+      if (member.user.bot) continue;
+
       // check if user exists in db
       await upsertDbMember(member, 'join');
 
       // refetch user if some roles were reasinged
       await member.fetch();
 
-      // create user roles in db if missing
-      await createUserDbRoles(member);
+      // recreate roles delete old add new
+      await recreateMemberDbRoles(member);
 
       // if one of the status roles is on user, continue
       if (
