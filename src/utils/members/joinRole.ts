@@ -1,8 +1,8 @@
-import type { GuildMember } from 'discord.js';
+import type { GuildMember, PartialGuildMember } from 'discord.js';
 import type { StatusRoles } from '../../types/types';
 import { statusRoles, VERIFIED } from '../constants';
 
-export const joinRole = async (member: GuildMember) => {
+export const joinRole = async (member: GuildMember | PartialGuildMember) => {
   // dont add bots to the list
   if (member.user.bot) return;
 
