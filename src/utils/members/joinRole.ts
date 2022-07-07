@@ -1,6 +1,6 @@
 import type { GuildMember } from 'discord.js';
 import type { StatusRoles } from '../../types/types';
-import { statusRoles, UNVERIFIED } from '../constants';
+import { statusRoles, VERIFIED } from '../constants';
 
 export const joinRole = async (member: GuildMember) => {
   // dont add bots to the list
@@ -9,8 +9,8 @@ export const joinRole = async (member: GuildMember) => {
   await member.fetch();
 
   // this status role will be given on new memeber join if he has no role
-  const unverifiedRole = member.guild.roles.cache.find(
-    ({ name }) => name === UNVERIFIED
+  const verifiedRole = member.guild.roles.cache.find(
+    ({ name }) => name === VERIFIED
   );
 
   // if status role on user then exit
@@ -18,10 +18,10 @@ export const joinRole = async (member: GuildMember) => {
     member.roles.cache.some((role) =>
       statusRoles.includes(role.name as StatusRoles)
     ) ||
-    !unverifiedRole
+    !verifiedRole
   )
     return;
 
   // if first time member add unverified role
-  await member.roles.add(unverifiedRole);
+  await member.roles.add(verifiedRole);
 };
