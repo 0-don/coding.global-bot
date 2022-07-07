@@ -47,9 +47,12 @@ export default {
       const member = memberCollection[1];
 
       log(`${i}/${memberCount} user: ${member.user.username}`);
-      interaction.editReply({
-        content: `${i}/${memberCount} user: ${member.user.username}`,
-      });
+      try {
+        interaction.editReply({
+          content: `${i}/${memberCount} user: ${member.user.username}`,
+        });
+      } catch (_) {}
+
       i++;
 
       if (member.user.bot) continue;
@@ -75,6 +78,8 @@ export default {
       // verify user
       await member.roles.add(guildStatusRoles[VERIFIED]!.id);
     }
-    return;
+    return interaction.channel?.send({
+      content: `Verified all users in ${interaction.guild.name}`,
+    });
   },
 };
