@@ -7,8 +7,6 @@ export default {
   name: 'ready',
   once: true,
   async execute(client: Client<boolean>) {
-    log(`Ready! Logged in as ${client.user?.tag}`);
-
     const guilds = (await client.guilds.fetch()).values();
 
     for (let guild of guilds) {
@@ -24,5 +22,7 @@ export default {
         true
       );
     }
+
+    log(`Ready! Logged in as ${client.user?.tag}`);
   },
 };
