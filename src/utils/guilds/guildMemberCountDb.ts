@@ -24,7 +24,7 @@ export const guildMemberCountDb = async (
     .map((member) => member.joinedAt || new Date())
     .sort((a, b) => a.getTime() - b.getTime());
 
-  const startEndDateArray = getDaysArray(dates[0]!, dates[dates.length - 1]!);
+  const startEndDateArray = getDaysArray(dates[0]!, new Date());
 
   const data = startEndDateArray.map((date) => ({
     guildId: guildId,

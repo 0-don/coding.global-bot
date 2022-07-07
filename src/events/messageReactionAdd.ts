@@ -5,6 +5,7 @@ import type {
   User,
 } from 'discord.js';
 import { switchRoleFromTemplate } from '../utils/roles/roleTemplateReaction';
+import { verifyReaction } from '../utils/roles/verifyReaction';
 
 export default {
   name: 'messageReactionAdd',
@@ -15,6 +16,9 @@ export default {
   ) {
     // fetch reaction status and roles
     await reaction.fetch();
+
+    // add verify role on like reaction in verify template
+    await verifyReaction(reaction, user);
 
     // add role if not exist when clicked on role template embed
     return await switchRoleFromTemplate(reaction, user, 'add');
