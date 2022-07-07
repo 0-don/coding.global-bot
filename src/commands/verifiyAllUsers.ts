@@ -37,6 +37,10 @@ export default {
       return interaction.editReply({ content });
     }
 
+    let i = 1;
+    const memberCount = interaction.guild.members.cache.filter(
+      (member) => !member.user.bot
+    ).size;
     // loop over all guild members
     for (let memberCollection of members) {
       // get the user from map collection
@@ -64,8 +68,11 @@ export default {
 
       // verify user
       await member.roles.add(guildStatusRoles[VERIFIED]!.id);
-    }
 
-    return interaction.editReply({ content: 'All users verified' });
+      interaction.editReply({
+        content: `${i}/${memberCount} user: ${member.user.username}`,
+      });
+      i++;
+    }
   },
 };
