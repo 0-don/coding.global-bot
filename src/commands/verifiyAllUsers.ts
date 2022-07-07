@@ -37,15 +37,21 @@ export default {
       return interaction.editReply({ content });
     }
 
+    log(1);
     let i = 1;
+    await interaction.guild.members.fetch();
+    log(2);
     const memberCount = interaction.guild.members.cache.filter(
       (member) => !member.user.bot
     ).size;
+    log(3);
+
     // loop over all guild members
     for (let memberCollection of members) {
       // get the user from map collection
       const member = memberCollection[1];
 
+      log(4);
       log(`${i}/${memberCount} user: ${member.user.username}`);
 
       // check if user exists in db
