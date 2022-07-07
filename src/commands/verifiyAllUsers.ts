@@ -41,18 +41,15 @@ export default {
     await interaction.guild.members.fetch();
     const memberCount = interaction.guild.members.cache.size;
 
+    interaction.editReply({
+      content: `updating user count:${memberCount}`,
+    });
     // loop over all guild members
     for (let memberCollection of members) {
       // get the user from map collection
       const member = memberCollection[1];
 
       log(`${i}/${memberCount} user: ${member.user.username}`);
-      try {
-        interaction.editReply({
-          content: `${i}/${memberCount} user: ${member.user.username}`,
-        });
-      } catch (_) {}
-
       i++;
 
       if (member.user.bot) continue;
