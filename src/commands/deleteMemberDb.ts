@@ -18,12 +18,12 @@ export default {
   async execute(interaction: CommandInteraction<CacheType>) {
     const user = interaction.options.getUser('user')!;
 
-    try {
+    // try {
       await prisma.member.delete({
         where: { memberId: user.id },
         include: { bumps: true, guilds: true, roles: true },
       });
-    } catch (_) {}
+    // } catch (_) {}
 
     return interaction.reply({ ephemeral: true, content: 'user data deleted' });
   },
