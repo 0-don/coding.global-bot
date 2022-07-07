@@ -8,7 +8,6 @@ export default {
   once: true,
   async execute(client: Client<boolean>) {
     const guilds = (await client.guilds.fetch()).values();
-
     for (let guild of guilds) {
       new CronJob(
         '55 23 * * *',

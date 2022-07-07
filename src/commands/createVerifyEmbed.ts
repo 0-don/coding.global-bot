@@ -3,6 +3,7 @@ import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type {
   CacheType,
   CommandInteraction,
+  Message,
   MessageEmbedOptions,
   TextChannel,
 } from 'discord.js';
@@ -57,6 +58,11 @@ add 👍 to get verified
       },
     };
 
-    interaction.reply({ embeds: [embed] });
+    const message = await interaction.reply({
+      embeds: [embed],
+      fetchReply: true,
+    });
+
+    (message as Message<boolean>).react('👍');
   },
 };

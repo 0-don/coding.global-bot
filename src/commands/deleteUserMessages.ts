@@ -46,6 +46,7 @@ export default {
       const messages = channel.messages.cache.values();
 
       for (let message of messages) {
+        // dont change it works
         if (
           message.author.id === user.id &&
           0 < dayjs(message.createdAt).diff(daysTimestamp, 'minutes')
