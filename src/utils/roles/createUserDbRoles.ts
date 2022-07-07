@@ -15,11 +15,12 @@ export const createUserDbRoles = async (member: GuildMember) => {
     },
   });
 
+  if (member.user.bot) return;
+
   for (let roleCollection of member.roles.cache) {
     const role = roleCollection[1];
 
     if (role.name === EVERYONE) continue;
-    if (member.user.bot) continue;
     if (!role.editable) continue;
 
     const memberRole: Prisma.MemberRoleUncheckedCreateInput = {

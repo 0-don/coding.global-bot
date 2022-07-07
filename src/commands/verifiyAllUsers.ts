@@ -47,6 +47,10 @@ export default {
       const member = memberCollection[1];
 
       log(`${i}/${memberCount} user: ${member.user.username}`);
+      interaction.editReply({
+        content: `${i}/${memberCount} user: ${member.user.username}`,
+      });
+      i++;
 
       // check if user exists in db
       await upsertDbMember(member, 'join');
@@ -68,11 +72,6 @@ export default {
 
       // verify user
       await member.roles.add(guildStatusRoles[VERIFIED]!.id);
-
-      interaction.editReply({
-        content: `${i}/${memberCount} user: ${member.user.username}`,
-      });
-      i++;
     }
     return;
   },

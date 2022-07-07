@@ -39,7 +39,10 @@ export const upsertDbMember = async (
   });
 
   if (status === 'join' && dbMember.roles.length)
-    for (let role of dbMember.roles) await member.roles.add(role.roleId);
+    for (let role of dbMember.roles) {
+      if (member.roles.cache.has(role.roleId)) continue;
+      await member.roles.add(role.roleId);
+    }
 
   return dbMember;
 };
