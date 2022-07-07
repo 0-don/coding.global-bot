@@ -39,9 +39,7 @@ export default {
 
     let i = 1;
     await interaction.guild.members.fetch();
-    const memberCount = interaction.guild.members.cache.filter(
-      (member) => !member.user.bot
-    ).size;
+    const memberCount = interaction.guild.members.cache.size;
 
     // loop over all guild members
     for (let memberCollection of members) {
@@ -71,9 +69,9 @@ export default {
       // verify user
       await member.roles.add(guildStatusRoles[VERIFIED]!.id);
 
-      interaction.editReply({
-        content: `${i}/${memberCount} user: ${member.user.username}`,
-      });
+      // interaction.editReply({
+      //   content: `${i}/${memberCount} user: ${member.user.username}`,
+      // });
       i++;
     }
     return;
