@@ -69,9 +69,9 @@ export default {
       // verify user
       await member.roles.add(guildStatusRoles[VERIFIED]!.id);
 
-      // interaction.editReply({
-      //   content: `${i}/${memberCount} user: ${member.user.username}`,
-      // });
+      interaction.editReply({
+        content: `${i}/${memberCount} user: ${member.user.username}`,
+      });
       i++;
     }
     return;
