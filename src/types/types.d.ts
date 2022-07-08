@@ -47,3 +47,5 @@ export type QuestionRequest = {
 };
 
 export type StatusRoles = typeof statusRoles[number];
+
+export type ChartDataset = { x: Date; y: number };
