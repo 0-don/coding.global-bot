@@ -1,3 +1,4 @@
+import type { ChartConfiguration, ChartDataset } from 'chart.js';
 import type { MessageEmbedOptions } from 'discord.js';
 
 export const statusRoles = [
@@ -51,4 +52,46 @@ export const roleTemplateExampleEmbed: MessageEmbedOptions = {
     text: ROLE_TEMPLATE,
     icon_url: BOT_ICON,
   },
+};
+
+export const chartConfig = (data: ChartDataset[]) => {
+  return {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          data,
+          fill: true,
+          backgroundColor: '#495170',
+          borderColor: '#6f86d4',
+        },
+      ],
+    },
+    options: {
+      showLine: true,
+      elements: {
+        point: {
+          radius: 0,
+        },
+      },
+      plugins: {
+        legend: {
+          display: false,
+        },
+      },
+      scales: {
+        yAxes: {
+          ticks: { color: '#fff' },
+          grid: { color: '#e6e6e6', z: 100, drawBorder: false },
+          max: data.length + Math.round((data.length / 100) * 25),
+        },
+        xAxes: {
+          ticks: { color: '#fff' },
+          grid: { display: false, drawBorder: false },
+          type: 'timeseries',
+          time: { unit: 'day' },
+        },
+      },
+    },
+  } as ChartConfiguration<'line', ChartDataset[]>;
 };

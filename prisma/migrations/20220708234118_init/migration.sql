@@ -7,16 +7,6 @@ CREATE TABLE "Guild" (
 );
 
 -- CreateTable
-CREATE TABLE "GuildMemberCount" (
-    "id" SERIAL NOT NULL,
-    "guildId" TEXT NOT NULL,
-    "memberCount" INTEGER NOT NULL,
-    "date" DATE NOT NULL,
-
-    CONSTRAINT "GuildMemberCount_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "Member" (
     "memberId" TEXT NOT NULL,
     "username" TEXT NOT NULL,
@@ -58,9 +48,6 @@ CREATE TABLE "MemberBump" (
 CREATE UNIQUE INDEX "Guild_guildId_key" ON "Guild"("guildId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "GuildMemberCount_guildId_date_key" ON "GuildMemberCount"("guildId", "date");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Member_memberId_key" ON "Member"("memberId");
 
 -- CreateIndex
@@ -71,9 +58,6 @@ CREATE UNIQUE INDEX "MemberRole_memberId_roleId_key" ON "MemberRole"("memberId",
 
 -- CreateIndex
 CREATE UNIQUE INDEX "MemberBump_memberId_guildId_key" ON "MemberBump"("memberId", "guildId");
-
--- AddForeignKey
-ALTER TABLE "GuildMemberCount" ADD CONSTRAINT "GuildMemberCount_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("guildId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MemberGuild" ADD CONSTRAINT "MemberGuild_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("guildId") ON DELETE RESTRICT ON UPDATE CASCADE;
