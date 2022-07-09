@@ -84,7 +84,7 @@ export const chartConfig = (data: ChartDataset[]) => {
         yAxes: {
           ticks: { color: '#fff' },
           grid: { color: '#e6e6e6', z: 100, drawBorder: false },
-          max: data.length + Math.round((data.length / 100) * 25),
+          // max: data.length + Math.round((data.length / 100) * 25),
         },
         xAxes: {
           ticks: { color: '#fff' },
