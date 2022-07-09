@@ -56,7 +56,7 @@ export const guildMemberCountChart = async (
     'image/png'
   );
 
-  const imgPath = path.join(path.resolve(), `${guildName}.png`);
+  const imgPath = path.join(path.resolve(), `1.png`);
   fs.writeFileSync(imgPath, image);
 
   log(`Created guild member count ${guildName}`);
