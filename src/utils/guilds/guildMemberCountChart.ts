@@ -5,13 +5,14 @@ import type { Client, OAuth2Guild } from 'discord.js';
 import { getDaysArray } from '../helpers';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import type { ChartConfiguration } from 'chart.js';
-// import fs from 'fs';
+import fs from 'fs';
+import path from 'path';
 import type { ChartDataset } from '../../types/types';
 import { chartConfig } from '../constants';
 
 const prisma = new PrismaClient();
 
-export const guildMemberCountDb = async (
+export const guildMemberCountChart = async (
   guild: OAuth2Guild,
   client: Client<boolean>
 ) => {
@@ -55,8 +56,10 @@ export const guildMemberCountDb = async (
     'image/png'
   );
 
-  image
-  // fs.writeFileSync(`${guildName}.png`, image);
+  const imgPath = path.join(path.resolve(), `${guildName}.png`);
+  fs.writeFileSync(imgPath, image);
 
   log(`Created guild member count ${guildName}`);
+
+  return { image, imgPath };
 };

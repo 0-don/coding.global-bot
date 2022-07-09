@@ -1,6 +1,6 @@
 import { log } from 'console';
 import type { Client } from 'discord.js';
-import { guildMemberCountDb } from '../utils/guilds/guildMemberCountDb';
+import { guildMemberCountChart } from '../utils/guilds/guildMemberCountChart';
 
 export default {
   name: 'ready',
@@ -9,7 +9,7 @@ export default {
     const guilds = (await client.guilds.fetch()).values();
 
     for (let guild of guilds) {
-      await guildMemberCountDb(guild, client);
+      await guildMemberCountChart(guild, client);
     }
 
     log(`Ready! Logged in as ${client.user?.tag}`);
