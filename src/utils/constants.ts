@@ -90,7 +90,7 @@ export const chartConfig = (data: ChartDataset[]) => {
           ticks: { color: '#fff' },
           grid: { display: false, drawBorder: false },
           type: 'timeseries',
-          time: { unit: 'day' },
+          time: { unit: 'month' },
         },
       },
     },
