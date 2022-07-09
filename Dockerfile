@@ -34,7 +34,7 @@ COPY --chown=node:node --from=builder /app/node_modules ./node_modules
 COPY --chown=node:node --from=builder /app/package.json ./package.json
 COPY --chown=node:node --from=builder /app/.env ./.env
 COPY --chown=node:node --from=builder /app/prisma ./prisma
-RUN --chown=node:node /app
+RUN chown -R node:node /app
 
 
 
