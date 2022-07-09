@@ -27,7 +27,7 @@ export default {
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get message id
-    const messageID = interaction.options.getString('message-id');
+    const messageID = interaction.options.getString('message-id') as string;
 
     // get role json template
     const inputTemplate = parseJSON(
@@ -35,7 +35,7 @@ export default {
     ) as RoleTemplateReaction;
 
     // fetch message if it exists
-    const msg = await interaction.channel?.messages.fetch(messageID!);
+    const msg = await interaction.channel?.messages.fetch(messageID);
 
     // check if exits and if it is an embeded role template message
     if (!msg || msg.embeds[0]?.footer?.text !== ROLE_TEMPLATE) {

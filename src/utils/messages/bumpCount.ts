@@ -11,7 +11,9 @@ export const bumpCount = async (message: Message<boolean>) => {
     return;
 
   const memberId = message.interaction.user.id;
-  const guildId = message.guild!.id;
+  const guildId = message.guild?.id;
+
+  if (!guildId) return;
 
   const memberBump = await prisma.memberBump.findFirst({
     where: { memberId, guildId },

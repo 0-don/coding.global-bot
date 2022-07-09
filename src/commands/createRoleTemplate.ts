@@ -22,7 +22,7 @@ export default {
   async execute(interaction: CommandInteraction<CacheType>) {
     // get embed template as json
     const inputTemplate = parseJSON(
-      interaction.options.getString('json')!
+      interaction.options.getString('json')
     ) as RoleTemplateReaction;
 
     // create role template from input or get error

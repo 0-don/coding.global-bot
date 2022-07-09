@@ -29,8 +29,8 @@ export default {
   async execute(interaction: CommandInteraction<CacheType>) {
     // respond with either error or link
 
-    const user = interaction.options.getUser('user')!;
-    const days = interaction.options.getString('days')!;
+    const user = interaction.options.getUser('user');
+    const days = interaction.options.getString('days');
     const daysTimestamp = dayjs().subtract(Number(days), 'day');
 
     const channels = interaction.guild?.channels.cache;
@@ -48,7 +48,7 @@ export default {
       for (let message of messages) {
         // dont change it works
         if (
-          message.author.id === user.id &&
+          message.author.id === user?.id &&
           0 < dayjs(message.createdAt).diff(daysTimestamp, 'minutes')
         )
           await message.delete();

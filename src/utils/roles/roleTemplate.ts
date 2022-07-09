@@ -74,13 +74,13 @@ export async function parseRoleTemplateFromMsg(
   // recreate input role template json
   const roleTemplate = {
     title: embed?.title!,
-    description: embed?.description!,
+    description: embed?.description,
     reactions: embed?.fields
       // remove invisible whitespace
       .filter((reaction) => reaction.name !== '\u200b')
       .map((field, i) => {
-        const emojiId = emojis[i]!.id;
-        const emojiName = emojis[i]!.name;
+        const emojiId = emojis[i]?.id;
+        const emojiName = emojis[i]?.name;
         const emojiString = `<:${emojiName}:${emojiId}>`;
         return {
           name: field.name
@@ -92,10 +92,8 @@ export async function parseRoleTemplateFromMsg(
           value: field.value,
           emoji: emojiName,
         };
-      })!,
+      }),
   } as RoleTemplateReaction;
-
-
 
   return roleTemplate;
 }

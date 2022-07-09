@@ -71,14 +71,15 @@ export default {
 
       // if one of the status roles is on user, continue
       if (
-        statusRoles.some((role) => {
-          member.roles.cache.has(guildStatusRoles[role]!.id);
-        })
+        statusRoles.some((role) =>
+          member.roles.cache.has(guildStatusRoles[role]!.id)
+        )
       )
         continue;
 
       // verify user
-      await member.roles.add(guildStatusRoles[VERIFIED]!.id);
+      guildStatusRoles[VERIFIED] &&
+        (await member.roles.add(guildStatusRoles[VERIFIED].id));
     }
     return interaction.channel?.send({
       content: `Verified all users in ${interaction.guild.name}`,

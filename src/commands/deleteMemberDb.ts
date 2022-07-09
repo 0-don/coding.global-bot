@@ -16,10 +16,10 @@ export default {
       PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
-    const user = interaction.options.getUser('user')!;
+    const user = interaction.options.getUser('user');
 
     try {
-      await prisma.member.delete({ where: { memberId: user.id } });
+      await prisma.member.delete({ where: { memberId: user?.id } });
     } catch (_) {}
 
     return interaction.reply({ ephemeral: true, content: 'user data deleted' });
