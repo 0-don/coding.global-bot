@@ -25,16 +25,15 @@ RUN yarn build
 # Stage 2
 FROM node:16.15.1 AS prod
 
-USER node
+USER root
 
 WORKDIR /app
 
-COPY --chown=node:node --from=builder /app/dist ./dist
-COPY --chown=node:node --from=builder /app/node_modules ./node_modules
-COPY --chown=node:node --from=builder /app/package.json ./package.json
-COPY --chown=node:node --from=builder /app/.env ./.env
-COPY --chown=node:node --from=builder /app/prisma ./prisma
-RUN chown -R node:node /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/.env ./.env
+COPY --from=builder /app/prisma ./prisma
 
 
 
