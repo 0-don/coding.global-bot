@@ -31,7 +31,7 @@ export default {
       );
 
     const bumps = await prisma.memberBump.findMany({
-      where: { guildId: interaction.guild!.id },
+      where: { guildId: interaction.guild?.id },
       orderBy: { count: 'desc' },
       take: 25,
     });

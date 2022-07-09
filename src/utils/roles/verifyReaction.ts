@@ -35,5 +35,5 @@ export const verifyReaction = async (
 
   let guildStatusRoles = getGuildStatusRoles(reaction.message.guild!);
 
-  member?.roles.add(guildStatusRoles[VERIFIED]!);
+  guildStatusRoles[VERIFIED] && member?.roles.add(guildStatusRoles[VERIFIED]);
 };

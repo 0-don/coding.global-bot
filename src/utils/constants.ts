@@ -25,7 +25,7 @@ export const MAX_QUESTION_RETRIES = 3;
 export const MAX_QUESTION_LENGTH = 45;
 
 export const ROLE_TEMPLATE = 'role template';
-export const MEMBERS_TEMPLATE = 'members template';
+export const MEMBERS_TEMPLATE = 'members count';
 export const VERIFY_TEMPLATE = 'verify yourself';
 export const BUMP_LEADERBOARDS_TEMPLATE = 'bump leaderboard';
 
@@ -90,7 +90,7 @@ export const chartConfig = (data: ChartDataset[]) => {
           ticks: { color: '#fff' },
           grid: { display: false, drawBorder: false },
           type: 'timeseries',
-          time: { unit: 'month' },
+          time: { unit: data.length > 360 ? 'month' : 'day' },
         },
       },
     },

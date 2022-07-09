@@ -27,10 +27,15 @@ export default {
         'Please use this command in the bot channel'
       );
 
-    const { imgPath } = await guildMemberCountChart(
-      interaction.guild!,
+    if (!interaction.guild)
+      return interaction.editReply('Please use this command in a server');
+
+    const chart = await guildMemberCountChart(
+      interaction.guild,
       interaction.client
     );
+
+    if (chart?.error) return interaction.editReply(chart.error);
 
     const embed: MessageEmbedOptions = {
       color: RED_COLOR,
@@ -43,6 +48,12 @@ export default {
       },
     };
 
-    return interaction.editReply({ embeds: [embed], files: [imgPath] });
+    return (
+      chart.imgPath &&
+      interaction.editReply({
+        embeds: [embed],
+        files: [chart.imgPath],
+      })
+    );
   },
 };

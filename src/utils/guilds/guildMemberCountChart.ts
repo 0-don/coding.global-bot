@@ -12,10 +12,17 @@ import { getDaysArray } from '../helpers';
 
 const prisma = new PrismaClient();
 
+type GuildMemberCountChart = {
+  image?: Buffer;
+  imgPath?: string;
+  data?: ChartDataset[];
+  error?: string;
+};
+
 export const guildMemberCountChart = async (
   guild: Guild,
   client: Client<boolean>
-) => {
+): Promise<GuildMemberCountChart> => {
   const guildId = guild.id;
   const guildName = guild.name;
   const guildDc = await client.guilds.fetch(guildId);
@@ -30,7 +37,9 @@ export const guildMemberCountChart = async (
     .map((member) => member.joinedAt || new Date())
     .sort((a, b) => a.getTime() - b.getTime());
 
-  const startEndDateArray = getDaysArray(dates[0]!, new Date());
+  if (!dates[0]) return { error: 'No members found' };
+
+  const startEndDateArray = getDaysArray(dates[0], new Date());
 
   const dataDb = startEndDateArray.map((date) => ({
     guildId: guildId,
@@ -61,5 +70,5 @@ export const guildMemberCountChart = async (
 
   log(`Created guild member count ${guildName}`);
 
-  return { image, imgPath };
+  return { image, imgPath, data };
 };
