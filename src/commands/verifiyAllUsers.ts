@@ -37,17 +37,26 @@ export default {
       return interaction.editReply({ content });
     }
 
-    let i = 1;
+    let i = 0;
     await interaction.guild.members.fetch();
     const memberCount = interaction.guild.members.cache.size;
 
     interaction.editReply({
       content: `updating user count:${memberCount}`,
     });
+
     // loop over all guild members
     for (let memberCollection of members) {
       // get the user from map collection
-      const member = memberCollection[1];
+      let member = memberCollection[1];
+      // refetch user if some roles were reasinged
+
+      try {
+        // refetch user if some roles were reasinged
+        member = await member.fetch();
+      } catch (_) {
+        continue;
+      }
 
       log(`${i}/${memberCount} user: ${member.user.username}`);
       i++;
@@ -57,9 +66,6 @@ export default {
       // check if user exists in db
       await upsertDbMember(member, 'join');
 
-      // refetch user if some roles were reasinged
-      await member.fetch();
-
       // recreate roles delete old add new
       await recreateMemberDbRoles(member);
 
@@ -67,8 +73,7 @@ export default {
       if (
         statusRoles.some((role) => {
           member.roles.cache.has(guildStatusRoles[role]!.id);
-        }) ||
-        member.user.bot
+        })
       )
         continue;
 
