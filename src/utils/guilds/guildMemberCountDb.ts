@@ -55,7 +55,8 @@ export const guildMemberCountDb = async (
     'image/png'
   );
 
-  fs.writeFileSync(`${guildName}.png`, image);
+  image
+  // fs.writeFileSync(`${guildName}.png`, image);
 
   log(`Created guild member count ${guildName}`);
 };
