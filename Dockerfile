@@ -32,7 +32,7 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.env ./.env
 COPY --from=builder /app/prisma ./prisma
 
-RUN sudo chmod -R 777 /app
+RUN chmod -R 777 /app
 
 EXPOSE 4001
 
