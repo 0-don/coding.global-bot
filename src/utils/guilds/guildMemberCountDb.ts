@@ -5,7 +5,7 @@ import type { Client, OAuth2Guild } from 'discord.js';
 import { getDaysArray } from '../helpers';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import type { ChartConfiguration } from 'chart.js';
-import fs from 'fs';
+// import fs from 'fs';
 import type { ChartDataset } from '../../types/types';
 import { chartConfig } from '../constants';
 
