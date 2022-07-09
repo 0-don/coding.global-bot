@@ -1,19 +1,19 @@
 import { PrismaClient } from '@prisma/client';
+import type { ChartConfiguration } from 'chart.js';
+import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { log } from 'console';
 import dayjs from 'dayjs';
-import type { Client, OAuth2Guild } from 'discord.js';
-import { getDaysArray } from '../helpers';
-import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
-import type { ChartConfiguration } from 'chart.js';
+import type { Client, Guild } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import type { ChartDataset } from '../../types/types';
 import { chartConfig } from '../constants';
+import { getDaysArray } from '../helpers';
 
 const prisma = new PrismaClient();
 
 export const guildMemberCountChart = async (
-  guild: OAuth2Guild,
+  guild: Guild,
   client: Client<boolean>
 ) => {
   const guildId = guild.id;
