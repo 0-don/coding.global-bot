@@ -36,7 +36,6 @@ COPY --from=builder /app/.env ./.env
 COPY --from=builder /app/prisma ./prisma
 
 
-
 EXPOSE 4001
 
 CMD ["yarn", "start:migrate:prod"]
