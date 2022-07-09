@@ -24,6 +24,9 @@ RUN yarn build
 # Production image, copy only production files
 # Stage 2
 FROM node:16.15.1 AS prod
+
+USER node
+
 WORKDIR /app
 
 COPY --from=builder /app/dist ./dist
@@ -32,7 +35,7 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.env ./.env
 COPY --from=builder /app/prisma ./prisma
 
-USER node
+
 
 EXPOSE 4001
 
