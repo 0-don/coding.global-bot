@@ -11,11 +11,12 @@ datasource db {
 }
 
 model Guild {
-  guildId          String             @id @unique
-  guildName        String
-  MemberGuild      MemberGuild[]
-  MemberBump       MemberBump[]
-  MemberRole       MemberRole[]
+  guildId     String        @id @unique
+  guildName   String
+  lookback    Int           @default(9999)
+  MemberGuild MemberGuild[]
+  MemberBump  MemberBump[]
+  MemberRole  MemberRole[]
 
 }
 

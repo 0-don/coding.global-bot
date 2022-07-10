@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import type {
+import {
   CacheType,
   CommandInteraction,
+  MessageAttachment,
   MessageEmbedOptions,
   TextChannel,
 } from 'discord.js';
@@ -40,12 +41,15 @@ export default {
     // if error occured, return
     if (chart?.error) return interaction.editReply(chart.error);
 
+    const attachment = new MessageAttachment(chart.imgPath!, chart.fileName);
+
     // create chart embed
     const embed: MessageEmbedOptions = {
       color: RED_COLOR,
-      title: `${interaction.guild?.name}'s 👤Member Count Overview`,
-      description: `Look who has bumped the most times`,
+      title: `🛡️${interaction.guild?.name}'s Member Count Overview`,
+      description: `Memberflow and count in the past 9,999 Days. (Change with the s?lookback command.)`,
       timestamp: new Date(),
+      image: { url: `attachment://${chart.fileName}` },
       footer: {
         text: MEMBERS_TEMPLATE,
         icon_url: BOT_ICON,
@@ -55,7 +59,7 @@ export default {
     // return embed with chart img
     return interaction.editReply({
       embeds: [embed],
-      files: [chart.imgPath!],
+      files: [attachment],
     });
   },
 };
