@@ -22,10 +22,13 @@ export default {
       PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
+    // get text channel
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
+    // if not verify channel, return
     if (channel.name !== VERIFY_CHANNEL) return;
 
+    // create verify embed
     const embed: MessageEmbedOptions = {
       color: RED_COLOR,
       title: 'Verification process...',
@@ -58,11 +61,13 @@ add 👍 to get verified
       },
     };
 
+    // send embed & get message
     const message = await interaction.reply({
       embeds: [embed],
       fetchReply: true,
     });
 
+    // add reactions for verify role
     (message as Message<boolean>).react('👍');
   },
 };
