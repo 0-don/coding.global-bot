@@ -1,5 +1,8 @@
 import path from 'path';
 import fs from 'fs';
+import * as deepl from 'deepl-node';
+
+const translator = new deepl.Translator(process.env.DEEPL);
 
 export function placementSuffix(i: number) {
   var j = i % 10,
@@ -56,3 +59,8 @@ export const parseJSON = (json: string | undefined | null) => {
 };
 
 export const codeString = (text: string | number) => '`' + text + '`';
+
+export const translate = async (text: string) => {
+  const translated = await translator.translateText(text, null, 'en-GB');
+  return translated.text;
+};

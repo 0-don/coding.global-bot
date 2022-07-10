@@ -9,6 +9,7 @@ declare global {
       MEGA_EMAIL: string;
       MEGA_PASSWORD: string;
       MEGA_DIR: string;
+      DEEPL: string;
     }
   }
 }

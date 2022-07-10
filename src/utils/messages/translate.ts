@@ -1,29 +1,17 @@
-import axios from 'axios';
 import type { Message } from 'discord.js';
+import { translate } from '../helpers';
 
-const apiKeys = [
-  'REDACTED_YANDEX_KEY',
-  'REDACTED_YANDEX_KEY',
-  'REDACTED_YANDEX_KEY',
-  'REDACTED_YANDEX_KEY',
-  'REDACTED_YANDEX_KEY',
-  'REDACTED_YANDEX_KEY',
-  'REDACTED_YANDEX_KEY',
-  'REDACTED_YANDEX_KEY',
-  'REDACTED_YANDEX_KEY',
-  'REDACTED_YANDEX_KEY',
-];
+export const translateReply = async (message: Message<boolean>) => {
+  if (
+    message.type === 'REPLY' &&
+    message.reference?.messageId &&
+    message.content === '/translate'
+  ) {
+    const replyMsg = await message.channel.messages.fetch(
+      message.reference?.messageId
+    );
 
-export const translate = async (message: Message<boolean>) => {
-  console.log(message);
-
-  message.
-  // const url = `https://translate.yandex.net/api/v1.5/tr.json/translate?key=REDACTED_YANDEX_KEY&text=${text}&lang=${lang}`;
-
-  // try {
-  //   const response = await axios.get(url);
-  //   console.log(response);
-  // } catch (error) {
-  //   console.log(error);
-  // }
+    await message.delete();
+    message.channel.send(await translate(replyMsg.content));
+  }
 };
