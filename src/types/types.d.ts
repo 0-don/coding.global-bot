@@ -51,6 +51,7 @@ export type StatusRoles = typeof statusRoles[number];
 export type ChartDataset = { x: dayjs.Dayjs; y: number };
 
 export type GuildMemberCountChart = {
+  link?: string;
   fileName?: string;
   imgPath?: string;
   thirtyDaysCount?: number;
