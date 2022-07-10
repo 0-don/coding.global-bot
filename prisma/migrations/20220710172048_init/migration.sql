@@ -2,6 +2,7 @@
 CREATE TABLE "Guild" (
     "guildId" TEXT NOT NULL,
     "guildName" TEXT NOT NULL,
+    "lookback" INTEGER NOT NULL DEFAULT 9999,
 
     CONSTRAINT "Guild_pkey" PRIMARY KEY ("guildId")
 );

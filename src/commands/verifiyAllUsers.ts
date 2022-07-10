@@ -1,4 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
+import { PrismaClient } from '@prisma/client';
 import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
@@ -6,6 +7,8 @@ import { statusRoles, VERIFIED } from '../utils/constants';
 import { upsertDbMember } from '../utils/members/upsertDbMember';
 import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
 import { recreateMemberDbRoles } from '../utils/roles/recreateMemberDbRoles';
+
+const prisma = new PrismaClient();
 
 export default {
   data: new SlashCommandBuilder()
@@ -15,11 +18,16 @@ export default {
       PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
-    await interaction.guild?.members.fetch();
-    await interaction.guild?.roles.fetch();
-    const members = interaction.guild?.members.cache;
+    if (!interaction.guild) return;
 
-    if (!members) return;
+    const guildId = interaction.guild.id;
+    const guildName = interaction.guild.name;
+
+    await prisma.guild.upsert({
+      where: { guildId },
+      create: { guildId, guildName },
+      update: { guildName },
+    });
 
     // create a guild role key object pair
     let guildStatusRoles = getGuildStatusRoles(interaction.guild);
@@ -38,11 +46,10 @@ export default {
     }
 
     let i = 0;
-    await interaction.guild.members.fetch();
-    const memberCount = interaction.guild.members.cache.size;
+    const members = await interaction.guild.members.fetch();
 
     interaction.editReply({
-      content: `updating user count:${memberCount}`,
+      content: `updating user count:${members.size}`,
     });
 
     // loop over all guild members
@@ -51,14 +58,7 @@ export default {
       let member = memberCollection[1];
       // refetch user if some roles were reasinged
 
-      try {
-        // refetch user if some roles were reasinged
-        member = await member.fetch();
-      } catch (_) {
-        continue;
-      }
-
-      log(`${i}/${memberCount} user: ${member.user.username}`);
+      log(`${i}/${members.size} user: ${member.user.username}`);
       i++;
 
       if (member.user.bot) continue;
