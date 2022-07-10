@@ -55,15 +55,13 @@ export const guildMemberCountChart = async (
     oneDayCount = data[data.length - 1]!.y - data[data.length - 2]!.y;
 
   // create chart data in the range of lookback
-  const filteredData = data.splice(
+  data.splice(
     // splice only the lookback range if it fits. 2 values minium needed for chart
     data.length - 2 < lookback ? 0 : 30
   );
 
-  console.log(filteredData.length, lookback, data.length);
-
   // create chartjs config
-  const config = chartConfig(filteredData as any);
+  const config = chartConfig(data as any);
 
   // render image from chartjs config as png
   const image = await chartJSNodeCanvas.renderToBuffer(
