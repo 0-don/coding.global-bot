@@ -44,14 +44,31 @@ export default {
 
     const attachment = new MessageAttachment(chart.imgPath!, chart.fileName);
 
+    const count = interaction.guild.members.cache.size;
+    const memberCount = interaction.guild.members.cache.filter(
+      (member) => !member.user.bot
+    ).size;
+    const botCount = count - memberCount;
+
     // create chart embed
     const embed: MessageEmbedOptions = {
       color: RED_COLOR,
       title: `🛡️ ${interaction.guild?.name}'s Member Count Overview`,
       // prettier-ignore
       description: 
-      `Memberflow and count in the past ${chart.lookback} Days. (Change with the ${codeString("/lookback")} command.)
-      
+      `
+      Memberflow and count in the past ${chart.lookback} Days. (Change with the ${codeString("/lookback")} command.)
+
+      **Members**
+      Users: ${codeString(memberCount)}
+      Bots: ${codeString(botCount)}
+
+      **Memberflow 30 Days**
+      Change: ${codeString((chart.thirtyDaysCount!<0?'':'+') + chart.thirtyDaysCount)}
+      **Memberflow 7 Days**
+      Change: ${codeString((chart.sevedDaysCount!<0?'':'+') + chart.sevedDaysCount)}
+      **Memberflow 24 Hours**
+      Change: ${codeString((chart.oneDayCount!<0?'':'+') + chart.oneDayCount)}
       `,
       timestamp: new Date(),
       image: { url: `attachment://${chart.fileName}` },
