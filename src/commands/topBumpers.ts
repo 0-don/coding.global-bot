@@ -59,14 +59,15 @@ export default {
       if (place === 3) medal = '🥉';
 
       // return formatted string
-      return `${medal} ${suffix}. ${userServerName} with **${count}** bumps`;
+      return `${medal} \`\`\`${suffix}\`\`\`. ${userServerName} with **${count}** bumps`;
     });
 
     // create embed
     const embed: MessageEmbedOptions = {
       color: RED_COLOR,
       title: '🏆 Bump Leaderboards',
-      description: `Look who has bumped the most times \n` + fields.join('\n'),
+      description:
+        `Look who has bumped the most times \n\n` + fields.join('\n'),
       timestamp: new Date(),
       footer: {
         text: BUMP_LEADERBOARDS_TEMPLATE,

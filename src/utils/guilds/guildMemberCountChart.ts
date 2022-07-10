@@ -52,11 +52,12 @@ export const guildMemberCountChart = async (
   );
 
   // crete local img file
-  const imgPath = path.join(path.resolve(), `${guildId}.png`);
+  const fileName = `${guildId}.png`;
+  const imgPath = path.join(path.resolve(), fileName);
   fs.writeFileSync(imgPath, image);
 
   log(`Created guild member count ${guildName}`);
 
   // return chart data
-  return { image, imgPath, data };
+  return { fileName, imgPath };
 };
