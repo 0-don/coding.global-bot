@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Guild" ADD COLUMN     "lookback" INTEGER NOT NULL DEFAULT 9999;
