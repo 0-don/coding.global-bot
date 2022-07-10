@@ -55,4 +55,4 @@ export const parseJSON = (json: string | undefined | null) => {
   return parsed;
 };
 
-export const codeString = (text: string) => '```' + text + '```';
+export const codeString = (text: string) => '`' + text + '`';
