@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import 'chartjs-adapter-dayjs-3';
 import fs from 'fs';
 import path from 'path';
 import { Client, Collection, Intents } from 'discord.js';

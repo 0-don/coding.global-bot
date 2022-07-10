@@ -30,10 +30,7 @@ export default {
     if (!interaction.guild)
       return interaction.editReply('Please use this command in a server');
 
-    const chart = await guildMemberCountChart(
-      interaction.guild,
-      interaction.client
-    );
+    const chart = await guildMemberCountChart(interaction.guild);
 
     if (chart?.error) return interaction.editReply(chart.error);
 

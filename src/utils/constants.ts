@@ -1,4 +1,5 @@
 import type { ChartConfiguration, ChartDataset } from 'chart.js';
+import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import type { MessageEmbedOptions } from 'discord.js';
 
 export const statusRoles = [
@@ -96,3 +97,12 @@ export const chartConfig = (data: ChartDataset[]) => {
     },
   } as ChartConfiguration<'line', ChartDataset[]>;
 };
+
+export const chartJSNodeCanvas = new ChartJSNodeCanvas({
+  width: 1200,
+  height: 400,
+  backgroundColour: '#34363c',
+  plugins: {
+    globalVariableLegacy: ['chartjs-adapter-dayjs-3'],
+  },
+});
