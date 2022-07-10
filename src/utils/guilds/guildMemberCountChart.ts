@@ -60,6 +60,8 @@ export const guildMemberCountChart = async (
     data.length - 2 < lookback ? 0 : 30
   );
 
+  console.log(data);
+
   // create chartjs config
   const config = chartConfig(data as any);
 
