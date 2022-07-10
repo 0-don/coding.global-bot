@@ -48,9 +48,11 @@ export default {
     const embed: MessageEmbedOptions = {
       color: RED_COLOR,
       title: `🛡️ ${interaction.guild?.name}'s Member Count Overview`,
-      description: `Memberflow and count in the past ${
-        chart.lookback
-      } Days. (Change with the ${codeString("/lookback 'days'")} command.)`,
+      // prettier-ignore
+      description: 
+      `Memberflow and count in the past ${chart.lookback} Days. (Change with the ${codeString("/lookback")} command.)
+      
+      `,
       timestamp: new Date(),
       image: { url: `attachment://${chart.fileName}` },
       footer: {
