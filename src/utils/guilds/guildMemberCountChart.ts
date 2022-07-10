@@ -7,7 +7,7 @@ import type { Client, Guild } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import type { ChartDataset } from '../../types/types';
-import { chartConfig } from '../constants';
+import { chartConfig, chartJSNodeCanvas } from '../constants';
 import { getDaysArray } from '../helpers';
 
 const prisma = new PrismaClient();
@@ -20,12 +20,10 @@ type GuildMemberCountChart = {
 };
 
 export const guildMemberCountChart = async (
-  guild: Guild,
-  client: Client<boolean>
+  guild: Guild
 ): Promise<GuildMemberCountChart> => {
   const guildId = guild.id;
   const guildName = guild.name;
-  const guildDc = await client.guilds.fetch(guildId);
 
   await prisma.guild.upsert({
     where: { guildId },
@@ -33,7 +31,7 @@ export const guildMemberCountChart = async (
     update: { guildName },
   });
 
-  const dates = (await guildDc.members.fetch())
+  const dates = (await guild.members.fetch())
     .map((member) => member.joinedAt || new Date())
     .sort((a, b) => a.getTime() - b.getTime());
 
@@ -46,12 +44,6 @@ export const guildMemberCountChart = async (
     date: dayjs(date).format(),
     memberCount: dates.filter((d) => dayjs(d) <= dayjs(date)).length,
   }));
-
-  const chartJSNodeCanvas = new ChartJSNodeCanvas({
-    width: 1200,
-    height: 400,
-    backgroundColour: '#34363c',
-  });
 
   const data: ChartDataset[] = dataDb.map(({ date, memberCount }) => ({
     x: dayjs(date).toDate(),
