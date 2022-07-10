@@ -70,7 +70,6 @@ export default {
       Change: \`${(chart.sevedDaysCount!<0?'':'+') + chart.sevedDaysCount} members\`
       **Memberflow 24 Hours**
       Change: \`${(chart.oneDayCount!<0?'':'+') + chart.oneDayCount} members\`
-      ${chart.link}
       `,
       // prettier-ignore
       timestamp: new Date(),
