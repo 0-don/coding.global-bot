@@ -12,7 +12,7 @@ import {
   BUMP_LEADERBOARDS_TEMPLATE,
   RED_COLOR,
 } from '../utils/constants';
-import { placementSuffix } from '../utils/helpers';
+import { codeString, placementSuffix } from '../utils/helpers';
 
 const prisma = new PrismaClient();
 
@@ -59,7 +59,9 @@ export default {
       if (place === 3) medal = '🥉';
 
       // return formatted string
-      return `${medal} \`\`\`${suffix}\`\`\`. ${userServerName} with **${count}** bumps`;
+      return `${medal} ${codeString(
+        suffix
+      )}. ${userServerName} with **${count}** bumps`;
     });
 
     // create embed
