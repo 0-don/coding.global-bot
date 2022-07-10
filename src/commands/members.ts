@@ -41,6 +41,7 @@ export default {
 
     // if error occured, return
     if (chart?.error) return interaction.editReply(chart.error);
+    // if(!chart.fileName ||!chart.imgPath ||!chart.lookback || !chart.oneDayCount || !chart.sevedDaysCount|| !chart.thirtyDaysCount)
 
     const attachment = new MessageAttachment(chart.imgPath!, chart.fileName);
 
@@ -64,12 +65,13 @@ export default {
       Bots: ${codeString(botCount)}
 
       **Memberflow 30 Days**
-      Change: ${codeString((chart.thirtyDaysCount!<0?'':'+') + chart.thirtyDaysCount)}
+      Change: \`${(chart.thirtyDaysCount!<0?'':'+') + chart.thirtyDaysCount} members\`
       **Memberflow 7 Days**
-      Change: ${codeString((chart.sevedDaysCount!<0?'':'+') + chart.sevedDaysCount)}
+      Change: \`${(chart.sevedDaysCount!<0?'':'+') + chart.sevedDaysCount} members\`
       **Memberflow 24 Hours**
-      Change: ${codeString((chart.oneDayCount!<0?'':'+') + chart.oneDayCount)}
+      Change: \`${(chart.oneDayCount!<0?'':'+') + chart.oneDayCount} members\`
       `,
+      // prettier-ignore
       timestamp: new Date(),
       image: { url: `attachment://${chart.fileName}` },
       footer: {
