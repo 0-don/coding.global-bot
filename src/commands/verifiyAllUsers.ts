@@ -58,7 +58,7 @@ export default {
       let member = memberCollection[1];
       // refetch user if some roles were reasinged
 
-      if ((i / 100) * 5 === Number((i / 100) * 5)) {
+      if (i % Math.floor((members.size / 100) * 10) === 0) {
         await interaction.editReply(
           `Members: ${i}/${members.size} ${member.user.username}`
         );
