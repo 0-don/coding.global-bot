@@ -8,13 +8,16 @@ export const updateDbRoles = async (
   oldMember: GuildMember | PartialGuildMember,
   newMember: GuildMember | PartialGuildMember
 ) => {
+  // get new roles as string[]
   const newRoles = newMember.roles.cache
     .filter(({ name }) => name !== EVERYONE)
     .map((role) => role);
+  // get old roles as string[]
   const oldRoles = oldMember.roles.cache
     .filter(({ name }) => name !== EVERYONE)
     .map((role) => role);
 
+  // check if new role was aded
   if (newRoles.length > oldRoles.length) {
     // add or update new role
     const newAddedRole = newRoles.filter((role) => !oldRoles.includes(role))[0];
@@ -38,13 +41,17 @@ export const updateDbRoles = async (
         update: memberRole,
       });
     }
-  } else if (newRoles.length < oldRoles.length) {
     // remove role
+  } else if (newRoles.length < oldRoles.length) {
+    // get the removed role
     const newRemovedRole = oldRoles.filter(
       (role) => !newRoles.includes(role)
     )[0];
+
+    // if no role was removed return
     if (!newRemovedRole) return;
 
+    // try catch delete removed role from db
     try {
       await prisma.memberRole.delete({
         where: {

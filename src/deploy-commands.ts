@@ -1,32 +1,32 @@
 import 'dotenv/config';
-import path from 'path';
-import fs from 'fs';
+
 import { REST } from '@discordjs/rest';
+import { error, log } from 'console';
 import { Routes } from 'discord-api-types/v9';
-import { log, error } from 'console';
+import { filesPaths } from './utils/helpers';
 
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
 const token = process.env.TOKEN;
 
+// create empty commands array
 const commands = [];
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs
-  .readdirSync(commandsPath)
-  .filter((file) => file.endsWith('.ts') || file.endsWith('.js'));
-
-for (const file of commandFiles) {
-  const filePath = path.join(commandsPath, file);
-  const command = require(filePath);
+// get command files
+const commandFiles = filesPaths('commands');
+// create json config from command files
+for (const commandFile of commandFiles) {
+  const command = require(commandFile);
   commands.push(command.default.data.toJSON());
 }
 
+// set rest api
 const rest = new REST({ version: '9' }).setToken(token);
 
 (async () => {
   try {
     log('Started refreshing application (/) commands.');
 
+    // load commands on specifc guild
     await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
       body: commands,
     });

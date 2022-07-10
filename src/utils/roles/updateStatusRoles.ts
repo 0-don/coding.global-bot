@@ -7,13 +7,16 @@ export const updateStatusRoles = async (
   oldMember: GuildMember | PartialGuildMember,
   newMember: GuildMember | PartialGuildMember
 ) => {
+  // get old roles as string[]
   const oldRoles = oldMember.roles.cache
     .filter(({ name }) => name !== EVERYONE)
     .map((role) => role.name);
+  // get new roles as string[]
   const newRoles = newMember.roles.cache
     .filter(({ name }) => name !== EVERYONE)
     .map((role) => role.name);
 
+  // check if status role exist
   const activeStatusRoles = statusRoles.some((role) => newRoles.includes(role));
 
   // if somehow user has no STATUS role make him unverfied

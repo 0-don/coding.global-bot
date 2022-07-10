@@ -5,61 +5,58 @@ import dayjs from 'dayjs';
 import type { Guild } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
-import type { ChartDataset } from '../../types/types';
+import type { ChartDataset, GuildMemberCountChart } from '../../types/types';
 import { chartConfig, chartJSNodeCanvas } from '../constants';
 import { getDaysArray } from '../helpers';
 
 const prisma = new PrismaClient();
 
-type GuildMemberCountChart = {
-  image?: Buffer;
-  imgPath?: string;
-  data?: ChartDataset[];
-  error?: string;
-};
-
 export const guildMemberCountChart = async (
   guild: Guild
 ): Promise<GuildMemberCountChart> => {
+  // get guild data
   const guildId = guild.id;
   const guildName = guild.name;
 
+  // create or update guild
   await prisma.guild.upsert({
     where: { guildId },
     create: { guildId, guildName },
     update: { guildName },
   });
 
+  // get member join dates and sort ascending
   const dates = (await guild.members.fetch())
     .map((member) => member.joinedAt || new Date())
     .sort((a, b) => a.getTime() - b.getTime());
 
+  // if no dates, return
   if (!dates[0]) return { error: 'No members found' };
 
+  // create date array from first to today for each day
   const startEndDateArray = getDaysArray(dates[0], new Date());
 
-  const dataDb = startEndDateArray.map((date) => ({
-    guildId: guildId,
-    date: dayjs(date).format(),
-    memberCount: dates.filter((d) => dayjs(d) <= dayjs(date)).length,
-  }));
-
-  const data: ChartDataset[] = dataDb.map(({ date, memberCount }) => ({
+  // get member count for each day and format it for chartjs
+  const data: ChartDataset[] = startEndDateArray.map((date) => ({
     x: dayjs(date).toDate(),
-    y: memberCount,
+    y: dates.filter((d) => dayjs(d) <= dayjs(date)).length,
   }));
 
+  // create chartjs config
   const config = chartConfig(data as any);
 
+  // render image from chartjs config as png
   const image = await chartJSNodeCanvas.renderToBuffer(
     config as unknown as ChartConfiguration,
     'image/png'
   );
 
+  // crete local img file
   const imgPath = path.join(path.resolve(), `${guildId}.png`);
   fs.writeFileSync(imgPath, image);
 
   log(`Created guild member count ${guildName}`);
 
+  // return chart data
   return { image, imgPath, data };
 };
