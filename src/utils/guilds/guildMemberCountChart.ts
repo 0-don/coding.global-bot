@@ -8,6 +8,7 @@ import path from 'path';
 import type { ChartDataset, GuildMemberCountChart } from '../../types/types';
 import { chartConfig, chartJSNodeCanvas } from '../constants';
 import { getDaysArray } from '../helpers';
+import { megaUpload } from '../megaUpload';
 
 const prisma = new PrismaClient();
 
@@ -54,6 +55,8 @@ export const guildMemberCountChart = async (
   if (data.length > 3)
     oneDayCount = data[data.length - 1]!.y - data[data.length - 2]!.y;
 
+  const link = await megaUpload(JSON.stringify(data, null, 1), 'chart.json');
+
   // create chartjs config
   const config = chartConfig(
     data.slice(
@@ -77,6 +80,7 @@ export const guildMemberCountChart = async (
 
   // return chart data
   return {
+    link,
     fileName,
     imgPath,
     thirtyDaysCount,
