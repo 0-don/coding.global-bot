@@ -35,7 +35,10 @@ export const guildMemberCountChart = async (
   if (!dates[0]) return { error: 'No members found' };
 
   // create date array from first to today for each day
-  const startEndDateArray = getDaysArray(dates[0], new Date());
+  const startEndDateArray = getDaysArray(
+    dates[0],
+    dayjs().add(1, 'day').toDate()
+  );
 
   // get member count for each day and format it for chartjs
   const data: ChartDataset[] = startEndDateArray.map((date) => ({
