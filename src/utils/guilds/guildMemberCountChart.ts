@@ -1,9 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import type { ChartConfiguration } from 'chart.js';
-import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { log } from 'console';
 import dayjs from 'dayjs';
-import type { Client, Guild } from 'discord.js';
+import type { Guild } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import type { ChartDataset } from '../../types/types';
