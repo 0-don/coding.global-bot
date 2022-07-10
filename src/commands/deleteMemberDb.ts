@@ -16,12 +16,18 @@ export default {
       PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
+    // get member from slash command input
     const user = interaction.options.getUser('user');
 
     try {
+      // try to delete member from database if it exists
       await prisma.member.delete({ where: { memberId: user?.id } });
-    } catch (_) {}
+    } catch (_) {
+      // if member doesn't exist, return
+      return interaction.reply('user not found');
+    }
 
+    // confirm deletion
     return interaction.reply({ ephemeral: true, content: 'user data deleted' });
   },
 };
