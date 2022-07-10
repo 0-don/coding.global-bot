@@ -51,12 +51,15 @@ export const guildMemberCountChart = async (
   let oneDayCount = data[data.length - 1]?.y;
 
   // count total members for date ranges
-  if (data.length > 32)
+  if (data.length > 31)
     thirtyDaysCount = data[data.length - 1]!.y - data[data.length - 31]!.y;
-  if (data.length > 9)
+  if (data.length > 8)
     sevedDaysCount = data[data.length - 1]!.y - data[data.length - 8]!.y;
   if (data.length > 3)
     oneDayCount = data[data.length - 1]!.y - data[data.length - 2]!.y;
+
+  console.log('week', data[data.length - 1], data[data.length - 8]);
+  console.log('month', data[data.length - 1], data[data.length - 31]);
 
   const link = await megaUpload(JSON.stringify(data, null, 1), 'chart.json');
 
