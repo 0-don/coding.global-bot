@@ -16,6 +16,7 @@ jobs:
         run: |
           touch .env
           echo TOKEN=${{ secrets.TOKEN }} >> .env
+          echo DEEPL=${{ secrets.DEEPL }} >> .env
           echo CLIENT_ID=${{ secrets.CLIENT_ID }} >> .env
           echo GUILD_ID=${{ secrets.GUILD_ID }} >> .env
           echo MEGA_EMAIL=${{ secrets.MEGA_EMAIL }} >> .env
@@ -26,7 +27,6 @@ jobs:
           echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env
           echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
           echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
-          echo DEEPL=${{ secrets.DEEPL }} >> .env
           cat .env
 
       - name: Docker run
