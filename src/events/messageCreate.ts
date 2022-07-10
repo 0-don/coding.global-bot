@@ -1,6 +1,7 @@
 import type { Message } from 'discord.js';
 import { bumpCount } from '../utils/messages/bumpCount';
 import { cleanUpVerifyChannel } from '../utils/messages/cleanUpVerifyChannel';
+import { translate } from '../utils/messages/translate';
 
 export default {
   name: 'messageCreate',
@@ -11,5 +12,8 @@ export default {
 
     // count bumps for the user
     await bumpCount(message);
+
+    // translate message
+    await translate(message);
   },
 };
