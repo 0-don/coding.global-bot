@@ -58,8 +58,7 @@ export const guildMemberCountChart = async (
   const config = chartConfig(
     data.slice(
       // splice only the lookback range if it fits. 2 values minium needed for chart
-      -90
-      // data.length - 2 < lookback ? 0 : lookback * -1
+      data.length - 2 < lookback ? 0 : lookback * -1
     ) as any
   );
 
