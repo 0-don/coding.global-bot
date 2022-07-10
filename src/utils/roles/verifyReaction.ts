@@ -19,21 +19,25 @@ export const verifyReaction = async (
   reaction: MessageReaction | PartialMessageReaction,
   user: User | PartialUser
 ) => {
+  // check if template
   const isTemplate = reaction.message.embeds[0]?.footer?.text;
+  // check embed template a verify template
   if (isTemplate !== VERIFY_TEMPLATE) return;
-  if (user.id === reaction.message.author?.id) return;
+  // check if reaction is from bot
   if (user.bot) return;
 
+  // get member
   const member = await reaction.message.guild?.members.cache
     .get(user.id)
     ?.fetch();
 
-  // if status role on user then exit
-
+  // if icon reaction role on user then exit
   if (member?.roles.cache.some((role) => roles.includes(role.name as any)))
     return;
 
-  let guildStatusRoles = getGuildStatusRoles(reaction.message.guild!);
+  // get icon reaction role
+  const guildStatusRoles = getGuildStatusRoles(reaction.message.guild!);
 
+  // if icon reaction role exist exist add role to user
   guildStatusRoles[VERIFIED] && member?.roles.add(guildStatusRoles[VERIFIED]);
 };

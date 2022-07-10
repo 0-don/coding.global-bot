@@ -3,7 +3,7 @@ import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
 import type { RoleTemplateReaction } from '../types/types';
 import { ROLE_TEMPLATE } from '../utils/constants';
-import { parseJSON } from '../utils/parseJSON';
+import { parseJSON } from '../utils/helpers';
 import { createRoleTemplateEmbed } from '../utils/roles/roleTemplate';
 
 export default {

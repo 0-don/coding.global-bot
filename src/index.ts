@@ -1,11 +1,12 @@
-import 'dotenv/config';
-import fs from 'fs';
-import path from 'path';
 import { Client, Collection, Intents } from 'discord.js';
+import 'dotenv/config';
+import path from 'path';
 import './deploy-commands';
+import { filesPaths } from './utils/helpers';
 
 const token = process.env.TOKEN;
 
+// discord client config
 const client = new Client({
   intents: [
     Intents.FLAGS.GUILDS,
@@ -24,27 +25,23 @@ const client = new Client({
   ],
 });
 
+// add slash commands on client globally
 client.commands = new Collection();
 
-const commandsPath = path.join(__dirname, 'commands');
-const commandFiles = fs
-  .readdirSync(commandsPath)
-  .filter((file) => file.endsWith('.ts') || file.endsWith('.js'));
-
-for (const file of commandFiles) {
-  const filePath = path.join(commandsPath, file);
-  const command = require(filePath);
+// get commands path and files
+const commandFiles = filesPaths('commands');
+// get each command file and put them in to command collection on client
+for (const commandFile of commandFiles) {
+  const command = require(commandFile);
   client.commands.set(command.default.data.name, command.default);
 }
 
-const eventsPath = path.join(__dirname, 'events');
-const eventFiles = fs
-  .readdirSync(eventsPath)
-  .filter((file) => file.endsWith('.ts') || file.endsWith('.js'));
-
-for (const file of eventFiles) {
-  const filePath = path.join(eventsPath, file);
-  const { default: event } = require(filePath);
+// get events path and files
+const eventsFiles = filesPaths('events');
+// get event files and create event listeners
+for (const eventsFile of eventsFiles) {
+  const { default: event } = require(eventsFile);
+  // either once or on
   if (event.once) {
     client.once(event.name, (...args) => event.execute(...args));
   } else {
