@@ -1,6 +1,5 @@
 import { Client, Collection, Intents } from 'discord.js';
 import 'dotenv/config';
-import path from 'path';
 import './deploy-commands';
 import { filesPaths } from './utils/helpers';
 
