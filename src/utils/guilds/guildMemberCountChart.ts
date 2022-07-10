@@ -55,7 +55,7 @@ export const guildMemberCountChart = async (
     oneDayCount = data[data.length - 1]!.y - data[data.length - 2]!.y;
 
   // create chart data in the range of lookback
-  const filteredData = [...data].splice(
+  const filteredData = data.splice(
     // splice only the lookback range if it fits. 2 values minium needed for chart
     data.length - 2 < lookback ? 0 : lookback
   );
