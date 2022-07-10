@@ -26,6 +26,7 @@ jobs:
           echo POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} >> .env
           echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
           echo DATABASE_URL=${{ secrets.DATABASE_URL }} >> .env
+          echo DEEPL=${{ secrets.DEEPL }} >> .env
           cat .env
 
       - name: Docker run
