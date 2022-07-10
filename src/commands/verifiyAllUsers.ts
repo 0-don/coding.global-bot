@@ -45,7 +45,7 @@ export default {
       return interaction.editReply({ content });
     }
 
-    let i = 0;
+    let i = 1;
     const members = await interaction.guild.members.fetch();
 
     interaction.editReply({
@@ -57,6 +57,12 @@ export default {
       // get the user from map collection
       let member = memberCollection[1];
       // refetch user if some roles were reasinged
+
+      if ((i / 100) * 5 === Number((i / 100) * 5)) {
+        await interaction.editReply(
+          `Members: ${i}/${members.size} ${member.user.username}`
+        );
+      }
 
       log(`${i}/${members.size} user: ${member.user.username}`);
       i++;
