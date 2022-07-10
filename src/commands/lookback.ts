@@ -14,7 +14,7 @@ export default {
       option
         .setName('lookback')
         .setDescription('Set lookback days range')
-        .setMinValue(1)
+        .setMinValue(3)
         .setMaxValue(9999)
         .setRequired(true)
     )

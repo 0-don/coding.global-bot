@@ -19,7 +19,7 @@ export const guildMemberCountChart = async (
   const guildName = guild.name;
 
   // create or update guild
-  await prisma.guild.upsert({
+  const { lookback } = await prisma.guild.upsert({
     where: { guildId },
     create: { guildId, guildName },
     update: { guildName },
@@ -42,8 +42,27 @@ export const guildMemberCountChart = async (
     y: dates.filter((d) => dayjs(d) <= dayjs(date)).length,
   }));
 
+  let thirtyDaysCount = data[data.length - 1]?.y;
+  let sevedDaysCount = data[data.length - 1]?.y;
+  let oneDayCount = data[data.length - 1]?.y;
+
+  // count total members for date ranges
+  if (data.length > 32)
+    thirtyDaysCount = data[data.length - 1]!.y - data[data.length - 31]!.y;
+  if (data.length > 9)
+    sevedDaysCount = data[data.length - 1]!.y - data[data.length - 8]!.y;
+  if (data.length > 3)
+    oneDayCount = data[data.length - 1]!.y - data[data.length - 2]!.y;
+
+  // create chart data in the range of lookback
+  const filteredData = [...data].splice(
+    // splice only the lookback range if it fits. 2 values minium needed for chart
+    data.length - 2 < lookback ? 0 : lookback,
+    data.length
+  );
+
   // create chartjs config
-  const config = chartConfig(data as any);
+  const config = chartConfig(filteredData as any);
 
   // render image from chartjs config as png
   const image = await chartJSNodeCanvas.renderToBuffer(
@@ -59,5 +78,12 @@ export const guildMemberCountChart = async (
   log(`Created guild member count ${guildName}`);
 
   // return chart data
-  return { fileName, imgPath };
+  return {
+    fileName,
+    imgPath,
+    thirtyDaysCount,
+    sevedDaysCount,
+    oneDayCount,
+    lookback,
+  };
 };

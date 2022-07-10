@@ -13,6 +13,7 @@ import {
   RED_COLOR,
 } from '../utils/constants';
 import { guildMemberCountChart } from '../utils/guilds/guildMemberCountChart';
+import { codeString } from '../utils/helpers';
 
 export default {
   data: new SlashCommandBuilder()
@@ -46,8 +47,10 @@ export default {
     // create chart embed
     const embed: MessageEmbedOptions = {
       color: RED_COLOR,
-      title: `🛡️${interaction.guild?.name}'s Member Count Overview`,
-      description: `Memberflow and count in the past 9,999 Days. (Change with the s?lookback command.)`,
+      title: `🛡️ ${interaction.guild?.name}'s Member Count Overview`,
+      description: `Memberflow and count in the past ${
+        chart.lookback
+      } Days. (Change with the ${codeString("/lookback 'days'")} command.)`,
       timestamp: new Date(),
       image: { url: `attachment://${chart.fileName}` },
       footer: {
