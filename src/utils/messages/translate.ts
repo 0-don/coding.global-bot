@@ -12,6 +12,9 @@ export const translateReply = async (message: Message<boolean>) => {
     );
 
     await message.delete();
-    message.channel.send(await translate(replyMsg.content));
+    message.channel.send({
+      content: await translate(replyMsg.content),
+      allowedMentions: { users: [] },
+    });
   }
 };
