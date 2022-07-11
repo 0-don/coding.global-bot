@@ -23,6 +23,9 @@ export default {
     const translatedText = await translate(text);
 
     // send success message
-    return interaction.editReply(translatedText);
+    return interaction.editReply({
+      content: translatedText,
+      allowedMentions: { users: [] },
+    });
   },
 };
