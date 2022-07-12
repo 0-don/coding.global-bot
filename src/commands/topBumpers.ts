@@ -47,7 +47,7 @@ export default {
       await member?.fetch();
       // make username clickable
       const userServerName = member?.user.toString();
-      // const userGlobalName = member?.user.username;
+      const userGlobalName = member?.user.username;
       // set place
       const place = i + 1;
 
@@ -62,7 +62,7 @@ export default {
       fields.push(
         `${medal} ${codeString(
           suffix
-        )}. ${userServerName} with **${count}** bumps`
+        )}. ${userServerName} (${userGlobalName}) with **${count}** bumps`
       );
     }
 
