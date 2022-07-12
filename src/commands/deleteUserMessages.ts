@@ -7,6 +7,16 @@ export default {
   data: new SlashCommandBuilder()
     .setName('delete-user-messages')
     .setDescription('Deletes all messages from a user')
+    .addStringOption((option) =>
+      option
+        .setName('days')
+        .setDescription('Delete message History')
+        .setRequired(true)
+        .addChoices(
+          { name: 'Previous 24 Hours', value: '1' },
+          { name: 'Previous 7 Days', value: '7' }
+        )
+    )
     .addUserOption((option) =>
       option
         .setName('user')
@@ -17,16 +27,6 @@ export default {
         .setName('user-id')
         .setDescription(
           'Select either user ID which messages should be deleted'
-        )
-    )
-    .addStringOption((option) =>
-      option
-        .setName('days')
-        .setDescription('Delete message History')
-        .setRequired(true)
-        .addChoices(
-          { name: 'Previous 24 Hours', value: '1' },
-          { name: 'Previous 7 Days', value: '7' }
         )
     )
     .setDefaultMemberPermissions(
