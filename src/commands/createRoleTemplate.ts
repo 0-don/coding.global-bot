@@ -41,7 +41,6 @@ export default {
     // create embeded message
     const message = await interaction.reply({
       embeds: [roleTemplateEmbed],
-      // components: [row],
       fetchReply: true,
     });
 

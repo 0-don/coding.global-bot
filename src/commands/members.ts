@@ -51,6 +51,10 @@ export default {
     ).size;
     const botCount = count - memberCount;
 
+    const thirtyDaysPercent = (chart.thirtyDaysCount! * 100) / memberCount;
+    const sevenDaysPercent = (chart.sevedDaysCount! * 100) / memberCount;
+    const oneDayPercent = (chart.oneDayCount! * 100) / memberCount;
+
     // create chart embed
     const embed: MessageEmbedOptions = {
       color: RED_COLOR,
@@ -65,11 +69,11 @@ export default {
       Bots: ${codeString(botCount)}
 
       **Memberflow 30 Days**
-      Change: \`${(chart.thirtyDaysCount!<0?'':'+') + chart.thirtyDaysCount} members\`
+      Change: \`${(chart.thirtyDaysCount!<0?'':'+') + chart.thirtyDaysCount} members (${(thirtyDaysPercent!<0?'':'+')+ thirtyDaysPercent.toFixed(2)})\`
       **Memberflow 7 Days**
-      Change: \`${(chart.sevedDaysCount!<0?'':'+') + chart.sevedDaysCount} members\`
+      Change: \`${(chart.sevedDaysCount!<0?'':'+') + chart.sevedDaysCount} members (${(sevenDaysPercent!<0?'':'+')+ sevenDaysPercent.toFixed(2)})\`
       **Memberflow 24 Hours**
-      Change: \`${(chart.oneDayCount!<0?'':'+') + chart.oneDayCount} members\`
+      Change: \`${(chart.oneDayCount!<0?'':'+') + chart.oneDayCount} members (${(oneDayPercent!<0?'':'+')+ oneDayPercent.toFixed(2)})\`
       `,
       // prettier-ignore
       timestamp: new Date(),

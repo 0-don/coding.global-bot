@@ -47,7 +47,7 @@ export default {
     // get all channels
     const channels = interaction.guild?.channels.cache;
 
-    const finalId = user?.id || userId;
+    const finalId = user?.id ?? userId;
 
     // if no channels exist, return
     if (!channels) return;
