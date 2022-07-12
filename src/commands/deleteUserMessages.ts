@@ -2,11 +2,16 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
 import dayjs from 'dayjs';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
+import { MUTE } from '../utils/constants';
+
+const prisma = new PrismaClient();
 
 export default {
   data: new SlashCommandBuilder()
     .setName('delete-user-messages')
-    .setDescription('Deletes all messages from a user')
+    .setDescription('Deletes all messages from a user + mute them')
     .addStringOption((option) =>
       option
         .setName('days')
@@ -29,6 +34,13 @@ export default {
           'Select either user ID which messages should be deleted'
         )
     )
+    .addBooleanOption((option) =>
+      option
+        .setName('mute')
+        .setDescription(
+          'Select either user ID which messages should be deleted'
+        )
+    )
     .setDefaultMemberPermissions(
       PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
     ),
@@ -41,13 +53,58 @@ export default {
 
     // get how many days to delete
     const days = interaction.options.getString('days');
+
+    // mute user in db
+    const mute = interaction.options.getBoolean('mute') ?? false;
+
+    const memberId = user?.id ?? userId;
+    const guildId = interaction.guild?.id;
+
+    if (!memberId || !guildId) return;
+
+    if (mute) {
+      //get status roles
+      const guildStatusRoles = getGuildStatusRoles(interaction.guild);
+
+      // delete all roles
+      await prisma.memberRole.deleteMany({
+        where: {
+          memberId,
+          guildId,
+        },
+      });
+
+      // role input
+      const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
+        roleId: guildStatusRoles[MUTE]!.id,
+        memberId,
+        guildId,
+      };
+
+      // create mute role
+      await prisma.memberRole.upsert({
+        where: {
+          member_role: {
+            memberId: memberRole.memberId,
+            roleId: memberRole.roleId,
+          },
+        },
+        create: memberRole,
+        update: memberRole,
+      });
+
+      // if user still on server add mute role
+      user &&
+        interaction.guild.members.cache
+          .get(user.id)!
+          .roles.add(memberRole.roleId);
+    }
+
     // create date before which messages should be deleted
     const daysTimestamp = dayjs().subtract(Number(days), 'day');
 
     // get all channels
     const channels = interaction.guild?.channels.cache;
-
-    const finalId = user?.id ?? userId;
 
     // if no channels exist, return
     if (!channels) return;
@@ -69,7 +126,7 @@ export default {
       for (let message of messages) {
         // check if message was sent by user and if it was sent before daysTimestamp
         if (
-          message.author.id === finalId &&
+          message.author.id === memberId &&
           0 < dayjs(message.createdAt).diff(daysTimestamp, 'minutes')
         )
           await message.delete();
