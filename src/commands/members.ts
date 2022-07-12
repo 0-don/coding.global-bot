@@ -69,11 +69,11 @@ export default {
       Bots: ${codeString(botCount)}
 
       **Memberflow 30 Days**
-      Change: \`${(chart.thirtyDaysCount!<0?'':'+') + chart.thirtyDaysCount} members (${(thirtyDaysPercent!<0?'':'+')+ thirtyDaysPercent.toFixed(2)})\`
+      Change: \`${(chart.thirtyDaysCount!<0?'':'+') + chart.thirtyDaysCount} members (${(thirtyDaysPercent!<0?'':'+')+ thirtyDaysPercent.toFixed(2)}%)\`
       **Memberflow 7 Days**
-      Change: \`${(chart.sevedDaysCount!<0?'':'+') + chart.sevedDaysCount} members (${(sevenDaysPercent!<0?'':'+')+ sevenDaysPercent.toFixed(2)})\`
+      Change: \`${(chart.sevedDaysCount!<0?'':'+') + chart.sevedDaysCount} members (${(sevenDaysPercent!<0?'':'+')+ sevenDaysPercent.toFixed(2)}%)\`
       **Memberflow 24 Hours**
-      Change: \`${(chart.oneDayCount!<0?'':'+') + chart.oneDayCount} members (${(oneDayPercent!<0?'':'+')+ oneDayPercent.toFixed(2)})\`
+      Change: \`${(chart.oneDayCount!<0?'':'+') + chart.oneDayCount} members (${(oneDayPercent!<0?'':'+')+ oneDayPercent.toFixed(2)}%)\`
       `,
       // prettier-ignore
       timestamp: new Date(),
