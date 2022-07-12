@@ -40,16 +40,16 @@ export default {
       take: 25,
     });
 
-    // create placement string array
-    const fields = bumps.map(({ count, memberId }, index) => {
+    let fields = [];
+    for (let [i, { memberId, count }] of bumps.entries()) {
       // get member by id
       const member = interaction.guild?.members.cache.get(memberId);
-
+      await member?.fetch();
       // make username clickable
       const userServerName = member?.user.toString();
       // const userGlobalName = member?.user.username;
       // set place
-      const place = index + 1;
+      const place = i + 1;
 
       // create suffix 1st, 2nd, 3rd, etc.
       const suffix = placementSuffix(place);
@@ -59,10 +59,12 @@ export default {
       if (place === 3) medal = '🥉';
 
       // return formatted string
-      return `${medal} ${codeString(
-        suffix
-      )}. ${userServerName} with **${count}** bumps`;
-    });
+      fields.push(
+        `${medal} ${codeString(
+          suffix
+        )}. ${userServerName} with **${count}** bumps`
+      );
+    }
 
     // create embed
     const embed: MessageEmbedOptions = {
