@@ -10,8 +10,14 @@ export default {
     .addUserOption((option) =>
       option
         .setName('user')
-        .setDescription('Select user which messages should be deleted')
-        .setRequired(true)
+        .setDescription('Select either user which messages should be deleted')
+    )
+    .addStringOption((option) =>
+      option
+        .setName('user-id')
+        .setDescription(
+          'Select either user ID which messages should be deleted'
+        )
     )
     .addStringOption((option) =>
       option
@@ -29,6 +35,10 @@ export default {
   async execute(interaction: CommandInteraction<CacheType>) {
     // get user from slash command input
     const user = interaction.options.getUser('user');
+
+    // get user-id from slash command input
+    const userId = interaction.options.getString('user-id');
+
     // get how many days to delete
     const days = interaction.options.getString('days');
     // create date before which messages should be deleted
@@ -36,6 +46,8 @@ export default {
 
     // get all channels
     const channels = interaction.guild?.channels.cache;
+
+    const finalId = user?.id || userId;
 
     // if no channels exist, return
     if (!channels) return;
@@ -57,7 +69,7 @@ export default {
       for (let message of messages) {
         // check if message was sent by user and if it was sent before daysTimestamp
         if (
-          message.author.id === user?.id &&
+          message.author.id === finalId &&
           0 < dayjs(message.createdAt).diff(daysTimestamp, 'minutes')
         )
           await message.delete();
