@@ -61,6 +61,10 @@ export const parseJSON = (json: string | undefined | null) => {
 export const codeString = (text: string | number) => '`' + text + '`';
 
 export const translate = async (text: string) => {
+  const length = text.split(' ').length;
+  if (length < 4) {
+    return 'Please add more words';
+  }
   const translated = await translator.translateText(text, null, 'en-GB');
   return translated.text;
 };
