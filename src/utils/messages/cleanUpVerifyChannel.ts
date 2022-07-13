@@ -4,10 +4,7 @@ import { VERIFY_CHANNEL } from '../constants';
 export const cleanUpVerifyChannel = async (message: Message<boolean>) => {
   const channel = (await message.channel?.fetch()) as TextChannel;
   // remove non command messages in verify channel
-  if (
-    channel.name === VERIFY_CHANNEL &&
-    message.type !== 'APPLICATION_COMMAND'
-  ) {
+  if (channel.name === VERIFY_CHANNEL) {
     message.delete();
   }
 };
