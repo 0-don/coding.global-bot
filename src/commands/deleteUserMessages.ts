@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction } from 'discord.js';
+import { CacheType, ChannelType, CommandInteraction } from 'discord.js';
 import dayjs from 'dayjs';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
@@ -49,13 +49,13 @@ export default {
     const user = interaction.options.getUser('user');
 
     // get user-id from slash command input
-    const userId = interaction.options.getString('user-id');
+    const userId = interaction.options.get('user-id')?.value as string;
 
     // get how many days to delete
-    const days = interaction.options.getString('days');
+    const days = interaction.options.get('days')?.value as number;
 
     // mute user in db
-    const mute = interaction.options.getBoolean('mute') ?? false;
+    const mute = interaction.options.get('mute')?.value ?? false;
 
     const memberId = user?.id ?? userId;
     const guildId = interaction.guild?.id;
@@ -115,7 +115,7 @@ export default {
     // loop over all channels
     for (let channel of channels.values()) {
       // if channel is not a text channel, continue
-      if (channel.type !== 'GUILD_TEXT') continue;
+      if (channel.type !== ChannelType.GuildText) continue;
 
       // get all messages from channel its limited by 100 cant get more
       await channel.messages.fetch({ limit: 100 });

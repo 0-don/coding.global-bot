@@ -10,22 +10,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Guild {
-  guildId     String        @id @unique
-  guildName   String
-  lookback    Int           @default(9999)
-  MemberGuild MemberGuild[]
-  MemberBump  MemberBump[]
-  MemberRole  MemberRole[]
+enum Type {
+  JOIN
+  LEAVE
+  MUTE
+  UNMUTE
+}
 
+model Guild {
+  guildId          String             @id @unique
+  guildName        String
+  lookback         Int                @default(9999)
+  MemberGuild      MemberGuild[]
+  MemberBump       MemberBump[]
+  MemberRole       MemberRole[]
+  MemberMessages   MemberMessages[]
+  GuildVoiceEvents GuildVoiceEvents[]
+}
+
+model GuildVoiceEvents {
+  id        Int      @id @default(autoincrement())
+  memberId  String
+  guildId   String
+  channelId String
+  type      Type
+  member    Member   @relation(fields: [memberId], references: [memberId])
+  guild     Guild    @relation(fields: [guildId], references: [guildId])
+  createdAt DateTime @default(now())
+
+  @@unique([memberId, guildId], name: "member_guild")
 }
 
 model Member {
-  memberId String        @id @unique
-  username String
-  roles    MemberRole[]
-  guilds   MemberGuild[]
-  bumps    MemberBump[]
+  memberId         String             @id @unique
+  username         String
+  roles            MemberRole[]
+  guilds           MemberGuild[]
+  bumps            MemberBump[]
+  MemberMessages   MemberMessages[]
+  GuildVoiceEvents GuildVoiceEvents[]
+
+}
+
+model MemberMessages {
+  id        Int    @id @default(autoincrement())
+  memberId  String
+  guildId   String
+  messageId String
+  channelId String
+  member    Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
+  guild     Guild  @relation(fields: [guildId], references: [guildId])
+
+  @@unique([memberId, guildId], name: "member_guild")
 }
 
 model MemberGuild {
@@ -33,6 +69,7 @@ model MemberGuild {
   memberId String
   guildId  String
   status   Boolean
+  lookback Int     @default(9999)
   member   Member  @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
   guild    Guild   @relation(fields: [guildId], references: [guildId])
 
