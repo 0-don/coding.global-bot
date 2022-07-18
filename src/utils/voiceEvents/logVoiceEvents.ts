@@ -26,7 +26,7 @@ export const logVoiceEvents = async (
   const voiceEmbed = JSON.parse(JSON.stringify(voiceEmbedExample)) as APIEmbed;
 
   // create embed based on event
-  voiceEmbed.timestamp = new Date().toDateString();
+  voiceEmbed.timestamp = new Date().toISOString();
   if (!oldChannel) {
     voiceEmbed.description = `${userServerName} (${userGlobalName}) joined ${newChannel}`;
   } else if (!newChannel) {

@@ -37,7 +37,7 @@ export const BOT_ICON =
 export const voiceEmbedExample: APIEmbed = {
   color: RED_COLOR,
   description: ``,
-  timestamp: new Date().toDateString(),
+  timestamp: new Date().toISOString(),
   footer: {
     text: 'voice event',
     icon_url: BOT_ICON,
@@ -49,7 +49,7 @@ export const roleTemplateExampleEmbed: APIEmbed = {
   title: 'Server Roles',
   description: 'Select your roles',
   fields: [],
-  timestamp: new Date().toDateString(),
+  timestamp: new Date().toISOString(),
   footer: {
     text: ROLE_TEMPLATE,
     icon_url: BOT_ICON,

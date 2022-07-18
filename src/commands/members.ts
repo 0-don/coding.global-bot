@@ -80,7 +80,7 @@ export default {
       Change: \`${(chart.oneDayCount!<0?'':'+') + chart.oneDayCount} members\`
       `,
       // prettier-ignore
-      timestamp: new Date().toDateString(),
+      timestamp: new Date().toISOString(),
       image: { url: `attachment://${chart.fileName}` },
       footer: {
         text: MEMBERS_TEMPLATE,
