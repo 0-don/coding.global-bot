@@ -1,7 +1,7 @@
 import type { Message } from 'discord.js';
 import { bumpCount } from '../utils/messages/bumpCount';
 import { cleanUpVerifyChannel } from '../utils/messages/cleanUpVerifyChannel';
-import { translateReply } from '../utils/messages/translate';
+import { translateReply } from '../utils/messages/translateReply';
 
 export default {
   name: 'messageCreate',

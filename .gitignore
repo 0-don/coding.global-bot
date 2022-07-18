@@ -6,3 +6,4 @@ dist
 *-roleTemplate.json
 *.txt
 *.png
+yarn-error.log

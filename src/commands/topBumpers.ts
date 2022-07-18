@@ -1,9 +1,9 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PrismaClient } from '@prisma/client';
 import type {
+  APIEmbed,
   CacheType,
   CommandInteraction,
-  MessageEmbedOptions,
   TextChannel,
 } from 'discord.js';
 import {
@@ -67,12 +67,12 @@ export default {
     }
 
     // create embed
-    const embed: MessageEmbedOptions = {
+    const embed: APIEmbed = {
       color: RED_COLOR,
       title: '🏆 Bump Leaderboards',
       description:
         `Look who has bumped the most times \n\n` + fields.join('\n'),
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       footer: {
         text: BUMP_LEADERBOARDS_TEMPLATE,
         icon_url: BOT_ICON,

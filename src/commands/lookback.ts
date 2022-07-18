@@ -23,7 +23,7 @@ export default {
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get lookback days from input
-    const lookback = interaction.options.getInteger('lookback') as number;
+    const lookback = interaction.options.get('lookback')?.value as number;
 
     // get guild data
     const guildId = interaction.guild?.id;

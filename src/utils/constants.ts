@@ -1,6 +1,6 @@
 import type { ChartConfiguration, ChartDataset } from 'chart.js';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
-import type { MessageEmbedOptions } from 'discord.js';
+import type { APIEmbed } from 'discord.js';
 
 export const statusRoles = [
   'verified',
@@ -27,26 +27,26 @@ export const MEMBERS_TEMPLATE = 'members count';
 export const VERIFY_TEMPLATE = 'verify yourself';
 export const BUMP_LEADERBOARDS_TEMPLATE = 'bump leaderboard';
 
-export const RED_COLOR = '#fd0000';
+export const RED_COLOR = 0xff0000;
 export const BOT_ICON =
   'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png';
 
-export const voiceEmbedExample: MessageEmbedOptions = {
+export const voiceEmbedExample: APIEmbed = {
   color: RED_COLOR,
   description: ``,
-  timestamp: new Date(),
+  timestamp: new Date().toISOString(),
   footer: {
     text: 'voice event',
     icon_url: BOT_ICON,
   },
 };
 
-export const roleTemplateExampleEmbed: MessageEmbedOptions = {
+export const roleTemplateExampleEmbed: APIEmbed = {
   color: RED_COLOR,
   title: 'Server Roles',
   description: 'Select your roles',
   fields: [],
-  timestamp: new Date(),
+  timestamp: new Date().toISOString(),
   footer: {
     text: ROLE_TEMPLATE,
     icon_url: BOT_ICON,
