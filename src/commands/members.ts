@@ -41,13 +41,6 @@ export default {
     // if error occured, return
     if (chart?.error) return interaction.editReply(chart.error);
 
-    // const attachment = new AttachmentBuilder(chart.imgPath!, chart.fileName!);
-
-    // const attachment = {
-    //   name: chart.fileName!,
-    //   data: chart.imgPath!,
-    // };
-
     const attachment = {
       attachment: chart.imgPath!,
       name: chart.fileName!,
