@@ -1,4 +1,4 @@
-import type { MessageEmbedOptions, VoiceState } from 'discord.js';
+import type { APIEmbed, VoiceState } from 'discord.js';
 import { voiceEmbedExample, VOICE_EVENT_CHANNEL } from '../constants';
 
 export const logVoiceEvents = async (
@@ -14,7 +14,7 @@ export const logVoiceEvents = async (
   );
 
   // check if voice channel exists and it is voice channel
-  if (!voiceEventsChannel || !voiceEventsChannel.isText()) return;
+  if (!voiceEventsChannel || !voiceEventsChannel.isTextBased()) return;
 
   const userServerName = newVoiceState.member?.user.toString();
   const userGlobalName = newVoiceState.member?.user.username;
@@ -23,12 +23,10 @@ export const logVoiceEvents = async (
   const newChannel = newVoiceState.channel?.name;
 
   // copy paste embed so it doesnt get overwritten
-  const voiceEmbed = JSON.parse(
-    JSON.stringify(voiceEmbedExample)
-  ) as MessageEmbedOptions;
+  const voiceEmbed = JSON.parse(JSON.stringify(voiceEmbedExample)) as APIEmbed;
 
   // create embed based on event
-  voiceEmbed.timestamp = new Date();
+  voiceEmbed.timestamp = new Date().toDateString();
   if (!oldChannel) {
     voiceEmbed.description = `${userServerName} (${userGlobalName}) joined ${newChannel}`;
   } else if (!newChannel) {

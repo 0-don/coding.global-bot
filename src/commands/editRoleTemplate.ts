@@ -27,11 +27,11 @@ export default {
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get message id
-    const messageID = interaction.options.getString('message-id') as string;
+    const messageID = interaction.options.get('message-id')?.value as string;
 
     // get role json template
     const inputTemplate = parseJSON(
-      interaction.options.getString('json')
+      interaction.options.get('json')?.value as string
     ) as RoleTemplateReaction;
 
     // fetch message if it exists
@@ -63,7 +63,7 @@ export default {
     msg.edit({ embeds: [roleTemplateEmbed] });
 
     // notify it worked
-    interaction.reply({
+    return interaction.reply({
       content: "I've edited the message.",
       ephemeral: true,
     });

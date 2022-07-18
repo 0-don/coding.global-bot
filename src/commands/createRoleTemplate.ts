@@ -22,7 +22,7 @@ export default {
   async execute(interaction: CommandInteraction<CacheType>) {
     // get embed template as json
     const inputTemplate = parseJSON(
-      interaction.options.getString('json')
+      interaction.options.get('json')?.value as string
     ) as RoleTemplateReaction;
 
     // create role template from input or get error
@@ -46,7 +46,7 @@ export default {
     });
 
     // create emoji reactions
-    emojis.forEach((emoji) => {
+    return emojis.forEach((emoji) => {
       if (!emoji) return;
       (message as Message<boolean>).react(emoji);
     });

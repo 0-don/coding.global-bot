@@ -1,4 +1,4 @@
-import type { Client, Message, MessageEmbedOptions } from 'discord.js';
+import type { APIEmbed, Client, Message } from 'discord.js';
 import type {
   RoleTemplateReaction,
   CreateRoleTemplateEmbed,
@@ -16,7 +16,7 @@ export async function createRoleTemplateEmbed(
   // copy embed example
   const roleTemplateEmbed = JSON.parse(
     JSON.stringify(roleTemplateExampleEmbed)
-  ) as MessageEmbedOptions;
+  ) as APIEmbed;
 
   // parse emojis from template
   const emojis = inputTemplate.reactions.map((reaction) => {

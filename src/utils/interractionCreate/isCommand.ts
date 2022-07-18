@@ -3,7 +3,7 @@ import type { Interaction } from 'discord.js';
 
 export const isCommand = async (interaction: Interaction<'raw'>) => {
   // check if message is a command
-  if (interaction.isCommand()) {
+  if (interaction.isChatInputCommand()) {
     // get slash command name
     const command = interaction.client.commands.get(interaction.commandName);
     // if no name return

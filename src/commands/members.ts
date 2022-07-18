@@ -1,9 +1,8 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import {
+import type {
+  APIEmbed,
   CacheType,
   CommandInteraction,
-  MessageAttachment,
-  MessageEmbedOptions,
   TextChannel,
 } from 'discord.js';
 import {
@@ -41,9 +40,18 @@ export default {
 
     // if error occured, return
     if (chart?.error) return interaction.editReply(chart.error);
-    // if(!chart.fileName ||!chart.imgPath ||!chart.lookback || !chart.oneDayCount || !chart.sevedDaysCount|| !chart.thirtyDaysCount)
 
-    const attachment = new MessageAttachment(chart.imgPath!, chart.fileName);
+    // const attachment = new AttachmentBuilder(chart.imgPath!, chart.fileName!);
+
+    // const attachment = {
+    //   name: chart.fileName!,
+    //   data: chart.imgPath!,
+    // };
+
+    const attachment = {
+      attachment: chart.imgPath!,
+      name: chart.fileName!,
+    };
 
     const count = interaction.guild.members.cache.size;
     const memberCount = interaction.guild.members.cache.filter(
@@ -52,7 +60,7 @@ export default {
     const botCount = count - memberCount;
 
     // create chart embed
-    const embed: MessageEmbedOptions = {
+    const embed: APIEmbed = {
       color: RED_COLOR,
       title: `🛡️ ${interaction.guild?.name}'s Member Count Overview`,
       // prettier-ignore
@@ -72,7 +80,7 @@ export default {
       Change: \`${(chart.oneDayCount!<0?'':'+') + chart.oneDayCount} members\`
       `,
       // prettier-ignore
-      timestamp: new Date(),
+      timestamp: new Date().toDateString(),
       image: { url: `attachment://${chart.fileName}` },
       footer: {
         text: MEMBERS_TEMPLATE,

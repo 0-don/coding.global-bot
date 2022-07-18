@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction } from 'discord.js';
+import { CacheType, ChannelType, CommandInteraction } from 'discord.js';
 import dayjs from 'dayjs';
 
 export default {
@@ -30,7 +30,7 @@ export default {
     // get user from slash command input
     const user = interaction.options.getUser('user');
     // get how many days to delete
-    const days = interaction.options.getString('days');
+    const days = interaction.options.get('days')?.value as string;
     // create date before which messages should be deleted
     const daysTimestamp = dayjs().subtract(Number(days), 'day');
 
@@ -46,7 +46,7 @@ export default {
     // loop over all channels
     for (let channel of channels.values()) {
       // if channel is not a text channel, continue
-      if (channel.type !== 'GUILD_TEXT') continue;
+      if (channel.type !== ChannelType.GuildText) continue;
 
       // get all messages from channel its limited by 100 cant get more
       await channel.messages.fetch({ limit: 100 });
