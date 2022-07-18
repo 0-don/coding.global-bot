@@ -1,9 +1,9 @@
-import type { Message } from 'discord.js';
+import { Message, MessageType } from 'discord.js';
 import { translate } from '../helpers';
 
 export const translateReply = async (message: Message<boolean>) => {
   if (
-    message.type === 'REPLY' &&
+    message.type === MessageType.Reply &&
     message.reference?.messageId &&
     message.content === '/translate'
   ) {

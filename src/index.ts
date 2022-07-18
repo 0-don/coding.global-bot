@@ -1,4 +1,4 @@
-import { Client, Collection, Intents } from 'discord.js';
+import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
 import 'dotenv/config';
 import './deploy-commands';
 import { filesPaths } from './utils/helpers';
@@ -8,19 +8,19 @@ const token = process.env.TOKEN;
 // discord client config
 const client = new Client({
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MEMBERS,
-    Intents.FLAGS.GUILD_VOICE_STATES,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
   ],
   partials: [
-    'MESSAGE',
-    'CHANNEL',
-    'REACTION',
-    'GUILD_MEMBER',
-    'GUILD_SCHEDULED_EVENT',
-    'USER',
+    Partials.Message,
+    Partials.Channel,
+    Partials.Reaction,
+    Partials.GuildMember,
+    Partials.GuildScheduledEvent,
+    Partials.User,
   ],
 });
 
@@ -47,5 +47,13 @@ for (const eventsFile of eventsFiles) {
     client.on(event.name, (...args) => event.execute(...args));
   }
 }
+
+client.on('interactionCreate', async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
+
+  if (interaction.commandName === 'ping') {
+    await interaction.reply('Pong!');
+  }
+});
 
 client.login(token);

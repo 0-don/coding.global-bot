@@ -1,4 +1,4 @@
-import type { Message, TextChannel } from 'discord.js';
+import { Message, MessageType, TextChannel } from 'discord.js';
 import { VERIFY_CHANNEL } from '../constants';
 
 export const cleanUpVerifyChannel = async (message: Message<boolean>) => {
@@ -6,7 +6,7 @@ export const cleanUpVerifyChannel = async (message: Message<boolean>) => {
   // remove non command messages in verify channel
   if (
     channel.name === VERIFY_CHANNEL &&
-    message.type !== 'APPLICATION_COMMAND'
+    message.type !== MessageType.ChatInputCommand
   ) {
     message.delete();
   }

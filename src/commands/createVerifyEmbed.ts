@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type {
+  APIEmbed,
   CacheType,
   CommandInteraction,
   Message,
-  MessageEmbedOptions,
   TextChannel,
 } from 'discord.js';
 import {
@@ -29,7 +29,7 @@ export default {
     if (channel.name !== VERIFY_CHANNEL) return;
 
     // create verify embed
-    const embed: MessageEmbedOptions = {
+    const embed: APIEmbed = {
       color: RED_COLOR,
       title: 'Verification process...',
       description: `**--- :flag_gb: Welcome to our Coding Server! :flag_gb: ---**
@@ -54,7 +54,7 @@ Wir mögen es generell nicht so sehr, wenn der einzige Zweck des Aufenthalts der
 
 add 👍 to get verified
 `,
-      timestamp: new Date(),
+      timestamp: new Date().toDateString(),
       footer: {
         text: VERIFY_TEMPLATE,
         icon_url: BOT_ICON,

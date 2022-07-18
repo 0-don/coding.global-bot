@@ -21,7 +21,7 @@ export default {
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get message id
-    const messageID = interaction.options.getString('message-id') as string;
+    const messageID = interaction.options.get('message-id')?.value as string;
 
     // fetch message if it exists
     const msg = await interaction.channel?.messages.fetch(messageID);
@@ -50,6 +50,6 @@ export default {
     const content = await megaUpload(roleTemplate, fileName);
 
     // respond with either error or link
-    interaction.editReply({ content });
+    return interaction.editReply({ content });
   },
 };
