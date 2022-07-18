@@ -70,7 +70,7 @@ export default {
       title: '🏆 Bump Leaderboards',
       description:
         `Look who has bumped the most times \n\n` + fields.join('\n'),
-      timestamp: new Date().toDateString(),
+      timestamp: new Date().toISOString(),
       footer: {
         text: BUMP_LEADERBOARDS_TEMPLATE,
         icon_url: BOT_ICON,

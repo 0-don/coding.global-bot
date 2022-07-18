@@ -54,7 +54,7 @@ Wir mögen es generell nicht so sehr, wenn der einzige Zweck des Aufenthalts der
 
 add 👍 to get verified
 `,
-      timestamp: new Date().toDateString(),
+      timestamp: new Date().toISOString(),
       footer: {
         text: VERIFY_TEMPLATE,
         icon_url: BOT_ICON,
