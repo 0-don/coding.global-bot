@@ -48,12 +48,4 @@ for (const eventsFile of eventsFiles) {
   }
 }
 
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-
-  if (interaction.commandName === 'ping') {
-    await interaction.reply('Pong!');
-  }
-});
-
 client.login(token);
