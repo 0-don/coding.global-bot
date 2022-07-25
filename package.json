@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
-    "start:prod": "node dist/index.js ",
+    "start:prod": "node dist/index.js",
     "start:migrate:prod": "npx prisma migrate deploy && yarn start:prod",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "prisma": "npx prisma migrate dev --name init & npx prisma generate",
