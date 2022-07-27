@@ -54,6 +54,8 @@ services:
       dockerfile: Dockerfile
       target: prod
     restart: always
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}?schema=public
 
 volumes:
   postgres:
