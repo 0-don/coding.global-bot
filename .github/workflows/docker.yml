@@ -30,3 +30,6 @@ jobs:
 
       - name: Docker run
         run: docker-compose up -d --force-recreate --build
+        
+      - name: remove unused images
+        run: docker system prune -af
