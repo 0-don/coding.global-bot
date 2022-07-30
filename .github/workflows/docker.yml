@@ -32,4 +32,4 @@ jobs:
         run: docker-compose up -d --force-recreate --build
         
       - name: remove unused images
-        run: docker system prune -af
+        run: docker system prune -f
