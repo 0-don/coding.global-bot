@@ -1,5 +1,5 @@
 import type { GuildMember, PartialGuildMember } from 'discord.js';
-import type { StatusRoles } from '../../types/types';
+import type { StatusRoles } from '../../types';
 import { statusRoles, VERIFIED } from '../constants';
 
 export const joinRole = async (member: GuildMember | PartialGuildMember) => {

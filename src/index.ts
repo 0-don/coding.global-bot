@@ -49,4 +49,6 @@ for (const eventsFile of eventsFiles) {
   }
 }
 
+// client.on("")
+
 client.login(token);

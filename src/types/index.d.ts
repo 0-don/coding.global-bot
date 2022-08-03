@@ -1,5 +1,7 @@
 import type { MessageEmbedOptions } from 'discord.js';
 import { statusRoles } from '../utils/constants';
+import { ClientEvents } from 'discord.js';
+import type { Interface } from 'readline';
 
 export type RoleTemplateReactionValues = {
   name: string;
@@ -60,3 +62,9 @@ export type GuildMemberCountChart = {
   lookback?: number;
   error?: string;
 };
+
+export interface Event<K extends keyof ClientEvents> {
+  name: K;
+  once?: boolean;
+  execute: (...args: ClientEvents[K]) => Awaitable<void>;
+}

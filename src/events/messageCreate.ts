@@ -1,4 +1,5 @@
-import type { Message } from 'discord.js';
+import type { Event } from '../types';
+import { addMessageDb } from '../utils/messages/addMessageDb';
 import { bumpCount } from '../utils/messages/bumpCount';
 import { cleanUpVerifyChannel } from '../utils/messages/cleanUpVerifyChannel';
 import { translateReply } from '../utils/messages/translateReply';
@@ -6,7 +7,7 @@ import { translateReply } from '../utils/messages/translateReply';
 export default {
   name: 'messageCreate',
   once: false,
-  async execute(message: Message<boolean>) {
+  async execute(message) {
     // remove regular messages in verify channel
     await cleanUpVerifyChannel(message);
 
@@ -15,5 +16,8 @@ export default {
 
     // translate message
     await translateReply(message);
+
+    // add Message to Database for statistics
+    await addMessageDb(message);
   },
-};
+} as Event<'messageCreate'>;
