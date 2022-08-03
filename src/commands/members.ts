@@ -63,7 +63,7 @@ export default {
       // prettier-ignore
       description: 
       `
-      Memberflow and count in the past ${chart.lookback} Days. (Change with the ${codeString("/lookback")} command.)
+      Memberflow and count in the past ${chart.lookback} Days. (Change with the ${codeString("/lookback-members")} command.)
 
       **Members**
       Users: ${codeString(memberCount)}
