@@ -10,7 +10,7 @@ export const deleteMessageDb = async (
   const messageId = message.id;
 
   // if info doesnt exist
-  if (!messageId || message.interaction?.user.bot) return;
+  if (!messageId) return;
 
   try {
     await prisma.memberMessages.delete({
