@@ -12,8 +12,6 @@ export const addMessageDb = async (message: Message<boolean>) => {
   const messageId = message.id;
   const guildId = message.guild?.id;
 
-  console.log(`${memberId} ${channelId} ${messageId} ${guildId}`);
-
   // if info doesnt exist
   if (!guildId || !memberId || message.interaction?.user.bot) return;
 
