@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('lookback')
+    .setName('lookback-members')
     .setDescription('Change lookback date range')
     .addIntegerOption((option) =>
       option
