@@ -49,14 +49,13 @@ model Member {
   bumps            MemberBump[]
   MemberMessages   MemberMessages[]
   GuildVoiceEvents GuildVoiceEvents[]
-
 }
 
 model MemberMessages {
   id        Int    @id @default(autoincrement())
   memberId  String
   guildId   String
-  messageId String
+  messageId String @unique
   channelId String
   member    Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
   guild     Guild  @relation(fields: [guildId], references: [guildId])
