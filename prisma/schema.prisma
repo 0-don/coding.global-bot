@@ -59,8 +59,6 @@ model MemberMessages {
   channelId String
   member    Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
   guild     Guild  @relation(fields: [guildId], references: [guildId])
-
-  @@unique([memberId, guildId], name: "member_guild")
 }
 
 model MemberGuild {
