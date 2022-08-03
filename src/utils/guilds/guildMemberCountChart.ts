@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import type { Guild } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
-import type { ChartDataset, GuildMemberCountChart } from '../../types/types';
+import type { ChartDataset, GuildMemberCountChart } from '../../types';
 import { chartConfig, chartJSNodeCanvas } from '../constants';
 import { getDaysArray } from '../helpers';
 

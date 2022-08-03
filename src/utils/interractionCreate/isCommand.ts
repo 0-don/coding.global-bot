@@ -1,7 +1,7 @@
 import { error } from 'console';
 import type { Interaction } from 'discord.js';
 
-export const isCommand = async (interaction: Interaction<'raw'>) => {
+export const isCommand = async (interaction: Interaction) => {
   // check if message is a command
   if (interaction.isChatInputCommand()) {
     // get slash command name

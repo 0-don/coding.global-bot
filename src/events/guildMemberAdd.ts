@@ -1,4 +1,5 @@
 import type { GuildMember } from 'discord.js';
+import type { Event } from '../types';
 import { joinRole } from '../utils/members/joinRole';
 import { updateMemberCount } from '../utils/members/updateMemberCount';
 
@@ -20,4 +21,4 @@ export default {
     // if first time user give him status role
     await joinRole(member);
   },
-};
+} as Event<'guildMemberAdd'>;

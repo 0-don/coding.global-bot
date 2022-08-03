@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import type { CacheType, CommandInteraction, Message } from 'discord.js';
-import type { RoleTemplateReaction } from '../types/types';
+import type { RoleTemplateReaction } from '../types';
 
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import { createRoleTemplateEmbed } from '../utils/roles/roleTemplate';

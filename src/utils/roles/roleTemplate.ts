@@ -2,7 +2,7 @@ import type { APIEmbed, Client, Message } from 'discord.js';
 import type {
   RoleTemplateReaction,
   CreateRoleTemplateEmbed,
-} from '../../types/types';
+} from '../../types';
 import { roleTemplateExampleEmbed } from '../constants';
 
 export async function createRoleTemplateEmbed(
