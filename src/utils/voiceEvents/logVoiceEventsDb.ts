@@ -84,14 +84,18 @@ export const logVoiceEventsDb = async (
       });
 
     // CREATE VOICE EVENT AFTER LEAVE
-    return await prisma.guildVoiceEvents.create({
-      data: {
-        memberId,
-        channelId,
-        guildId,
-        type: 'LEAVE',
-      },
-    });
+    return (
+      lastVoiceEvent &&
+      lastVoiceEvent.type === 'JOIN' &&
+      (await prisma.guildVoiceEvents.create({
+        data: {
+          memberId,
+          channelId,
+          guildId,
+          type: 'LEAVE',
+        },
+      }))
+    );
   }
 
   // CHANGED VOICE CHANNEL
