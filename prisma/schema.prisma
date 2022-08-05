@@ -10,9 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Type {
+enum VoiceType {
   JOIN
   LEAVE
+}
+
+enum Mutetype {
   MUTE
   UNMUTE
 }
@@ -26,19 +29,29 @@ model Guild {
   MemberRole       MemberRole[]
   MemberMessages   MemberMessages[]
   GuildVoiceEvents GuildVoiceEvents[]
+  GuildMuteEvents  GuildMuteEvents[]
 }
 
 model GuildVoiceEvents {
+  id        Int       @id @default(autoincrement())
+  memberId  String
+  guildId   String
+  channelId String
+  type      VoiceType
+  member    Member    @relation(fields: [memberId], references: [memberId])
+  guild     Guild     @relation(fields: [guildId], references: [guildId])
+  createdAt DateTime  @default(now())
+}
+
+model GuildMuteEvents {
   id        Int      @id @default(autoincrement())
   memberId  String
   guildId   String
   channelId String
-  type      Type
+  type      Mutetype
   member    Member   @relation(fields: [memberId], references: [memberId])
   guild     Guild    @relation(fields: [guildId], references: [guildId])
   createdAt DateTime @default(now())
-
-  @@unique([memberId, guildId], name: "member_guild")
 }
 
 model Member {
@@ -49,6 +62,7 @@ model Member {
   bumps            MemberBump[]
   MemberMessages   MemberMessages[]
   GuildVoiceEvents GuildVoiceEvents[]
+  GuildMuteEvents  GuildMuteEvents[]
 }
 
 model MemberMessages {
