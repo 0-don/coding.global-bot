@@ -27,13 +27,13 @@ export const logVoiceEventsDb = async (
   // JOINED VOICE CHANNEL
   if (!oldVoiceState.channelId && newVoiceState.channelId) {
     // IF LAST VOICE EVENT WAS JOIN REMOVE IT BECAUSE OF DUPLICATE
-    if (lastVoiceEvent && lastVoiceEvent.type === 'JOIN')
+    if (lastVoiceEvent?.type === 'JOIN')
       await prisma.guildVoiceEvents.delete({
         where: { id: lastVoiceEvent.id },
       });
 
     // IF LAST MUTE EVENT WAS MUTE IT BECAUSE OF DUPLICATE
-    if (lastMuteEvent && lastMuteEvent.type === 'MUTE')
+    if (lastMuteEvent?.type === 'MUTE')
       await prisma.guildMuteEvents.delete({
         where: { id: lastMuteEvent.id },
       });
@@ -63,9 +63,9 @@ export const logVoiceEventsDb = async (
   // LEFT VOICE CHANNEL
   if (oldVoiceState.channelId && !newVoiceState.channelId) {
     // IF VOICE CHANNEL LEAVE AND LAST EVENT LEAVE EXIT
-    if (lastVoiceEvent && lastVoiceEvent.type === 'LEAVE') {
+    if (lastVoiceEvent?.type === 'LEAVE') {
       // CHECK IF LAST MUTE EVENT WAS MUTE IF YES REMOVE BECAUSE DUPLICATE
-      if (lastMuteEvent && lastMuteEvent.type === 'MUTE')
+      if (lastMuteEvent?.type === 'MUTE')
         await prisma.guildMuteEvents.delete({
           where: { id: lastMuteEvent.id },
         });
@@ -73,7 +73,7 @@ export const logVoiceEventsDb = async (
     }
 
     // IF VOICE CHANNEL LEAVE AND LAST EVENT MUTE CREATE UNMUTE EVENT
-    if (lastMuteEvent && lastMuteEvent.type === 'MUTE')
+    if (lastMuteEvent?.type === 'MUTE')
       await prisma.guildMuteEvents.create({
         data: {
           type: 'UNMUTE',
@@ -85,8 +85,7 @@ export const logVoiceEventsDb = async (
 
     // CREATE VOICE EVENT AFTER LEAVE
     return (
-      lastVoiceEvent &&
-      lastVoiceEvent.type === 'JOIN' &&
+      lastVoiceEvent?.type === 'JOIN' &&
       (await prisma.guildVoiceEvents.create({
         data: {
           memberId,
@@ -100,7 +99,7 @@ export const logVoiceEventsDb = async (
 
   // CHANGED VOICE CHANNEL
   if (oldVoiceState.channelId !== newVoiceState.channelId) {
-    if (lastVoiceEvent && lastVoiceEvent.type === 'LEAVE') {
+    if (lastVoiceEvent?.type === 'LEAVE') {
       // CREATE JOIN EVENT FOR THE NEW CHANNEL
       await prisma.guildVoiceEvents.create({
         data: {
@@ -111,7 +110,7 @@ export const logVoiceEventsDb = async (
         },
       });
 
-      if (lastMuteEvent && lastMuteEvent.type === 'MUTE') {
+      if (lastMuteEvent?.type === 'MUTE') {
         // IF IN DUPLICATE AND STILL MUTED REMOVE EVENT
         await prisma.guildMuteEvents.delete({
           where: { id: lastMuteEvent.id },
@@ -132,7 +131,7 @@ export const logVoiceEventsDb = async (
       return;
     }
 
-    if (lastVoiceEvent && lastVoiceEvent.type === 'JOIN') {
+    if (lastVoiceEvent?.type === 'JOIN') {
       // CREATE LEAVE EVENT FOR THE OLD CHANNEL
       await prisma.guildVoiceEvents.create({
         data: {
@@ -153,7 +152,7 @@ export const logVoiceEventsDb = async (
         },
       });
 
-      if (lastMuteEvent && lastMuteEvent.type === 'MUTE') {
+      if (lastMuteEvent?.type === 'MUTE') {
         // IF USER WAS MUTED BEFORE CHANNEL CHANGE CLOSE IT
         await prisma.guildMuteEvents.create({
           data: {
@@ -191,7 +190,7 @@ export const logVoiceEventsDb = async (
     }
 
     // DELETE MUTE EVENT IF SOMEHOW OLD MUTE EXIST ON CHANNEL CHANGE
-    if (lastMuteEvent && lastMuteEvent.type === 'MUTE') {
+    if (lastMuteEvent?.type === 'MUTE') {
       await prisma.guildMuteEvents.delete({
         where: { id: lastMuteEvent.id },
       });
@@ -221,7 +220,7 @@ export const logVoiceEventsDb = async (
 
   // MUTE STATE CHANGED
   if (oldVoiceState.channelId === newVoiceState.channelId) {
-    if (lastMuteEvent && lastMuteEvent.type === 'MUTE' && !selfMute) {
+    if (lastMuteEvent?.type === 'MUTE' && !selfMute) {
       // IF LAST MUTE LOG WAS MUTE AND NOW UNMUTE ADD LOG
       return await prisma.guildMuteEvents.create({
         data: {
@@ -233,7 +232,7 @@ export const logVoiceEventsDb = async (
       });
     }
 
-    if (lastMuteEvent && lastMuteEvent.type === 'UNMUTE' && selfMute) {
+    if (lastMuteEvent?.type === 'UNMUTE' && selfMute) {
       // IF LAST MUTE LOG WAS UNMUTE AND NOW MUTE ADD LOG
       return await prisma.guildMuteEvents.create({
         data: {
