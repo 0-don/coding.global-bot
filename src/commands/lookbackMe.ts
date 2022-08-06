@@ -1,15 +1,14 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import type { CacheType, CommandInteraction } from 'discord.js';
 
-import { PermissionFlagsBits } from 'discord-api-types/v9';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('lookback-members')
-    .setDescription('Change lookback date range for guild')
+    .setName('lookback-me')
+    .setDescription('Change lookback date range for yourself')
     .addIntegerOption((option) =>
       option
         .setName('lookback')
@@ -17,9 +16,6 @@ export default {
         .setMinValue(3)
         .setMaxValue(9999)
         .setRequired(true)
-    )
-    .setDefaultMemberPermissions(
-      PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get lookback days from input
@@ -27,21 +23,21 @@ export default {
 
     // get guild data
     const guildId = interaction.guild?.id;
-    const guildName = interaction.guild?.name;
+    const memberId = interaction.member?.user.id;
 
-    if (!guildId || !guildName)
+    if (!guildId || !memberId)
       return interaction.reply('Please use this command in a server');
 
     // create or update guild
-    await prisma.guild.upsert({
-      where: { guildId },
-      create: { guildId, guildName, lookback },
-      update: { guildName, lookback },
+    await prisma.memberGuild.upsert({
+      where: { member_guild: { guildId, memberId } },
+      create: { guildId, lookback, memberId, status: true },
+      update: { guildId, lookback, memberId, status: true },
     });
 
     // send success message
     return interaction.reply(
-      `Lookback set to ${lookback} days for ${guildName}`
+      `Lookback set to ${lookback} days for ${interaction.member?.user.username}`
     );
   },
 };

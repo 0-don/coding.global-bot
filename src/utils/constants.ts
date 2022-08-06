@@ -24,6 +24,7 @@ export const MEMBERS_COUNT_CHANNEL = 'Members:';
 
 export const ROLE_TEMPLATE = 'role template';
 export const MEMBERS_TEMPLATE = 'members count';
+export const ME_TEMPLATE = 'my stats';
 export const VERIFY_TEMPLATE = 'verify yourself';
 export const BUMP_LEADERBOARDS_TEMPLATE = 'bump leaderboard';
 
