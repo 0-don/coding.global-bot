@@ -27,7 +27,7 @@ export const MEMBERS_COUNT_CHANNEL = 'Members:';
 
 export const ROLE_TEMPLATE = 'role template';
 export const MEMBERS_TEMPLATE = 'members count';
-export const ME_TEMPLATE = 'my stats';
+export const STATS_TEMPLATE = 'user stats';
 export const VERIFY_TEMPLATE = 'verify yourself';
 export const BUMP_LEADERBOARDS_TEMPLATE = 'bump leaderboard';
 
@@ -67,55 +67,68 @@ export const userStatsExampleEmbed = ({
   lookbackDaysCount,
   sevenDaysCount,
   oneDayCount,
-  mostActiveTextChannel,
-}: UserStatsExampleEmbed): APIEmbed => ({
-  color: RED_COLOR,
-  title: `👤 ${userGlobalName}'s Stats Overview`,
-  // prettier-ignore
-  description: 
-`
+  mostActiveTextChannelId,
+  mostActiveTextChannelMessageCount,
+}: UserStatsExampleEmbed): APIEmbed => {
+  const mostActiveTextChannelString = mostActiveTextChannelId
+    ? `<#${mostActiveTextChannelId}>`
+    : '';
+  const mostActiveTextChannelCountString = codeString(
+    mostActiveTextChannelMessageCount + ' messages'
+  );
+  const lookbackCommand = codeString('/lookback-me');
+
+  const joinedAtUnix = dayjs(joinedAt).unix();
+  const createdAtUnix = dayjs(createdAt).unix();
+
+  return {
+    color: RED_COLOR,
+    title: `👤 ${userGlobalName}'s Stats Overview`,
+
+    description: `
 ${userServerName} (${userGlobalName})
 
-User stats in the past __${lookback}__ Days. (Change with the ${codeString('/lookback-me')} command.)
+User stats in the past __${lookback}__ Days. (Change with the ${lookbackCommand} command.)
 
 **User Info**
-Joined On: __<t:${dayjs(joinedAt).unix()}:D>__ (<t:${dayjs(joinedAt).unix()}:R>)
-Created On: __<t:${dayjs(createdAt).unix()}:D>__ (<t:${dayjs(createdAt).unix()}:R>)
+Joined On: __<t:${joinedAtUnix}:D>__ (<t:${joinedAtUnix}:R>)
+Created On: __<t:${createdAtUnix}:D>__ (<t:${createdAtUnix}:R>)
 User ID: ${codeString(id)}
 
 **Most Active Channels**
-Messages: <#${mostActiveTextChannel[0].channelId}> ${codeString(Number(mostActiveTextChannel[0].count).toLocaleString('en') + " messages")}
+Messages: ${mostActiveTextChannelString} ${mostActiveTextChannelCountString}
 Voice:
-
 `,
 
-  fields: [
-    {
-      name: 'Messages',
-      value: 
-`__${lookback} Days__: ${codeString(`${lookbackDaysCount} messages`)}
+    fields: [
+      {
+        name: 'Messages',
+        value: `
+__${lookback} Days__: ${codeString(`${lookbackDaysCount} messages`)} 
 7 Days: ${codeString(`${sevenDaysCount} messages`)}
 24 Hours: ${codeString(`${oneDayCount} messages`)}
 `,
-      inline: true,
-    },
-    {
-      name: 'Voice',
-      value: 
-`__${lookback} Days__: ${codeString(`${lookbackDaysCount} messages`)}
+
+        inline: true,
+      },
+      {
+        name: 'Voice',
+        value: `
+__${lookback} Days__: ${codeString(`${lookbackDaysCount} messages`)}
 7 Days: ${codeString(`${sevenDaysCount} messages`)}
 24 Hours: ${codeString(`${oneDayCount} messages`)}
 `,
-      inline: true,
+        inline: true,
+      },
+    ],
+
+    timestamp: new Date().toISOString(),
+    footer: {
+      text: STATS_TEMPLATE,
+      icon_url: BOT_ICON,
     },
-  ],
-  // prettier-ignore
-  timestamp: new Date().toISOString(),
-  footer: {
-    text: ME_TEMPLATE,
-    icon_url: BOT_ICON,
-  },
-});
+  };
+};
 
 export const chartConfig = (data: ChartDataset[]) => {
   return {

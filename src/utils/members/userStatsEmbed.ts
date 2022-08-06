@@ -18,13 +18,14 @@ export const userStatsEmbed = async (
 ) => {
   const memberId = user?.id ?? interaction.member?.user.id;
   const guildId = interaction.guild?.id;
-
+  console.log(memberId);
   const memberGuild = (await prisma.memberGuild.findFirst({
     where: { guildId, memberId },
   })) as MemberGuild;
 
-  const userServerName = interaction.member?.user.toString();
-  const userGlobalName = interaction.member?.user.username;
+  const userServerName =
+    user?.toString() ?? interaction.member?.user.toString();
+  const userGlobalName = user?.username ?? interaction.member?.user.username;
 
   if (
     !memberId ||
@@ -42,7 +43,8 @@ export const userStatsEmbed = async (
     memberMessagesByDate,
     oneDayCount,
     sevenDaysCount,
-    mostActiveTextChannel,
+    mostActiveTextChannelId,
+    mostActiveTextChannelMessageCount,
   } = await messagesStats(memberId, guildId, memberGuild.lookback);
 
   const embed = userStatsExampleEmbed({
@@ -56,7 +58,8 @@ export const userStatsEmbed = async (
     memberMessagesByDate,
     oneDayCount,
     sevenDaysCount,
-    mostActiveTextChannel,
+    mostActiveTextChannelId,
+    mostActiveTextChannelMessageCount,
   });
 
   return embed;
@@ -76,6 +79,11 @@ const messagesStats = async (
     [{ channelId: string; count: number }]
   >`SELECT "channelId", count(*) FROM "MemberMessages" WHERE "memberId" = ${memberId} GROUP BY "channelId" ORDER BY count(*) DESC LIMIT 1`;
 
+  const mostActiveTextChannelId = mostActiveTextChannel?.[0]?.channelId;
+  const mostActiveTextChannelMessageCount = Number(
+    mostActiveTextChannel?.[0]?.count ?? 0
+  );
+
   // create date array from first to today for each day
   const startEndDateArray = getDaysArray(
     memberMessagesByDate[0]?.createdAt!,
@@ -89,9 +97,9 @@ const messagesStats = async (
     ).length,
   }));
 
-  let lookbackDaysCount = messages[messages.length - 1]?.y;
-  let sevenDaysCount = messages[messages.length - 1]?.y;
-  let oneDayCount = messages[messages.length - 1]?.y;
+  let lookbackDaysCount = messages[messages.length - 1]?.y ?? 0;
+  let sevenDaysCount = messages[messages.length - 1]?.y ?? 0;
+  let oneDayCount = messages[messages.length - 1]?.y ?? 0;
 
   // count total members for date ranges
   if (messages.length > lookback)
@@ -105,7 +113,8 @@ const messagesStats = async (
     oneDayCount =
       messages[messages.length - 1]!.y - messages[messages.length - 2]!.y;
   return {
-    mostActiveTextChannel,
+    mostActiveTextChannelId,
+    mostActiveTextChannelMessageCount,
     lookbackDaysCount,
     memberMessagesByDate,
     oneDayCount,
