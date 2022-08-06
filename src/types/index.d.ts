@@ -80,10 +80,6 @@ export type UserStatsExampleEmbed = {
   lookbackDaysCount: number | undefined;
   sevenDaysCount: number | undefined;
   oneDayCount: number | undefined;
-  mostActiveTextChannel: [
-    {
-      channelId: string;
-      count: number;
-    }
-  ];
+  mostActiveTextChannelId: string | undefined;
+  mostActiveTextChannelMessageCount: number;
 };
