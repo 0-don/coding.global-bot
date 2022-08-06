@@ -18,7 +18,7 @@ export const userStatsEmbed = async (
 ) => {
   const memberId = user?.id ?? interaction.member?.user.id;
   const guildId = interaction.guild?.id;
-  console.log(memberId);
+
   const memberGuild = (await prisma.memberGuild.findFirst({
     where: { guildId, memberId },
   })) as MemberGuild;
