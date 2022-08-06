@@ -68,3 +68,22 @@ export interface Event<K extends keyof ClientEvents> {
   once?: boolean;
   execute: (...args: ClientEvents[K]) => Awaitable<void>;
 }
+
+export type UserStatsExampleEmbed = {
+  id: string;
+  userGlobalName: string;
+  userServerName: string;
+  lookback: number;
+  joinedAt: Date | null;
+  createdAt: Date;
+  memberMessagesByDate: MemberMessages[];
+  lookbackDaysCount: number | undefined;
+  sevenDaysCount: number | undefined;
+  oneDayCount: number | undefined;
+  mostActiveTextChannel: [
+    {
+      channelId: string;
+      count: number;
+    }
+  ];
+};

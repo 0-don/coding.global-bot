@@ -1,6 +1,9 @@
 import type { ChartConfiguration, ChartDataset } from 'chart.js';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
+import dayjs from 'dayjs';
 import type { APIEmbed } from 'discord.js';
+import type { UserStatsExampleEmbed } from '../types';
+import { codeString } from './helpers';
 
 export const statusRoles = [
   'verified',
@@ -53,6 +56,66 @@ export const roleTemplateExampleEmbed: APIEmbed = {
     icon_url: BOT_ICON,
   },
 };
+
+export const userStatsExampleEmbed = ({
+  id,
+  userGlobalName,
+  userServerName,
+  lookback,
+  joinedAt,
+  createdAt,
+  lookbackDaysCount,
+  sevenDaysCount,
+  oneDayCount,
+  mostActiveTextChannel,
+}: UserStatsExampleEmbed): APIEmbed => ({
+  color: RED_COLOR,
+  title: `👤 ${userGlobalName}'s Stats Overview`,
+  // prettier-ignore
+  description: 
+`
+${userServerName} (${userGlobalName})
+
+User stats in the past __${lookback}__ Days. (Change with the ${codeString('/lookback-me')} command.)
+
+**User Info**
+Joined On: __<t:${dayjs(joinedAt).unix()}:D>__ (<t:${dayjs(joinedAt).unix()}:R>)
+Created On: __<t:${dayjs(createdAt).unix()}:D>__ (<t:${dayjs(createdAt).unix()}:R>)
+User ID: ${codeString(id)}
+
+**Most Active Channels**
+Messages: <#${mostActiveTextChannel[0].channelId}> ${codeString(Number(mostActiveTextChannel[0].count).toLocaleString('en') + " messages")}
+Voice:
+
+`,
+
+  fields: [
+    {
+      name: 'Messages',
+      value: 
+`__${lookback} Days__: ${codeString(`${lookbackDaysCount} messages`)}
+7 Days: ${codeString(`${sevenDaysCount} messages`)}
+24 Hours: ${codeString(`${oneDayCount} messages`)}
+`,
+      inline: true,
+    },
+    {
+      name: 'Voice',
+      value: 
+`__${lookback} Days__: ${codeString(`${lookbackDaysCount} messages`)}
+7 Days: ${codeString(`${sevenDaysCount} messages`)}
+24 Hours: ${codeString(`${oneDayCount} messages`)}
+`,
+      inline: true,
+    },
+  ],
+  // prettier-ignore
+  timestamp: new Date().toISOString(),
+  footer: {
+    text: ME_TEMPLATE,
+    icon_url: BOT_ICON,
+  },
+});
 
 export const chartConfig = (data: ChartDataset[]) => {
   return {
