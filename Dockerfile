@@ -37,5 +37,5 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 4001
 
-CMD ["yarn", "start:migrate:prod"]
+CMD ["yarn", "start"]
 #############################################
