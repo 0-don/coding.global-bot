@@ -66,13 +66,14 @@ model Member {
 }
 
 model MemberMessages {
-  id        Int    @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   memberId  String
   guildId   String
-  messageId String @unique
+  messageId String   @unique
   channelId String
-  member    Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
-  guild     Guild  @relation(fields: [guildId], references: [guildId])
+  member    Member   @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
+  guild     Guild    @relation(fields: [guildId], references: [guildId])
+  createdAt DateTime @default(now())
 }
 
 model MemberGuild {
