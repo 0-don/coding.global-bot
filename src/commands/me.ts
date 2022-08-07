@@ -1,12 +1,12 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
 import { BOT_CHANNEL } from '../utils/constants';
-import { userStatsEmbed } from '../utils/members/userStatsEmbed';
+import { userStatsEmbed } from '../utils/stats/userStatsEmbed';
 
 export default {
   data: new SlashCommandBuilder()
     .setName('me')
-    .setDescription('Get your Stats'),
+    .setDescription('Get your stats'),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get text channel
     const channel = (await interaction.channel?.fetch()) as TextChannel;

@@ -77,9 +77,14 @@ export type UserStatsExampleEmbed = {
   joinedAt: Date | null;
   createdAt: Date;
   memberMessagesByDate: MemberMessages[];
-  lookbackDaysCount: number | undefined;
-  sevenDaysCount: number | undefined;
-  oneDayCount: number | undefined;
+  lookbackDaysCount: number;
+  sevenDaysCount: number;
+  oneDayCount: number;
   mostActiveTextChannelId: string | undefined;
   mostActiveTextChannelMessageCount: number;
+};
+
+export type ToptatsExampleEmbed = {
+  mostActiveMessageUsers: { memberId: string; count: number }[];
+  mostActiveMessageUsersSum: number;
 };

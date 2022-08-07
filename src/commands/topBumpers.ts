@@ -61,7 +61,7 @@ export default {
       // return formatted string
       fields.push(
         `${medal} ${codeString(
-          suffix + '.'
+          suffix
         )} ${userServerName} (${userGlobalName}) with **${count}** bumps`
       );
     }
