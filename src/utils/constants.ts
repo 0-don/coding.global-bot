@@ -2,8 +2,8 @@ import type { ChartConfiguration, ChartDataset } from 'chart.js';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import dayjs from 'dayjs';
 import type { APIEmbed } from 'discord.js';
-import type { UserStatsExampleEmbed } from '../types';
-import { codeString } from './helpers';
+import type { ToptatsExampleEmbed, UserStatsExampleEmbed } from '../types';
+import { codeString, placementSuffix } from './helpers';
 
 export const statusRoles = [
   'verified',
@@ -28,6 +28,7 @@ export const MEMBERS_COUNT_CHANNEL = 'Members:';
 export const ROLE_TEMPLATE = 'role template';
 export const MEMBERS_TEMPLATE = 'members count';
 export const STATS_TEMPLATE = 'user stats';
+export const TOP_STATS_TEMPLATE = 'top stats';
 export const VERIFY_TEMPLATE = 'verify yourself';
 export const BUMP_LEADERBOARDS_TEMPLATE = 'bump leaderboard';
 
@@ -57,6 +58,41 @@ export const roleTemplateExampleEmbed: APIEmbed = {
   },
 };
 
+export const topStatsExampleEmbed = ({
+  mostActiveMessageUsers,
+  mostActiveMessageUsersSum,
+}: ToptatsExampleEmbed): APIEmbed => {
+  const topMembersMessageSumString = codeString(
+    mostActiveMessageUsersSum.toLocaleString('en') + ' messages'
+  );
+
+  const topMembersMessageString = mostActiveMessageUsers.map(
+    ({ count, memberId }, i) =>
+      `${codeString(placementSuffix(i + 1))} <@${memberId}>: ${codeString(
+        count.toLocaleString('en') + ' messages'
+      )}`
+  );
+
+  return {
+    color: RED_COLOR,
+    title: `⭐ Top Stats Overview`,
+
+    description: `
+Top users and channels in the past __9,999 Days__.
+
+**Messages | Top ${mostActiveMessageUsers?.length ?? 0} - Members**
+Top Member Sum: ${topMembersMessageSumString} 
+
+${topMembersMessageString.join('\n')}
+`,
+    timestamp: new Date().toISOString(),
+    footer: {
+      text: TOP_STATS_TEMPLATE,
+      icon_url: BOT_ICON,
+    },
+  };
+};
+
 export const userStatsExampleEmbed = ({
   id,
   userGlobalName,
@@ -74,7 +110,7 @@ export const userStatsExampleEmbed = ({
     ? `<#${mostActiveTextChannelId}>`
     : '';
   const mostActiveTextChannelCountString = codeString(
-    mostActiveTextChannelMessageCount + ' messages'
+    mostActiveTextChannelMessageCount.toLocaleString('en') + ' messages'
   );
   const lookbackCommand = codeString('/lookback-me');
 
@@ -104,9 +140,11 @@ Voice:
       {
         name: 'Messages',
         value: `
-__${lookback} Days__: ${codeString(`${lookbackDaysCount} messages`)} 
-7 Days: ${codeString(`${sevenDaysCount} messages`)}
-24 Hours: ${codeString(`${oneDayCount} messages`)}
+__${lookback} Days__: ${codeString(
+          `${lookbackDaysCount.toLocaleString('en')} messages`
+        )} 
+7 Days: ${codeString(`${sevenDaysCount.toLocaleString('en')} messages`)}
+24 Hours: ${codeString(`${oneDayCount.toLocaleString('en')} messages`)}
 `,
 
         inline: true,
@@ -114,9 +152,11 @@ __${lookback} Days__: ${codeString(`${lookbackDaysCount} messages`)}
       {
         name: 'Voice',
         value: `
-__${lookback} Days__: ${codeString(`${lookbackDaysCount} messages`)}
-7 Days: ${codeString(`${sevenDaysCount} messages`)}
-24 Hours: ${codeString(`${oneDayCount} messages`)}
+__${lookback} Days__: ${codeString(
+          `${lookbackDaysCount.toLocaleString('en')} messages`
+        )}
+7 Days: ${codeString(`${sevenDaysCount.toLocaleString('en')} messages`)}
+24 Hours: ${codeString(`${oneDayCount.toLocaleString('en')} messages`)}
 `,
         inline: true,
       },

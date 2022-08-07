@@ -27,6 +27,8 @@ export const userStatsEmbed = async (
     user?.toString() ?? interaction.member?.user.toString();
   const userGlobalName = user?.username ?? interaction.member?.user.username;
 
+  console.log(userServerName);
+
   if (
     !memberId ||
     !guildId ||
