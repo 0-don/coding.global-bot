@@ -14,13 +14,15 @@ export default {
     // deferReply if it takes longer then usual
     await interaction.deferReply();
 
-    // if not bot channel, return
+    if (!interaction.guildId) return interaction.editReply('No Guild');
+
     if (channel.name !== BOT_CHANNEL)
+      // if not bot channel, return
       return interaction.editReply(
         'Please use this command in the bot channel'
       );
 
-    const embed = await topStatsEmbed();
+    const embed = await topStatsEmbed(interaction.guildId);
 
     if (typeof embed === 'string') return interaction.editReply(embed);
 

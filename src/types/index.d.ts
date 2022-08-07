@@ -86,5 +86,8 @@ export type UserStatsExampleEmbed = {
 
 export type ToptatsExampleEmbed = {
   mostActiveMessageUsers: { memberId: string; count: number }[];
-  mostActiveMessageUsersSum: number;
+  mostActiveMessageChannels: {
+    channelId: string;
+    count: number;
+  }[];
 };
