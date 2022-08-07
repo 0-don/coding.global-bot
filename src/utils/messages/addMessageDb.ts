@@ -17,12 +17,10 @@ export const addMessageDb = async (message: Message<boolean>) => {
   if (!content || !guildId || !memberId || message.interaction?.user.bot)
     return;
 
-  await prisma.memberMessages.create({
-    data: {
-      channelId,
-      guildId,
-      memberId,
-      messageId,
-    },
+  // catch message edits
+  await prisma.memberMessages.upsert({
+    where: { messageId },
+    create: { channelId, guildId, memberId, messageId },
+    update: { channelId, guildId, memberId, messageId },
   });
 };
