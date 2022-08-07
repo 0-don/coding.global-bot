@@ -60,16 +60,31 @@ export const roleTemplateExampleEmbed: APIEmbed = {
 
 export const topStatsExampleEmbed = ({
   mostActiveMessageUsers,
-  mostActiveMessageUsersSum,
+  mostActiveMessageChannels,
 }: ToptatsExampleEmbed): APIEmbed => {
-  const topMembersMessageSumString = codeString(
-    mostActiveMessageUsersSum.toLocaleString('en') + ' messages'
+  const mostActiveMessageUsersSumString = codeString(
+    mostActiveMessageUsers
+      .reduce((a, b) => a + Number(b.count), 0)
+      .toLocaleString('en') + ' messages'
   );
 
-  const topMembersMessageString = mostActiveMessageUsers.map(
+  const mostActiveMessageUsersString = mostActiveMessageUsers.map(
     ({ count, memberId }, i) =>
       `${codeString(placementSuffix(i + 1))} <@${memberId}>: ${codeString(
         count.toLocaleString('en') + ' messages'
+      )}`
+  );
+
+  const mostActiveMessageChannelSumString = codeString(
+    mostActiveMessageChannels
+      .reduce((a, b) => a + Number(b.count), 0)
+      .toLocaleString('en') + ' messages'
+  );
+
+  const mostActiveMessageChannelString = mostActiveMessageChannels.map(
+    ({ count, channelId }, i) =>
+      `${codeString(placementSuffix(i + 1))} <#${channelId}>: ${codeString(
+        Number(count).toLocaleString('en') + ' messages'
       )}`
   );
 
@@ -81,9 +96,15 @@ export const topStatsExampleEmbed = ({
 Top users and channels in the past __9,999 Days__.
 
 **Messages | Top ${mostActiveMessageUsers?.length ?? 0} - Members**
-Top Member Sum: ${topMembersMessageSumString} 
+Top Member Sum: ${mostActiveMessageUsersSumString} 
 
-${topMembersMessageString.join('\n')}
+${mostActiveMessageUsersString.join('\n')}
+
+Messages | Top ${mostActiveMessageChannels?.length ?? 0} - Channels
+Top Channel Sum: ${mostActiveMessageChannelSumString}
+
+${mostActiveMessageChannelString.join('\n')}
+
 `,
     timestamp: new Date().toISOString(),
     footer: {
