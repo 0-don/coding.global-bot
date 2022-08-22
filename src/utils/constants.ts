@@ -128,6 +128,8 @@ export const userStatsExampleEmbed = ({
   oneDayCount,
   mostActiveTextChannelId,
   mostActiveTextChannelMessageCount,
+  lastMessage,
+  lastVoice,
 }: UserStatsExampleEmbed): APIEmbed => {
   const mostActiveTextChannelString = mostActiveTextChannelId
     ? `<#${mostActiveTextChannelId}>`
@@ -139,6 +141,10 @@ export const userStatsExampleEmbed = ({
 
   const joinedAtUnix = dayjs(joinedAt).unix();
   const createdAtUnix = dayjs(createdAt).unix();
+  const lastMessageUnix =
+    lastMessage?.length > 0 && dayjs(lastMessage[0]!.createdAt).unix();
+  const lastVoiceUnix =
+    lastVoice?.length > 0 && dayjs(lastVoice[0]!.createdAt).unix();
 
   return {
     color: RED_COLOR,
@@ -152,6 +158,15 @@ User stats in the past __${lookback}__ Days. (Change with the ${lookbackCommand}
 **User Info**
 Joined On: __<t:${joinedAtUnix}:D>__ (<t:${joinedAtUnix}:R>)
 Created On: __<t:${createdAtUnix}:D>__ (<t:${createdAtUnix}:R>)
+${
+  lastMessageUnix
+    ? 'Last Message On: __<t:${lastMessageUnix}:D>__ (<t:${lastMessageUnix}:R>)'
+    : ''
+}
+${
+  lastVoiceUnix &&
+  'Last Voice On: __<t:${lastVoiceUnix}:D>__ (<t:${lastVoiceUnix}:R>)'
+}
 User ID: ${codeString(id)}
 
 **Most Active Channels**

@@ -24,6 +24,18 @@ export const userStatsEmbed = async (
     include: { member: true },
   });
 
+  const lastVoice = await prisma.guildVoiceEvents.findMany({
+    where: { guildId, memberId },
+    orderBy: { id: 'desc' },
+    take: 1,
+  });
+
+  const lastMessage = await prisma.memberMessages.findMany({
+    where: { guildId, memberId },
+    orderBy: { id: 'desc' },
+    take: 1,
+  });
+
   const userServerName =
     user?.toString() ?? interaction.member?.user.toString();
 
@@ -54,6 +66,8 @@ export const userStatsEmbed = async (
     sevenDaysCount,
     mostActiveTextChannelId,
     mostActiveTextChannelMessageCount,
+    lastVoice,
+    lastMessage,
   });
 
   return embed;
