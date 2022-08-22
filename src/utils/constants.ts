@@ -146,17 +146,13 @@ export const userStatsExampleEmbed = ({
   const lastVoiceUnix =
     lastVoice?.length > 0 && dayjs(lastVoice[0]!.createdAt).unix();
 
-  const lastMessageString = `${
-    lastMessageUnix
-      ? `__<t:${lastMessageUnix}:D>__ (<t:${lastMessageUnix}:R>)`
-      : '__None__'
-  }`;
+  const lastMessageString = lastMessageUnix
+    ? `__<t:${lastMessageUnix}:D>__ (<t:${lastMessageUnix}:R>)`
+    : '__None__';
 
-  const lastVoiceString = `${
-    lastVoiceUnix
-      ? `__<t:${lastVoiceUnix}:D>__ (<t:${lastVoiceUnix}:R>)`
-      : '__None__'
-  }`;
+  const lastVoiceString = lastVoiceUnix
+    ? `__<t:${lastVoiceUnix}:D>__ (<t:${lastVoiceUnix}:R>)`
+    : '__None__';
 
   return {
     color: RED_COLOR,
