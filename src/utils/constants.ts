@@ -69,8 +69,10 @@ export const topStatsExampleEmbed = ({
   );
 
   const mostActiveMessageUsersString = mostActiveMessageUsers.map(
-    ({ count, memberId }, i) =>
-      `${codeString(placementSuffix(i + 1))} <@${memberId}>: ${codeString(
+    ({ count, memberId, username }, i) =>
+      `${codeString(
+        placementSuffix(i + 1)
+      )} <@${memberId}>: (${username}) ${codeString(
         count.toLocaleString('en') + ' messages'
       )}`
   );

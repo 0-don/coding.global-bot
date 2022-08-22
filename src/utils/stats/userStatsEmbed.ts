@@ -1,4 +1,4 @@
-import { MemberGuild, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import dayjs from 'dayjs';
 import type {
   CacheType,
@@ -19,23 +19,15 @@ export const userStatsEmbed = async (
   const memberId = user?.id ?? interaction.member?.user.id;
   const guildId = interaction.guild?.id;
 
-  const memberGuild = (await prisma.memberGuild.findFirst({
+  const memberGuild = await prisma.memberGuild.findFirst({
     where: { guildId, memberId: interaction.user.id },
-  })) as MemberGuild;
+    include: { member: true },
+  });
 
   const userServerName =
     user?.toString() ?? interaction.member?.user.toString();
-  const userGlobalName = user?.username ?? interaction.member?.user.username;
 
-  console.log(userServerName);
-
-  if (
-    !memberId ||
-    !guildId ||
-    !memberGuild ||
-    !userServerName ||
-    !userGlobalName
-  )
+  if (!memberId || !guildId || !memberGuild || !userServerName)
     return 'Something went wrong';
 
   const member = interaction.member as GuildMember;
@@ -51,7 +43,7 @@ export const userStatsEmbed = async (
 
   const embed = userStatsExampleEmbed({
     id: memberId,
-    userGlobalName,
+    userGlobalName: memberGuild.member.username,
     userServerName,
     lookback: memberGuild.lookback,
     createdAt: member.user.createdAt,
