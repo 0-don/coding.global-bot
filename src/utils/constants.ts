@@ -148,11 +148,11 @@ export const userStatsExampleEmbed = ({
 
   const lastMessageString = lastMessageUnix
     ? `__<t:${lastMessageUnix}:D>__ (<t:${lastMessageUnix}:R>)`
-    : '__None__';
+    : codeString('None');
 
   const lastVoiceString = lastVoiceUnix
     ? `__<t:${lastVoiceUnix}:D>__ (<t:${lastVoiceUnix}:R>)`
-    : '__None__';
+    : codeString('None');
 
   return {
     color: RED_COLOR,
