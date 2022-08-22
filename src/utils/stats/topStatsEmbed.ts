@@ -5,8 +5,10 @@ const prisma = new PrismaClient();
 
 export const topStatsEmbed = async (guildId: string) => {
   const mostActiveMessageUsers = await prisma.$queryRaw<
-    [{ memberId: string; count: number }]
-  >`SELECT "memberId", count(*) FROM "MemberMessages" WHERE "guildId" = ${guildId} GROUP BY "memberId" ORDER BY count(*) DESC LIMIT 5`;
+    [{ memberId: string; count: number; username: string }]
+  >`SELECT "MemberMessages"."memberId", "Member"."username", count("MemberMessages"."memberId") FROM "MemberMessages"
+LEFT JOIN "Member" ON "Member"."memberId" = "MemberMessages"."memberId"  WHERE "MemberMessages"."guildId" = ${guildId}
+GROUP BY "MemberMessages"."memberId", "Member"."username" ORDER BY count(*) DESC LIMIT 5`;
 
   const mostActiveMessageChannels = await prisma.$queryRaw<
     [{ channelId: string; count: number }]
