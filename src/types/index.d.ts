@@ -1,4 +1,5 @@
 import type { MessageEmbedOptions } from 'discord.js';
+import { GuildVoiceEvents, MemberMessages, PrismaClient } from '@prisma/client';
 import { statusRoles } from '../utils/constants';
 import { ClientEvents } from 'discord.js';
 import type { Interface } from 'readline';
@@ -80,8 +81,10 @@ export type UserStatsExampleEmbed = {
   lookbackDaysCount: number;
   sevenDaysCount: number;
   oneDayCount: number;
-  mostActiveTextChannelId: string | undefined;
+  mostActiveTextChannelId?: string;
   mostActiveTextChannelMessageCount: number;
+  lastVoice: GuildVoiceEvents[];
+  lastMessage: MemberMessages[];
 };
 
 export type ToptatsExampleEmbed = {
