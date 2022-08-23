@@ -191,11 +191,9 @@ __${lookback} Days__: ${codeString(
       {
         name: 'Voice',
         value: `
-__${lookback} Days__: ${codeString(
-          `${lookbackDaysCount.toLocaleString('en')} messages`
-        )}
-7 Days: ${codeString(`${sevenDaysCount.toLocaleString('en')} messages`)}
-24 Hours: ${codeString(`${oneDayCount.toLocaleString('en')} messages`)}
+__${lookback} Days__: 
+7 Days:
+24 Hours: 
 `,
         inline: true,
       },
