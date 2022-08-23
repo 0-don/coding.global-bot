@@ -80,7 +80,7 @@ const messagesStats = async (
 ) => {
   const memberMessagesByDate = (await prisma.memberMessages.findMany({
     where: { memberId, guildId },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: 'asc' },
   })) ?? [{ createdAt: new Date() }];
 
   const mostActiveTextChannel = await prisma.$queryRaw<
@@ -120,6 +120,7 @@ const messagesStats = async (
   if (messages.length > 3)
     oneDayCount =
       messages[messages.length - 1]!.y - messages[messages.length - 2]!.y;
+
   return {
     mostActiveTextChannelId,
     mostActiveTextChannelMessageCount,
