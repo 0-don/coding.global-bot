@@ -10,16 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum VoiceType {
-  JOIN
-  LEAVE
-}
-
-enum Mutetype {
-  MUTE
-  UNMUTE
-}
-
 model Guild {
   guildId          String             @id @unique
   guildName        String
@@ -37,21 +27,23 @@ model GuildVoiceEvents {
   memberId  String
   guildId   String
   channelId String
-  type      VoiceType
-  member    Member    @relation(fields: [memberId], references: [memberId])
-  guild     Guild     @relation(fields: [guildId], references: [guildId])
-  createdAt DateTime  @default(now())
+  join      DateTime  @default(now())
+  leave     DateTime?
+
+  member Member @relation(fields: [memberId], references: [memberId])
+  guild  Guild  @relation(fields: [guildId], references: [guildId])
 }
 
 model GuildMuteEvents {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   memberId  String
   guildId   String
   channelId String
-  type      Mutetype
-  member    Member   @relation(fields: [memberId], references: [memberId])
-  guild     Guild    @relation(fields: [guildId], references: [guildId])
-  createdAt DateTime @default(now())
+  mute      DateTime  @default(now())
+  unmute    DateTime?
+
+  member Member @relation(fields: [memberId], references: [memberId])
+  guild  Guild  @relation(fields: [guildId], references: [guildId])
 }
 
 model Member {
