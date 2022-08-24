@@ -144,7 +144,7 @@ export const userStatsExampleEmbed = ({
   const lastMessageUnix =
     lastMessage?.length > 0 && dayjs(lastMessage[0]!.createdAt).unix();
   const lastVoiceUnix =
-    lastVoice?.length > 0 && dayjs(lastVoice[0]!.join).unix();
+    lastVoice?.length > 0 && dayjs(lastVoice?.[0]?.leave ?? new Date()).unix();
 
   const lastMessageString = lastMessageUnix
     ? `__<t:${lastMessageUnix}:D>__ (<t:${lastMessageUnix}:R>)`
