@@ -41,10 +41,12 @@ export default {
     });
 
     let fields = [];
+
+    await interaction.guild?.members.fetch();
+
     for (let [i, { memberId, count }] of bumps.entries()) {
       // get member by id
       const member = interaction.guild?.members.cache.get(memberId);
-      await member?.fetch();
       // make username clickable
       const userServerName = member?.user.toString();
       const userGlobalName = member?.user.username;
