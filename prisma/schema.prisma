@@ -44,7 +44,7 @@ model Member {
 }
 
 model MemberMessages {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   memberId  String
   guildId   String
   messageId String   @unique
