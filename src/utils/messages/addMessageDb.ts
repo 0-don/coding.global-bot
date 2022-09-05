@@ -18,9 +18,11 @@ export const addMessageDb = async (message: Message<boolean>) => {
     return;
 
   // catch message edits
-  await prisma.memberMessages.upsert({
-    where: { messageId },
-    create: { channelId, guildId, memberId, messageId },
-    update: { channelId, guildId, memberId, messageId },
-  });
+  try {
+    await prisma.memberMessages.upsert({
+      where: { messageId },
+      create: { channelId, guildId, memberId, messageId },
+      update: { channelId, guildId, memberId, messageId },
+    });
+  } catch (_) {}
 };

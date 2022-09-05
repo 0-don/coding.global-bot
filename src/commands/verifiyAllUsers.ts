@@ -14,9 +14,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('verify-all-users')
     .setDescription('verify all users in the server')
-    .setDefaultMemberPermissions(
-      PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
-    ),
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     if (!interaction.guild) return;
 

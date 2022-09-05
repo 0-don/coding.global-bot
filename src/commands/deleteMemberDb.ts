@@ -12,9 +12,7 @@ export default {
     .addUserOption((option) =>
       option.setName('user').setDescription('select user').setRequired(true)
     )
-    .setDefaultMemberPermissions(
-      PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
-    ),
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get member from slash command input
     const user = interaction.options.getUser('user');
