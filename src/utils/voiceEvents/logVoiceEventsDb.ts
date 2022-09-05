@@ -32,7 +32,6 @@ export const logVoiceEventsDb = async (
 
   // JOINED VOICE CHANNEL
   if (!oldVoiceState.channelId && newVoiceState.channelId) {
-    console.log('join');
     // IF LAST VOICE EVENT WAS JOIN REMOVE IT BECAUSE OF DUPLICATE
     if (lastVoiceEvent?.leave === null)
       await prisma.guildVoiceEvents.delete({
@@ -47,7 +46,6 @@ export const logVoiceEventsDb = async (
 
   // LEFT VOICE CHANNEL
   if (oldVoiceState.channelId && !newVoiceState.channelId) {
-    console.log('leave');
     // CREATE VOICE EVENT AFTER LEAVE
     if (lastVoiceEvent?.leave === null) {
       lastVoiceEvent = await daysBetween(data);
@@ -62,7 +60,6 @@ export const logVoiceEventsDb = async (
 
   // CHANGED VOICE CHANNEL
   if (oldVoiceState.channelId !== newVoiceState.channelId) {
-    console.log('change');
     if (lastVoiceEvent?.leave === null) {
       lastVoiceEvent = await daysBetween(data);
       await prisma.guildVoiceEvents.update({
