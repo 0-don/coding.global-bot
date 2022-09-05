@@ -42,7 +42,7 @@ export default {
         )
     )
     .setDefaultMemberPermissions(
-      PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
+     PermissionFlagsBits.BanMembers
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get user from slash command input

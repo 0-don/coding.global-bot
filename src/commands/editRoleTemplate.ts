@@ -23,7 +23,7 @@ export default {
         .setRequired(true)
     )
     .setDefaultMemberPermissions(
-      PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
+     PermissionFlagsBits.BanMembers
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get message id
