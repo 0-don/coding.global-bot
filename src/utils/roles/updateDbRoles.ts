@@ -30,16 +30,18 @@ export const updateDbRoles = async (
         memberId: newMember.id,
         guildId: newMember.guild.id,
       };
-      await prisma.memberRole.upsert({
-        where: {
-          member_role: {
-            memberId: memberRole.memberId,
-            roleId: memberRole.roleId,
+      try {
+        await prisma.memberRole.upsert({
+          where: {
+            member_role: {
+              memberId: memberRole.memberId,
+              roleId: memberRole.roleId,
+            },
           },
-        },
-        create: memberRole,
-        update: memberRole,
-      });
+          create: memberRole,
+          update: memberRole,
+        });
+      } catch (_) {}
     }
     // remove role
   } else if (newRoles.length < oldRoles.length) {
