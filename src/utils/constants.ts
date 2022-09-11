@@ -147,7 +147,7 @@ Top Member Sum: ${mostActiveVoiceUserSumString}
 
 ${mostActiveVoiceUsersString.join('\n')}
 
-Messages | Top ${mostActiveVoiceChannels?.length ?? 0} - Channels
+Voice | Top ${mostActiveVoiceChannels?.length ?? 0} - Channels
 Top Channel Sum: ${mostActiveVoiceChannelSumString}
 
 ${mostActiveVoiceChannelString.join('\n')}
