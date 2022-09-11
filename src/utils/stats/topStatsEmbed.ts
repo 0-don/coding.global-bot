@@ -30,7 +30,7 @@ export const topStatsEmbed = async (guildId: string) => {
         "memberId",
         EXTRACT(EPOCH FROM ("leave" - "join")) AS difference
         FROM "GuildVoiceEvents"
-        WHERE "guildId" = ${guildId}) AS t
+        WHERE "guildId" = ${guildId} AND "leave" IS NOT NULL) AS t
     JOIN "Member" ON "Member"."memberId" = t."memberId"
     GROUP BY t."memberId", "Member"."username"
     ORDER BY "sum" DESC
