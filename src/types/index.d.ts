@@ -94,13 +94,19 @@ export type UserStatsExampleEmbed = {
 };
 
 export type ToptatsExampleEmbed = {
-  mostActiveMessageUsers: {
-    memberId: string;
-    count: number;
-    username: string;
-  }[];
-  mostActiveMessageChannels: {
-    channelId: string;
-    count: number;
-  }[];
+  mostActiveMessageUsers: [
+    {
+      memberId: string;
+      count: number;
+      username: string;
+    }
+  ];
+  mostActiveMessageChannels: [
+    {
+      channelId: string;
+      count: number;
+    }
+  ];
+  mostActiveVoiceUsers: [{ memberId: string; username: string; sum: number }];
+  mostActiveVoiceChannels: [{ channelId: string; sum: number }];
 };
