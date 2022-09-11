@@ -188,18 +188,18 @@ export const userStatsExampleEmbed = ({
 
   const mostActiveVoiceChannelString = mostActiveVoice?.channelId
     ? `<#${mostActiveVoice.channelId}> ${codeString(
-        (mostActiveVoice?.sum / 60 / 60).toFixed(2) + ' hours'
+        Number(mostActiveVoice?.sum / 60 / 60).toLocaleString('en') + ' hours'
       )}`
     : '';
 
   const lookbackSumString = codeString(
-    (lookbackVoiceSum / 60 / 60).toFixed(2) + ' hours'
+    (lookbackVoiceSum / 60 / 60).toLocaleString('en') + ' hours'
   );
   const oneDaySumString = codeString(
-    (oneDayVoiceSum / 60 / 60).toFixed(2) + ' hours'
+    (oneDayVoiceSum / 60 / 60).toLocaleString('en') + ' hours'
   );
   const sevenDaysSumString = codeString(
-    (sevenDayVoiceSum / 60 / 60).toFixed(2) + ' hours'
+    (sevenDayVoiceSum / 60 / 60).toLocaleString('en') + ' hours'
   );
 
   const joinedAtUnix = dayjs(joinedAt).unix();
