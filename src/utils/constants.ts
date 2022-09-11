@@ -69,7 +69,9 @@ export const topStatsExampleEmbed = ({
       mostActiveVoiceUsers.reduce(
         (acc, { sum }) => Number(acc) + Number(sum),
         0
-      )
+      ) /
+        60 /
+        60
     ) + ' hours'
   );
 
@@ -84,7 +86,9 @@ export const topStatsExampleEmbed = ({
 
   const mostActiveVoiceChannelSumString = codeString(
     Number(
-      mostActiveVoiceChannels.reduce((a, b) => Number(a) + Number(b.sum), 0)
+      mostActiveVoiceChannels.reduce((a, b) => Number(a) + Number(b.sum), 0) /
+        60 /
+        60
     ) + ' hours'
   );
 
