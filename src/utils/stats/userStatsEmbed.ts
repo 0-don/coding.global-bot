@@ -67,7 +67,6 @@ export const userStatsEmbed = async (
     createdAt: member.user.createdAt,
     joinedAt: member.joinedAt,
     lookbackDaysCount,
-
     oneDayCount,
     sevenDaysCount,
     mostActiveTextChannelId,
@@ -88,9 +87,8 @@ const voiceStats = async (
   guildId: string,
   lookback: number
 ) => {
-  const voiceStatsLookback = await prisma.$queryRaw<
-    [{ channelId: string; sum: number }]
-  >`SELECT "channelId", SUM(difference) AS sum
+  const voiceStatsLookback = (await prisma.$queryRaw`
+    SELECT "channelId", SUM(difference) AS sum
     FROM (
         SELECT
         "channelId",
@@ -101,11 +99,10 @@ const voiceStats = async (
           AND leave > (NOW() - ${lookback + ' day'}::interval)
         ) AS t
     GROUP BY "channelId"
-    ORDER BY "sum" DESC;`;
+    ORDER BY "sum" DESC;`) as [{ channelId: string; sum: number }];
 
-  const voiceStatsSevenDays = await prisma.$queryRaw<
-    [{ channelId: string; sum: number }]
-  >`SELECT "channelId", SUM(difference) AS sum
+  const voiceStatsSevenDays = (await prisma.$queryRaw`
+    SELECT "channelId", SUM(difference) AS sum
     FROM (
         SELECT
         "channelId",
@@ -116,11 +113,10 @@ const voiceStats = async (
           AND leave > (NOW() - '7 days'::interval)
         ) AS t
     GROUP BY "channelId"
-    ORDER BY "sum" DESC;`;
+    ORDER BY "sum" DESC;`) as [{ channelId: string; sum: number }];
 
-  const voiceStatsOneDay = await prisma.$queryRaw<
-    [{ channelId: string; sum: number }]
-  >`SELECT "channelId", SUM(difference) AS sum
+  const voiceStatsOneDay = (await prisma.$queryRaw`
+    SELECT "channelId", SUM(difference) AS sum
     FROM (
         SELECT
         "channelId",
@@ -131,9 +127,7 @@ const voiceStats = async (
           AND leave > (NOW() - '1 day'::interval)
         ) AS t
     GROUP BY "channelId"
-    ORDER BY "sum" DESC;`;
-
-  // console.log(voiceStatsLookback, voiceStatsSevenDays, voiceStatsOneDay);
+    ORDER BY "sum" DESC;`) as [{ channelId: string; sum: number }];
 
   const mostActiveVoice = voiceStatsLookback[0];
   const lookbackVoiceSum = voiceStatsLookback.reduce(
@@ -167,9 +161,13 @@ const messagesStats = async (
     orderBy: { createdAt: 'asc' },
   })) ?? [{ createdAt: new Date() }];
 
-  const mostActiveTextChannel = await prisma.$queryRaw<
-    [{ channelId: string; count: number }]
-  >`SELECT "channelId", count(*) FROM "MemberMessages" WHERE "memberId" = ${memberId} GROUP BY "channelId" ORDER BY count(*) DESC LIMIT 1`;
+  const mostActiveTextChannel = (await prisma.$queryRaw`
+    SELECT "channelId", count(*) 
+    FROM "MemberMessages" 
+    WHERE "memberId" = ${memberId} 
+    GROUP BY "channelId" 
+    ORDER BY count(*) DESC 
+    LIMIT 1`) as [{ channelId: string; count: number }];
 
   const mostActiveTextChannelId = mostActiveTextChannel?.[0]?.channelId;
   const mostActiveTextChannelMessageCount = Number(

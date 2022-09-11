@@ -61,7 +61,42 @@ export const roleTemplateExampleEmbed: APIEmbed = {
 export const topStatsExampleEmbed = ({
   mostActiveMessageUsers,
   mostActiveMessageChannels,
+  mostActiveVoiceUsers,
+  mostActiveVoiceChannels,
 }: ToptatsExampleEmbed): APIEmbed => {
+  const mostActiveVoiceUserSumString = codeString(
+    Number(
+      mostActiveVoiceUsers
+        .reduce((acc, { sum }) => Number(acc) + Number(sum), 0)
+        .toFixed(2)
+    ).toLocaleString('en') + ' hours'
+  );
+
+  const mostActiveVoiceUsersString = mostActiveVoiceUsers?.map(
+    ({ memberId, sum, username }, i) =>
+      `${codeString(
+        placementSuffix(i + 1)
+      )} <@${memberId}>: (${username}) ${codeString(
+        (Number(sum) / 60 / 60).toLocaleString('en') + ' hours'
+      )}`
+  );
+
+  const mostActiveVoiceChannelSumString = codeString(
+    Number(
+      mostActiveVoiceChannels
+        .reduce((a, b) => Number(a) + Number(b.sum), 0)
+        .toFixed(2)
+    ).toLocaleString('en') + ' hours'
+  );
+
+  const mostActiveVoiceChannelString = mostActiveVoiceChannels.map(
+    ({ sum, channelId }, i) =>
+      `${codeString(placementSuffix(i + 1))} <#${channelId}>: ${codeString(
+        Number((Number(sum) / 60 / 60).toFixed(2)).toLocaleString('en') +
+          ' messages'
+      )}`
+  );
+
   const mostActiveMessageUsersSumString = codeString(
     mostActiveMessageUsers
       .reduce((a, b) => a + Number(b.count), 0)
@@ -106,6 +141,16 @@ Messages | Top ${mostActiveMessageChannels?.length ?? 0} - Channels
 Top Channel Sum: ${mostActiveMessageChannelSumString}
 
 ${mostActiveMessageChannelString.join('\n')}
+
+**Voice | Top ${mostActiveVoiceUsers?.length ?? 0} - Members**
+Top Member Sum: ${mostActiveVoiceUserSumString} 
+
+${mostActiveVoiceUsersString.join('\n')}
+
+Messages | Top ${mostActiveVoiceChannels?.length ?? 0} - Channels
+Top Channel Sum: ${mostActiveVoiceChannelSumString}
+
+${mostActiveVoiceChannelString.join('\n')}
 
 `,
     timestamp: new Date().toISOString(),
