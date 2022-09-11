@@ -65,14 +65,9 @@ export const topStatsExampleEmbed = ({
   mostActiveVoiceChannels,
 }: ToptatsExampleEmbed): APIEmbed => {
   const mostActiveVoiceUserSumString = codeString(
-    Number(
-      mostActiveVoiceUsers.reduce(
-        (acc, { sum }) => Number(acc) + Number(sum),
-        0
-      ) /
-        60 /
-        60
-    ) + ' hours'
+    mostActiveVoiceUsers
+      .reduce((acc, { sum }) => acc + sum, 0)
+      .toLocaleString('en') + ' hours'
   );
 
   const mostActiveVoiceUsersString = mostActiveVoiceUsers?.map(
@@ -80,22 +75,20 @@ export const topStatsExampleEmbed = ({
       `${codeString(
         placementSuffix(i + 1)
       )} <@${memberId}>: (${username}) ${codeString(
-        Number(sum) / 60 / 60 + ' hours'
+        sum.toLocaleString('en') + ' hours'
       )}`
   );
 
   const mostActiveVoiceChannelSumString = codeString(
-    Number(
-      mostActiveVoiceChannels.reduce((a, b) => Number(a) + Number(b.sum), 0) /
-        60 /
-        60
-    ) + ' hours'
+    mostActiveVoiceChannels
+      .reduce((a, b) => a + b.sum, 0)
+      .toLocaleString('en') + ' hours'
   );
 
   const mostActiveVoiceChannelString = mostActiveVoiceChannels.map(
     ({ sum, channelId }, i) =>
       `${codeString(placementSuffix(i + 1))} <#${channelId}>: ${codeString(
-        Number(Number(sum) / 60 / 60) + ' hours'
+        sum.toLocaleString('en') + ' hours'
       )}`
   );
 

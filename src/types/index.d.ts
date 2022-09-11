@@ -107,6 +107,6 @@ export type ToptatsExampleEmbed = {
       count: number;
     }
   ];
-  mostActiveVoiceUsers: [{ memberId: string; username: string; sum: number }];
-  mostActiveVoiceChannels: [{ channelId: string; sum: number }];
+  mostActiveVoiceUsers: { memberId: string; username: string; sum: number }[];
+  mostActiveVoiceChannels: { channelId: string; sum: number }[];
 };

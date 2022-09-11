@@ -51,7 +51,13 @@ export const topStatsEmbed = async (guildId: string) => {
   return topStatsExampleEmbed({
     mostActiveMessageUsers,
     mostActiveMessageChannels,
-    mostActiveVoiceUsers,
-    mostActiveVoiceChannels,
+    mostActiveVoiceUsers: mostActiveVoiceUsers.map((user) => ({
+      ...user,
+      sum: Number((user.sum / 60 / 60).toFixed(2)),
+    })),
+    mostActiveVoiceChannels: mostActiveVoiceChannels.map((channel) => ({
+      ...channel,
+      sum: Number((channel.sum / 60 / 60).toFixed(2)),
+    })),
   });
 };
