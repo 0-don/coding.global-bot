@@ -130,14 +130,34 @@ export const userStatsExampleEmbed = ({
   mostActiveTextChannelMessageCount,
   lastMessage,
   lastVoice,
+  mostActiveVoice,
+  lookbackVoiceSum,
+  oneDayVoiceSum,
+  sevenDayVoiceSum,
 }: UserStatsExampleEmbed): APIEmbed => {
+  const lookbackCommand = codeString('/lookback-me');
   const mostActiveTextChannelString = mostActiveTextChannelId
     ? `<#${mostActiveTextChannelId}>`
     : '';
   const mostActiveTextChannelCountString = codeString(
     mostActiveTextChannelMessageCount.toLocaleString('en') + ' messages'
   );
-  const lookbackCommand = codeString('/lookback-me');
+
+  const mostActiveVoiceChannelString = mostActiveVoice?.channelId
+    ? `<#${mostActiveVoice.channelId}> ${codeString(
+        (mostActiveVoice?.sum / 60 / 60).toFixed(2) + ' hours'
+      )}`
+    : '';
+
+  const lookbackSumString = codeString(
+    (lookbackVoiceSum / 60 / 60).toFixed(2) + ' hours'
+  );
+  const oneDaySumString = codeString(
+    (oneDayVoiceSum / 60 / 60).toFixed(2) + ' hours'
+  );
+  const sevenDaysSumString = codeString(
+    (sevenDayVoiceSum / 60 / 60).toFixed(2) + ' hours'
+  );
 
   const joinedAtUnix = dayjs(joinedAt).unix();
   const createdAtUnix = dayjs(createdAt).unix();
@@ -145,7 +165,6 @@ export const userStatsExampleEmbed = ({
     lastMessage?.length > 0 && dayjs(lastMessage[0]!.createdAt).unix();
   const lastVoiceUnix =
     lastVoice?.length > 0 && dayjs(lastVoice?.[0]?.leave ?? new Date()).unix();
-
   const lastMessageString = lastMessageUnix
     ? `__<t:${lastMessageUnix}:D>__ (<t:${lastMessageUnix}:R>)`
     : codeString('None');
@@ -172,7 +191,7 @@ User ID: ${codeString(id)}
 
 **Most Active Channels**
 Messages: ${mostActiveTextChannelString} ${mostActiveTextChannelCountString}
-Voice:
+Voice: ${mostActiveVoiceChannelString}
 `,
 
     fields: [
@@ -191,9 +210,9 @@ __${lookback} Days__: ${codeString(
       {
         name: 'Voice',
         value: `
-__${lookback} Days__: 
-7 Days:
-24 Hours: 
+__${lookback} Days__: ${lookbackSumString}
+7 Days: ${sevenDaysSumString}
+24 Hours: ${oneDaySumString}
 `,
         inline: true,
       },

@@ -77,7 +77,6 @@ export type UserStatsExampleEmbed = {
   lookback: number;
   joinedAt: Date | null;
   createdAt: Date;
-  memberMessagesByDate: MemberMessages[];
   lookbackDaysCount: number;
   sevenDaysCount: number;
   oneDayCount: number;
@@ -85,6 +84,13 @@ export type UserStatsExampleEmbed = {
   mostActiveTextChannelMessageCount: number;
   lastVoice: GuildVoiceEvents[];
   lastMessage: MemberMessages[];
+  mostActiveVoice: {
+    channelId: string;
+    sum: number;
+  };
+  lookbackVoiceSum: number;
+  sevenDayVoiceSum: number;
+  oneDayVoiceSum: number;
 };
 
 export type ToptatsExampleEmbed = {
