@@ -46,12 +46,18 @@ export const userStatsEmbed = async (
 
   const {
     lookbackDaysCount,
-    memberMessagesByDate,
     oneDayCount,
     sevenDaysCount,
     mostActiveTextChannelId,
     mostActiveTextChannelMessageCount,
   } = await messagesStats(memberId, guildId, memberGuild.lookback);
+
+  const {
+    mostActiveVoice,
+    lookbackVoiceSum,
+    sevenDayVoiceSum,
+    oneDayVoiceSum,
+  } = await voiceStats(memberId, guildId, memberGuild.lookback);
 
   const embed = userStatsExampleEmbed({
     id: memberId,
@@ -61,16 +67,94 @@ export const userStatsEmbed = async (
     createdAt: member.user.createdAt,
     joinedAt: member.joinedAt,
     lookbackDaysCount,
-    memberMessagesByDate,
+
     oneDayCount,
     sevenDaysCount,
     mostActiveTextChannelId,
     mostActiveTextChannelMessageCount,
     lastVoice,
     lastMessage,
+    mostActiveVoice,
+    lookbackVoiceSum,
+    sevenDayVoiceSum,
+    oneDayVoiceSum,
   });
 
   return embed;
+};
+
+const voiceStats = async (
+  memberId: string,
+  guildId: string,
+  lookback: number
+) => {
+  const voiceStatsLookback = await prisma.$queryRaw<
+    [{ channelId: string; sum: number }]
+  >`SELECT "channelId", SUM(difference) AS sum
+    FROM (
+        SELECT
+        "channelId",
+        EXTRACT(EPOCH FROM ("leave" - "join")) AS difference
+        FROM "GuildVoiceEvents"
+        WHERE "memberId" = ${memberId} 
+          AND "guildId" = ${guildId}
+          AND leave > (NOW() - ${lookback + ' day'}::interval)
+        ) AS t
+    GROUP BY "channelId"
+    ORDER BY "sum" DESC;`;
+
+  const voiceStatsSevenDays = await prisma.$queryRaw<
+    [{ channelId: string; sum: number }]
+  >`SELECT "channelId", SUM(difference) AS sum
+    FROM (
+        SELECT
+        "channelId",
+        EXTRACT(EPOCH FROM ("leave" - "join")) AS difference
+        FROM "GuildVoiceEvents"
+        WHERE "memberId" = ${memberId} 
+          AND "guildId" = ${guildId}
+          AND leave > (NOW() - '7 days'::interval)
+        ) AS t
+    GROUP BY "channelId"
+    ORDER BY "sum" DESC;`;
+
+  const voiceStatsOneDay = await prisma.$queryRaw<
+    [{ channelId: string; sum: number }]
+  >`SELECT "channelId", SUM(difference) AS sum
+    FROM (
+        SELECT
+        "channelId",
+        EXTRACT(EPOCH FROM ("leave" - "join")) AS difference
+        FROM "GuildVoiceEvents"
+        WHERE "memberId" = ${memberId} 
+          AND "guildId" = ${guildId}
+          AND leave > (NOW() - '1 day'::interval)
+        ) AS t
+    GROUP BY "channelId"
+    ORDER BY "sum" DESC;`;
+
+  // console.log(voiceStatsLookback, voiceStatsSevenDays, voiceStatsOneDay);
+
+  const mostActiveVoice = voiceStatsLookback[0];
+  const lookbackVoiceSum = voiceStatsLookback.reduce(
+    (acc, curr) => Number(acc) + Number(curr.sum),
+    0
+  );
+  const sevenDayVoiceSum = voiceStatsSevenDays.reduce(
+    (acc, curr) => Number(acc) + Number(curr.sum),
+    0
+  );
+  const oneDayVoiceSum = voiceStatsOneDay.reduce(
+    (acc, curr) => Number(acc) + Number(curr.sum),
+    0
+  );
+
+  return {
+    mostActiveVoice,
+    lookbackVoiceSum,
+    sevenDayVoiceSum,
+    oneDayVoiceSum,
+  };
 };
 
 const messagesStats = async (
@@ -125,7 +209,6 @@ const messagesStats = async (
     mostActiveTextChannelId,
     mostActiveTextChannelMessageCount,
     lookbackDaysCount,
-    memberMessagesByDate,
     oneDayCount,
     sevenDaysCount,
   };
