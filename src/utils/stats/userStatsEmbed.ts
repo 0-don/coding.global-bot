@@ -131,18 +131,18 @@ const voiceStats = async (
 
   const mostActiveVoice = {
     ...voiceStatsLookback?.[0],
-    sum: Number(Number(voiceStatsLookback?.[0].sum).toFixed(2)),
+    sum: Number(Number(voiceStatsLookback?.[0].sum).toFixed(0)),
   };
   const lookbackVoiceSum = voiceStatsLookback.reduce(
-    (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(2)),
+    (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)),
     0
   );
   const sevenDayVoiceSum = voiceStatsSevenDays.reduce(
-    (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(2)),
+    (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)),
     0
   );
   const oneDayVoiceSum = voiceStatsOneDay.reduce(
-    (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(2)),
+    (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)),
     0
   );
 
