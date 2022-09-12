@@ -92,11 +92,11 @@ const voiceStats = async (
     FROM (
         SELECT
         "channelId",
-        EXTRACT(EPOCH FROM ("leave" - "join")) AS difference
+        EXTRACT(EPOCH FROM (COALESCE("leave", CURRENT_TIMESTAMP) - "join")) AS difference
         FROM "GuildVoiceEvents"
         WHERE "memberId" = ${memberId} 
           AND "guildId" = ${guildId}
-          AND leave > (NOW() - ${lookback + ' day'}::interval)
+          AND "join" > (NOW() - ${lookback + ' day'}::interval)
         ) AS t
     GROUP BY "channelId"
     ORDER BY "sum" DESC;`) as [{ channelId: string; sum: number }];
@@ -106,11 +106,11 @@ const voiceStats = async (
     FROM (
         SELECT
         "channelId",
-        EXTRACT(EPOCH FROM ("leave" - "join")) AS difference
+        EXTRACT(EPOCH FROM (COALESCE("leave", CURRENT_TIMESTAMP) - "join")) AS difference
         FROM "GuildVoiceEvents"
         WHERE "memberId" = ${memberId} 
           AND "guildId" = ${guildId}
-          AND leave > (NOW() - '7 days'::interval)
+          AND "join" > (NOW() - '7 days'::interval)
         ) AS t
     GROUP BY "channelId"
     ORDER BY "sum" DESC;`) as [{ channelId: string; sum: number }];
@@ -120,11 +120,11 @@ const voiceStats = async (
     FROM (
         SELECT
         "channelId",
-        EXTRACT(EPOCH FROM ("leave" - "join")) AS difference
+        EXTRACT(EPOCH FROM (COALESCE("leave", CURRENT_TIMESTAMP) - "join")) AS difference
         FROM "GuildVoiceEvents"
         WHERE "memberId" = ${memberId} 
           AND "guildId" = ${guildId}
-          AND leave > (NOW() - '1 day'::interval)
+          AND "join" > (NOW() - '1 day'::interval)
         ) AS t
     GROUP BY "channelId"
     ORDER BY "sum" DESC;`) as [{ channelId: string; sum: number }];
