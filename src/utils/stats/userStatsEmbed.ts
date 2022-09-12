@@ -129,17 +129,20 @@ const voiceStats = async (
     GROUP BY "channelId"
     ORDER BY "sum" DESC;`) as [{ channelId: string; sum: number }];
 
-  const mostActiveVoice = voiceStatsLookback[0];
+  const mostActiveVoice = {
+    ...voiceStatsLookback?.[0],
+    sum: Number(Number(voiceStatsLookback?.[0].sum).toFixed(2)),
+  };
   const lookbackVoiceSum = voiceStatsLookback.reduce(
-    (acc, curr) => Number(acc) + Number(curr.sum),
+    (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(2)),
     0
   );
   const sevenDayVoiceSum = voiceStatsSevenDays.reduce(
-    (acc, curr) => Number(acc) + Number(curr.sum),
+    (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(2)),
     0
   );
   const oneDayVoiceSum = voiceStatsOneDay.reduce(
-    (acc, curr) => Number(acc) + Number(curr.sum),
+    (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(2)),
     0
   );
 
