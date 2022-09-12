@@ -162,13 +162,6 @@ const voiceStats = async (
     ).toFixed(2)
   );
 
-  console.log(
-    mostActiveVoice,
-    lookbackVoiceSum,
-    sevenDayVoiceSum,
-    oneDayVoiceSum
-  );
-
   return {
     mostActiveVoice,
     lookbackVoiceSum,
