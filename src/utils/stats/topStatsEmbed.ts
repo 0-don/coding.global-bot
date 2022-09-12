@@ -28,9 +28,9 @@ export const topStatsEmbed = async (guildId: string) => {
     FROM (
         SELECT
         "memberId",
-        EXTRACT(EPOCH FROM ("leave" - "join")) AS difference
+        EXTRACT(EPOCH FROM (COALESCE("leave", CURRENT_TIMESTAMP) - "join")) AS difference
         FROM "GuildVoiceEvents"
-        WHERE "guildId" = ${guildId} AND "leave" IS NOT NULL) AS t
+        WHERE "guildId" = ${guildId}) AS t
     JOIN "Member" ON "Member"."memberId" = t."memberId"
     GROUP BY t."memberId", "Member"."username"
     ORDER BY "sum" DESC
@@ -41,7 +41,7 @@ export const topStatsEmbed = async (guildId: string) => {
     FROM (
         SELECT
         "channelId",
-        EXTRACT(EPOCH FROM ("leave" - "join")) AS difference
+        EXTRACT(EPOCH FROM (COALESCE("leave", CURRENT_TIMESTAMP) - "join")) AS difference
         FROM "GuildVoiceEvents"
         WHERE "guildId" = ${guildId}) AS t
     GROUP BY "channelId"
