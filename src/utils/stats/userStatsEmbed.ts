@@ -146,6 +146,13 @@ const voiceStats = async (
     0
   );
 
+  console.log(
+    mostActiveVoice,
+    lookbackVoiceSum,
+    sevenDayVoiceSum,
+    oneDayVoiceSum
+  );
+
   return {
     mostActiveVoice,
     lookbackVoiceSum,

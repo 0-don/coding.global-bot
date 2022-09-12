@@ -189,13 +189,13 @@ export const userStatsExampleEmbed = ({
       )}`
     : '';
 
-  const lookbackSumString = codeString(
+  const lookbackVoiceSumString = codeString(
     (lookbackVoiceSum / 60 / 60).toLocaleString('en') + ' hours'
   );
-  const oneDaySumString = codeString(
+  const oneDayVoiceSumString = codeString(
     (oneDayVoiceSum / 60 / 60).toLocaleString('en') + ' hours'
   );
-  const sevenDaysSumString = codeString(
+  const sevenDaysVoiceSumString = codeString(
     (sevenDayVoiceSum / 60 / 60).toLocaleString('en') + ' hours'
   );
 
@@ -250,9 +250,9 @@ __${lookback} Days__: ${codeString(
       {
         name: 'Voice',
         value: `
-__${lookback} Days__: ${lookbackSumString}
-7 Days: ${sevenDaysSumString}
-24 Hours: ${oneDaySumString}
+__${lookback} Days__: ${lookbackVoiceSumString}
+7 Days: ${sevenDaysVoiceSumString}
+24 Hours: ${oneDayVoiceSumString}
 `,
         inline: true,
       },
