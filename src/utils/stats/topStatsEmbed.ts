@@ -4,7 +4,7 @@ import { topStatsExampleEmbed } from '../constants';
 const prisma = new PrismaClient();
 
 export const topStatsEmbed = async (guildId: string) => {
-  const limit = 5;
+  const limit = 10;
 
   const mostActiveMessageUsers = (await prisma.$queryRaw`
     SELECT "MemberMessages"."memberId", "Member"."username", count("MemberMessages"."memberId") 
