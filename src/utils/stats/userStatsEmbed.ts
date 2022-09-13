@@ -186,7 +186,7 @@ const messagesStats = async (
     WHERE "memberId" = ${memberId} 
     GROUP BY "channelId" 
     ORDER BY count(*) DESC 
-    LIMIT 1`) as [{ channelId: string; count: number }];
+    LIMIT 1`) as { channelId: string; count: number }[];
 
   const mostActiveTextChannelId = mostActiveTextChannel?.[0]?.channelId;
   const mostActiveTextChannelMessageCount = Number(
