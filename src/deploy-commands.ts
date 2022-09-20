@@ -20,7 +20,7 @@ for (const commandFile of commandFiles) {
 }
 
 // set rest api
-const rest = new REST({ version: '9' }).setToken(token);
+const rest = new REST({ version: '10' }).setToken(token);
 
 (async () => {
   try {
