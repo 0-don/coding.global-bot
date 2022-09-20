@@ -18,12 +18,12 @@
     "chartjs-node-canvas": "^4.1.6",
     "dayjs": "^1.11.5",
     "deepl-node": "^1.6.0",
-    "discord-api-types": "^0.37.8",
+    "discord-api-types": "^0.37.10",
     "discord.js": "^14.3.0",
     "megajs": "^1.0.8"
   },
   "devDependencies": {
-    "@types/node": "^18.7.16",
+    "@types/node": "^18.7.18",
     "dotenv": "^16.0.2",
     "prisma": "^4.3.1",
     "ts-node-dev": "^2.0.0",
