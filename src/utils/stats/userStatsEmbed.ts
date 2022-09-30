@@ -129,8 +129,6 @@ const voiceStats = async (
     GROUP BY "channelId"
     ORDER BY "sum" DESC;`) as [{ channelId: string; sum: number }];
 
-  console.log(voiceStatsLookback, voiceStatsSevenDays, voiceStatsOneDay);
-
   const mostActiveVoice = {
     ...voiceStatsLookback?.[0],
     sum: Number((Number(voiceStatsLookback?.[0]?.sum) / 60 / 60).toFixed(2)),

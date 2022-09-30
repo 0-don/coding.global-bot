@@ -11,22 +11,22 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@discordjs/rest": "^1.1.0",
-    "@prisma/client": "^4.3.1",
+    "@discordjs/rest": "^1.2.0",
+    "@prisma/client": "^4.4.0",
     "chart.js": "^3.9.1",
     "chartjs-adapter-dayjs-3": "^1.2.3",
     "chartjs-node-canvas": "^4.1.6",
     "dayjs": "^1.11.5",
     "deepl-node": "^1.6.0",
-    "discord-api-types": "^0.37.10",
-    "discord.js": "^14.4.0",
+    "discord-api-types": "^0.37.11",
+    "discord.js": "^14.5.0",
     "megajs": "^1.0.8"
   },
   "devDependencies": {
-    "@types/node": "^18.7.18",
-    "dotenv": "^16.0.2",
-    "prisma": "^4.3.1",
+    "@types/node": "^18.7.23",
+    "dotenv": "^16.0.3",
+    "prisma": "^4.4.0",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^4.8.3"
+    "typescript": "^4.8.4"
   }
 }
