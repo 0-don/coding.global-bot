@@ -18,7 +18,10 @@ export default {
     await interaction.deferReply();
 
     // get lookback days from input
-    const text = interaction.options.get('text')?.value as string;
+    const text = Buffer.from(
+      interaction.options.get('text')?.value as string,
+      'utf-8'
+    ).toString();
 
     const translatedText = await translate(text);
 
