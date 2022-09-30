@@ -19,7 +19,7 @@
     "dayjs": "^1.11.5",
     "deepl-node": "^1.6.0",
     "discord-api-types": "^0.37.10",
-    "discord.js": "^14.3.0",
+    "discord.js": "^14.4.0",
     "megajs": "^1.0.8"
   },
   "devDependencies": {
