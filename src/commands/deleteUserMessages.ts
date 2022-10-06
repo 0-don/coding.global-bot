@@ -41,9 +41,7 @@ export default {
           'Select either user ID which messages should be deleted'
         )
     )
-    .setDefaultMemberPermissions(
-     PermissionFlagsBits.BanMembers
-    ),
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get user from slash command input
     const user = interaction.options.getUser('user');
@@ -114,23 +112,25 @@ export default {
 
     // loop over all channels
     for (let channel of channels.values()) {
-      // if channel is not a text channel, continue
-      if (channel.type !== ChannelType.GuildText) continue;
+      try {
+        // if channel is not a text channel, continue
+        if (channel.type !== ChannelType.GuildText) continue;
 
-      // get all messages from channel its limited by 100 cant get more
-      await channel.messages.fetch({ limit: 100 });
-      // create message array
-      const messages = channel.messages.cache.values();
+        // get all messages from channel its limited by 100 cant get more
+        await channel.messages.fetch({ limit: 100 });
+        // create message array
+        const messages = channel.messages.cache.values();
 
-      // loop over all messages
-      for (let message of messages) {
-        // check if message was sent by user and if it was sent before daysTimestamp
-        if (
-          message.author.id === memberId &&
-          0 < dayjs(message.createdAt).diff(daysTimestamp, 'minutes')
-        )
-          await message.delete();
-      }
+        // loop over all messages
+        for (let message of messages) {
+          // check if message was sent by user and if it was sent before daysTimestamp
+          if (
+            message.author.id === memberId &&
+            0 < dayjs(message.createdAt).diff(daysTimestamp, 'minutes')
+          )
+            await message.delete();
+        }
+      } catch (_) {}
     }
 
     // notify that messages were deleted
