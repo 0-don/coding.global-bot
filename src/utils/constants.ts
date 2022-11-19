@@ -14,6 +14,7 @@ export const statusRoles = [
 ] as const;
 
 export const EVERYONE = '@everyone';
+export const BUMPER = 'Bumper';
 export const VERIFIED = statusRoles[0];
 export const VOICE_ONLY = statusRoles[1];
 export const READ_ONLY = statusRoles[2];

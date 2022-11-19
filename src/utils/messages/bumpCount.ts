@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import { InteractionType, Message } from 'discord.js';
+import { InteractionType, Message, TextChannel } from 'discord.js';
+import { BUMPER } from '../constants';
 
 const prisma = new PrismaClient();
 
@@ -19,19 +20,51 @@ export const bumpCount = async (message: Message<boolean>) => {
   if (!guildId) return;
 
   // get member bump info from db
-  const memberBump = await prisma.memberBump.findFirst({
+  let memberBump = await prisma.memberBump.findFirst({
     where: { memberId, guildId },
   });
 
   // if no member bump create one, else update it +1
   if (!memberBump) {
-    await prisma.memberBump.create({
+    memberBump = await prisma.memberBump.create({
       data: { memberId, guildId, count: 1 },
     });
   } else {
-    await prisma.memberBump.update({
+    memberBump = await prisma.memberBump.update({
       where: { member_guild: { memberId, guildId } },
       data: { count: memberBump.count + 1 },
     });
   }
+
+  // get bumper role
+  const bumperRole = message.guild.roles.cache.find(
+    ({ name }) => name === BUMPER
+  );
+
+  if (memberBump.count >= 10) {
+    const member = await message.guild.members.fetch(memberId);
+
+    // if Bumper role on user then exit
+    if (
+      member.roles.cache.some((role) => BUMPER.includes(role.name)) ||
+      !bumperRole
+    )
+      return;
+
+    await member.roles.add(bumperRole);
+
+    await message.reply('You earned the Bumper role!');
+  } else {
+    await message.reply(
+      `You have bumped ${memberBump.count} times!, you need 10 bumps to get the Bumper role!`
+    );
+  }
+
+  const botChannel = message.guild.channels.cache.find(
+    (channel) => channel.name === 'bot'
+  ) as TextChannel;
+
+  setTimeout(async () => {
+    await botChannel.send(`Bump time is up! <@${bumperRole?.id}>`);
+  }, 1000 * 60 * 60 * 2);
 };
