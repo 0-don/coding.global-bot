@@ -46,15 +46,14 @@ export const bumpCount = async (message: Message<boolean>) => {
 
     // if Bumper role on user then exit
     if (
-      member.roles.cache.some((role) => BUMPER.includes(role.name)) ||
-      !bumperRole
-    )
-      return;
+      member.roles.cache.some((role) => !BUMPER.includes(role.name)) &&
+      bumperRole
+    ) {
+      await member.roles.add(bumperRole);
 
-    await member.roles.add(bumperRole);
-
-    await message.reply('You earned the Bumper role!');
-  } else {
+      await message.reply('You earned the Bumper role!');
+    }
+  } else if (memberBump.count <= 10) {
     await message.reply(
       `You have bumped ${memberBump.count} times!, you need 10 bumps to get the Bumper role!`
     );
