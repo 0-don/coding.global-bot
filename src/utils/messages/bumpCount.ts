@@ -63,7 +63,8 @@ export const bumpCount = async (message: Message<boolean>) => {
     (channel) => channel.name === 'bot'
   ) as TextChannel;
 
-  setTimeout(async () => {
-    await botChannel.send(`Bump time is up! <@${bumperRole?.id}>`);
-  }, 1000 * 60 * 60 * 2);
+  setTimeout(
+    async () => await botChannel.send(`Bump time is up! <@${bumperRole?.id}>`),
+    1000 * 60 * 60 * 2
+  );
 };
