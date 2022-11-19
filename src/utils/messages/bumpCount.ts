@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { InteractionType, Message, TextChannel } from 'discord.js';
-import { BUMPER } from '../constants';
+import { BOT_CHANNEL, BUMPER } from '../constants';
 
 const prisma = new PrismaClient();
 
@@ -60,7 +60,7 @@ export const bumpCount = async (message: Message<boolean>) => {
   }
 
   const botChannel = message.guild.channels.cache.find(
-    (channel) => channel.name === 'bot'
+    (channel) => channel.name === BOT_CHANNEL
   ) as TextChannel;
 
   setTimeout(
