@@ -35,6 +35,9 @@ export const bumpCount = async (message: Message<boolean>) => {
       data: { count: memberBump.count + 1 },
     });
   }
+  const botChannel = message.guild.channels.cache.find(
+    (channel) => channel.name === BOT_CHANNEL
+  ) as TextChannel;
 
   // get bumper role
   const bumperRole = message.guild.roles.cache.find(
@@ -51,17 +54,13 @@ export const bumpCount = async (message: Message<boolean>) => {
     ) {
       await member.roles.add(bumperRole);
 
-      await message.reply('You earned the Bumper role!');
+      await botChannel.send(`Congrats <@${memberId}> you are now a bumper!`);
     }
   } else if (memberBump.count <= 10) {
     await message.reply(
       `You have bumped ${memberBump.count} times!, you need 10 bumps to get the Bumper role!`
     );
   }
-
-  const botChannel = message.guild.channels.cache.find(
-    (channel) => channel.name === BOT_CHANNEL
-  ) as TextChannel;
 
   setTimeout(
     async () => await botChannel.send(`Bump time is up! <@${bumperRole?.id}>`),
