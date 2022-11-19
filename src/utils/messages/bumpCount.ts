@@ -57,8 +57,8 @@ export const bumpCount = async (message: Message<boolean>) => {
       await botChannel.send(`Congrats <@${memberId}> you are now a bumper!`);
     }
   } else if (memberBump.count <= 10) {
-    await message.reply(
-      `You have bumped ${memberBump.count} times!, you need 10 bumps to get the Bumper role!`
+    await botChannel.send(
+      ` <@${memberId}> You have bumped ${memberBump.count} times!, you need 10 bumps to get the Bumper role!`
     );
   }
 
