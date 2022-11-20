@@ -37,13 +37,13 @@ export const switchRoleFromTemplate = async (
 
   if (type === 'add') {
     if (memberRoleExist) return;
-    member.roles.add(role);
+    await member.roles.add(role);
     try {
       await member.send(`role added: **${roleString}**`);
     } catch (_) {}
   } else {
     if (!memberRoleExist) return;
-    member.roles.remove(role);
+    await member.roles.remove(role);
     try {
       await member.send(`role removed: **${roleString}**`);
     } catch (_) {}
