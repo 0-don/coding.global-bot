@@ -1,7 +1,7 @@
 import type { GuildMember } from 'discord.js';
 import type { Event } from '../types';
 import { joinRole } from '../utils/members/joinRole';
-// import { updateMemberCount } from '../utils/members/updateMemberCount';
+import { updateMemberCount } from '../utils/members/updateMemberCount';
 
 import { upsertDbMember } from '../utils/members/upsertDbMember';
 
@@ -13,9 +13,9 @@ export default {
     await upsertDbMember(member, 'join');
     console.log('test0', member.pending);
     // update user count channel
-    // try {
-    //   await updateMemberCount(member);
-    // } catch (_) {}
+    try {
+      await updateMemberCount(member);
+    } catch (_) {}
 
     console.log('test', member.pending);
     // rules not yet accepted
