@@ -15,6 +15,8 @@ export default {
     // update user count channel
     await updateMemberCount(member);
 
+    console.log(member.pending);
+
     // rules not yet accepted
     if (member.pending) return;
 
