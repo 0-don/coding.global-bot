@@ -3,9 +3,8 @@ import { PrismaClient } from '@prisma/client';
 import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
-import { MUTE, statusRoles, VERIFIED } from '../utils/constants';
+import { MUTE, VERIFIED } from '../utils/constants';
 import { upsertDbMember } from '../utils/members/upsertDbMember';
-import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
 import { recreateMemberDbRoles } from '../utils/roles/recreateMemberDbRoles';
 
 const prisma = new PrismaClient();
