@@ -67,7 +67,9 @@ export default {
 
       const memberRole = member.roles.cache.find((role) => role.name === MUTE);
 
-      if (memberRole) continue;
+      const rolesCount = member.roles.cache.size;
+
+      if (memberRole || rolesCount > 2) continue;
 
       await member.roles.add(MUTEROLE);
 
