@@ -35,15 +35,17 @@ export const switchRoleFromTemplate = async (
     ({ name }) => name === roleString
   );
 
-  try {
-    if (type === 'add') {
-      if (memberRoleExist) return;
-      member.roles.add(role);
-      member.send(`role added: **${roleString}**`);
-    } else {
-      if (!memberRoleExist) return;
-      member.roles.remove(role);
-      member.send(`role removed: **${roleString}**`);
-    }
-  } catch (_) {}
+  if (type === 'add') {
+    if (memberRoleExist) return;
+    member.roles.add(role);
+    try {
+      await member.send(`role added: **${roleString}**`);
+    } catch (_) {}
+  } else {
+    if (!memberRoleExist) return;
+    member.roles.remove(role);
+    try {
+      await member.send(`role removed: **${roleString}**`);
+    } catch (_) {}
+  }
 };
