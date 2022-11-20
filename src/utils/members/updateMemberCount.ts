@@ -24,5 +24,7 @@ export const updateMemberCount = async (
   ).size;
 
   // set channel name as member count
-  await memberCountChannel.setName(`${MEMBERS_COUNT_CHANNEL} ${memberCount}`);
+  try {
+    await memberCountChannel.setName(`${MEMBERS_COUNT_CHANNEL} ${memberCount}`);
+  } catch (_) {}
 };
