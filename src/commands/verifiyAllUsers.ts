@@ -86,7 +86,7 @@ export default {
         (await member.roles.add(guildStatusRoles[VERIFIED].id));
     }
     return interaction.channel?.send({
-      content: `Verified all users in ${interaction.guild.name}`,
+      content: `Verified all users (${members.size}) in ${interaction.guild.name}`,
     });
   },
 };
