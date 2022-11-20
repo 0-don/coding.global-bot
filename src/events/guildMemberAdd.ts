@@ -9,10 +9,10 @@ export default {
   name: 'guildMemberAdd',
   once: false,
   async execute(member: GuildMember) {
-    console.log(member.pending);
+
     // create or update user with his roles
     await upsertDbMember(member, 'join');
-
+    console.log(member.pending);
     // update user count channel
     await updateMemberCount(member);
 
