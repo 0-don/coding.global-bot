@@ -31,7 +31,11 @@ export default {
       ({ name }) => name === MUTE
     );
 
-    if (!MUTEROLE) {
+    const VERIFIEDROLE = interaction.guild?.roles.cache.find(
+      ({ name }) => name === VERIFIED
+    );
+
+    if (!MUTEROLE || !VERIFIEDROLE) {
       return await interaction.reply({
         content: `Mute role not found. Please create a role called ${MUTE}`,
         ephemeral: true,
@@ -67,6 +71,16 @@ export default {
       if (memberRole) continue;
 
       await member.roles.add(MUTEROLE);
+
+      try {
+        await member.roles.remove(VERIFIEDROLE);
+      } catch (_) {}
+
+      // check if user exists in db
+      await upsertDbMember(member, 'join');
+
+      // recreate roles delete old add new
+      await recreateMemberDbRoles(member);
     }
     return interaction.channel?.send({
       content: `Verified all users in ${interaction.guild.name}`,
