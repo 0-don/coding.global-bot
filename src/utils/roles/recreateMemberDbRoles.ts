@@ -4,9 +4,14 @@ import { EVERYONE } from '../constants';
 
 const prisma = new PrismaClient();
 
-export const recreateMemberDbRoles = async (member: GuildMember) => {
+export const recreateMemberDbRoles = async (
+  member: GuildMember,
+  reload?: boolean
+) => {
   // return if member is bot
   if (member.user.bot) return;
+
+  if (reload) await member.fetch();
 
   // get member and guild info
   const memberId = member.id;

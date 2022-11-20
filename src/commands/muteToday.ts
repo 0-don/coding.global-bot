@@ -80,7 +80,7 @@ export default {
       await upsertDbMember(member, 'join');
 
       // recreate roles delete old add new
-      await recreateMemberDbRoles(member);
+      await recreateMemberDbRoles(member, true);
     }
     return interaction.channel?.send({
       content: `Verified all users in ${interaction.guild.name}`,
