@@ -29,7 +29,7 @@ model GuildVoiceEvents {
   join      DateTime  @default(now())
   leave     DateTime?
 
-  member Member @relation(fields: [memberId], references: [memberId])
+  member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
   guild  Guild  @relation(fields: [guildId], references: [guildId])
 }
 
