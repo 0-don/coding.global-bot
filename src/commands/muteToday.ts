@@ -84,7 +84,7 @@ export default {
       await recreateMemberDbRoles(member, true);
     }
     return interaction.channel?.send({
-      content: `Verified all users in ${interaction.guild.name}`,
+      content: `Muted all users(${members.size}) today in ${interaction.guild.name}`,
     });
   },
 };
