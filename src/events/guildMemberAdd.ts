@@ -13,7 +13,9 @@ export default {
     await upsertDbMember(member, 'join');
     console.log('test0', member.pending);
     // update user count channel
-    await updateMemberCount(member);
+    try {
+      await updateMemberCount(member);
+    } catch (_) {}
 
     console.log('test', member.pending);
     // rules not yet accepted
