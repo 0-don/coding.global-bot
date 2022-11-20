@@ -8,7 +8,8 @@ export default {
   once: false,
   async execute(oldMember, newMember) {
     // if rules acepted add join role
-    if (oldMember.pending && !newMember.pending) await joinRole(newMember);
+    if (oldMember.pending && !newMember.pending)
+      await joinRole(newMember, 'verified');
 
     // update db roles
     await updateDbRoles(oldMember, newMember);

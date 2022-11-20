@@ -11,17 +11,14 @@ export default {
   async execute(member: GuildMember) {
     // create or update user with his roles
     await upsertDbMember(member, 'join');
-    console.log('test0', member.pending);
-    // update user count channel
-    try {
-      await updateMemberCount(member);
-    } catch (_) {}
 
-    console.log('test', member.pending);
     // rules not yet accepted
     if (member.pending) return;
-    console.log('test2', member.pending);
+
     // if first time user give him status role
-    await joinRole(member);
+    await joinRole(member, 'unverified');
+
+    // update user count channel
+    await updateMemberCount(member);
   },
 } as Event<'guildMemberAdd'>;
