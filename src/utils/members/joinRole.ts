@@ -6,9 +6,10 @@ export const joinRole = async (
   member: GuildMember | PartialGuildMember,
   unverified?: boolean
 ) => {
+  console.log('test');
   // dont add bots to the list
   if (member.user.bot) return;
-
+  console.log('test2');
   await member.fetch();
 
   // this status role will be given on new memeber join if he has no role
