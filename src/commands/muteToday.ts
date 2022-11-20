@@ -1,8 +1,12 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PrismaClient } from '@prisma/client';
+import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction } from 'discord.js';
-import { MUTE } from '../utils/constants';
+import { MUTE, statusRoles, VERIFIED } from '../utils/constants';
+import { upsertDbMember } from '../utils/members/upsertDbMember';
+import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
+import { recreateMemberDbRoles } from '../utils/roles/recreateMemberDbRoles';
 
 const prisma = new PrismaClient();
 
@@ -36,7 +40,7 @@ export default {
 
     await interaction.deferReply({ ephemeral: true });
 
-    // let i = 1;
+    let i = 1;
     const members = (await interaction.guild.members.fetch()).filter(
       (member) => member.joinedAt?.getDate() === new Date().getDate()
     );
@@ -44,28 +48,28 @@ export default {
     interaction.editReply({
       content: `updating user count:${members.size}`,
     });
-    return;
-    // // loop over all guild members
-    // for (let [_, member] of members) {
-    //   // refetch user if some roles were reasinged
 
-    //   if (i % Math.floor((members.size / 100) * 10) === 0) {
-    //     await interaction.editReply(
-    //       `Members: ${i}/${members.size} ${member.user.username}`
-    //     );
-    //   }
+    // loop over all guild members
+    for (let [_, member] of members) {
+      // refetch user if some roles were reasinged
 
-    //   log(`${i}/${members.size} user: ${member.user.username}`);
-    //   i++;
+      if (i % Math.floor((members.size / 100) * 10) === 0) {
+        await interaction.editReply(
+          `Members: ${i}/${members.size} ${member.user.username}`
+        );
+      }
 
-    //   const memberRole = member.roles.cache.find((role) => role.name === MUTE);
+      log(`${i}/${members.size} user: ${member.user.username}`);
+      i++;
 
-    //   if (memberRole) continue;
+      const memberRole = member.roles.cache.find((role) => role.name === MUTE);
 
-    //   await member.roles.add(MUTEROLE);
-    // }
-    // return interaction.channel?.send({
-    //   content: `Verified all users in ${interaction.guild.name}`,
-    // });
+      if (memberRole) continue;
+
+      await member.roles.add(MUTEROLE);
+    }
+    return interaction.channel?.send({
+      content: `Verified all users in ${interaction.guild.name}`,
+    });
   },
 };
