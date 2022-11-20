@@ -11,7 +11,7 @@ export default {
   async execute(member: GuildMember) {
     // create or update user with his roles
     await upsertDbMember(member, 'join');
-
+    console.log('test0', member.pending);
     // update user count channel
     await updateMemberCount(member);
 
