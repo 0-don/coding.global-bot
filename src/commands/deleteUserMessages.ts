@@ -116,7 +116,8 @@ export default {
         // if channel is not a text channel, continue
         if (channel.type !== ChannelType.GuildText) continue;
 
-        // get all messages from channel its limited by 100 cant get more
+        //cache needs to be cleared
+        channel.messages.cache.clear();
         await channel.messages.fetch({ limit: 100 });
         // create message array
         const messages = channel.messages.cache.values();
