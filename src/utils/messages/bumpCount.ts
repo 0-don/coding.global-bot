@@ -39,31 +39,31 @@ export const bumpCount = async (message: Message<boolean>) => {
     (channel) => channel.name === BOT_CHANNEL
   ) as TextChannel;
 
-  // get bumper role
-  const bumperRole = message.guild.roles.cache.find(
-    ({ name }) => name === BUMPER
-  );
+  // // get bumper role
+  // const bumperRole = message.guild.roles.cache.find(
+  //   ({ name }) => name === BUMPER
+  // );
 
-  if (memberBump.count >= 10) {
-    const member = await message.guild.members.fetch(memberId);
+  // if (memberBump.count >= 10) {
+  //   const member = await message.guild.members.fetch(memberId);
 
-    // if Bumper role on user then exit
-    if (
-      !member.roles.cache.some((role) => BUMPER.includes(role.name)) &&
-      bumperRole
-    ) {
-      await member.roles.add(bumperRole);
+  //   // if Bumper role on user then exit
+  //   if (
+  //     !member.roles.cache.some((role) => BUMPER.includes(role.name)) &&
+  //     bumperRole
+  //   ) {
+  //     await member.roles.add(bumperRole);
 
-      await botChannel.send(`Congrats <@${memberId}> you are now a bumper!`);
-    }
-  } else if (memberBump.count <= 10) {
-    await botChannel.send(
-      ` <@${memberId}> You have bumped ${memberBump.count} times!, you need 10 bumps to get the Bumper role!`
-    );
-  }
+  //     await botChannel.send(`Congrats <@${memberId}> you are now a bumper!`);
+  //   }
+  // } else if (memberBump.count <= 10) {
+  //   await botChannel.send(
+  //     ` <@${memberId}> You have bumped ${memberBump.count} times!, you need 10 bumps to get the Bumper role!`
+  //   );
+  // }
 
   setTimeout(
-    async () => await botChannel.send(`Bump time is up! <@&${bumperRole?.id}>`),
+    async () => await botChannel.send(`Bump time is up!`),
     1000 * 60 * 60 * 2
   );
 };
