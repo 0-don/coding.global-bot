@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { InteractionType, Message, TextChannel } from 'discord.js';
-import { BOT_CHANNEL, BUMPER } from '../constants';
+import { BOT_CHANNEL } from '../constants';
 
 const prisma = new PrismaClient();
 
