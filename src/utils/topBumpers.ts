@@ -11,8 +11,8 @@ import {
   BOT_ICON,
   BUMP_LEADERBOARDS_TEMPLATE,
   RED_COLOR,
-} from '../utils/constants';
-import { codeString, placementSuffix } from '../utils/helpers';
+} from './constants';
+import { codeString, placementSuffix } from './helpers';
 
 const prisma = new PrismaClient();
 
