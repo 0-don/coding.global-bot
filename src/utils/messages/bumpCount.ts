@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { InteractionType, Message, TextChannel } from 'discord.js';
-import { BOT_CHANNEL } from '../constants';
+import { InteractionType, Message } from 'discord.js';
 
 const prisma = new PrismaClient();
 
@@ -35,9 +34,9 @@ export const bumpCount = async (message: Message<boolean>) => {
       data: { count: memberBump.count + 1 },
     });
   }
-  const botChannel = message.guild.channels.cache.find(
-    (channel) => channel.name === BOT_CHANNEL
-  ) as TextChannel;
+  // const botChannel = message.guild.channels.cache.find(
+  //   (channel) => channel.name === BOT_CHANNEL
+  // ) as TextChannel;
 
   // // get bumper role
   // const bumperRole = message.guild.roles.cache.find(
@@ -62,8 +61,8 @@ export const bumpCount = async (message: Message<boolean>) => {
   //   );
   // }
 
-  setTimeout(
-    async () => await botChannel.send(`Bump time is up!`),
-    1000 * 60 * 60 * 2
-  );
+  // setTimeout(
+  //   async () => await botChannel.send(`Bump time is up!`),
+  //   1000 * 60 * 60 * 2
+  // );
 };
