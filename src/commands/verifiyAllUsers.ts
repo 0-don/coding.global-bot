@@ -50,6 +50,10 @@ export default {
       content: `updating user count:${members.size}`,
     });
 
+    const rolesWithoutUnverified = [...statusRoles].filter(
+      (role) => role !== 'unverified'
+    );
+
     // loop over all guild members
     for (let memberCollection of members) {
       // get the user from map collection
@@ -75,7 +79,7 @@ export default {
 
       // if one of the status roles is on user, continue
       if (
-        statusRoles.some((role) =>
+        rolesWithoutUnverified.some((role) =>
           member.roles.cache.has(guildStatusRoles[role]!.id)
         )
       )
