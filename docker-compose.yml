@@ -3,10 +3,10 @@ version: "3.8"
 services:
   coding-global-db:
     container_name: coding-global-db
-    image: postgres:14.4-alpine
+    image: postgres:latest
     restart: always
     volumes:
-      - ~/duplicati-volume/source/coding-global-db-pgbackup:/backups
+      - ~/duplicati-volume/source/coding-global-db-pgbackup:/backups:rw
     networks:
       - proxy
     environment:
@@ -27,7 +27,7 @@ services:
     networks:
       - proxy
     volumes:
-      - ~/duplicati-volume/source/coding-global-db-pgbackup:/backups
+      - ~/duplicati-volume/source/coding-global-db-pgbackup:/backups:rw
     links:
       - coding-global-db
     depends_on:
