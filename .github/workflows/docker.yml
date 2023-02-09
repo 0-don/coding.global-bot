@@ -29,7 +29,7 @@ jobs:
           cat .env
 
       - name: Docker run
-        run: docker-compose up -d --force-recreate --build
+        run: docker compose up -d --force-recreate --build
 
       - name: remove unused images, containers, volumes, and networks
         run: docker image prune -a -f --filter "until=24h" && docker container prune -f --filter "until=24h" && docker volume prune -f && docker network prune -f --filter "until=24h"
