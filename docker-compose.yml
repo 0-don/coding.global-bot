@@ -3,7 +3,7 @@ version: "3.8"
 services:
   coding-global-db:
     container_name: coding-global-db
-    image: postgres:latest
+    image: postgres:14.4-alpine
     restart: always
     volumes:
       - ~/duplicati-volume/source/coding-global-db-pgbackup:/backups
@@ -56,6 +56,10 @@ services:
     restart: always
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}?schema=public
+
+volumes:
+  postgres:
+    driver: local
 
 networks:
   proxy:
