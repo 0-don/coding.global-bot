@@ -1,4 +1,4 @@
-import type { APIEmbed, VoiceState } from 'discord.js';
+import type { APIEmbed, TextChannel, VoiceState } from 'discord.js';
 import { voiceEmbedExample, VOICE_EVENT_CHANNEL } from '../constants';
 
 export const logVoiceEvents = async (
@@ -36,7 +36,7 @@ export const logVoiceEvents = async (
   }
 
   // send embed event to voice channel
-  voiceEventsChannel.send({
+  (voiceEventsChannel as TextChannel).send({
     embeds: [voiceEmbed],
     allowedMentions: { users: [] },
   });

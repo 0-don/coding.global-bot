@@ -1,4 +1,4 @@
-import { Message, MessageType } from 'discord.js';
+import { Message, MessageType, TextChannel } from 'discord.js';
 import { translate } from '../helpers';
 
 export const translateReply = async (message: Message<boolean>) => {
@@ -7,12 +7,13 @@ export const translateReply = async (message: Message<boolean>) => {
     message.reference?.messageId &&
     message.content === '/translate'
   ) {
-    const replyMsg = await message.channel.messages.fetch(
-      message.reference?.messageId
-    );
+    const channel = (await message.channel.fetch()) as TextChannel;
+
+    const replyMsg = await channel.messages.fetch(message.reference?.messageId);
 
     await message.delete();
-    message.channel.send({
+
+    channel.send({
       content: await translate(
         Buffer.from(replyMsg.content, 'utf-8').toString()
       ),

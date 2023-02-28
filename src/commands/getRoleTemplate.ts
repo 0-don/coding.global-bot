@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction } from 'discord.js';
+import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
 import crypto from 'crypto';
 import { ROLE_TEMPLATE } from '../utils/constants';
 import { megaUpload } from '../utils/megaUpload';
@@ -24,7 +24,7 @@ export default {
     const messageID = interaction.options.get('message-id')?.value as string;
 
     // fetch message if it exists
-    const msg = await interaction.channel?.messages.fetch(messageID);
+    const msg = await (interaction.channel as TextChannel)?.messages.fetch(messageID);
 
     // check if exits and if it is an embeded message
     if (!msg || msg.embeds[0]?.footer?.text !== ROLE_TEMPLATE) {
