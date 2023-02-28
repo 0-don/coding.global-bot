@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { PrismaClient } from '@prisma/client';
 import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction } from 'discord.js';
+import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
 import { statusRoles, VERIFIED } from '../utils/constants';
 import { upsertDbMember } from '../utils/members/upsertDbMember';
 import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
@@ -89,7 +89,7 @@ export default {
       guildStatusRoles[VERIFIED] &&
         (await member.roles.add(guildStatusRoles[VERIFIED].id));
     }
-    return interaction.channel?.send({
+    return (interaction.channel as TextChannel)?.send({
       content: `Verified all users (${members.size}) in ${interaction.guild.name}`,
     });
   },
