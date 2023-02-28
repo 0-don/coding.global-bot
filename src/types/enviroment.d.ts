@@ -10,6 +10,7 @@ declare global {
       MEGA_PASSWORD: string;
       MEGA_DIR: string;
       DEEPL: string;
+      OPEN_AI: string;
     }
   }
 }
