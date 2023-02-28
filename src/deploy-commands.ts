@@ -9,20 +9,20 @@ const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
 const token = process.env.TOKEN;
 
-// create empty commands array
-const commands = [];
-// get command files
-const commandFiles = filesPaths('commands');
-// create json config from command files
-for (const commandFile of commandFiles) {
-  const command = require(commandFile);
-  commands.push(command.default.data.toJSON());
-}
-
 // set rest api
 const rest = new REST({ version: '10' }).setToken(token);
 
 (async () => {
+  // create empty commands array
+  const commands = [];
+  // get command files
+  const commandFiles = filesPaths('commands');
+  // create json config from command files
+  for (const commandFile of commandFiles) {
+    const command = await import(commandFile);
+    commands.push(command.default.data.toJSON());
+  }
+
   try {
     log('Started refreshing application (/) commands.');
 
