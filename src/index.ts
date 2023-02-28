@@ -26,28 +26,33 @@ const client = new Client({
   ],
 });
 
-// add slash commands on client globally
-client.commands = new Collection();
+const main = async () => {
+  // add slash commands on client globally
+  client.commands = new Collection();
 
-// get commands path and files
-const commandFiles = filesPaths('commands');
-// get each command file and put them in to command collection on client
-for (const commandFile of commandFiles) {
-  const command = require(commandFile);
-  client.commands.set(command.default.data.name, command.default);
-}
+  // get commands path and files
+  const commandFiles = filesPaths('commands');
+  // get each command file and put them in to command collection on client
+  for (const commandFile of commandFiles) {
+    const command = await import(commandFile);
 
-// get events path and files
-const eventsFiles = filesPaths('events');
-// get event files and create event listeners
-for (const eventsFile of eventsFiles) {
-  const { default: event } = require(eventsFile);
-  // either once or on
-  if (event.once) {
-    client.once(event.name, (...args) => event.execute(...args));
-  } else {
-    client.on(event.name, (...args) => event.execute(...args));
+    client.commands.set(command.default.data.name, command.default);
   }
-}
 
-client.login(token);
+  // get events path and files
+  const eventsFiles = filesPaths('events');
+  // get event files and create event listeners
+  for (const eventsFile of eventsFiles) {
+    const { default: event } = require(eventsFile);
+    // either once or on
+    if (event.once) {
+      client.once(event.name, (...args) => event.execute(...args));
+    } else {
+      client.on(event.name, (...args) => event.execute(...args));
+    }
+  }
+
+  client.login(token);
+};
+
+main();

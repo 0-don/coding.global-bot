@@ -1,15 +1,13 @@
-import { PrismaClient } from '@prisma/client';
 import type { ChartConfiguration } from 'chart.js';
 import { log } from 'console';
 import dayjs from 'dayjs';
 import type { Guild } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
+import { prisma } from '../../prisma';
 import type { ChartDataset, GuildMemberCountChart } from '../../types';
 import { chartConfig, chartJSNodeCanvas } from '../constants';
 import { getDaysArray } from '../helpers';
-
-const prisma = new PrismaClient();
 
 export const guildMemberCountChart = async (
   guild: Guild
@@ -56,7 +54,6 @@ export const guildMemberCountChart = async (
     sevedDaysCount = data[data.length - 1]!.y - data[data.length - 7]!.y;
   if (data.length > 3)
     oneDayCount = data[data.length - 1]!.y - data[data.length - 2]!.y;
-
 
   // const link = await megaUpload(JSON.stringify(data, null, 1), 'chart.json');
 

@@ -1,4 +1,3 @@
-import { PrismaClient } from '@prisma/client';
 import dayjs from 'dayjs';
 import type {
   CacheType,
@@ -6,11 +5,10 @@ import type {
   GuildMember,
   User,
 } from 'discord.js';
+import { prisma } from '../../prisma';
 import type { ChartDataset } from '../../types';
 import { userStatsExampleEmbed } from '../constants';
 import { getDaysArray } from '../helpers';
-
-const prisma = new PrismaClient();
 
 export const userStatsEmbed = async (
   interaction: CommandInteraction<CacheType>,

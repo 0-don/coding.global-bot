@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../prisma';
 import { topStatsExampleEmbed } from '../constants';
-
-const prisma = new PrismaClient();
 
 export const topStatsEmbed = async (guildId: string) => {
   const limit = 10;

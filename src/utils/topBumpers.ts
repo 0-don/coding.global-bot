@@ -1,11 +1,11 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { PrismaClient } from '@prisma/client';
 import type {
   APIEmbed,
   CacheType,
   CommandInteraction,
   TextChannel,
 } from 'discord.js';
+import { prisma } from '../prisma';
 import {
   BOT_CHANNEL,
   BOT_ICON,
@@ -13,8 +13,6 @@ import {
   RED_COLOR,
 } from './constants';
 import { codeString, placementSuffix } from './helpers';
-
-const prisma = new PrismaClient();
 
 export default {
   data: new SlashCommandBuilder()

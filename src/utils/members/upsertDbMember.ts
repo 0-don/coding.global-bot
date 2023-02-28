@@ -1,7 +1,6 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import type { GuildMember, PartialGuildMember } from 'discord.js';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../prisma';
 
 export const upsertDbMember = async (
   member: GuildMember | PartialGuildMember,

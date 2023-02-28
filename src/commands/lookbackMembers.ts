@@ -2,9 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import type { CacheType, CommandInteraction } from 'discord.js';
 
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../prisma';
 
 export default {
   data: new SlashCommandBuilder()
@@ -18,9 +16,7 @@ export default {
         .setMaxValue(9999)
         .setRequired(true)
     )
-    .setDefaultMemberPermissions(
-      PermissionFlagsBits.BanMembers
-    ),
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get lookback days from input
     const lookback = interaction.options.get('lookback')?.value as number;

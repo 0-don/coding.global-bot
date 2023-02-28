@@ -1,8 +1,7 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import type { GuildMember, PartialGuildMember } from 'discord.js';
+import { prisma } from '../../prisma';
 import { EVERYONE } from '../constants';
-
-const prisma = new PrismaClient();
 
 export const updateDbRoles = async (
   oldMember: GuildMember | PartialGuildMember,
