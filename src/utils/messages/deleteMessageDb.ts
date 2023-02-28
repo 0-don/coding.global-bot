@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
 import type { Message, PartialMessage } from 'discord.js';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../prisma';
 
 export const deleteMessageDb = async (
   message: Message<boolean> | PartialMessage

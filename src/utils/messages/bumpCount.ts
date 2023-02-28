@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
 import { InteractionType, Message } from 'discord.js';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../prisma';
 
 export const bumpCount = async (message: Message<boolean>) => {
   // check if disboard bump command was used

@@ -1,12 +1,11 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
+import type { Prisma } from '@prisma/client';
+import dayjs from 'dayjs';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import { CacheType, ChannelType, CommandInteraction } from 'discord.js';
-import dayjs from 'dayjs';
-import { Prisma, PrismaClient } from '@prisma/client';
-import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
+import { prisma } from '../prisma';
 import { MUTE } from '../utils/constants';
-
-const prisma = new PrismaClient();
+import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
 
 export default {
   data: new SlashCommandBuilder()

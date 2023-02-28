@@ -1,12 +1,11 @@
-import { GuildVoiceEvents, PrismaClient } from '@prisma/client';
+import type { GuildVoiceEvents } from '@prisma/client';
 import dayjs from 'dayjs';
-import type { VoiceState } from 'discord.js';
-import { getDaysArray } from '../helpers';
 import utc from 'dayjs/plugin/utc';
+import type { VoiceState } from 'discord.js';
+import { prisma } from '../../prisma';
+import { getDaysArray } from '../helpers';
 
 dayjs.extend(utc);
-
-const prisma = new PrismaClient();
 
 export const logVoiceEventsDb = async (
   oldVoiceState: VoiceState,

@@ -1,14 +1,12 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { PrismaClient } from '@prisma/client';
 import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
+import { prisma } from '../prisma';
 import { statusRoles, VERIFIED } from '../utils/constants';
 import { upsertDbMember } from '../utils/members/upsertDbMember';
 import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
 import { recreateMemberDbRoles } from '../utils/roles/recreateMemberDbRoles';
-
-const prisma = new PrismaClient();
 
 export default {
   data: new SlashCommandBuilder()
