@@ -43,7 +43,7 @@ const main = async () => {
   const eventsFiles = filesPaths('events');
   // get event files and create event listeners
   for (const eventsFile of eventsFiles) {
-    const { default: event } = require(eventsFile);
+    const { default: event } = await import(eventsFile);
     // either once or on
     if (event.once) {
       client.once(event.name, (...args) => event.execute(...args));
