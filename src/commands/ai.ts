@@ -41,7 +41,7 @@ export default {
     // save gptId
     await prisma.memberGuild.update({
       where: { id: memberGuild.id },
-      data: { gptId: res.id },
+      data: { gptId: res.id, gptDate: new Date() },
     });
 
     const content = [
