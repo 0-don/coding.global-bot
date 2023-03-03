@@ -13,10 +13,11 @@
   "dependencies": {
     "@discordjs/rest": "^1.5.0",
     "@prisma/client": "^4.11.0",
+    "canvas": "^2.11.0",
     "chart.js": "^3.9.1",
     "chartjs-adapter-dayjs-3": "^1.2.3",
     "chartjs-node-canvas": "^4.1.6",
-    "chatgpt": "^4.8.2",
+    "chatgpt": "^5.0.5",
     "dayjs": "^1.11.7",
     "deepl-node": "^1.8.0",
     "discord-api-types": "^0.37.35",
@@ -24,7 +25,7 @@
     "megajs": "^1.1.1"
   },
   "devDependencies": {
-    "@types/node": "^18.14.2",
+    "@types/node": "^18.14.4",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.3",
     "prettier": "^2.8.4",
