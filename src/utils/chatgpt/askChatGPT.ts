@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
-import type { CacheType, CommandInteraction, User } from 'discord.js';
+import type { CacheType, CommandInteraction, TextChannel, User } from 'discord.js';
 import { gpt } from '../../chatgpt.js';
 import { prisma } from '../../prisma.js';
-
+import { chunkedSend } from '../messages/chunkedSend.js';
 
 export const askChatGPT = async ({
   interaction,
@@ -30,15 +30,25 @@ export const askChatGPT = async ({
 
   let counter = 0;
 
+  let interactionUsedAt: number = 0;
   const res = await gpt.sendMessage(text as string, {
     parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
     systemMessage: `You are coding.global AI, a large language model trained by OpenAI. You answer as concisely as possible for each responseIf you are generating a list, do not have too many items. Current date: ${new Date().toISOString()}\n\n`,
     onProgress: async (partialResponse) => {
       counter++;
       if (counter % 10 === 0 && interaction) {
-        await interaction.editReply({
-          content: [...content, partialResponse.text].join('\n'),
-          allowedMentions: { users: [] },
+        // await interaction.editReply({
+        //   content: [...content, partialResponse.text].join('\n'),
+        //   allowedMentions: { users: [] },
+        // });
+        const text = [...content, partialResponse.text].join('\n');
+
+        if (!interactionUsedAt) return;
+
+        interactionUsedAt = await chunkedSend({
+          content: text,
+          interaction,
+          interactionUsedAt,
         });
       }
     },
@@ -49,6 +59,16 @@ export const askChatGPT = async ({
     where: { id: memberGuild.id },
     data: { gptId: res.id, gptDate: new Date() },
   });
+
+  const fullContent = [...content, res.text].join('\n');
+
+  if (interactionUsedAt && interaction) {
+    const leftContent = fullContent.slice(interactionUsedAt);
+    await chunkedSend({
+      content: leftContent,
+      channel: interaction.channel as TextChannel,
+    });
+  }
 
   return [...content, res.text].join('\n');
 };
