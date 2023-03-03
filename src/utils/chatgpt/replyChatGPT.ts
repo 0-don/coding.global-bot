@@ -1,4 +1,5 @@
 import { Message, MessageType, TextChannel } from 'discord.js';
+import { chunkedSend } from '../messages/chunkedSend.js';
 import { askChatGPT } from './askChatGPT.js';
 
 export const replyChatGPT = async (message: Message<boolean>) => {
@@ -17,36 +18,6 @@ export const replyChatGPT = async (message: Message<boolean>) => {
 
     if (!content) return;
 
-    // split message into 4000 char chunks and send it
-    if (content.length > 2000) {
-      const splitContent = content.split(' ');
-
-      const chunks = [];
-
-      let currentChunk = '';
-
-      for (const word of splitContent) {
-        if (currentChunk.length + word.length > 2000) {
-          chunks.push(currentChunk);
-          currentChunk = '';
-        }
-        currentChunk += word + ' ';
-      }
-
-      chunks.push(currentChunk);
-
-      for (const chunk of chunks) {
-        await channel.send({
-          content: chunk,
-          allowedMentions: { users: [] },
-        });
-      }
-      return;
-    } else {
-      await channel.send({
-        content,
-        allowedMentions: { users: [] },
-      });
-    }
+    await chunkedSend({ content, channel: message.channel as TextChannel });
   }
 };
