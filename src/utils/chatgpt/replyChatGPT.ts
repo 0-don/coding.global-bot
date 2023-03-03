@@ -19,8 +19,6 @@ export const replyChatGPT = async (message: Message<boolean>) => {
 
     const content = await askChatGPT({ text: replyMsg.content, user });
 
-    console.log(content?.length);
-
     if (!content) return;
 
     await chunkedSend({ content, channel: message.channel as TextChannel });
