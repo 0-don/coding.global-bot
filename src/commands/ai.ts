@@ -1,4 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
+import dayjs from 'dayjs';
 import type { CacheType, CommandInteraction } from 'discord.js';
 import { gpt } from '../chatgpt.js';
 import { prisma } from '../prisma.js';
@@ -25,9 +26,16 @@ export default {
 
     if (!memberGuild) return interaction.editReply('User not Found');
 
+    const olderThen30Min = dayjs(memberGuild.gptDate).isBefore(
+      dayjs().subtract(30, 'minute')
+    );
+
     let res = await gpt.sendMessage(
       interaction.options.get('text')?.value as string,
-      { parentMessageId: memberGuild.gptId || undefined }
+      {
+        parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
+        systemMessage: `You are coding.global AI, a large language model trained by OpenAI. You answer as concisely as possible for each responseIf you are generating a list, do not have too many items. Current date: ${new Date().toISOString()}\n\n`,
+      }
     );
 
     // save gptId
@@ -36,9 +44,15 @@ export default {
       data: { gptId: res.id },
     });
 
+    const content = [
+      `**<@${userId}> ${interaction.user.username}'s Question:**`,
+      `${'```\n'}${interaction.options.get('text')?.value as string}${'```'}`,
+      res.text,
+    ];
+
     // send success message
     return interaction.editReply({
-      content: res.text,
+      content: content.join('\n'),
       allowedMentions: { users: [] },
     });
   },
