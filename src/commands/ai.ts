@@ -1,8 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import dayjs from 'dayjs';
 import type { CacheType, CommandInteraction } from 'discord.js';
-import { gpt } from '../chatgpt.js';
-import { prisma } from '../prisma.js';
+import { askChatGPT } from '../utils/chatgpt/askChatGPT.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -18,50 +16,16 @@ export default {
     // deferReply if it takes longer then usual
     await interaction.deferReply();
 
-    const userId = interaction.user.id;
+    const user = interaction.user;
 
-    const memberGuild = await prisma.memberGuild.findFirst({
-      where: { memberId: userId },
-    });
+    const text = interaction.options.get('text')?.value as string;
 
-    if (!memberGuild) return interaction.editReply('User not Found');
+    const content = await askChatGPT({ interaction, user, text });
 
-    const content = [
-      `**<@${userId}> ${interaction.user.username}'s Question:**`,
-      `${'```\n'}${interaction.options.get('text')?.value as string}${'```'}`,
-    ];
-
-    const olderThen30Min = dayjs(memberGuild.gptDate).isBefore(
-      dayjs().subtract(30, 'minute')
-    );
-    let counter = 0;
-
-    let res = await gpt.sendMessage(
-      interaction.options.get('text')?.value as string,
-      {
-        parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
-        systemMessage: `You are coding.global AI, a large language model trained by OpenAI. You answer as concisely as possible for each responseIf you are generating a list, do not have too many items. Current date: ${new Date().toISOString()}\n\n`,
-        onProgress: async (partialResponse) => {
-          counter++;
-          if (counter % 10 === 0) {
-            await interaction.editReply({
-              content: [...content, partialResponse.text].join('\n'),
-              allowedMentions: { users: [] },
-            });
-          }
-        },
-      }
-    );
-
-    // save gptId
-    await prisma.memberGuild.update({
-      where: { id: memberGuild.id },
-      data: { gptId: res.id, gptDate: new Date() },
-    });
-
+    if (!content) return interaction.editReply('User not Found');
     // send success message
     return interaction.editReply({
-      content: [...content, res.text].join('\n'),
+      content: content,
       allowedMentions: { users: [] },
     });
   },
