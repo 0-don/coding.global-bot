@@ -18,7 +18,8 @@ export const replyChatGPT = async (message: Message<boolean>) => {
 
     const messages = await fetchMessages(channel, 500);
     const replyMsgIndex = messages.findIndex((msg) => msg.id === replyMsg.id);
-    if (replyMsgIndex === -1) return;
+
+    if (replyMsgIndex === -1) return await channel.send('Message not found');
 
     const userMessages: Message<boolean>[] = [replyMsg];
 
@@ -54,8 +55,13 @@ export const replyChatGPT = async (message: Message<boolean>) => {
 
     const content = await askChatGPT({ text: messagesContent, user });
 
-    if (!content) return;
+    if (!content) return await channel.send('Chat GPT failed');
 
-    await chunkedSend({ content, channel: message.channel as TextChannel });
+    return await chunkedSend({
+      content,
+      channel: message.channel as TextChannel,
+    });
   }
+
+  return;
 };
