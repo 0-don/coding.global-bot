@@ -17,6 +17,33 @@ export const replyChatGPT = async (message: Message<boolean>) => {
 
     if (!content) return;
 
+    // split message into 4000 char chunks and send it
+    if (content.length > 4000) {
+      const splitContent = content.split(' ');
+
+      const chunks = [];
+
+      let currentChunk = '';
+
+      for (const word of splitContent) {
+        if (currentChunk.length + word.length > 4000) {
+          chunks.push(currentChunk);
+          currentChunk = '';
+        }
+        currentChunk += word + ' ';
+      }
+
+      chunks.push(currentChunk);
+
+      for (const chunk of chunks) {
+        await channel.send({
+          content: chunk,
+          allowedMentions: { users: [] },
+        });
+      }
+      return;
+    }
+
     await channel.send({
       content,
       allowedMentions: { users: [] },
