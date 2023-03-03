@@ -28,14 +28,14 @@ export const chunkedSend = async ({
   chunks.push(currentChunk);
 
   for (const chunk of chunks) {
-    if (interaction && !interactionUsedAt) {
+    if (interaction) {
       await interaction.editReply({
         content: chunk,
         allowedMentions: { users: [] },
       });
       interactionUsedAt = chunk.length;
     } else {
-      await (channel || (interaction?.channel! as TextChannel)).send({
+      await channel!.send({
         content: chunk,
         allowedMentions: { users: [] },
       });
