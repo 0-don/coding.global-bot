@@ -28,8 +28,6 @@ export const chunkedSend = async ({
   chunks.push(currentChunk);
 
   for (const chunk of chunks) {
-    if(interaction )
-
     if (interaction && !interactionUsedAt) {
       await interaction.editReply({
         content: chunk,

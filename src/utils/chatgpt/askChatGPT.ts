@@ -42,7 +42,7 @@ export const askChatGPT = async ({
     onProgress: async (partialResponse) => {
       counter++;
       const text = [...content, partialResponse.text].join('\n');
-      if (counter % 10 === 0 && text.length < 2000) {
+      if (counter % 10 === 0 && text.length < 2000 && interaction) {
         // await interaction.editReply({
         //   content: [...content, partialResponse.text].join('\n'),
         //   allowedMentions: { users: [] },
@@ -64,14 +64,14 @@ export const askChatGPT = async ({
   });
 
   const fullContent = [...content, res.text].join('\n');
+  const leftContent = fullContent.slice(interactionUsedAt);
 
   if (interactionUsedAt && interaction) {
-    const leftContent = fullContent.slice(interactionUsedAt);
     await chunkedSend({
       content: leftContent,
       channel: interaction.channel as TextChannel,
     });
   }
 
-  return [...content, res.text].join('\n');
+  return leftContent;
 };
