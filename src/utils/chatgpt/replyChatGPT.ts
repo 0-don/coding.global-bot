@@ -42,11 +42,11 @@ export const replyChatGPT = async (message: Message<boolean>) => {
         });
       }
       return;
+    } else {
+      await channel.send({
+        content,
+        allowedMentions: { users: [] },
+      });
     }
-
-    await channel.send({
-      content,
-      allowedMentions: { users: [] },
-    });
   }
 };
