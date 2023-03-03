@@ -1,4 +1,10 @@
-import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
+import {
+  ActivityType,
+  Client,
+  Collection,
+  GatewayIntentBits,
+  Partials,
+} from 'discord.js';
 import 'dotenv/config';
 import './deploy-commands.js';
 import './types/index.js';
@@ -53,7 +59,11 @@ const main = async () => {
     }
   }
 
-  client.login(token);
+  await client.login(token);
+
+  client.user?.setPresence({
+    activities: [{ name: '.gg/coding', type: ActivityType.Watching }],
+  });
 };
 
 main();
