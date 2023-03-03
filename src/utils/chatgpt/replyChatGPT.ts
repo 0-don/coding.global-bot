@@ -18,7 +18,7 @@ export const replyChatGPT = async (message: Message<boolean>) => {
     if (!content) return;
 
     // split message into 4000 char chunks and send it
-    if (content.length > 4000) {
+    if (content.length > 2000) {
       const splitContent = content.split(' ');
 
       const chunks = [];
@@ -26,7 +26,7 @@ export const replyChatGPT = async (message: Message<boolean>) => {
       let currentChunk = '';
 
       for (const word of splitContent) {
-        if (currentChunk.length + word.length > 3900) {
+        if (currentChunk.length + word.length > 2000) {
           chunks.push(currentChunk);
           currentChunk = '';
         }
