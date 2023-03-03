@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import { CacheType, ChannelType, CommandInteraction } from 'discord.js';
+import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
+import { fetchMessages } from '../utils/messages/fetchMessages.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -15,8 +16,9 @@ export default {
     .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get user from slash command input
-    const channel = interaction.channel;
-    if (channel == null) return;
+    const channel = interaction.channel as TextChannel;
+
+    if (!channel) return;
     // get how many days to delete
     const amount = interaction.options.get('amount')?.value as number;
 
@@ -28,28 +30,13 @@ export default {
     await interaction.deferReply({ ephemeral: true });
 
     // loop over all channels
+    const messages = await fetchMessages(channel, amount);
 
-    try {
-      // if channel is not a text channel, continue
-      if (channel.type !== ChannelType.GuildText) return;
-      for (let i = 0; i < Math.floor(amount / 100); i++) {
-        let messagesToDelete = amount - i * 100;
+    // delete messages
 
-        channel.messages.cache.clear();
-        await channel.messages.fetch({
-          limit: messagesToDelete > 100 ? 100 : messagesToDelete,
-        });
-        const messages = channel.messages.cache.values();
-
-        let promises = [];
-        for (let message of messages) {
-          promises.push(message.delete());
-        }
-        await Promise.all(promises);
-      }
-    } catch (_) {}
+    await channel.bulkDelete(messages);
 
     // notify that messages were deleted
-    interaction.editReply({ content: 'messages are deleted' });
+    return interaction.editReply({ content: 'messages are deleted' });
   },
 };
