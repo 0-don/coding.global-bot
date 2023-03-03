@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
-import { BOT_CHANNEL } from '../utils/constants';
-import { userStatsEmbed } from '../utils/stats/userStatsEmbed';
+import { BOT_CHANNEL } from '../utils/constants.js';
+import { userStatsEmbed } from '../utils/stats/userStatsEmbed.js';
 
 export default {
   data: new SlashCommandBuilder()

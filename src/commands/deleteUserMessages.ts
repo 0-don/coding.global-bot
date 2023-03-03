@@ -1,11 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import type { Prisma } from '@prisma/client';
-import dayjs from 'dayjs';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import { CacheType, ChannelType, CommandInteraction } from 'discord.js';
-import { prisma } from '../prisma';
-import { MUTE } from '../utils/constants';
-import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
+import type { CacheType, CommandInteraction } from 'discord.js';
+import { deleteUserMessages } from '../utils/messages/deleteUserMessages.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -59,79 +55,15 @@ export default {
 
     if (!memberId || !guildId) return;
 
-    if (mute) {
-      //get status roles
-      const guildStatusRoles = getGuildStatusRoles(interaction.guild);
-
-      // delete all roles
-      await prisma.memberRole.deleteMany({
-        where: {
-          memberId,
-          guildId,
-        },
-      });
-
-      // role input
-      const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
-        roleId: guildStatusRoles[MUTE]!.id,
-        memberId,
-        guildId,
-      };
-
-      // create mute role
-      await prisma.memberRole.upsert({
-        where: {
-          member_role: {
-            memberId: memberRole.memberId,
-            roleId: memberRole.roleId,
-          },
-        },
-        create: memberRole,
-        update: memberRole,
-      });
-
-      // if user still on server add mute role
-      user &&
-        interaction.guild.members.cache
-          .get(user.id)!
-          .roles.add(memberRole.roleId);
-    }
-
-    // create date before which messages should be deleted
-    const daysTimestamp = dayjs().subtract(Number(days), 'day');
-
-    // get all channels
-    const channels = interaction.guild?.channels.cache;
-
-    // if no channels exist, return
-    if (!channels) return;
-
-    // deferReply if it takes longer then usual
     await interaction.deferReply({ ephemeral: true });
 
-    // loop over all channels
-    for (let channel of channels.values()) {
-      try {
-        // if channel is not a text channel, continue
-        if (channel.type !== ChannelType.GuildText) continue;
-
-        //cache needs to be cleared
-        channel.messages.cache.clear();
-        await channel.messages.fetch({ limit: 100 });
-        // create message array
-        const messages = channel.messages.cache.values();
-
-        // loop over all messages
-        for (let message of messages) {
-          // check if message was sent by user and if it was sent before daysTimestamp
-          if (
-            message.author.id === memberId &&
-            0 < dayjs(message.createdAt).diff(daysTimestamp, 'minutes')
-          )
-            await message.delete();
-        }
-      } catch (_) {}
-    }
+    await deleteUserMessages({
+      days,
+      guild: interaction.guild,
+      memberId,
+      mute,
+      user,
+    });
 
     // notify that messages were deleted
     interaction.editReply({ content: 'user messages are deleted' });

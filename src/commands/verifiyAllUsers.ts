@@ -2,11 +2,11 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
-import { prisma } from '../prisma';
-import { statusRoles, VERIFIED } from '../utils/constants';
-import { upsertDbMember } from '../utils/members/upsertDbMember';
-import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles';
-import { recreateMemberDbRoles } from '../utils/roles/recreateMemberDbRoles';
+import { prisma } from '../prisma.js';
+import { statusRoles, VERIFIED } from '../utils/constants.js';
+import { upsertDbMember } from '../utils/members/upsertDbMember.js';
+import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles.js';
+import { recreateMemberDbRoles } from '../utils/roles/recreateMemberDbRoles.js';
 
 export default {
   data: new SlashCommandBuilder()

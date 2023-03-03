@@ -1,5 +1,5 @@
-import type { Event } from '../types';
-import { deleteMessageDb } from '../utils/messages/deleteMessageDb';
+import type { Event } from '../types/index.js';
+import { deleteMessageDb } from '../utils/messages/deleteMessageDb.js';
 
 export default {
   name: 'messageDelete',

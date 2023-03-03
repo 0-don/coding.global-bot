@@ -1,10 +1,14 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import type { CacheType, CommandInteraction, Message } from 'discord.js';
-import type { RoleTemplateReaction } from '../types';
-
-import { PermissionFlagsBits } from 'discord-api-types/v9';
-import { createRoleTemplateEmbed } from '../utils/roles/roleTemplate';
-import { parseJSON } from '../utils/helpers';
+import {
+  EmojiIdentifierResolvable,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+  type CacheType,
+  type CommandInteraction,
+  type Message,
+} from 'discord.js';
+import type { RoleTemplateReaction } from '../types/index.js';
+import { parseJSON } from '../utils/helpers.js';
+import { createRoleTemplateEmbed } from '../utils/roles/roleTemplate.js';
 
 export default {
   data: new SlashCommandBuilder()

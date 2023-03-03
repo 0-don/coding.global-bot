@@ -10,9 +10,9 @@ import {
   BOT_ICON,
   MEMBERS_TEMPLATE,
   RED_COLOR,
-} from '../utils/constants';
-import { guildMemberCountChart } from '../utils/guilds/guildMemberCountChart';
-import { codeString } from '../utils/helpers';
+} from '../utils/constants.js';
+import { guildMemberCountChart } from '../utils/guilds/guildMemberCountChart.js';
+import { codeString } from '../utils/helpers.js';
 
 export default {
   data: new SlashCommandBuilder()

@@ -1,9 +1,9 @@
 import type { APIEmbed, Client, Message } from 'discord.js';
 import type {
-  RoleTemplateReaction,
   CreateRoleTemplateEmbed,
-} from '../../types';
-import { roleTemplateExampleEmbed } from '../constants';
+  RoleTemplateReaction,
+} from '../../types/index.js';
+import { roleTemplateExampleEmbed } from '../constants.js';
 
 export async function createRoleTemplateEmbed(
   inputTemplate: RoleTemplateReaction,

@@ -1,6 +1,6 @@
-import type { Event } from '../types';
-import { switchRoleFromTemplate } from '../utils/roles/roleTemplateReaction';
-import { verifyReaction } from '../utils/roles/verifyReaction';
+import type { Event } from '../types/index.js';
+import { switchRoleFromTemplate } from '../utils/roles/roleTemplateReaction.js';
+import { verifyReaction } from '../utils/roles/verifyReaction.js';
 
 export default {
   name: 'messageReactionAdd',

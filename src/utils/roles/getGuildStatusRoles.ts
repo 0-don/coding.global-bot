@@ -1,5 +1,5 @@
 import type { Guild, Role } from 'discord.js';
-import { statusRoles } from '../constants';
+import { statusRoles } from '../constants.js';
 
 export const getGuildStatusRoles = (guild: Guild) => {
   let guildStatusRoles: {

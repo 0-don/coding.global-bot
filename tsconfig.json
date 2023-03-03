@@ -10,15 +10,15 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "strict": true,
     "useUnknownInCatchVariables": true,
     "noUncheckedIndexedAccess": true,
 
     // Modules
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
 
     // Emit
@@ -40,7 +40,11 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "lib": ["ESNext"],
-    "target": "ES2021",
-    "useDefineForClassFields": true
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "typeRoots": ["./src/types/**.*"]
+  },
+  "ts-node": {
+    "esm": true
   }
 }

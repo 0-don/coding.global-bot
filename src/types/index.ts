@@ -1,14 +1,16 @@
-import type { MessageEmbedOptions } from 'discord.js';
-import { GuildVoiceEvents, MemberMessages, PrismaClient } from '@prisma/client';
-import { statusRoles } from '../utils/constants';
-import { ClientEvents } from 'discord.js';
-import type { Interface } from 'readline';
+import type { GuildVoiceEvents,MemberMessages } from '@prisma/client';
+import type { APIEmbed, Awaitable,ClientEvents } from 'discord.js';
+import type { statusRoles } from '../utils/constants.js';
+import './discord.js';
+import './enviroment.js';
+
 
 export type RoleTemplateReactionValues = {
   name: string;
   value: string;
   emoji: string;
 };
+
 export type RoleTemplateReactionTuple = [
   RoleTemplateReactionValues,
   RoleTemplateReactionValues?,
@@ -41,7 +43,7 @@ export type RoleTemplateReaction = {
 export type CreateRoleTemplateEmbed = {
   error: string | undefined;
   emojis: (string | undefined)[] | undefined;
-  roleTemplateEmbed: MessageEmbedOptions | undefined;
+  roleTemplateEmbed: APIEmbed | undefined;
 };
 
 export type QuestionRequest = {
@@ -49,9 +51,9 @@ export type QuestionRequest = {
   a: string[];
 };
 
-export type StatusRoles = typeof statusRoles[number];
+export type StatusRoles = (typeof statusRoles)[number];
 
-export type ChartDataset = { x: dayjs.Dayjs; y: number };
+export type ChartDataset = { x: Date; y: number };
 
 export type GuildMemberCountChart = {
   link?: string;

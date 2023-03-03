@@ -1,10 +1,10 @@
 import type {
   MessageReaction,
   PartialMessageReaction,
-  User,
   PartialUser,
+  User,
 } from 'discord.js';
-import { ROLE_TEMPLATE } from '../constants';
+import { ROLE_TEMPLATE } from '../constants.js';
 
 export const switchRoleFromTemplate = async (
   reaction: MessageReaction | PartialMessageReaction,

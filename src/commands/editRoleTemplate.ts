@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
-import type { RoleTemplateReaction } from '../types';
-import { ROLE_TEMPLATE } from '../utils/constants';
-import { parseJSON } from '../utils/helpers';
-import { createRoleTemplateEmbed } from '../utils/roles/roleTemplate';
+import type { RoleTemplateReaction } from '../types/index.js';
+import { ROLE_TEMPLATE } from '../utils/constants.js';
+import { parseJSON } from '../utils/helpers.js';
+import { createRoleTemplateEmbed } from '../utils/roles/roleTemplate.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -22,9 +22,7 @@ export default {
         .setDescription('JSON input for the role template')
         .setRequired(true)
     )
-    .setDefaultMemberPermissions(
-     PermissionFlagsBits.BanMembers
-    ),
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get message id
     const messageID = interaction.options.get('message-id')?.value as string;
@@ -35,7 +33,9 @@ export default {
     ) as RoleTemplateReaction;
 
     // fetch message if it exists
-    const msg = await (interaction.channel as TextChannel)?.messages.fetch(messageID);
+    const msg = await (interaction.channel as TextChannel)?.messages.fetch(
+      messageID
+    );
 
     // check if exits and if it is an embeded role template message
     if (!msg || msg.embeds[0]?.footer?.text !== ROLE_TEMPLATE) {

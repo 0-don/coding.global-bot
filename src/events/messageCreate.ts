@@ -1,8 +1,8 @@
-import type { Event } from '../types';
-import { addMessageDb } from '../utils/messages/addMessageDb';
-import { bumpCount } from '../utils/messages/bumpCount';
-import { cleanUpVerifyChannel } from '../utils/messages/cleanUpVerifyChannel';
-import { translateReply } from '../utils/messages/translateReply';
+import type { Event } from '../types/index.js';
+import { addMessageDb } from '../utils/messages/addMessageDb.js';
+import { checkWarnings } from '../utils/messages/checkWarnings.js';
+import { cleanUpVerifyChannel } from '../utils/messages/cleanUpVerifyChannel.js';
+import { translateReply } from '../utils/messages/translateReply.js';
 
 export default {
   name: 'messageCreate',
@@ -11,8 +11,8 @@ export default {
     // remove regular messages in verify channel
     await cleanUpVerifyChannel(message);
 
-    // count bumps for the user
-    await bumpCount(message);
+    //delete messages with links
+    await checkWarnings(message);
 
     // translate message
     await translateReply(message);

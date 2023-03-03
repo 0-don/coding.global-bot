@@ -4,10 +4,10 @@ import dayjs from 'dayjs';
 import type { Guild } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
-import { prisma } from '../../prisma';
-import type { ChartDataset, GuildMemberCountChart } from '../../types';
-import { chartConfig, chartJSNodeCanvas } from '../constants';
-import { getDaysArray } from '../helpers';
+import { prisma } from '../../prisma.js';
+import type { ChartDataset, GuildMemberCountChart } from '../../types/index.js';
+import { chartConfig, chartJSNodeCanvas } from '../constants.js';
+import { getDaysArray } from '../helpers.js';
 
 export const guildMemberCountChart = async (
   guild: Guild

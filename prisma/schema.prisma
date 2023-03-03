@@ -59,6 +59,8 @@ model MemberGuild {
   memberId String
   guildId  String
   status   Boolean
+  warnings Int     @default(0)
+  gptId    String?
   lookback Int     @default(9999)
   member   Member  @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
   guild    Guild   @relation(fields: [guildId], references: [guildId])

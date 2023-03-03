@@ -1,8 +1,8 @@
 import type { GuildMember } from 'discord.js';
-import type { Event } from '../types';
-import { joinRole } from '../utils/members/joinRole';
-import { updateMemberCount } from '../utils/members/updateMemberCount';
-import { upsertDbMember } from '../utils/members/upsertDbMember';
+import type { Event } from '../types/index.js';
+import { joinRole } from '../utils/members/joinRole.js';
+import { updateMemberCount } from '../utils/members/updateMemberCount.js';
+import { upsertDbMember } from '../utils/members/upsertDbMember.js';
 
 export default {
   name: 'guildMemberAdd',
