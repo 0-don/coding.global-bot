@@ -1,4 +1,4 @@
-import type { Collection } from "discord.js";
+import type { Collection } from 'discord.js';
 
 declare module 'discord.js' {
   export interface Client {

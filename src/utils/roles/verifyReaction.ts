@@ -10,8 +10,8 @@ import {
   VERIFIED,
   VERIFY_TEMPLATE,
   VOICE_ONLY,
-} from '../constants';
-import { getGuildStatusRoles } from './getGuildStatusRoles';
+} from '../constants.js';
+import { getGuildStatusRoles } from './getGuildStatusRoles.js';
 
 const roles = [VERIFIED, VOICE_ONLY, READ_ONLY, MUTE];
 
@@ -32,7 +32,11 @@ export const verifyReaction = async (
     ?.fetch();
 
   // if icon reaction role on user then exit
-  if (member?.roles.cache.some((role) => roles.includes(role.name as any)))
+  if (
+    member?.roles.cache.some((role) =>
+      roles.includes(role.name as (typeof roles)[number])
+    )
+  )
     return;
 
   // get icon reaction role

@@ -1,7 +1,7 @@
 import type { GuildMember, PartialGuildMember } from 'discord.js';
-import type { StatusRoles } from '../../types';
-import { EVERYONE, statusRoles } from '../constants';
-import { joinRole } from '../members/joinRole';
+import type { StatusRoles } from '../../types/index.js';
+import { EVERYONE, statusRoles } from '../constants.js';
+import { joinRole } from '../members/joinRole.js';
 
 export const updateStatusRoles = async (
   oldMember: GuildMember | PartialGuildMember,

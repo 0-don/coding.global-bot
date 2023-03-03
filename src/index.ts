@@ -1,7 +1,8 @@
 import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
 import 'dotenv/config';
-import './deploy-commands';
-import { filesPaths } from './utils/helpers';
+import './deploy-commands.js';
+import './types/index.js';
+import { filesPaths } from './utils/helpers.js';
 
 const token = process.env.TOKEN;
 
@@ -36,7 +37,7 @@ const main = async () => {
   for (const commandFile of commandFiles) {
     const command = await import(commandFile);
 
-    client.commands.set(command.default.data.name, command.default);
+    (client as any).commands.set(command.default.data.name, command.default);
   }
 
   // get events path and files

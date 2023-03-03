@@ -1,5 +1,5 @@
 import { Message, MessageType, TextChannel } from 'discord.js';
-import { VERIFY_CHANNEL } from '../constants';
+import { VERIFY_CHANNEL } from '../constants.js';
 
 export const cleanUpVerifyChannel = async (message: Message<boolean>) => {
   const channel = (await message.channel?.fetch()) as TextChannel;

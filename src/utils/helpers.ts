@@ -1,8 +1,9 @@
-import path from 'path';
-import fs from 'fs';
 import * as deepl from 'deepl-node';
+import { dirname } from 'dirname-filename-esm';
+import fs from 'fs';
+import path from 'path';
 
-const translator = new deepl.Translator(process.env.DEEPL);
+const translator = new deepl.Translator(process.env.DEEPL!);
 
 export function placementSuffix(i: number) {
   var j = i % 10,
@@ -31,13 +32,15 @@ export const getDaysArray = (s: Date, e: Date) => {
 };
 
 export const filesPaths = (dir: string) => {
+  const __dirname = dirname(import.meta);
   const filePath = path.join(__dirname, '..', dir);
+
 
   const files = fs
     .readdirSync(filePath)
     .filter((file) => file.endsWith('.ts') || file.endsWith('.js'));
 
-  const filePaths = files.map((file) => path.join(filePath, file));
+  const filePaths = files.map((file) => path.join('file:///', filePath, file));
 
   return filePaths;
 };

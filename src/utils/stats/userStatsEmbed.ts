@@ -5,10 +5,11 @@ import type {
   GuildMember,
   User,
 } from 'discord.js';
-import { prisma } from '../../prisma';
-import type { ChartDataset } from '../../types';
-import { userStatsExampleEmbed } from '../constants';
-import { getDaysArray } from '../helpers';
+
+import { prisma } from '../../prisma.js';
+import type { ChartDataset } from '../../types/index.js';
+import { userStatsExampleEmbed } from '../constants.js';
+import { getDaysArray } from '../helpers.js';
 
 export const userStatsEmbed = async (
   interaction: CommandInteraction<CacheType>,

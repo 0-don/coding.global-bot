@@ -2,8 +2,12 @@ import type { ChartConfiguration, ChartDataset } from 'chart.js';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import dayjs from 'dayjs';
 import type { APIEmbed } from 'discord.js';
-import type { ToptatsExampleEmbed, UserStatsExampleEmbed } from '../types';
-import { codeString, placementSuffix } from './helpers';
+import type {
+  ToptatsExampleEmbed,
+  UserStatsExampleEmbed,
+} from '../types/index.js';
+
+import { codeString, placementSuffix } from './helpers.js';
 
 export const statusRoles = [
   'verified',

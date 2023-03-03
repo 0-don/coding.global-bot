@@ -5,7 +5,9 @@ export const isCommand = async (interaction: Interaction) => {
   // check if message is a command
   if (interaction.isChatInputCommand()) {
     // get slash command name
-    const command = interaction.client.commands.get(interaction.commandName);
+    const command = (interaction.client as any).commands.get(
+      interaction.commandName
+    );
     // if no name return
     if (!command) return;
 

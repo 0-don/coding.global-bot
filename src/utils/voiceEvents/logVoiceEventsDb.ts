@@ -1,9 +1,9 @@
 import type { GuildVoiceEvents } from '@prisma/client';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import utc from 'dayjs/plugin/utc.js';
 import type { VoiceState } from 'discord.js';
-import { prisma } from '../../prisma';
-import { getDaysArray } from '../helpers';
+import { prisma } from '../../prisma.js';
+import { getDaysArray } from '../helpers.js';
 
 dayjs.extend(utc);
 

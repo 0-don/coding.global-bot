@@ -1,5 +1,5 @@
 import type { Message } from 'discord.js';
-import { prisma } from '../../prisma';
+import { prisma } from '../../prisma.js';
 
 export const addMessageDb = async (message: Message<boolean>) => {
   // check if disboard bump command was used

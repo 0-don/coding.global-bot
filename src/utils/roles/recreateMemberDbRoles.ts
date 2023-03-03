@@ -1,7 +1,7 @@
 import type { Prisma } from '@prisma/client';
 import type { GuildMember } from 'discord.js';
-import { prisma } from '../../prisma';
-import { EVERYONE } from '../constants';
+import { prisma } from '../../prisma.js';
+import { EVERYONE } from '../constants.js';
 
 export const recreateMemberDbRoles = async (
   member: GuildMember,

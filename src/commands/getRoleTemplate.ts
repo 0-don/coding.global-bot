@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
+import crypto from 'crypto';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
-import crypto from 'crypto';
-import { ROLE_TEMPLATE } from '../utils/constants';
-import { megaUpload } from '../utils/megaUpload';
-import { parseRoleTemplateFromMsg } from '../utils/roles/roleTemplate';
+import { ROLE_TEMPLATE } from '../utils/constants.js';
+import { megaUpload } from '../utils/megaUpload.js';
+import { parseRoleTemplateFromMsg } from '../utils/roles/roleTemplate.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -16,15 +16,15 @@ export default {
         .setDescription('copy the message ID of the embeded message')
         .setRequired(true)
     )
-    .setDefaultMemberPermissions(
-      PermissionFlagsBits.BanMembers
-    ),
+    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get message id
     const messageID = interaction.options.get('message-id')?.value as string;
 
     // fetch message if it exists
-    const msg = await (interaction.channel as TextChannel)?.messages.fetch(messageID);
+    const msg = await (interaction.channel as TextChannel)?.messages.fetch(
+      messageID
+    );
 
     // check if exits and if it is an embeded message
     if (!msg || msg.embeds[0]?.footer?.text !== ROLE_TEMPLATE) {

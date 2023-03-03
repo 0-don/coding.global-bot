@@ -1,5 +1,5 @@
 import { log } from 'console';
-import type { Event } from '../types';
+import type { Event } from '../types/index.js';
 
 export default {
   name: 'ready',

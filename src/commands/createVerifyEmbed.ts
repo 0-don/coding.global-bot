@@ -12,7 +12,7 @@ import {
   RED_COLOR,
   VERIFY_CHANNEL,
   VERIFY_TEMPLATE,
-} from '../utils/constants';
+} from '../utils/constants.js';
 
 export default {
   data: new SlashCommandBuilder()

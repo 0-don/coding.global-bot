@@ -1,7 +1,7 @@
-import type { Event } from '../types';
-import { joinRole } from '../utils/members/joinRole';
-import { updateDbRoles } from '../utils/roles/updateDbRoles';
-import { updateStatusRoles } from '../utils/roles/updateStatusRoles';
+import type { Event } from '../types/index.js';
+import { joinRole } from '../utils/members/joinRole.js';
+import { updateDbRoles } from '../utils/roles/updateDbRoles.js';
+import { updateStatusRoles } from '../utils/roles/updateStatusRoles.js';
 
 export default {
   name: 'guildMemberUpdate',

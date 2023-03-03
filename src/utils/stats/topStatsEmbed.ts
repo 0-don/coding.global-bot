@@ -1,5 +1,5 @@
-import { prisma } from '../../prisma';
-import { topStatsExampleEmbed } from '../constants';
+import { prisma } from '../../prisma.js';
+import { topStatsExampleEmbed } from '../constants.js';
 
 export const topStatsEmbed = async (guildId: string) => {
   const limit = 10;

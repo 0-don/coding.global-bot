@@ -1,5 +1,5 @@
 import type { GuildMember, PartialGuildMember } from 'discord.js';
-import { MEMBERS_COUNT_CHANNEL } from '../constants';
+import { MEMBERS_COUNT_CHANNEL } from '../constants.js';
 
 export const updateMemberCount = async (
   member: GuildMember | PartialGuildMember

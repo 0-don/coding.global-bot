@@ -1,5 +1,5 @@
-import type { Event } from '../types';
-import { switchRoleFromTemplate } from '../utils/roles/roleTemplateReaction';
+import type { Event } from '../types/index.js';
+import { switchRoleFromTemplate } from '../utils/roles/roleTemplateReaction.js';
 
 export default {
   name: 'messageReactionRemove',

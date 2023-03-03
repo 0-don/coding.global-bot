@@ -5,14 +5,14 @@ import type {
   CommandInteraction,
   TextChannel,
 } from 'discord.js';
-import { prisma } from '../prisma';
+import { prisma } from '../prisma.js';
 import {
   BOT_CHANNEL,
   BOT_ICON,
   BUMP_LEADERBOARDS_TEMPLATE,
   RED_COLOR,
-} from './constants';
-import { codeString, placementSuffix } from './helpers';
+} from './constants.js';
+import { codeString, placementSuffix } from './helpers.js';
 
 export default {
   data: new SlashCommandBuilder()

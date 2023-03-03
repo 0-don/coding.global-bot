@@ -1,5 +1,5 @@
-import type { Event } from '../types';
-import { isCommand } from '../utils/interractionCreate/isCommand';
+import type { Event } from '../types/index.js';
+import { isCommand } from '../utils/interractionCreate/isCommand.js';
 
 export default {
   name: 'interactionCreate',

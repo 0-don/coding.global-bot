@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import type { CacheType, CommandInteraction } from 'discord.js';
 
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import { prisma } from '../prisma';
+import { prisma } from '../prisma.js';
 
 export default {
   data: new SlashCommandBuilder()

@@ -1,6 +1,6 @@
-import type { Event } from '../types';
-import { logVoiceEvents } from '../utils/voiceEvents/logVoiceEvents';
-import { logVoiceEventsDb } from '../utils/voiceEvents/logVoiceEventsDb';
+import type { Event } from '../types/index.js';
+import { logVoiceEvents } from '../utils/voiceEvents/logVoiceEvents.js';
+import { logVoiceEventsDb } from '../utils/voiceEvents/logVoiceEventsDb.js';
 
 export default {
   name: 'voiceStateUpdate',

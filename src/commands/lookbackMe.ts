@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import type { CacheType, CommandInteraction } from 'discord.js';
-import { prisma } from '../prisma';
+import { prisma } from '../prisma.js';
 
 export default {
   data: new SlashCommandBuilder()

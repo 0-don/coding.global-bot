@@ -1,5 +1,5 @@
 import { Message, MessageType, TextChannel } from 'discord.js';
-import { translate } from '../helpers';
+import { translate } from '../helpers.js';
 
 export const translateReply = async (message: Message<boolean>) => {
   if (

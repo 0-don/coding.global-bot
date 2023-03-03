@@ -1,6 +1,6 @@
-import type { Event } from '../types';
-import { updateMemberCount } from '../utils/members/updateMemberCount';
-import { upsertDbMember } from '../utils/members/upsertDbMember';
+import type { Event } from '../types/index.js';
+import { updateMemberCount } from '../utils/members/updateMemberCount.js';
+import { upsertDbMember } from '../utils/members/upsertDbMember.js';
 
 export default {
   name: 'guildMemberRemove',
