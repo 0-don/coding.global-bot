@@ -1,6 +1,7 @@
 import { Message, MessageType, TextChannel } from 'discord.js';
 import { chunkedSend } from '../messages/chunkedSend.js';
 import { fetchMessages } from '../messages/fetchMessages.js';
+import { getTextFromImage } from '../tesseract/tesseract.js';
 import { askChatGPT } from './askChatGPT.js';
 
 export const replyChatGPT = async (message: Message<boolean>) => {
@@ -47,9 +48,18 @@ export const replyChatGPT = async (message: Message<boolean>) => {
       (a, b) => a.createdTimestamp - b.createdTimestamp
     );
 
-    const messagesContent = dateSortedMessages
-      .map((msg) => msg.content)
-      .join('\n');
+    const getAllImagesFromMessages = (
+      await Promise.all(
+        dateSortedMessages
+          .map((msg) => msg.attachments.map((attachment) => attachment.url))
+          .flat()
+          .map((url) => getTextFromImage(url))
+      )
+    ).join('\n');
+
+    const messagesContentArray = dateSortedMessages.map((msg) => msg.content);
+    messagesContentArray.push(getAllImagesFromMessages);
+    const messagesContent = messagesContentArray.join('\n');
 
     if (!messagesContent.length) return await channel.send('No messages found');
 
