@@ -36,6 +36,9 @@ export const askChatGPT = async ({
   let counter = 0;
 
   let interactionUsedAt: number = 0;
+
+  console.log('before send message', text.length);
+
   const res = await gpt.sendMessage(text as string, {
     parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
     systemMessage: `You are coding.global AI, a large language model trained by OpenAI. You answer as concisely as possible for each responseIf you are generating a list, do not have too many items. Current date: ${new Date().toISOString()}\n\n`,
@@ -56,6 +59,8 @@ export const askChatGPT = async ({
       }
     },
   });
+
+  console.log('after send message', res.text.length);
 
   // save gptId
   await prisma.memberGuild.update({

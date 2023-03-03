@@ -4,9 +4,12 @@ import { askChatGPT } from './askChatGPT.js';
 
 export const replyChatGPT = async (message: Message<boolean>) => {
   if (
-    message.type === MessageType.Reply &&
-    message.reference?.messageId &&
-    message.content === '/ai'
+    (message.type === MessageType.Reply &&
+      message.reference?.messageId &&
+      message.content === '/ai') ||
+    (message.type === MessageType.Reply &&
+      message.reference?.messageId &&
+      message.content === '/gpt')
   ) {
     const channel = (await message.channel.fetch()) as TextChannel;
 
@@ -15,6 +18,8 @@ export const replyChatGPT = async (message: Message<boolean>) => {
     const user = replyMsg.author;
 
     const content = await askChatGPT({ text: replyMsg.content, user });
+
+    console.log(content?.length);
 
     if (!content) return;
 
