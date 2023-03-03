@@ -26,7 +26,7 @@ export const replyChatGPT = async (message: Message<boolean>) => {
       let currentChunk = '';
 
       for (const word of splitContent) {
-        if (currentChunk.length + word.length > 4000) {
+        if (currentChunk.length + word.length > 3900) {
           chunks.push(currentChunk);
           currentChunk = '';
         }
