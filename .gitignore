@@ -7,3 +7,4 @@ dist
 *.txt
 *.png
 yarn-error.log
+*.traineddata
