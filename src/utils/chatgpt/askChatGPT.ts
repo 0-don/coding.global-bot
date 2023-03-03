@@ -1,5 +1,10 @@
 import dayjs from 'dayjs';
-import type { CacheType, CommandInteraction, TextChannel, User } from 'discord.js';
+import type {
+  CacheType,
+  CommandInteraction,
+  TextChannel,
+  User,
+} from 'discord.js';
 import { gpt } from '../../chatgpt.js';
 import { prisma } from '../../prisma.js';
 import { chunkedSend } from '../messages/chunkedSend.js';
@@ -36,14 +41,12 @@ export const askChatGPT = async ({
     systemMessage: `You are coding.global AI, a large language model trained by OpenAI. You answer as concisely as possible for each responseIf you are generating a list, do not have too many items. Current date: ${new Date().toISOString()}\n\n`,
     onProgress: async (partialResponse) => {
       counter++;
-      if (counter % 10 === 0 && interaction) {
+      const text = [...content, partialResponse.text].join('\n');
+      if (counter % 10 === 0 && text.length < 2000) {
         // await interaction.editReply({
         //   content: [...content, partialResponse.text].join('\n'),
         //   allowedMentions: { users: [] },
         // });
-        const text = [...content, partialResponse.text].join('\n');
-
-        if (!interactionUsedAt) return;
 
         interactionUsedAt = await chunkedSend({
           content: text,
