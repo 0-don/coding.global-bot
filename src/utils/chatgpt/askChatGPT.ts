@@ -68,7 +68,7 @@ export const askChatGPT = async ({
   const fullContent = [...content, res.text].join('\n');
   const leftContent = fullContent.slice(interactionUsedAt);
 
-  if (fullContent.length > 2000 && leftContent && interaction) {
+  if (fullContent.length !== leftContent.length && leftContent && interaction) {
     await chunkedSend({
       content: leftContent,
       channel: interaction.channel as TextChannel,
