@@ -53,7 +53,5 @@ export const askChatGPT = async ({
 
   const fullContent = [...content, res.text].join('\n');
 
-  console.log(fullContent);
-
   return fullContent;
 };
