@@ -4,13 +4,13 @@ export const chunkedSend = async ({
   content,
   channel,
   interaction,
-  interactionUsedAt = 0,
 }: {
   content: string;
   channel?: TextChannel;
   interaction?: CommandInteraction<CacheType>;
-  interactionUsedAt?: number;
 }) => {
+  const currentChannel = channel || (interaction?.channel as TextChannel);
+
   const splitContent = content.split(' ');
 
   const chunks = [];
@@ -27,20 +27,19 @@ export const chunkedSend = async ({
 
   chunks.push(currentChunk);
 
+  let interactionUsed = false;
   for (const chunk of chunks) {
-    if (interaction) {
+    if (interaction && !interactionUsed) {
       await interaction.editReply({
         content: chunk,
         allowedMentions: { users: [] },
       });
-      interactionUsedAt = content.length;
+      interactionUsed = true;
     } else {
-      await channel!.send({
+      await currentChannel!.send({
         content: chunk,
         allowedMentions: { users: [] },
       });
     }
   }
-
-  return interactionUsedAt;
 };
