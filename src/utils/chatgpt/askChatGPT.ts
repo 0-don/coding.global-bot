@@ -75,5 +75,5 @@ export const askChatGPT = async ({
     });
   }
 
-  return leftContent;
+  return interaction ? fullContent : leftContent;
 };
