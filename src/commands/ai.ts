@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import type { CacheType, CommandInteraction } from 'discord.js';
 import { askChatGPT } from '../utils/chatgpt/askChatGPT.js';
+import { chunkedSend } from '../utils/messages/chunkedSend.js';
 
 export default {
   data: new SlashCommandBuilder()
@@ -25,12 +26,6 @@ export default {
     if (!content) return interaction.editReply('User not Found');
     // send success message
 
-    return (
-      content.length < 2000 &&
-      (await interaction.editReply({
-        content: content,
-        allowedMentions: { users: [] },
-      }))
-    );
+    return await chunkedSend({ content, interaction });
   },
 };

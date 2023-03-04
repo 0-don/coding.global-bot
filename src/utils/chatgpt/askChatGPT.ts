@@ -1,10 +1,5 @@
 import dayjs from 'dayjs';
-import type {
-  CacheType,
-  CommandInteraction,
-  TextChannel,
-  User,
-} from 'discord.js';
+import type { CacheType, CommandInteraction, User } from 'discord.js';
 import { gpt } from '../../chatgpt.js';
 import { prisma } from '../../prisma.js';
 import { chunkedSend } from '../messages/chunkedSend.js';
@@ -35,25 +30,16 @@ export const askChatGPT = async ({
 
   let counter = 0;
 
-  let interactionUsedAt: number = 0;
-  console.log('interactionUsedAt', interactionUsedAt);
   const res = await gpt.sendMessage(text as string, {
     parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
     systemMessage: `You are coding.global AI, a large language model trained by OpenAI. You answer as concisely as possible for each responseIf you are generating a list, do not have too many items. Current date: ${new Date().toISOString()}\n\n`,
     onProgress: async (partialResponse) => {
       counter++;
-
       const text = [...content, partialResponse.text].join('\n');
       if (counter % 20 === 0 && text.length < 2000 && interaction) {
-        // await interaction.editReply({
-        //   content: [...content, partialResponse.text].join('\n'),
-        //   allowedMentions: { users: [] },
-        // });
-        // console.log(text.length);
-        interactionUsedAt = await chunkedSend({
+        await chunkedSend({
           content: text,
           interaction,
-          interactionUsedAt,
         });
       }
     },
@@ -66,15 +52,6 @@ export const askChatGPT = async ({
   });
 
   const fullContent = [...content, res.text].join('\n');
-  // console.log('fullContent', fullContent.length);
-  const leftContent = fullContent.slice(interactionUsedAt);
-  console.log('leftContent', fullContent.length, leftContent.length);
-  if (fullContent.length !== leftContent.length && leftContent && interaction) {
-    await chunkedSend({
-      content: leftContent,
-      channel: interaction.channel as TextChannel,
-    });
-  }
 
   return fullContent;
 };
