@@ -25,6 +25,13 @@ export default {
     if (!content) return interaction.editReply('User not Found');
     // send success message
 
+    if (content.length < 2000) {
+      return await interaction.editReply({
+        content,
+        allowedMentions: { users: [] },
+      });
+    }
+
     return;
   },
 };
