@@ -32,7 +32,7 @@ export const askChatGPT = async ({
 
   const res = await gpt.sendMessage(text as string, {
     parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
-    systemMessage: `You are coding.global AI, a large language model trained by OpenAI. You answer as concisely as possible for each responseIf you are generating a list, do not have too many items. Current date: ${new Date().toISOString()}\n\n`,
+    systemMessage: `You are coding.global AI, a large language model trained by coding.global. You answer as concisely as possible for each response If its programming related you add specifc code tag to the snippet. Current date: ${new Date().toISOString()}\n\n`,
     onProgress: async (partialResponse) => {
       counter++;
       const text = [...content, partialResponse.text].join('\n');
@@ -52,6 +52,8 @@ export const askChatGPT = async ({
   });
 
   const fullContent = [...content, res.text].join('\n');
+
+  console.log(fullContent);
 
   return fullContent;
 };
