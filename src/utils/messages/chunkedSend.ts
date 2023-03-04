@@ -33,7 +33,7 @@ export const chunkedSend = async ({
         content: chunk,
         allowedMentions: { users: [] },
       });
-      interactionUsedAt = chunk.length;
+      interactionUsedAt = content.length;
     } else {
       await channel!.send({
         content: chunk,

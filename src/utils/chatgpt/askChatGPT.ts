@@ -44,12 +44,12 @@ export const askChatGPT = async ({
       counter++;
 
       const text = [...content, partialResponse.text].join('\n');
-      if (counter % 10 === 0 && text.length < 2000 && interaction) {
+      if (counter % 20 === 0 && text.length < 2000 && interaction) {
         // await interaction.editReply({
         //   content: [...content, partialResponse.text].join('\n'),
         //   allowedMentions: { users: [] },
         // });
-
+        // console.log(text.length);
         interactionUsedAt = await chunkedSend({
           content: text,
           interaction,
@@ -66,6 +66,7 @@ export const askChatGPT = async ({
   });
 
   const fullContent = [...content, res.text].join('\n');
+  // console.log('fullContent', fullContent.length);
   const leftContent = fullContent.slice(interactionUsedAt);
 
   if (fullContent.length !== leftContent.length && leftContent && interaction) {
