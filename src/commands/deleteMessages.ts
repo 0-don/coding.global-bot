@@ -1,6 +1,11 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
+import type {
+  CacheType,
+  CommandInteraction,
+  Message,
+  TextChannel,
+} from 'discord.js';
 import { fetchMessages } from '../utils/messages/fetchMessages.js';
 
 export default {
@@ -32,9 +37,23 @@ export default {
     // loop over all channels
     const messages = await fetchMessages(channel, amount);
 
-    // delete messages
+    // create list of messages 100 each
+    const messageList = messages.reduce(
+      (acc, message) => {
+        const last = acc[acc.length - 1];
+        if (last!.length === 100) {
+          acc.push([message!]);
+        } else {
+          last!.push(message);
+        }
+        return acc;
+      },
+      [[]] as Message<boolean>[][]
+    );
 
-    await channel.bulkDelete(messages);
+    for (const message of messageList) {
+      await channel.bulkDelete(message, true);
+    }
 
     // notify that messages were deleted
     return interaction.editReply({ content: 'messages are deleted' });
