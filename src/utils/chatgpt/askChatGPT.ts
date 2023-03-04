@@ -36,7 +36,7 @@ export const askChatGPT = async ({
   let counter = 0;
 
   let interactionUsedAt: number = 0;
-
+  console.log('interactionUsedAt', interactionUsedAt);
   const res = await gpt.sendMessage(text as string, {
     parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
     systemMessage: `You are coding.global AI, a large language model trained by OpenAI. You answer as concisely as possible for each responseIf you are generating a list, do not have too many items. Current date: ${new Date().toISOString()}\n\n`,
@@ -68,7 +68,7 @@ export const askChatGPT = async ({
   const fullContent = [...content, res.text].join('\n');
   // console.log('fullContent', fullContent.length);
   const leftContent = fullContent.slice(interactionUsedAt);
-
+  console.log('leftContent', fullContent.length, leftContent.length);
   if (fullContent.length !== leftContent.length && leftContent && interaction) {
     await chunkedSend({
       content: leftContent,
@@ -76,5 +76,5 @@ export const askChatGPT = async ({
     });
   }
 
-  return interaction ? fullContent : leftContent;
+  return fullContent;
 };
