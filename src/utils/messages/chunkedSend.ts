@@ -33,12 +33,14 @@ export const chunkedSend = async ({
       await interaction.editReply({
         content: chunk,
         allowedMentions: { users: [] },
+        embeds: [],
       });
       interactionUsed = true;
     } else {
       await currentChannel!.send({
         content: chunk,
         allowedMentions: { users: [] },
+        embeds: [],
       });
     }
   }
