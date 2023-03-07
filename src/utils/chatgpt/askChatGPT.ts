@@ -21,7 +21,7 @@ export const askChatGPT = async ({
 
   const content = [
     `**<@${user.id}> ${user.username}'s Question:**`,
-    `\n**${text}**\n`,
+    `\n**_${text}_**\n`,
   ];
 
   const olderThen30Min = dayjs(memberGuild.gptDate).isBefore(
