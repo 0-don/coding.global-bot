@@ -71,3 +71,7 @@ export const translate = async (text: string) => {
   const translated = await translator.translateText(text, null, 'en-GB');
   return translated.text;
 };
+
+
+// sleep function
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
