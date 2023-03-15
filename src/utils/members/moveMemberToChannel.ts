@@ -15,14 +15,15 @@ export const moveMemberToChannel = async (
 
   if (!guildMemberDb || count === 0) return;
 
+  let guildMember = await member.guild.members.fetch(member.id);
   const voiceChannels = (await member.guild.channels.fetch()).filter(
-    (c) => c?.type === ChannelType.GuildVoice
+    (c) =>
+      c?.type === ChannelType.GuildVoice &&
+      guildMember.permissionsIn(c).has('Connect')
   );
-  
-  console.log('start');
 
   while (true) {
-    const guildMember = await member.guild.members.fetch(member.id);
+    guildMember = await member.guild.members.fetch(member.id);
     const randomChannel = voiceChannels.random() as VoiceChannel;
     await randomChannel.fetch();
 
