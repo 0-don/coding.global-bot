@@ -16,8 +16,8 @@ export const joinSettings = async (
 
   if (guildMember) {
     try {
-      await member.voice.setDeaf(guildMember.deafened);
       await member.voice.setMute(guildMember.muted);
+      await member.voice.setDeaf(guildMember.deafened);
       if (guildMember.nickname) await member.setNickname(guildMember.nickname);
     } catch (_) {}
   }
