@@ -23,16 +23,21 @@ export default {
 
     if (memberGuild?.moving && memberGuild.moveCounter > 0) return;
 
+    console.log('voiceStateUpdate');
     await updateUserVoiceState(newVoiceState);
 
+    console.log('joinSettings');
     await joinSettings(newVoiceState.member as GuildMember, newVoiceState);
 
+    console.log('moveMemberToChannel');
     if (!oldVoiceState.channelId && newVoiceState.channelId)
-      moveMemberToChannel(newVoiceState.member as GuildMember);
+      await moveMemberToChannel(newVoiceState.member as GuildMember);
 
+    console.log('logVoiceEventsDb');
     // save logs to db
     await logVoiceEventsDb(oldVoiceState, newVoiceState);
 
+    console.log('logVoiceEvents');
     // internal logging
     await logVoiceEvents(oldVoiceState, newVoiceState);
   },
