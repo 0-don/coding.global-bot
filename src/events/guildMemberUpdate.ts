@@ -1,5 +1,6 @@
 import type { Event } from '../types/index.js';
 import { joinRole } from '../utils/members/joinRole.js';
+import { updateNickname } from '../utils/members/saveNickname.js';
 import { updateDbRoles } from '../utils/roles/updateDbRoles.js';
 import { updateStatusRoles } from '../utils/roles/updateStatusRoles.js';
 
@@ -16,5 +17,7 @@ export default {
 
     // update status roles
     await updateStatusRoles(oldMember, newMember);
+
+    await updateNickname(oldMember, newMember);
   },
 } as Event<'guildMemberUpdate'>;

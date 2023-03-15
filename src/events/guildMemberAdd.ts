@@ -1,5 +1,6 @@
 import type { GuildMember } from 'discord.js';
 import type { Event } from '../types/index.js';
+import { joinNickname } from '../utils/members/joinNickname.js';
 import { joinRole } from '../utils/members/joinRole.js';
 import { updateMemberCount } from '../utils/members/updateMemberCount.js';
 import { upsertDbMember } from '../utils/members/upsertDbMember.js';
@@ -19,5 +20,7 @@ export default {
 
     // update user count channel
     await updateMemberCount(member);
+
+    await joinNickname(member);
   },
 } as Event<'guildMemberAdd'>;
