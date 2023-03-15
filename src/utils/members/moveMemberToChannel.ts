@@ -1,6 +1,5 @@
 import { ChannelType, GuildMember, VoiceChannel } from 'discord.js';
 import { prisma } from '../../prisma.js';
-import { sleep } from '../helpers.js';
 import { joinSettings } from './joinNickname.js';
 
 export const moveMemberToChannel = async (
@@ -50,7 +49,12 @@ export const moveMemberToChannel = async (
       }
     }
 
-    if (count <= 0) break;
-    await sleep(50);
+    if (count <= 0) {
+      await prisma.memberGuild.update({
+        where: { id: guildMemberDb?.id },
+        data: { moving: false },
+      });
+      break;
+    }
   }
 };
