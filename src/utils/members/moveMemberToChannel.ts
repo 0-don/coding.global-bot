@@ -1,5 +1,6 @@
 import { ChannelType, GuildMember, VoiceChannel } from 'discord.js';
 import { prisma } from '../../prisma.js';
+import { sleep } from '../helpers.js';
 
 export const moveMemberToChannel = async (
   member: GuildMember
@@ -20,6 +21,7 @@ export const moveMemberToChannel = async (
 
   while (true) {
     try {
+      await sleep(50);
       const guildMember = await member.guild.members.fetch(member.id);
       const randomChannel = voiceChannels.random() as VoiceChannel;
 
