@@ -34,9 +34,10 @@ export default {
     const user = interaction.options.getUser('user') as User;
 
     const count = interaction.options.get('count')?.value as number;
+    await interaction.deferReply({ ephemeral: true });
 
     if (interaction.user.id === user.id)
-      return interaction.reply(`You can't troll yourself`);
+      return interaction.editReply(`You can't troll yourself`);
 
     await prisma.memberGuild.update({
       where: {
@@ -55,6 +56,6 @@ export default {
     if (count > 0) moveMemberToChannel(guildMember);
 
     // send success message
-    return interaction.reply(`Trolling begins`);
+    return interaction.editReply(`Trolling begins`);
   },
 };
