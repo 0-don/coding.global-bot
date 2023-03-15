@@ -16,7 +16,7 @@ export default {
         .setMaxValue(9999)
         .setRequired(true)
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
+    .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get lookback days from input
     const lookback = interaction.options.get('lookback')?.value as number;

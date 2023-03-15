@@ -18,7 +18,7 @@ export default {
         .setDescription('Delete message History')
         .setRequired(true)
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
+    .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get user from slash command input
     const channel = interaction.channel as TextChannel;

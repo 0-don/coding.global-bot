@@ -18,7 +18,7 @@ export default {
   data: new SlashCommandBuilder()
     .setName('create-verify-embed')
     .setDescription('verify all users in the server')
-    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
+    .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get text channel
     const channel = (await interaction.channel?.fetch()) as TextChannel;

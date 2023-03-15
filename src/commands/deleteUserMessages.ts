@@ -36,7 +36,7 @@ export default {
           'Select either user ID which messages should be deleted'
         )
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
+    .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get user from slash command input
     const user = interaction.options.getUser('user');

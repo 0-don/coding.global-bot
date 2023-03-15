@@ -22,7 +22,7 @@ export default {
         .setDescription('JSON input for the role template')
         .setRequired(true)
     )
-    .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
+    .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get message id
     const messageID = interaction.options.get('message-id')?.value as string;

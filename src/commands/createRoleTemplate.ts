@@ -1,5 +1,4 @@
 import {
-  EmojiIdentifierResolvable,
   PermissionFlagsBits,
   SlashCommandBuilder,
   type CacheType,
@@ -20,9 +19,7 @@ export default {
         .setDescription('JSON input for the role template')
         .setRequired(true)
     )
-    .setDefaultMemberPermissions(
-      PermissionFlagsBits.KickMembers & PermissionFlagsBits.BanMembers
-    ),
+    .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get embed template as json
     const inputTemplate = parseJSON(
