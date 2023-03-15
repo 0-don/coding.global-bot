@@ -55,17 +55,18 @@ model MemberMessages {
 }
 
 model MemberGuild {
-  id       Int      @id @default(autoincrement())
-  memberId String
-  guildId  String
-  status   Boolean
-  nickname String?
-  warnings Int      @default(0)
-  gptId    String?
-  gptDate  DateTime @default(now())
-  lookback Int      @default(9999)
-  member   Member   @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
-  guild    Guild    @relation(fields: [guildId], references: [guildId])
+  id          Int      @id @default(autoincrement())
+  memberId    String
+  guildId     String
+  status      Boolean
+  nickname    String?
+  moveCounter Int      @default(0)
+  warnings    Int      @default(0)
+  gptId       String?
+  gptDate     DateTime @default(now())
+  lookback    Int      @default(9999)
+  member      Member   @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
+  guild       Guild    @relation(fields: [guildId], references: [guildId])
 
   @@unique([memberId, guildId], name: "member_guild")
 }
