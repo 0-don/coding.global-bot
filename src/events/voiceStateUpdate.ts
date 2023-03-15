@@ -23,13 +23,12 @@ export default {
 
     if (memberGuild?.moving && memberGuild.moveCounter > 0) return;
 
-    if (!oldVoiceState.channelId && newVoiceState.channelId)
-      moveMemberToChannel(newVoiceState.member as GuildMember);
-
     await updateUserVoiceState(newVoiceState);
 
-    if (newVoiceState.channelId)
-      await joinSettings(newVoiceState.member as GuildMember, newVoiceState);
+    await joinSettings(newVoiceState.member as GuildMember, newVoiceState);
+
+    if (!oldVoiceState.channelId && newVoiceState.channelId)
+      moveMemberToChannel(newVoiceState.member as GuildMember);
 
     // save logs to db
     await logVoiceEventsDb(oldVoiceState, newVoiceState);
