@@ -59,6 +59,7 @@ model MemberGuild {
   memberId String
   guildId  String
   status   Boolean
+  nickname String?
   warnings Int      @default(0)
   gptId    String?
   gptDate  DateTime @default(now())
