@@ -13,7 +13,7 @@ export const statusRoles = [
   'verified',
   'voiceOnly',
   'readOnly',
-  'mute',
+  'jail',
   'unverified',
 ] as const;
 
