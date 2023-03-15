@@ -13,36 +13,37 @@ export const moveMemberToChannel = async (
   });
   let count = guildMemberDb?.moveCounter || 0;
 
-  if (!guildMemberDb) return;
+  if (!guildMemberDb || count === 0) return;
 
   const voiceChannels = (await member.guild.channels.fetch()).filter(
     (c) => c?.type === ChannelType.GuildVoice
   );
 
   while (true) {
-    try {
-      await sleep(50);
-      const guildMember = await member.guild.members.fetch(member.id);
-      const randomChannel = voiceChannels.random() as VoiceChannel;
+    const guildMember = await member.guild.members.fetch(member.id);
+    const randomChannel = voiceChannels.random() as VoiceChannel;
 
-      await randomChannel.fetch();
+    await randomChannel.fetch();
 
-      if (
-        randomChannel?.id !== guildMember.voice.channelId &&
-        randomChannel?.members.size === 0
-      ) {
-        try {
-          await guildMember.voice.setChannel(randomChannel);
-          guildMemberDb = await prisma.memberGuild.update({
-            where: { id: guildMemberDb?.id },
-            data: { moveCounter: count - 1 },
-          });
+    if (
+      randomChannel?.id !== guildMember.voice.channelId &&
+      randomChannel?.members.size === 0
+    ) {
+      try {
+        await guildMember.voice.setChannel(randomChannel);
+        guildMemberDb = await prisma.memberGuild.update({
+          where: { id: guildMemberDb?.id },
+          data: { moveCounter: count - 1 },
+        });
 
-          count = guildMemberDb.moveCounter;
-        } catch (_) {}
+        count = guildMemberDb.moveCounter;
+      } catch (_) {
+
+        break;
       }
+    }
 
-      if (count <= 0) break;
-    } catch (error) {}
+    if (count <= 0) break;
+    await sleep(50);
   }
 };
