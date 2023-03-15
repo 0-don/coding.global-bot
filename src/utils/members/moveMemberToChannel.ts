@@ -1,6 +1,5 @@
 import { ChannelType, GuildMember, VoiceChannel } from 'discord.js';
 import { prisma } from '../../prisma.js';
-import { joinSettings } from './joinNickname.js';
 
 export const moveMemberToChannel = async (
   member: GuildMember
@@ -16,8 +15,6 @@ export const moveMemberToChannel = async (
 
   if (!guildMemberDb || count === 0) return;
 
-
-
   const voiceChannels = (await member.guild.channels.fetch()).filter(
     (c) => c?.type === ChannelType.GuildVoice
   );
@@ -25,6 +22,12 @@ export const moveMemberToChannel = async (
   while (true) {
     const guildMember = await member.guild.members.fetch(member.id);
     const randomChannel = voiceChannels.random() as VoiceChannel;
+    await randomChannel.fetch();
+
+    console.log(
+      randomChannel?.id !== guildMember.voice.channelId,
+      randomChannel?.members.size === 0
+    );
 
     if (
       randomChannel?.id !== guildMember.voice.channelId &&
