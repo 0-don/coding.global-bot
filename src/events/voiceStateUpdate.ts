@@ -11,27 +11,30 @@ export default {
   name: 'voiceStateUpdate',
   once: false,
   async execute(oldVoiceState, newVoiceState) {
+    const member =
+      newVoiceState?.member || (oldVoiceState?.member as GuildMember);
+    const guild = newVoiceState?.guild || oldVoiceState?.guild;
     const memberGuild = await prisma.memberGuild.findFirst({
       where: {
-        memberId: newVoiceState?.member?.id || oldVoiceState?.member?.id,
-        guildId: newVoiceState?.guild?.id || oldVoiceState?.guild?.id,
+        memberId: member.id,
+        guildId: guild.id,
       },
     });
 
-    if (!memberGuild || memberGuild?.moving) return;
+    if (memberGuild?.moving && memberGuild.moveCounter > 0) return;
 
     if (!oldVoiceState.channelId && newVoiceState.channelId)
-      return moveMemberToChannel(newVoiceState.member as GuildMember);
+      moveMemberToChannel(newVoiceState.member as GuildMember);
+
+    await updateUserVoiceState(newVoiceState);
 
     if (newVoiceState.channelId)
-      await joinSettings(newVoiceState.member as GuildMember);
+      await joinSettings(newVoiceState.member as GuildMember, newVoiceState);
 
     // save logs to db
     await logVoiceEventsDb(oldVoiceState, newVoiceState);
 
     // internal logging
     await logVoiceEvents(oldVoiceState, newVoiceState);
-
-    await updateUserVoiceState(newVoiceState);
   },
 } as Event<'voiceStateUpdate'>;
