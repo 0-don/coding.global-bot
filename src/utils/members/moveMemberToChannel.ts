@@ -18,6 +18,8 @@ export const moveMemberToChannel = async (
   const voiceChannels = (await member.guild.channels.fetch()).filter(
     (c) => c?.type === ChannelType.GuildVoice
   );
+  
+  console.log('start');
 
   while (true) {
     const guildMember = await member.guild.members.fetch(member.id);
