@@ -31,7 +31,7 @@ export default {
     )
     .addBooleanOption((option) =>
       option
-        .setName('mute')
+        .setName('jail')
         .setDescription(
           'Select either user ID which messages should be deleted'
         )
@@ -48,7 +48,7 @@ export default {
     const days = interaction.options.get('days')?.value as number;
 
     // mute user in db
-    const mute = interaction.options.get('mute')?.value ?? false;
+    const mute = interaction.options.get('jail')?.value ?? false;
 
     const memberId = user?.id ?? userId;
     const guildId = interaction.guild?.id;
