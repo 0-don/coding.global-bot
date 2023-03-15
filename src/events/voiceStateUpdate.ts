@@ -39,6 +39,6 @@ export default {
 
     console.log('logVoiceEvents');
     // internal logging
-    await logVoiceEvents(oldVoiceState, newVoiceState);
+    // await logVoiceEvents(oldVoiceState, newVoiceState);
   },
 } as Event<'voiceStateUpdate'>;
