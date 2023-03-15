@@ -1,7 +1,7 @@
 import type { GuildMember, PartialGuildMember } from 'discord.js';
 import { prisma } from '../../prisma.js';
 
-export const joinNickname = async (
+export const joinSettings = async (
   member: GuildMember | PartialGuildMember
 ) => {
   // dont add bots to the list
@@ -14,7 +14,11 @@ export const joinNickname = async (
     },
   });
 
-  if (guildMember && guildMember.nickname) {
-    await member.setNickname(guildMember.nickname);
+  if (guildMember) {
+    try {
+      await member.voice.setDeaf(guildMember.deafened);
+      await member.voice.setMute(guildMember.muted);
+      if (guildMember.nickname) await member.setNickname(guildMember.nickname);
+    } catch (_) {}
   }
 };
