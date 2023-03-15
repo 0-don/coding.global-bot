@@ -1,6 +1,6 @@
 # Install dependencies only when needed
 # Stage 0
-FROM node:18.14.0 AS deps
+FROM node:18 AS deps
 WORKDIR /app
 
 COPY package.json ./
@@ -12,7 +12,7 @@ RUN yarn install --frozen-lockfile
 
 # Rebuild the source code only when needed
 # Stage 1
-FROM node:18.14.0 AS builder
+FROM node:18 AS builder
 WORKDIR /app
 
 COPY . .
@@ -23,7 +23,7 @@ RUN yarn build
 
 # Production image, copy only production files
 # Stage 2
-FROM node:18.14.0 AS prod
+FROM node:18 AS prod
 
 USER root
 
