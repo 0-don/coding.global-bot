@@ -16,7 +16,7 @@ export const moveMemberToChannel = async (
 
   if (!guildMemberDb || count === 0) return;
 
-  await joinSettings(member);
+
 
   const voiceChannels = (await member.guild.channels.fetch()).filter(
     (c) => c?.type === ChannelType.GuildVoice
@@ -26,12 +26,11 @@ export const moveMemberToChannel = async (
     const guildMember = await member.guild.members.fetch(member.id);
     const randomChannel = voiceChannels.random() as VoiceChannel;
 
-    console.log(guildMember.user.username, count);
-
     if (
       randomChannel?.id !== guildMember.voice.channelId &&
       randomChannel?.members.size === 0
     ) {
+      console.log(guildMember.user.username, count);
       try {
         await guildMember.voice.setChannel(randomChannel);
         guildMemberDb = await prisma.memberGuild.update({
@@ -41,6 +40,7 @@ export const moveMemberToChannel = async (
 
         count = guildMemberDb.moveCounter;
       } catch (_) {
+        console.log(_);
         await prisma.memberGuild.update({
           where: { id: guildMemberDb?.id },
           data: { moving: false },
