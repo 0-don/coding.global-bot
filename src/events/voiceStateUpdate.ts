@@ -1,4 +1,5 @@
 import type { GuildMember } from 'discord.js';
+import { prisma } from '../prisma.js';
 import type { Event } from '../types/index.js';
 import { joinSettings } from '../utils/members/joinNickname.js';
 import { moveMemberToChannel } from '../utils/members/moveMemberToChannel.js';
@@ -10,7 +11,17 @@ export default {
   name: 'voiceStateUpdate',
   once: false,
   async execute(oldVoiceState, newVoiceState) {
-    // log voice events in to specific channel
+    const memberGuild = await prisma.memberGuild.findFirst({
+      where: {
+        memberId: newVoiceState?.member?.id || oldVoiceState?.member?.id,
+        guildId: newVoiceState?.guild?.id || oldVoiceState?.guild?.id,
+      },
+    });
+
+    if (!memberGuild || memberGuild?.moving) return;
+
+    if (!oldVoiceState.channelId && newVoiceState.channelId)
+      return moveMemberToChannel(newVoiceState.member as GuildMember);
 
     if (newVoiceState.channelId)
       await joinSettings(newVoiceState.member as GuildMember);
@@ -20,9 +31,6 @@ export default {
 
     // internal logging
     await logVoiceEvents(oldVoiceState, newVoiceState);
-
-    if (!oldVoiceState.channelId && newVoiceState.channelId)
-      moveMemberToChannel(newVoiceState.member as GuildMember);
 
     await updateUserVoiceState(newVoiceState);
   },
