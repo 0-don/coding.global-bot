@@ -12,8 +12,8 @@ export const updateUserVoiceState = async (newVoiceState: VoiceState) => {
       },
     },
     data: {
-      deafened: newVoiceState.deaf || false,
-      muted: newVoiceState.mute || false,
+      deafened: newVoiceState.serverDeaf || false,
+      muted: newVoiceState.serverMute || false,
     },
   });
 };
