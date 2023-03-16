@@ -64,36 +64,29 @@ export const moveMemberToChannel = async (
 
         count = guildMemberDb.moveCounter;
       } catch (_) {
-        await prisma.memberGuild.update({
-          where: { id: guildMemberDb?.id },
-          data: { moving: false },
-        });
-        setTimeout(async () => {
-          for (const [id, channel] of allVoiceChannels) {
-            const voiceChannel = channel as VoiceChannel;
-            try {
-              await voiceChannel.permissionOverwrites.delete(member.id);
-            } catch (_) {}
-          }
-        }, 2500);
+        await exit();
         break;
       }
     }
 
     if (count <= 0) {
-      await prisma.memberGuild.update({
-        where: { id: guildMemberDb?.id },
-        data: { moving: false },
-      });
-      setTimeout(async () => {
-        for (const [id, channel] of allVoiceChannels) {
-          const voiceChannel = channel as VoiceChannel;
-          try {
-            await voiceChannel.permissionOverwrites.delete(member.id);
-          } catch (_) {}
-        }
-      }, 2500);
+      await exit();
       break;
     }
+  }
+
+  async function exit() {
+    await prisma.memberGuild.update({
+      where: { id: guildMemberDb?.id },
+      data: { moving: false },
+    });
+    setTimeout(async () => {
+      for (const [id, channel] of allVoiceChannels) {
+        const voiceChannel = channel as VoiceChannel;
+        try {
+          await voiceChannel.permissionOverwrites.delete(member.id);
+        } catch (_) {}
+      }
+    }, (guildMemberDb?.moveTimeout || 0) * 1000);
   }
 };
