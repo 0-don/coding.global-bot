@@ -29,11 +29,20 @@ export default {
         .setMaxValue(9999)
         .setRequired(true)
     )
+    .addIntegerOption((option) =>
+      option
+        .setName('timeout')
+        .setDescription('How long till channel unlock on move (seconds)')
+        .setMinValue(0)
+        .setMaxValue(9999)
+        .setRequired(true)
+    )
     .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     const user = interaction.options.getUser('user') as User;
 
     const count = interaction.options.get('count')?.value as number;
+    const timeout = (interaction.options.get('timeout')?.value as number) || 0;
     await interaction.deferReply({ ephemeral: true });
 
     if (interaction.user.id === user.id)
@@ -46,7 +55,7 @@ export default {
           memberId: user.id,
         },
       },
-      data: { moveCounter: count },
+      data: { moveCounter: count, moveTimeout: timeout },
     });
 
     const guildMember = (await interaction.guild?.members.fetch(

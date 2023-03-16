@@ -62,6 +62,7 @@ model MemberGuild {
   nickname    String?
   moveCounter Int      @default(0)
   moving      Boolean  @default(false)
+  moveTimeout Int      @default(0)
   warnings    Int      @default(0)
   gptId       String?
   gptDate     DateTime @default(now())
