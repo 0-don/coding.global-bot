@@ -1,4 +1,9 @@
-import { ChannelType, GuildMember, VoiceChannel } from 'discord.js';
+import {
+  ChannelType,
+  GuildMember,
+  PermissionsBitField,
+  VoiceChannel,
+} from 'discord.js';
 import { prisma } from '../../prisma.js';
 
 export const moveMemberToChannel = async (
@@ -16,11 +21,29 @@ export const moveMemberToChannel = async (
   if (!guildMemberDb || count === 0) return;
 
   let guildMember = await member.guild.members.fetch(member.id);
-  const voiceChannels = (await member.guild.channels.fetch()).filter(
-    (c) =>
-      c?.type === ChannelType.GuildVoice &&
-      guildMember.permissionsIn(c).has('Connect')
+  const allVoiceChannels = (await member.guild.channels.fetch()).filter(
+    (c) => c?.type === ChannelType.GuildVoice
   );
+
+  const voiceChannelsWithUsers = allVoiceChannels.filter(
+    (c) => c && c?.members.size > 0
+  );
+
+  const voiceChannels = allVoiceChannels.filter(
+    (c) =>
+      c && c?.members.size === 0 && guildMember.permissionsIn(c).has('Connect')
+  );
+
+  for (const [id, channel] of voiceChannelsWithUsers) {
+    const voiceChannel = channel as VoiceChannel;
+    await voiceChannel.permissionOverwrites.set([
+      {
+        channel: voiceChannel,
+        id: member.id,
+        deny: [PermissionsBitField.Flags.Connect],
+      },
+    ]);
+  }
 
   while (true) {
     guildMember = await member.guild.members.fetch(member.id);
@@ -45,6 +68,12 @@ export const moveMemberToChannel = async (
           where: { id: guildMemberDb?.id },
           data: { moving: false },
         });
+        for (const [id, channel] of allVoiceChannels) {
+          const voiceChannel = channel as VoiceChannel;
+          try {
+            await voiceChannel.permissionOverwrites.delete(member.id);
+          } catch (_) {}
+        }
         break;
       }
     }
@@ -54,6 +83,12 @@ export const moveMemberToChannel = async (
         where: { id: guildMemberDb?.id },
         data: { moving: false },
       });
+      for (const [id, channel] of allVoiceChannels) {
+        const voiceChannel = channel as VoiceChannel;
+        try {
+          await voiceChannel.permissionOverwrites.delete(member.id);
+        } catch (_) {}
+      }
       break;
     }
   }
