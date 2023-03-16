@@ -6,7 +6,7 @@ export const joinSettings = async (
   voiceState?: VoiceState
 ) => {
   // dont add bots to the list
-  if (member.user.bot) return;
+  if (member && member?.user?.bot) return;
 
   const guildMember = await prisma.memberGuild.findFirst({
     where: {
@@ -15,7 +15,7 @@ export const joinSettings = async (
     },
   });
 
-  if (guildMember) {
+  if (guildMember && member) {
     member = await member.fetch();
 
     if (guildMember.nickname && guildMember.nickname !== member.nickname) {
