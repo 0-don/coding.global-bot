@@ -68,12 +68,14 @@ export const moveMemberToChannel = async (
           where: { id: guildMemberDb?.id },
           data: { moving: false },
         });
-        for (const [id, channel] of allVoiceChannels) {
-          const voiceChannel = channel as VoiceChannel;
-          try {
-            await voiceChannel.permissionOverwrites.delete(member.id);
-          } catch (_) {}
-        }
+        setTimeout(async () => {
+          for (const [id, channel] of allVoiceChannels) {
+            const voiceChannel = channel as VoiceChannel;
+            try {
+              await voiceChannel.permissionOverwrites.delete(member.id);
+            } catch (_) {}
+          }
+        }, 2500);
         break;
       }
     }
@@ -83,12 +85,14 @@ export const moveMemberToChannel = async (
         where: { id: guildMemberDb?.id },
         data: { moving: false },
       });
-      for (const [id, channel] of allVoiceChannels) {
-        const voiceChannel = channel as VoiceChannel;
-        try {
-          await voiceChannel.permissionOverwrites.delete(member.id);
-        } catch (_) {}
-      }
+      setTimeout(async () => {
+        for (const [id, channel] of allVoiceChannels) {
+          const voiceChannel = channel as VoiceChannel;
+          try {
+            await voiceChannel.permissionOverwrites.delete(member.id);
+          } catch (_) {}
+        }
+      }, 2500);
       break;
     }
   }
