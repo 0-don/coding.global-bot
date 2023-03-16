@@ -23,9 +23,9 @@ export const joinSettings = async (
     }
 
     if (voiceState?.channelId) {
-      if (member.voice.mute !== guildMember.muted)
+      if (member.voice.serverMute !== guildMember.muted)
         await member.voice.setMute(guildMember.muted);
-      if (member.voice.deaf !== guildMember.deafened)
+      if (member.voice.serverDeaf !== guildMember.deafened)
         await member.voice.setDeaf(guildMember.deafened);
     }
   }
