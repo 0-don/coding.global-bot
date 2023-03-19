@@ -1,13 +1,16 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type {
-  CacheType,
-  CommandInteraction,
-  GuildMember,
-  User,
+import {
+CacheType,
+ChannelType,
+CommandInteraction,
+GuildMember,
+User,
+VoiceChannel,
 } from 'discord.js';
 import { prisma } from '../prisma.js';
 import { moveMemberToChannel } from '../utils/members/moveMemberToChannel.js';
+
 
 export default {
   data: new SlashCommandBuilder()
@@ -57,6 +60,17 @@ export default {
       },
       data: { moveCounter: count, moveTimeout: timeout },
     });
+
+    const allVoiceChannels = (await interaction.guild!.channels.fetch()).filter(
+      (c) => c?.type === ChannelType.GuildVoice
+    );
+
+    for (const [id, channel] of allVoiceChannels) {
+      const voiceChannel = channel as VoiceChannel;
+      try {
+        await voiceChannel.permissionOverwrites.delete(user.id);
+      } catch (_) {}
+    }
 
     const guildMember = (await interaction.guild?.members.fetch(
       user.id
