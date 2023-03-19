@@ -48,7 +48,7 @@ export const moveMemberToChannel = async (
   while (true) {
     guildMember = await member.guild.members.fetch(member.id);
     const randomChannel = voiceChannels.random() as VoiceChannel;
-    await randomChannel.fetch();
+    await randomChannel?.fetch();
 
     if (
       randomChannel?.id !== guildMember.voice.channelId &&
