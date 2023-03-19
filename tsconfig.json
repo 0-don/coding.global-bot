@@ -24,7 +24,6 @@
     // Emit
     "declaration": false,
     "importHelpers": true,
-    "importsNotUsedAsValues": "error",
     "inlineSources": true,
     "newLine": "lf",
     "noEmitHelpers": true,
@@ -34,7 +33,6 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "suppressImplicitAnyIndexErrors": true,
 
     // Language and Environment
     "emitDecoratorMetadata": true,
