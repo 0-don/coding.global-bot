@@ -29,6 +29,17 @@ export const moveMemberToChannel = async (
     (c) => c && c?.members.size > 0
   );
 
+  const voiceChannelsWithoutUsers = allVoiceChannels.filter(
+    (c) => c && c?.members.size === 0
+  );
+
+  for (const [id, channel] of voiceChannelsWithoutUsers) {
+    const voiceChannel = channel as VoiceChannel;
+    try {
+      await voiceChannel.permissionOverwrites.delete(member.id);
+    } catch (_) {}
+  }
+
   const voiceChannels = allVoiceChannels.filter(
     (c) =>
       c && c?.members.size === 0 && guildMember.permissionsIn(c).has('Connect')
