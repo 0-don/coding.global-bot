@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "npx prisma migrate deploy && cross-env NODE_ENV=production node dist/index.js",
-    "dev": "nodemon src/index.ts",
+    "dev": "cross-env NODE_ENV=production nodemon src/index.ts",
     "prisma": "npx prisma migrate dev --name init & npx prisma generate",
     "postinstall": "npx prisma generate",
     "build": "tsc"
