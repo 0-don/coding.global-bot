@@ -11,7 +11,7 @@ export default {
     // get text channel
 
     // deferReply if it takes longer then usual
-    interaction.deferReply();
+    await interaction.deferReply();
 
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
@@ -23,10 +23,10 @@ export default {
 
     const embed = await userStatsEmbed(interaction);
 
-    if (typeof embed === 'string') return interaction.editReply(embed);
+    if (typeof embed === 'string') return await interaction.editReply(embed);
 
     // return embed with chart img
-    return interaction.editReply({
+    return await interaction.editReply({
       embeds: [embed],
       allowedMentions: { users: [] },
     });
