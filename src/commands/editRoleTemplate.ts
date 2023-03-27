@@ -39,7 +39,7 @@ export default {
 
     // check if exits and if it is an embeded role template message
     if (!msg || msg.embeds[0]?.footer?.text !== ROLE_TEMPLATE) {
-      return interaction.reply({
+      return await interaction.reply({
         content: `I can't find the message you're referring to **OR** it's not a ${ROLE_TEMPLATE}.`,
         ephemeral: true,
       });
@@ -53,7 +53,7 @@ export default {
 
     // error found while creating role template
     if (!roleTemplateEmbed || error) {
-      return interaction.reply({
+      return await interaction.reply({
         content: error ?? 'Something went wrong.',
         ephemeral: true,
       });
@@ -63,7 +63,7 @@ export default {
     msg.edit({ embeds: [roleTemplateEmbed] });
 
     // notify it worked
-    return interaction.reply({
+    return await interaction.reply({
       content: "I've edited the message.",
       ephemeral: true,
     });

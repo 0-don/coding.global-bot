@@ -1,18 +1,20 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import type {
-  APIEmbed,
-  CacheType,
-  CommandInteraction,
-  TextChannel,
+APIEmbed,
+CacheType,
+CommandInteraction,
+TextChannel,
 } from 'discord.js';
 import {
-  BOT_CHANNEL,
-  BOT_ICON,
-  MEMBERS_TEMPLATE,
-  RED_COLOR,
+BOT_CHANNEL,
+BOT_ICON,
+MEMBERS_TEMPLATE,
+RED_COLOR,
 } from '../utils/constants.js';
 import { guildMemberCountChart } from '../utils/guilds/guildMemberCountChart.js';
 import { codeString } from '../utils/helpers.js';
+
+
 
 export default {
   data: new SlashCommandBuilder()
@@ -23,23 +25,23 @@ export default {
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
     // deferReply if it takes longer then usual
-    interaction.deferReply();
+    await interaction.deferReply();
 
     // if not bot channel, return
     if (channel.name !== BOT_CHANNEL)
-      return interaction.editReply(
+      return await  interaction.editReply(
         'Please use this command in the bot channel'
       );
 
     // if somehow no guild, return
     if (!interaction.guild)
-      return interaction.editReply('Please use this command in a server');
+      return await interaction.editReply('Please use this command in a server');
 
     // get guild member chart data from specifc guild
     const chart = await guildMemberCountChart(interaction.guild);
 
     // if error occured, return
-    if (chart?.error) return interaction.editReply(chart.error);
+    if (chart?.error) return await interaction.editReply(chart.error);
 
     const attachment = {
       attachment: chart.imgPath!,
@@ -86,7 +88,7 @@ export default {
     };
 
     // return embed with chart img
-    return interaction.editReply({
+    return await interaction.editReply({
       embeds: [embed],
       files: [attachment],
     });

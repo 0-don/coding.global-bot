@@ -28,7 +28,7 @@ export default {
     // create a guild role key object pair
     let guildStatusRoles = getGuildStatusRoles(interaction.guild);
 
-    interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: true });
 
     // if one of the roles is missing, return
     if (statusRoles.some((role) => !guildStatusRoles[role])) {
@@ -38,13 +38,13 @@ export default {
             `${role}: ${new Boolean(!!guildStatusRoles[role]).toString()}`
         )
         .join('\n');
-      return interaction.editReply({ content });
+      return await interaction.editReply({ content });
     }
 
     let i = 1;
     const members = await interaction.guild.members.fetch();
 
-    interaction.editReply({
+    await interaction.editReply({
       content: `updating user count:${members.size}`,
     });
 
@@ -87,7 +87,7 @@ export default {
       guildStatusRoles[VERIFIED] &&
         (await member.roles.add(guildStatusRoles[VERIFIED].id));
     }
-    return (interaction.channel as TextChannel)?.send({
+    return await (interaction.channel as TextChannel)?.send({
       content: `Verified all users (${members.size}) in ${interaction.guild.name}`,
     });
   },

@@ -1,7 +1,9 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import type { CacheType, CommandInteraction } from 'discord.js';
+import type { CacheType,CommandInteraction } from 'discord.js';
 
 import { translate } from '../utils/helpers.js';
+
+
 
 export default {
   data: new SlashCommandBuilder()
@@ -15,7 +17,7 @@ export default {
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
     // deferReply if it takes longer then usual
-    interaction.deferReply();
+    await interaction.deferReply();
 
     // get lookback days from input
     const text = Buffer.from(
@@ -26,7 +28,7 @@ export default {
     const translatedText = await translate(text);
 
     // send success message
-    return interaction.editReply({
+    return await interaction.editReply({
       content: translatedText,
       allowedMentions: { users: [] },
     });

@@ -28,7 +28,7 @@ export default {
 
     // check if exits and if it is an embeded message
     if (!msg || msg.embeds[0]?.footer?.text !== ROLE_TEMPLATE) {
-      return interaction.reply({
+      return await interaction.reply({
         content:
           "I can't find the message you're referring to OR\nit's not a role template.",
         ephemeral: true,
@@ -50,6 +50,6 @@ export default {
     const content = await megaUpload(roleTemplate, fileName);
 
     // respond with either error or link
-    return interaction.editReply({ content });
+    return await interaction.editReply({ content });
   },
 };
