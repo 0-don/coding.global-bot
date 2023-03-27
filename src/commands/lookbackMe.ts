@@ -23,7 +23,7 @@ export default {
     const memberId = interaction.member?.user.id;
 
     if (!guildId || !memberId)
-      return interaction.reply('Please use this command in a server');
+      return await interaction.reply('Please use this command in a server');
 
     // create or update guild
     await prisma.memberGuild.upsert({
@@ -33,7 +33,7 @@ export default {
     });
 
     // send success message
-    return interaction.reply(
+    return await interaction.reply(
       `Lookback set to ${lookback} days for ${interaction.member?.user.username}`
     );
   },

@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction } from 'discord.js';
+import type { CacheType,CommandInteraction } from 'discord.js';
 import { prisma } from '../prisma.js';
+
 
 export default {
   data: new SlashCommandBuilder()
@@ -20,10 +21,13 @@ export default {
       await prisma.member.delete({ where: { memberId: user?.id } });
     } catch (_) {
       // if member doesn't exist, return
-      return interaction.reply('user not found');
+      return await interaction.reply('user not found');
     }
 
     // confirm deletion
-    return interaction.reply({ ephemeral: true, content: 'user data deleted' });
+    return await interaction.reply({
+      ephemeral: true,
+      content: 'user data deleted',
+    });
   },
 };

@@ -1,13 +1,14 @@
 import {
-  PermissionFlagsBits,
-  SlashCommandBuilder,
-  type CacheType,
-  type CommandInteraction,
-  type Message,
+PermissionFlagsBits,
+SlashCommandBuilder,
+type CacheType,
+type CommandInteraction,
+type Message,
 } from 'discord.js';
 import type { RoleTemplateReaction } from '../types/index.js';
 import { parseJSON } from '../utils/helpers.js';
 import { createRoleTemplateEmbed } from '../utils/roles/roleTemplate.js';
+
 
 export default {
   data: new SlashCommandBuilder()
@@ -34,7 +35,7 @@ export default {
 
     // error found while creating role template
     if (!roleTemplateEmbed || !emojis || error) {
-      return interaction.reply({
+      return await interaction.reply({
         content: error ?? 'Something went wrong.',
         ephemeral: true,
       });

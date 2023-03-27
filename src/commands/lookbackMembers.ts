@@ -26,7 +26,7 @@ export default {
     const guildName = interaction.guild?.name;
 
     if (!guildId || !guildName)
-      return interaction.reply('Please use this command in a server');
+      return await interaction.reply('Please use this command in a server');
 
     // create or update guild
     await prisma.guild.upsert({
@@ -36,7 +36,7 @@ export default {
     });
 
     // send success message
-    return interaction.reply(
+    return await interaction.reply(
       `Lookback set to ${lookback} days for ${guildName}`
     );
   },

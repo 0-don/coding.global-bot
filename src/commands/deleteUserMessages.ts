@@ -1,7 +1,9 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction } from 'discord.js';
+import type { CacheType,CommandInteraction } from 'discord.js';
 import { deleteUserMessages } from '../utils/messages/deleteUserMessages.js';
+
+
 
 export default {
   data: new SlashCommandBuilder()
@@ -55,7 +57,7 @@ export default {
 
     if (!memberId || !guildId) return;
 
-    interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: true });
 
     await deleteUserMessages({
       days,
@@ -66,6 +68,6 @@ export default {
     });
 
     // notify that messages were deleted
-    interaction.editReply({ content: 'user messages are deleted' });
+    await interaction.editReply({ content: 'user messages are deleted' });
   },
 };

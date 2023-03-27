@@ -1,12 +1,14 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type {
-  CacheType,
-  CommandInteraction,
-  Message,
-  TextChannel,
+CacheType,
+CommandInteraction,
+Message,
+TextChannel,
 } from 'discord.js';
 import { fetchMessages } from '../utils/messages/fetchMessages.js';
+
+
 
 export default {
   data: new SlashCommandBuilder()
@@ -32,7 +34,7 @@ export default {
     if (!guildId) return;
 
     // deferReply if it takes longer then usual
-    interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: true });
 
     // loop over all channels
     const messages = await fetchMessages(channel, amount);
@@ -56,6 +58,6 @@ export default {
     }
 
     // notify that messages were deleted
-    return interaction.editReply({ content: 'messages are deleted' });
+    return await interaction.editReply({ content: 'messages are deleted' });
   },
 };

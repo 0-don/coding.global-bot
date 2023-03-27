@@ -1,7 +1,11 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
+import type { CacheType,CommandInteraction,TextChannel } from 'discord.js';
 import { BOT_CHANNEL } from '../utils/constants.js';
 import { userStatsEmbed } from '../utils/stats/userStatsEmbed.js';
+
+
+
+
 
 export default {
   data: new SlashCommandBuilder()
@@ -21,20 +25,20 @@ export default {
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
     // deferReply if it takes longer then usual
-    interaction.deferReply();
+    await interaction.deferReply();
 
     // if not bot channel, return
     if (channel.name !== BOT_CHANNEL)
-      return interaction.editReply(
+      return await interaction.editReply(
         'Please use this command in the bot channel'
       );
 
     const embed = await userStatsEmbed(interaction, user);
 
-    if (typeof embed === 'string') return interaction.editReply(embed);
+    if (typeof embed === 'string') return await interaction.editReply(embed);
 
     // return embed
-    return interaction.editReply({
+    return await interaction.editReply({
       embeds: [embed],
       allowedMentions: { users: [] },
     });
