@@ -1,16 +1,15 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import {
-CacheType,
-ChannelType,
-CommandInteraction,
-GuildMember,
-User,
-VoiceChannel,
+  CacheType,
+  ChannelType,
+  CommandInteraction,
+  GuildMember,
+  User,
+  VoiceChannel,
 } from 'discord.js';
 import { prisma } from '../prisma.js';
 import { moveMemberToChannel } from '../utils/members/moveMemberToChannel.js';
-
 
 export default {
   data: new SlashCommandBuilder()
@@ -46,7 +45,7 @@ export default {
 
     const count = interaction.options.get('count')?.value as number;
     const timeout = (interaction.options.get('timeout')?.value as number) || 0;
-    await interaction.deferReply({ ephemeral: true });
+    interaction.deferReply({ ephemeral: true });
 
     if (interaction.user.id === user.id)
       return interaction.editReply(`You can't troll yourself`);

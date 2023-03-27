@@ -15,7 +15,7 @@ export default {
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
     // deferReply if it takes longer then usual
-    await interaction.deferReply();
+    interaction.deferReply();
 
     // get lookback days from input
     const text = Buffer.from(
