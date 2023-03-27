@@ -10,7 +10,7 @@ export const joinSettings = async (
 
   const guildMember = await prisma.memberGuild.findFirst({
     where: {
-      guildId: member.guild.id,
+      guildId: voiceState?.member?.id || member?.guild.id,
       memberId: member.id,
     },
   });
