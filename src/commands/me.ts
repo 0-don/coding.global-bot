@@ -11,11 +11,7 @@ export default {
     // get text channel
 
     // deferReply if it takes longer then usual
-    try {
-      await interaction.deferReply();
-    } catch (err) {
-      console.log('err');
-    }
+    // await interaction.deferReply();
 
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
