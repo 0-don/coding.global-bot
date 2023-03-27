@@ -23,7 +23,7 @@ export default {
 
     const content = await askChatGPT({ interaction, user, text });
 
-    if (!content) return interaction.editReply('User not Found');
+    if (!content) return await interaction.editReply('User not Found');
     // send success message
 
     return await chunkedSend({ content, interaction });
