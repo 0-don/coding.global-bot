@@ -15,6 +15,7 @@ export default {
     ),
   async execute(interaction: CommandInteraction<CacheType>) {
     // deferReply if it takes longer then usual
+    console.log(interaction);
     await interaction.deferReply();
 
     const user = interaction.user;
