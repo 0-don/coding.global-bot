@@ -1,5 +1,9 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
+import type {
+  CacheType,
+  ChatInputCommandInteraction,
+  TextChannel,
+} from 'discord.js';
 import { BOT_CHANNEL } from '../utils/constants.js';
 import { userStatsEmbed } from '../utils/stats/userStatsEmbed.js';
 
@@ -7,11 +11,11 @@ export default {
   data: new SlashCommandBuilder()
     .setName('me')
     .setDescription('Get your stats'),
-  async execute(interaction: CommandInteraction<CacheType>) {
+  async execute(interaction: ChatInputCommandInteraction<CacheType>) {
     // get text channel
 
     // deferReply if it takes longer then usual
-    await interaction.deferReply();
+    await interaction.reply('asd');
 
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
