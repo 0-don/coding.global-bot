@@ -9,21 +9,22 @@ export default {
     .setDescription('Get your stats'),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get text channel
+    console.log(1);
     const channel = (await interaction.channel?.fetch()) as TextChannel;
-
+    console.log(2);
     // deferReply if it takes longer then usual
     await interaction.deferReply();
-
+    console.log(3);
     // if not bot channel, return
     if (channel.name !== BOT_CHANNEL)
       return interaction.editReply(
         'Please use this command in the bot channel'
       );
-
+    console.log(4);
     const embed = await userStatsEmbed(interaction);
-
+    console.log(5);
     if (typeof embed === 'string') return interaction.editReply(embed);
-
+    console.log(6);
     // return embed with chart img
     return interaction.editReply({
       embeds: [embed],
