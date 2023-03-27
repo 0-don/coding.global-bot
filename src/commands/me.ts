@@ -14,7 +14,7 @@ export default {
     try {
       await interaction.deferReply();
     } catch (err) {
-      console.log(err);
+      console.log('err');
     }
 
     const channel = (await interaction.channel?.fetch()) as TextChannel;
