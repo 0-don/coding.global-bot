@@ -8,3 +8,4 @@ dist
 *.png
 yarn-error.log
 *.traineddata
+app.js
