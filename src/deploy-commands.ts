@@ -9,7 +9,7 @@ const guildId = process.env.GUILD_ID;
 const token = process.env.TOKEN;
 
 // set rest api
-const rest = new REST({ version: '10' }).setToken(token);
+const rest = new REST({ version: '9' }).setToken(token);
 
 // create empty commands array
 const commands = [];
