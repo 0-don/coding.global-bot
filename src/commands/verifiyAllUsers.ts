@@ -16,6 +16,8 @@ export default {
   async execute(interaction: CommandInteraction<CacheType>) {
     if (!interaction.guild) return;
 
+    await interaction.deferReply({ ephemeral: true });
+
     const guildId = interaction.guild.id;
     const guildName = interaction.guild.name;
 
@@ -27,8 +29,6 @@ export default {
 
     // create a guild role key object pair
     let guildStatusRoles = getGuildStatusRoles(interaction.guild);
-
-    await interaction.deferReply({ ephemeral: true });
 
     // if one of the roles is missing, return
     if (statusRoles.some((role) => !guildStatusRoles[role])) {
