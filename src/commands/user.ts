@@ -21,7 +21,7 @@ export default {
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
     // deferReply if it takes longer then usual
-    await interaction.deferReply();
+    interaction.deferReply();
 
     // if not bot channel, return
     if (channel.name !== BOT_CHANNEL)

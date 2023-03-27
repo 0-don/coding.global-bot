@@ -32,7 +32,7 @@ export default {
     if (!guildId) return;
 
     // deferReply if it takes longer then usual
-    await interaction.deferReply({ ephemeral: true });
+    interaction.deferReply({ ephemeral: true });
 
     // loop over all channels
     const messages = await fetchMessages(channel, amount);

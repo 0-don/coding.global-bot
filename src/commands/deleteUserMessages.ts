@@ -55,7 +55,7 @@ export default {
 
     if (!memberId || !guildId) return;
 
-    await interaction.deferReply({ ephemeral: true });
+    interaction.deferReply({ ephemeral: true });
 
     await deleteUserMessages({
       days,

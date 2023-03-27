@@ -12,7 +12,7 @@ export default {
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
     // deferReply if it takes longer then usual
-    await interaction.deferReply();
+    interaction.deferReply();
 
     if (!interaction.guildId) return interaction.editReply('No Guild');
 

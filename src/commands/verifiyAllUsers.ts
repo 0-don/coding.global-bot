@@ -3,7 +3,7 @@ import { log } from 'console';
 import { PermissionFlagsBits } from 'discord-api-types/v9';
 import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
 import { prisma } from '../prisma.js';
-import { statusRoles, VERIFIED } from '../utils/constants.js';
+import { VERIFIED, statusRoles } from '../utils/constants.js';
 import { upsertDbMember } from '../utils/members/upsertDbMember.js';
 import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles.js';
 import { recreateMemberDbRoles } from '../utils/roles/recreateMemberDbRoles.js';
@@ -28,7 +28,7 @@ export default {
     // create a guild role key object pair
     let guildStatusRoles = getGuildStatusRoles(interaction.guild);
 
-    await interaction.deferReply({ ephemeral: true });
+    interaction.deferReply({ ephemeral: true });
 
     // if one of the roles is missing, return
     if (statusRoles.some((role) => !guildStatusRoles[role])) {
