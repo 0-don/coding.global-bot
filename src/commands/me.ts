@@ -10,10 +10,13 @@ export default {
   async execute(interaction: CommandInteraction<CacheType>) {
     // get text channel
     console.log(1);
-    const channel = (await interaction.channel?.fetch()) as TextChannel;
-    console.log(2);
+
     // deferReply if it takes longer then usual
     await interaction.deferReply();
+    
+    const channel = (await interaction.channel?.fetch()) as TextChannel;
+    console.log(2);
+
     console.log(3);
     // if not bot channel, return
     if (channel.name !== BOT_CHANNEL)
