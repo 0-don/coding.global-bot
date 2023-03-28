@@ -9,7 +9,6 @@ export default {
     .setDescription('Get your stats'),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get text channel
-    console.log('test');
     // deferReply if it takes longer then usual
     await interaction.deferReply();
 
