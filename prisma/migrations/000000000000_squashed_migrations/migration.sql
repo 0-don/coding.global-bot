@@ -20,18 +20,6 @@ CREATE TABLE "GuildVoiceEvents" (
 );
 
 -- CreateTable
-CREATE TABLE "GuildMuteEvents" (
-    "id" SERIAL NOT NULL,
-    "memberId" TEXT NOT NULL,
-    "guildId" TEXT NOT NULL,
-    "channelId" TEXT NOT NULL,
-    "mute" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "unmute" TIMESTAMP(3),
-
-    CONSTRAINT "GuildMuteEvents_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "Member" (
     "memberId" TEXT NOT NULL,
     "username" TEXT NOT NULL,
@@ -41,7 +29,7 @@ CREATE TABLE "Member" (
 
 -- CreateTable
 CREATE TABLE "MemberMessages" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "memberId" TEXT NOT NULL,
     "guildId" TEXT NOT NULL,
     "messageId" TEXT NOT NULL,
@@ -57,6 +45,15 @@ CREATE TABLE "MemberGuild" (
     "memberId" TEXT NOT NULL,
     "guildId" TEXT NOT NULL,
     "status" BOOLEAN NOT NULL,
+    "nickname" TEXT,
+    "moveCounter" INTEGER NOT NULL DEFAULT 0,
+    "moving" BOOLEAN NOT NULL DEFAULT false,
+    "moveTimeout" INTEGER NOT NULL DEFAULT 0,
+    "warnings" INTEGER NOT NULL DEFAULT 0,
+    "gptId" TEXT,
+    "gptDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "muted" BOOLEAN NOT NULL DEFAULT false,
+    "deafened" BOOLEAN NOT NULL DEFAULT false,
     "lookback" INTEGER NOT NULL DEFAULT 9999,
 
     CONSTRAINT "MemberGuild_pkey" PRIMARY KEY ("id")
@@ -101,16 +98,10 @@ CREATE UNIQUE INDEX "MemberRole_memberId_roleId_key" ON "MemberRole"("memberId",
 CREATE UNIQUE INDEX "MemberBump_memberId_guildId_key" ON "MemberBump"("memberId", "guildId");
 
 -- AddForeignKey
-ALTER TABLE "GuildVoiceEvents" ADD CONSTRAINT "GuildVoiceEvents_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member"("memberId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "GuildVoiceEvents" ADD CONSTRAINT "GuildVoiceEvents_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member"("memberId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "GuildVoiceEvents" ADD CONSTRAINT "GuildVoiceEvents_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("guildId") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "GuildMuteEvents" ADD CONSTRAINT "GuildMuteEvents_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member"("memberId") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "GuildMuteEvents" ADD CONSTRAINT "GuildMuteEvents_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("guildId") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MemberMessages" ADD CONSTRAINT "MemberMessages_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member"("memberId") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -135,3 +126,4 @@ ALTER TABLE "MemberBump" ADD CONSTRAINT "MemberBump_memberId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "MemberBump" ADD CONSTRAINT "MemberBump_guildId_fkey" FOREIGN KEY ("guildId") REFERENCES "Guild"("guildId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
