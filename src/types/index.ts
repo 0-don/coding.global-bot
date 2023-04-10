@@ -1,9 +1,8 @@
-import type { GuildVoiceEvents,MemberMessages } from '@prisma/client';
-import type { APIEmbed, Awaitable,ClientEvents } from 'discord.js';
+import type { GuildVoiceEvents, MemberMessages } from '@prisma/client';
+import type { APIEmbed, Awaitable, ClientEvents } from 'discord.js';
 import type { statusRoles } from '../utils/constants.js';
 import './discord.js';
 import './enviroment.js';
-
 
 export type RoleTemplateReactionValues = {
   name: string;
@@ -112,3 +111,12 @@ export type ToptatsExampleEmbed = {
   mostActiveVoiceUsers: { memberId: string; username: string; sum: number }[];
   mostActiveVoiceChannels: { channelId: string; sum: number }[];
 };
+
+export interface ChatGptError {
+  error: {
+    message: string;
+    type: string;
+    param: string;
+    code: string;
+  };
+}
