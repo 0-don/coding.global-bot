@@ -8,7 +8,6 @@ export const gpt =
     apiKey: process.env.OPEN_AI,
     completionParams: {
       model: 'gpt-3.5-turbo',
-      max_tokens: 4000,
     },
   });
 

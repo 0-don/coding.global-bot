@@ -33,8 +33,6 @@ export const askChatGPT = async ({
   let counter = 0;
   let res: ChatMessage | null = null;
 
-  console.log(text);
-
   try {
     res = await gpt.sendMessage(text as string, {
       parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
@@ -51,7 +49,6 @@ export const askChatGPT = async ({
       },
     });
   } catch (err) {
-    console.log(err);
     const { message } = err as { message: string };
     const regex = message.match(/(?<=[{])(.*)(?=[}])/s);
     const { error } = JSON.parse(`{${regex?.[0] || ''}}`) as ChatGptError;
