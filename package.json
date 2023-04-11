@@ -22,7 +22,7 @@
     "deepl-node": "1.9.0",
     "dirname-filename-esm": "1.1.1",
     "discord.js": "14.9.0",
-    "megajs": "1.1.1",
+    "megajs": "1.1.2",
     "tesseract.js": "4.0.3"
   },
   "devDependencies": {
