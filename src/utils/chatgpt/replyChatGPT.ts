@@ -63,7 +63,11 @@ export const replyChatGPT = async (message: Message<boolean>) => {
 
     if (!messagesContent.length) return await channel.send('No messages found');
 
-    const content = await askChatGPT({ text: messagesContent, user });
+    const content = await askChatGPT({
+      text: messagesContent,
+      user,
+      reply: true,
+    });
 
     if (!content) return await channel.send('Chat GPT failed');
 

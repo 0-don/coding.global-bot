@@ -10,10 +10,12 @@ export const askChatGPT = async ({
   interaction,
   user,
   text,
+  reply,
 }: {
   interaction?: CommandInteraction<CacheType>;
   user: User;
   text: string;
+  reply?: boolean;
 }) => {
   const memberGuild = await prisma.memberGuild.findFirst({
     where: { memberId: user.id },
@@ -21,10 +23,9 @@ export const askChatGPT = async ({
 
   if (!memberGuild) return null;
 
-  const content = [
-    `**<@${user.id}> ${user.username}'s Question:**`,
-    `\n**_${text}_**\n`,
-  ];
+  const content = reply
+    ? []
+    : [`**<@${user.id}> ${user.username}'s Question:**`, `\n**_${text}_**\n`];
 
   const olderThen30Min = dayjs(memberGuild.gptDate).isBefore(
     dayjs().subtract(30, 'minute')
