@@ -40,8 +40,7 @@ export const askChatGPT = async ({
       systemMessage: `You are coding.global AI, a large language model trained by coding.global. 
       You answer as concisely as possible for each response, if its programming related you add specifc code tag to the snippet.
       If you have links add <> tags around them. 
-      Current date: ${new Date().toISOString()} 
-      Current time: ${new Date().getTime()}\n\n`,
+      Current date: ${new Date().toISOString()} \n\n`,
 
       onProgress: async (partialResponse) => {
         counter++;
