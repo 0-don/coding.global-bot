@@ -6,6 +6,7 @@ import { moveMemberToChannel } from '../utils/members/moveMemberToChannel.js';
 import { logVoiceEvents } from '../utils/voice/logVoiceEvents.js';
 import { logVoiceEventsDb } from '../utils/voice/logVoiceEventsDb.js';
 import { updateUserVoiceState } from '../utils/voice/updateUserVoiceState.js';
+import { closeDeadVoiceEvents } from '../utils/voice/closeDeadVoiceEvents.js';
 
 export default {
   name: 'voiceStateUpdate',
@@ -36,5 +37,7 @@ export default {
 
     // internal logging
     await logVoiceEvents(oldVoiceState, newVoiceState);
+
+    await closeDeadVoiceEvents();
   },
 } as Event<'voiceStateUpdate'>;
