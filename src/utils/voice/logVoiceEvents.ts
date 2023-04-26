@@ -1,5 +1,5 @@
 import type { APIEmbed, TextChannel, VoiceState } from 'discord.js';
-import { voiceEmbedExample, VOICE_EVENT_CHANNEL } from '../constants.js';
+import { VOICE_EVENT_CHANNEL, voiceEmbedExample } from '../constants.js';
 
 export const logVoiceEvents = async (
   oldVoiceState: VoiceState,
