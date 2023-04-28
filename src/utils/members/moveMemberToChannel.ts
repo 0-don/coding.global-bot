@@ -1,9 +1,4 @@
-import {
-  ChannelType,
-  GuildMember,
-  PermissionsBitField,
-  VoiceChannel,
-} from 'discord.js';
+import { ChannelType, GuildMember, VoiceChannel } from 'discord.js';
 import { prisma } from '../../prisma.js';
 
 export const moveMemberToChannel = async (
@@ -47,13 +42,7 @@ export const moveMemberToChannel = async (
 
   for (const [id, channel] of voiceChannelsWithUsers) {
     const voiceChannel = channel as VoiceChannel;
-    await voiceChannel.permissionOverwrites.set([
-      {
-        channel: voiceChannel,
-        id: member.id,
-        deny: [PermissionsBitField.Flags.Connect],
-      },
-    ]);
+    await voiceChannel.permissionOverwrites.edit(member.id, { Connect: false });
   }
 
   while (true) {
