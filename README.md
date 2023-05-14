@@ -1,4 +1,4 @@
-# coding.global Official Discord Bot.
+# coding.global Official Discord Bot..
 
 discord.gg/coding
 
