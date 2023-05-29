@@ -20,13 +20,17 @@ export const replyChatGPT = async (message: Message<boolean>) => {
 
     const guildMember = await channel.guild.members.fetch(user.id);
 
+    const channels = await channel.guild.channels.fetch();
+    const botChannel = channels.find((channel) => channel?.name === 'bot');
+
     if (
       channel.name === 'general' &&
       !guildMember?.roles.cache.some((role) =>
         memberRoles.includes(role.name as any)
       )
-    )
-      return;
+    ) {
+      return channel.send(`use this command in ${botChannel?.toString()}`);
+    }
 
     const messages = await fetchMessages(channel, 500);
     const replyMsgIndex = messages.findIndex((msg) => msg.id === replyMsg.id);
