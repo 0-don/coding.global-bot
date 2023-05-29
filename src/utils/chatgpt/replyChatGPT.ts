@@ -1,4 +1,5 @@
 import { Message, MessageType, TextChannel } from 'discord.js';
+import { memberRoles } from '../constants.js';
 import { chunkedSend } from '../messages/chunkedSend.js';
 import { fetchMessages } from '../messages/fetchMessages.js';
 import { getTextFromImage } from '../tesseract/tesseract.js';
@@ -16,6 +17,16 @@ export const replyChatGPT = async (message: Message<boolean>) => {
     const channel = (await message.channel.fetch()) as TextChannel;
     const replyMsg = await channel.messages.fetch(message.reference?.messageId);
     const user = replyMsg.author;
+
+    const guildMember = await channel.guild.members.fetch(user.id);
+
+    if (
+      channel.name === 'general' &&
+      !guildMember?.roles.cache.some((role) =>
+        memberRoles.includes(role.name as any)
+      )
+    )
+      return;
 
     const messages = await fetchMessages(channel, 500);
     const replyMsgIndex = messages.findIndex((msg) => msg.id === replyMsg.id);

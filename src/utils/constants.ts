@@ -17,6 +17,8 @@ export const statusRoles = [
   'unverified',
 ] as const;
 
+export const memberRoles = ['Admin', 'Owner', 'Helper', 'Member'] as const;
+
 export const EVERYONE = '@everyone';
 export const BUMPER = 'Bumper';
 export const VERIFIED = statusRoles[0];
