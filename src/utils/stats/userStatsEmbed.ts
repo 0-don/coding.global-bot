@@ -41,7 +41,9 @@ export const userStatsEmbed = async (
   if (!memberId || !guildId || !memberGuild || !userServerName)
     return 'Something went wrong';
 
-  const member = interaction.member as GuildMember;
+  const member = user?.id
+    ? await interaction.guild?.members.fetch(user.id)
+    : (interaction.member as GuildMember);
 
   const {
     lookbackDaysCount,
