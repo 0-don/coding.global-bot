@@ -10,15 +10,15 @@ export const deleteUserMessages = async ({
   user,
   memberId,
   days,
-  mute,
+  jail,
 }: {
   guild: Guild;
   user: User | null;
   memberId: string;
   days: number;
-  mute: string | number | boolean;
+  jail: string | number | boolean;
 }) => {
-  if (mute) {
+  if (jail) {
     //get status roles
     const guildStatusRoles = getGuildStatusRoles(guild);
 
@@ -68,7 +68,16 @@ export const deleteUserMessages = async ({
   for (let channel of channels.values()) {
     try {
       // if channel is not a text channel, continue
-      if (channel.type !== ChannelType.GuildText) continue;
+      if (
+        channel.type !== ChannelType.PublicThread &&
+        channel.type !== ChannelType.PrivateThread &&
+        channel.type !== ChannelType.GuildAnnouncement &&
+        channel.type !== ChannelType.GuildForum &&
+        channel.type !== ChannelType.GuildText &&
+        channel.type !== ChannelType.GuildVoice &&
+        channel.type !== ChannelType.GuildStageVoice
+      )
+        continue;
 
       //cache needs to be cleared
       channel.messages.cache.clear();
