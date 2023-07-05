@@ -1,6 +1,8 @@
 # coding.global Official Discord Bot..
 
-discord.gg/coding
+<a href="https://discord.gg/coding">
+ discord.gg/coding
+</a>
 
 ### restore db in docker
 
@@ -9,8 +11,10 @@ docker exec -ti coding-global-db pg_restore -U postgres -c -d test /backups/dail
 ```
 
 # coding.global Official Discord Bot
+<a href="https://discord.gg/coding">
+ discord.gg/coding
+</a>
 
-discord.gg/coding
 
 ### backup raw restore db in docker
 
