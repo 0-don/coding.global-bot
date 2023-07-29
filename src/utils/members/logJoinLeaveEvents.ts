@@ -24,12 +24,13 @@ export const logJoinLeaveEvents = async (
 
     // create embed based on event
     joinEmbed.timestamp = new Date().toISOString();
-    joinEmbed.footer!.text = JOIN_EVENTS_CHANNEL;
 
     if (event === "join") {
       joinEmbed.description = `${userServerName} (${userGlobalName}) joined the server ✅`;
+      joinEmbed.footer!.text = "join";
     } else {
       joinEmbed.description = `${userServerName} (${userGlobalName}) left the server 🚪`;
+      joinEmbed.footer!.text = "leave";
     }
 
     // send embed event to voice channel
