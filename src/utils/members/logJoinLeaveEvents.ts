@@ -1,15 +1,14 @@
-import type { APIEmbed, GuildMember, TextChannel, VoiceState } from 'discord.js';
-import { VOICE_EVENT_CHANNEL, simpleEmbedExample } from '../constants.js';
+import type { APIEmbed, GuildMember, TextChannel } from "discord.js";
+import { JOIN_EVENTS_CHANNEL, simpleEmbedExample } from "../constants.js";
 
 export const logJoinLeaveEvents = async (
   member: GuildMember,
-  event: 'join' | 'leave'
+  event: "join" | "leave"
 ) => {
   try {
-
     // get voice channel by name
     const joinEventsChannel = member.guild.channels.cache.find(
-      ({ name }) => name === VOICE_EVENT_CHANNEL
+      ({ name }) => name === JOIN_EVENTS_CHANNEL
     );
 
     // check if voice channel exists and it is voice channel
@@ -25,8 +24,9 @@ export const logJoinLeaveEvents = async (
 
     // create embed based on event
     joinEmbed.timestamp = new Date().toISOString();
+    joinEmbed.footer!.text = JOIN_EVENTS_CHANNEL;
 
-    if (event === 'join') {
+    if (event === "join") {
       joinEmbed.description = `${userServerName} (${userGlobalName}) joined the server`;
     } else {
       joinEmbed.description = `${userServerName} (${userGlobalName}) left the server`;

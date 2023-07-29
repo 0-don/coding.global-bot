@@ -29,7 +29,7 @@
     "@types/node": "20.4.5",
     "cross-env": "7.0.3",
     "dotenv": "16.3.1",
-    "prettier": "3.0.0",
+    "prettier": "2.8.8",
     "prettier-plugin-organize-imports": "3.2.3",
     "prisma": "5.0.0",
     "typescript": "5.1.6",

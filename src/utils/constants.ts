@@ -46,10 +46,10 @@ export const BOT_ICON =
 
 export const simpleEmbedExample: APIEmbed = {
   color: RED_COLOR,
-  description: ``,
+  description: `*`,
   timestamp: new Date().toISOString(),
   footer: {
-    text: 'voice event',
+    text: '*',
     icon_url: BOT_ICON,
   },
 };
