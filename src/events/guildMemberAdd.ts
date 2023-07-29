@@ -4,6 +4,7 @@ import { joinSettings } from '../utils/members/joinNickname.js';
 import { joinRole } from '../utils/members/joinRole.js';
 import { updateMemberCount } from '../utils/members/updateMemberCount.js';
 import { upsertDbMember } from '../utils/members/upsertDbMember.js';
+import { logJoinLeaveEvents } from '../utils/members/logJoinLeaveEvents.js';
 
 export default {
   name: 'guildMemberAdd',
@@ -20,6 +21,8 @@ export default {
 
     // update user count channel
     await updateMemberCount(member);
+
+    await logJoinLeaveEvents(member, 'join')
 
     await joinSettings(member);
   },

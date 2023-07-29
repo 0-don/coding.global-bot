@@ -30,6 +30,7 @@ export const UNVERIFIED = statusRoles[4];
 export const VERIFY_CHANNEL = 'verify';
 export const BOT_CHANNEL = 'bot';
 export const VOICE_EVENT_CHANNEL = 'voice-events';
+export const JOIN_EVENTS_CHANNEL = 'join-events';
 export const MEMBERS_COUNT_CHANNEL = 'Members:';
 
 export const ROLE_TEMPLATE = 'role template';
@@ -43,7 +44,7 @@ export const RED_COLOR = 0xff0000;
 export const BOT_ICON =
   'https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png';
 
-export const voiceEmbedExample: APIEmbed = {
+export const simpleEmbedExample: APIEmbed = {
   color: RED_COLOR,
   description: ``,
   timestamp: new Date().toISOString(),

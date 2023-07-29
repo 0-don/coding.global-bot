@@ -1,5 +1,5 @@
 import type { APIEmbed, TextChannel, VoiceState } from 'discord.js';
-import { VOICE_EVENT_CHANNEL, voiceEmbedExample } from '../constants.js';
+import { VOICE_EVENT_CHANNEL, simpleEmbedExample } from '../constants.js';
 
 export const logVoiceEvents = async (
   oldVoiceState: VoiceState,
@@ -25,7 +25,7 @@ export const logVoiceEvents = async (
 
     // copy paste embed so it doesnt get overwritten
     const voiceEmbed = JSON.parse(
-      JSON.stringify(voiceEmbedExample)
+      JSON.stringify(simpleEmbedExample)
     ) as APIEmbed;
 
     // create embed based on event
