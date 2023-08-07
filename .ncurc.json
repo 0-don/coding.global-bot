@@ -1,4 +1,4 @@
 {
   "upgrade": true,
-  "reject": ["chart.js", "prettier"]
+  "reject": ["chart.js"]
 }
