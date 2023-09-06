@@ -37,7 +37,7 @@ export const replyChatGPT = async (message: Message<boolean>) => {
         memberRoles.includes(role.name.toLowerCase()),
       )
     ) {
-      return channel.send(`use this command in ${botChannel?.toString()}`);
+      return channel.send(`use this command /ai (your text) in ${botChannel?.toString()}`);
     }
 
     const messages = await fetchMessages(channel, 500);
