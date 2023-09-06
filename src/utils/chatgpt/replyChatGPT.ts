@@ -19,6 +19,9 @@ export const replyChatGPT = async (message: Message<boolean>) => {
     const user = replyMsg.author;
 
     const guildMember = await channel.guild.members.fetch(user.id);
+    const guildMemberRoles = guildMember.roles.cache.map((role) => role.name);
+
+    console.log(guildMemberRoles);
 
     const channels = await channel.guild.channels.fetch();
     const botChannel = channels.find((channel) => channel?.name === 'bot');
