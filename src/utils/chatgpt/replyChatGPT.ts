@@ -1,18 +1,18 @@
-import { Message, MessageType, TextChannel } from 'discord.js';
-import { memberRoles } from '../constants.js';
-import { chunkedSend } from '../messages/chunkedSend.js';
-import { fetchMessages } from '../messages/fetchMessages.js';
-import { getTextFromImage } from '../tesseract/tesseract.js';
-import { askChatGPT } from './askChatGPT.js';
+import { Message, MessageType, TextChannel } from "discord.js";
+import { memberRoles } from "../constants.js";
+import { chunkedSend } from "../messages/chunkedSend.js";
+import { fetchMessages } from "../messages/fetchMessages.js";
+import { getTextFromImage } from "../tesseract/tesseract.js";
+import { askChatGPT } from "./askChatGPT.js";
 
 export const replyChatGPT = async (message: Message<boolean>) => {
   if (
     (message.type === MessageType.Reply &&
       message.reference?.messageId &&
-      message.content === '/ai') ||
+      message.content === "/ai") ||
     (message.type === MessageType.Reply &&
       message.reference?.messageId &&
-      message.content === '/gpt')
+      message.content === "/gpt")
   ) {
     const channel = (await message.channel.fetch()) as TextChannel;
     const replyMsg = await channel.messages.fetch(message.reference?.messageId);
@@ -24,12 +24,19 @@ export const replyChatGPT = async (message: Message<boolean>) => {
     console.log(guildMemberRoles);
 
     const channels = await channel.guild.channels.fetch();
-    const botChannel = channels.find((channel) => channel?.name === 'bot');
+    const botChannel = channels.find((channel) => channel?.name === "bot");
 
+    console.log(
+      channel.name,
+      guildMember?.roles.cache.some((role) =>
+        memberRoles.includes(role.name.toLowerCase()),
+      ),
+      guildMemberRoles,
+    );
     // if (
-    //   channel.name === 'general' &&
+    //   channel.name === "general" &&
     //   !guildMember?.roles.cache.some((role) =>
-    //     memberRoles.includes(role.name as any)
+    //     memberRoles.includes(role.name.toLowerCase()),
     //   )
     // ) {
     //   return channel.send(`use this command in ${botChannel?.toString()}`);
@@ -38,7 +45,7 @@ export const replyChatGPT = async (message: Message<boolean>) => {
     const messages = await fetchMessages(channel, 500);
     const replyMsgIndex = messages.findIndex((msg) => msg.id === replyMsg.id);
 
-    if (replyMsgIndex === -1) return await channel.send('Message not found');
+    if (replyMsgIndex === -1) return await channel.send("Message not found");
 
     const userMessages: Message<boolean>[] = [replyMsg];
 
@@ -63,7 +70,7 @@ export const replyChatGPT = async (message: Message<boolean>) => {
     }
 
     const dateSortedMessages = userMessages.sort(
-      (a, b) => a.createdTimestamp - b.createdTimestamp
+      (a, b) => a.createdTimestamp - b.createdTimestamp,
     );
 
     const getAllImagesFromMessages = (
@@ -71,15 +78,15 @@ export const replyChatGPT = async (message: Message<boolean>) => {
         dateSortedMessages
           .map((msg) => msg.attachments.map((attachment) => attachment.url))
           .flat()
-          .map((url) => getTextFromImage(url))
+          .map((url) => getTextFromImage(url)),
       )
-    ).join('\n');
+    ).join("\n");
 
     const messagesContentArray = dateSortedMessages.map((msg) => msg.content);
     messagesContentArray.push(getAllImagesFromMessages);
-    const messagesContent = messagesContentArray.join('\n');
+    const messagesContent = messagesContentArray.join("\n");
 
-    if (!messagesContent.length) return await channel.send('No messages found');
+    if (!messagesContent.length) return await channel.send("No messages found");
 
     const content = await askChatGPT({
       text: messagesContent,
@@ -87,7 +94,7 @@ export const replyChatGPT = async (message: Message<boolean>) => {
       reply: true,
     });
 
-    if (!content) return await channel.send('Chat GPT failed');
+    if (!content) return await channel.send("Chat GPT failed");
 
     return await chunkedSend({
       content,
