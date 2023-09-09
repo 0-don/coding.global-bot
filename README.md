@@ -27,13 +27,6 @@
   - **Options**:
     - **amount**: Delete message history.
 
-- **/days**
-
-  - **Description**: Delete message history.
-  - **Options**:
-    - **days**: Delete message history.
-    - **user**: Select either user whose messages should be deleted.
-
 - **/me**
 
   - **Description**: Get your stats.
