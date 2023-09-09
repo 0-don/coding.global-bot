@@ -10,8 +10,6 @@
     <br />
     <a href="#about-the-bot"><strong>» Explore the docs</strong></a>
     <br />
-    <br />
-    <a href="YOUR_BOT_INVITE_LINK">Invite Bot</a>
     ·
     <a href="https://github.com/don-cryptus/coding.global-bot/issues">Report Bug</a>
     ·
