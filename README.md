@@ -23,100 +23,57 @@
 
 ---
 
-- **/ai-reset** 
-  - Description: reset ai context
+- **/delete-messages**
 
-- **/ai** 
-  - Description: talk to ai
+  - **Description**: Deletes messages from a channel.
+  - **Options**:
+    - **amount**: Delete message history.
 
-- **/text** 
-  - Description: ask ai a question
+- **/days**
 
-- **/create-role-template** 
-  - Description: Create a role template from JSON
+  - **Description**: Delete message history.
+  - **Options**:
+    - **days**: Delete message history.
+    - **user**: Select either user whose messages should be deleted.
 
-- **/json** 
-  - Description: JSON input for the role template
+- **/me**
 
-- **/create-verify-embed** 
-  - Description: verify all users in the server
+  - **Description**: Get your stats.
 
-- **/delete-member-db** 
-  - Description: delete specific member from database
+- **/members**
 
-- **/delete-messages** 
-  - Description: Deletes messages from a channel
+  - **Description**: Member flow and count of the past.
 
-- **/amount** 
-  - Description: Delete message History
+- **/top**
 
-- **/days** 
-  - Description: Delete message History
+  - **Description**: Get top user stats.
 
-- **/user** 
-  - Description: Select either user which messages should be deleted
+- **/translate**
 
-- **/edit-role-template** 
-  - Description: Create a role template from JSON
+  - **Description**: Translate text to English.
+  - **Options**:
+    - **text**: The text to translate.
 
-- **/message-id** 
-  - Description: copy the message ID of the embeded message
+- **/troll-move-user**
 
-- **/json** 
-  - Description: JSON input for the role template
+  - **Description**: Troll move user around empty voice channels.
+  - **Options**:
+    - **user**: Select either user which should be moved.
 
-- **/get-role-template** 
-  - Description: get a role template as JSON
+- **/user**
 
-- **/message-id** 
-  - Description: copy the message ID of the embeded message
+  - **Description**: Get stats from a specific user.
+  - **Options**:
+    - **user**: Select the user whose stats should be shown.
 
-- **/lookback-me** 
-  - Description: Change lookback date range for yourself
+- **/verify-all-users**
 
-- **/lookback** 
-  - Description: Set lookback days range
+  - **Description**: Verify all users in the server.
 
-- **/lookback-members** 
-  - Description: Change lookback date range for guild
-
-- **/lookback** 
-  - Description: Set lookback days range
-
-- **/me** 
-  - Description: Get your stats
-
-- **/members** 
-  - Description: Memberflow and count of the past
-
-- **/top** 
-  - Description: Get top user stats
-
-- **/translate** 
-  - Description: translate text to english
-
-- **/text** 
-  - Description: the text to translate
-
-- **/troll-move-user** 
-  - Description: troll move user around empty voice channels
-
-- **/user** 
-  - Description: Select either user which should be moved
-
-- **/user** 
-  - Description: Get stats from specific user
-
-- **/user** 
-  - Description: Select user which stats should be shown
-
-- **/verify-all-users** 
-  - Description: verify all users in the server
-
-- **/top-bumpers** 
-  - Description: look at the top bumpers
-
-
+- **/ai**
+  - **Description**: Talk to the AI.
+  - **Options**:
+    - **text**: Ask the AI a question.
 
 <a href="https://discord.gg/coding">
  discord.gg/coding
@@ -129,10 +86,10 @@ docker exec -ti coding-global-db pg_restore -U postgres -c -d test /backups/dail
 ```
 
 # coding.global Official Discord Bot
+
 <a href="https://discord.gg/coding">
  discord.gg/coding
 </a>
-
 
 ### backup raw restore db in docker
 
@@ -141,4 +98,5 @@ docker exec -ti coding-global-db pg_dump -U postgres coding-global-db > coding-g
 
 cat coding-global-db.sql | docker exec -i coding-global-db psql -U postgres -d coding-global-db
 ```
+
 as
