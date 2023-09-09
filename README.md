@@ -87,5 +87,3 @@ docker exec -ti coding-global-db pg_dump -U postgres coding-global-db > coding-g
 
 cat coding-global-db.sql | docker exec -i coding-global-db psql -U postgres -d coding-global-db
 ```
-
-as
