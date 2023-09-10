@@ -16,7 +16,7 @@ export const replyChatGPT = async (message: Message<boolean>) => {
   ) {
     const channel = (await message.channel.fetch()) as TextChannel;
     const replyMsg = await channel.messages.fetch(message.reference?.messageId);
-    const user = replyMsg.author;
+    const user = message.author;
 
     const guildMember = await channel.guild.members.fetch(user.id);
     const guildMemberRoles = guildMember.roles.cache.map((role) => role.name);
@@ -24,20 +24,15 @@ export const replyChatGPT = async (message: Message<boolean>) => {
     const channels = await channel.guild.channels.fetch();
     const botChannel = channels.find((channel) => channel?.name === "bot");
 
-    console.log(
-      channel.name,
-      guildMember?.roles.cache.some((role) =>
-        memberRoles.includes(role.name.toLowerCase()),
-      ),
-      guildMemberRoles,
-    );
     if (
       channel.name === "general" &&
       !guildMember?.roles.cache.some((role) =>
         memberRoles.includes(role.name.toLowerCase()),
       )
     ) {
-      return channel.send(`use this command /ai (your text) in ${botChannel?.toString()}`);
+      return channel.send(
+        `use this command /ai (your text) in ${botChannel?.toString()}`,
+      );
     }
 
     const messages = await fetchMessages(channel, 500);
