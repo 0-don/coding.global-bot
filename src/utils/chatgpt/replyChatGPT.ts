@@ -39,6 +39,9 @@ export const replyChatGPT = async (message: Message<boolean>) => {
 
     if (replyMsgIndex === -1) return await channel.send("Message not found");
 
+    //delete replyMsg
+    await replyMsg.delete();
+
     const userMessages: Message<boolean>[] = [replyMsg];
 
     // get before messages until we hit a message from a different user
