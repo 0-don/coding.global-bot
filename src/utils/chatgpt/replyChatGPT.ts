@@ -40,7 +40,7 @@ export const replyChatGPT = async (message: Message<boolean>) => {
     if (replyMsgIndex === -1) return await channel.send("Message not found");
 
     //delete replyMsg
-    await replyMsg.delete();
+    await message.delete();
 
     const userMessages: Message<boolean>[] = [replyMsg];
 
