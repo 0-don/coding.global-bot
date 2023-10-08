@@ -1,23 +1,23 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { prisma } from "@/prisma.js";
+import { SlashCommandBuilder } from "@discordjs/builders";
 import type {
   APIEmbed,
   CacheType,
   CommandInteraction,
   TextChannel,
-} from 'discord.js';
-import { prisma } from '../prisma.js';
+} from "discord.js";
 import {
   BOT_CHANNEL,
   BOT_ICON,
   BUMP_LEADERBOARDS_TEMPLATE,
   RED_COLOR,
-} from './constants.js';
-import { codeString, placementSuffix } from './helpers.js';
+} from "./constants.js";
+import { codeString, placementSuffix } from "./helpers.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('top-bumpers')
-    .setDescription('look at the top bumpers'),
+    .setName("top-bumpers")
+    .setDescription("look at the top bumpers"),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get text channel
     const channel = (await interaction.channel?.fetch()) as TextChannel;
@@ -28,13 +28,13 @@ export default {
     // if not bot channel, return
     if (channel.name !== BOT_CHANNEL)
       return interaction.editReply(
-        'Please use this command in the bot channel'
+        "Please use this command in the bot channel",
       );
 
     // get top bumpers
     const bumps = await prisma.memberBump.findMany({
       where: { guildId: interaction.guild?.id },
-      orderBy: { count: 'desc' },
+      orderBy: { count: "desc" },
       take: 25,
     });
 
@@ -53,25 +53,25 @@ export default {
 
       // create suffix 1st, 2nd, 3rd, etc.
       const suffix = placementSuffix(place);
-      let medal = '🏅';
-      if (place === 1) medal = '🥇';
-      if (place === 2) medal = '🥈';
-      if (place === 3) medal = '🥉';
+      let medal = "🏅";
+      if (place === 1) medal = "🥇";
+      if (place === 2) medal = "🥈";
+      if (place === 3) medal = "🥉";
 
       // return formatted string
       fields.push(
         `${medal} ${codeString(
-          suffix
-        )} ${userServerName} (${userGlobalName}) with **${count}** bumps`
+          suffix,
+        )} ${userServerName} (${userGlobalName}) with **${count}** bumps`,
       );
     }
 
     // create embed
     const embed: APIEmbed = {
       color: RED_COLOR,
-      title: '🏆 Bump Leaderboards',
+      title: "🏆 Bump Leaderboards",
       description:
-        `Look who has bumped the most times \n\n` + fields.join('\n'),
+        `Look who has bumped the most times \n\n` + fields.join("\n"),
       timestamp: new Date().toISOString(),
       footer: {
         text: BUMP_LEADERBOARDS_TEMPLATE,
