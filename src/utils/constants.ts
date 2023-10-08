@@ -318,11 +318,11 @@ export const chartConfig = (data: ChartDataset[]) => {
   } as ChartConfiguration<"line", ChartDataset[]>;
 };
 
-export const chartJSNodeCanvas = new ChartJSNodeCanvas({
-  width: 1200,
-  height: 400,
-  backgroundColour: "#34363c",
-  plugins: {
-    globalVariableLegacy: ["chartjs-adapter-dayjs-3"],
-  },
-});
+// export const chartJSNodeCanvas = new ChartJSNodeCanvas({
+//   width: 1200,
+//   height: 400,
+//   backgroundColour: "#34363c",
+//   plugins: {
+//     globalVariableLegacy: ["chartjs-adapter-dayjs-3"],
+//   },
+// });
