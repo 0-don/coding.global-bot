@@ -18,7 +18,7 @@ import {
 } from "discord.js";
 import "dotenv/config";
 import "./deploy-commands";
-import "./types/index.js";
+import "./types";
 import { filesPaths } from "./utils/helpers.js";
 
 Chart.register(
