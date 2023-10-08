@@ -1,14 +1,14 @@
-import { createCanvas } from "canvas";
 import {
-  BarController,
-  BarElement,
   CategoryScale,
   Chart,
-  ChartConfiguration,
+  Filler,
+  LineController,
+  LineElement,
   LinearScale,
-  Title,
-  Tooltip,
+  PointElement,
+  TimeSeriesScale,
 } from "chart.js";
+import "chartjs-adapter-date-fns";
 import {
   ActivityType,
   Client,
@@ -20,7 +20,22 @@ import "dotenv/config";
 import { writeFileSync } from "fs";
 import "./deploy-commands.js";
 import "./types/index.js";
+import {
+  chartConfig,
+  chartJSNodeCanvas,
+  globalCanvas,
+} from "./utils/constants.js";
 import { filesPaths } from "./utils/helpers.js";
+
+Chart.register(
+  LineController,
+  LineElement,
+  LinearScale,
+  CategoryScale,
+  PointElement,
+  TimeSeriesScale,
+  Filler,
+);
 
 const token = process.env.TOKEN;
 
@@ -81,52 +96,13 @@ const main = async () => {
 
 main();
 
-async function generateChart(): Promise<Buffer> {
-  // Create a canvas
-  const canvas = createCanvas(400, 400);
-  const ctx = canvas.getContext("2d");
-
-  Chart.register(
-    BarElement,
-    BarController,
-    LinearScale,
-    CategoryScale,
-    Title,
-    Tooltip,
+function generateChart() {
+  new Chart(
+    chartJSNodeCanvas as unknown as CanvasRenderingContext2D,
+    chartConfig([]),
   );
-  // Define your chart configuration
-  const configuration: ChartConfiguration = {
-    type: "bar",
-    data: {
-      labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-      datasets: [
-        {
-          label: "# of Votes",
-          data: [12, 19, 3, 5, 2, 3],
-          borderWidth: 1,
-        },
-      ],
-    },
-    options: {
-      animation: false,
-      responsive: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
-    },
-  };
-
-  // Render the chart
-
-  new Chart(ctx as any, configuration);
-
-  // Convert canvas to buffer
-  return canvas.toBuffer("image/png");
+  writeFileSync("chart.png", globalCanvas.toBuffer("image/png"));
+  console.log("finished");
 }
 
-generateChart().then(async (buffer) => {
-  // Do something with the buffer, like saving it or sending it as a response
-  writeFileSync("chart.png", buffer);
-});
+generateChart();
