@@ -18,7 +18,7 @@
 
     // Modules
     "module": "NodeNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
 
     // Emit
@@ -41,8 +41,12 @@
     "lib": ["ESNext"],
     "target": "ESNext",
     "useDefineForClassFields": true,
-    "typeRoots": ["./src/types/**.*"]
+    "typeRoots": ["./src/types/**.*"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
+  "include": ["src/**/*.ts"],
   "ts-node": {
     "esm": true
   }
