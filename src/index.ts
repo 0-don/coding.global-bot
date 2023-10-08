@@ -17,7 +17,7 @@ import {
   Partials,
 } from "discord.js";
 import "dotenv/config";
-import "./deploy-commands.js";
+import "./deploy-commands";
 import "./types/index.js";
 import { filesPaths } from "./utils/helpers.js";
 
