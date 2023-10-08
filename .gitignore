@@ -9,3 +9,4 @@ dist
 yarn-error.log
 *.traineddata
 app.js
+bun.lockb

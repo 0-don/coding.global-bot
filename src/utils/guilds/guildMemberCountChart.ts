@@ -1,16 +1,16 @@
-import type { ChartConfiguration } from 'chart.js';
-import { log } from 'console';
-import dayjs from 'dayjs';
-import type { Guild } from 'discord.js';
-import fs from 'fs';
-import path from 'path';
-import { prisma } from '../../prisma.js';
-import type { ChartDataset, GuildMemberCountChart } from '../../types/index.js';
-import { chartConfig, chartJSNodeCanvas } from '../constants.js';
-import { getDaysArray } from '../helpers.js';
+import type { ChartConfiguration } from "chart.js";
+import { log } from "console";
+import dayjs from "dayjs";
+import type { Guild } from "discord.js";
+import fs from "fs";
+import path from "path";
+import { prisma } from "../../prisma.js";
+import type { ChartDataset, GuildMemberCountChart } from "../../types/index.js";
+import { chartConfig } from "../constants.js";
+import { getDaysArray } from "../helpers.js";
 
 export const guildMemberCountChart = async (
-  guild: Guild
+  guild: Guild,
 ): Promise<GuildMemberCountChart> => {
   // get guild data
   const guildId = guild.id;
@@ -29,12 +29,12 @@ export const guildMemberCountChart = async (
     .sort((a, b) => a.getTime() - b.getTime());
 
   // if no dates, return
-  if (!dates[0]) return { error: 'No members found' };
+  if (!dates[0]) return { error: "No members found" };
 
   // create date array from first to today for each day
   const startEndDateArray = getDaysArray(
     dates[0],
-    dayjs().add(1, 'day').toDate()
+    dayjs().add(1, "day").toDate(),
   );
 
   // get member count for each day and format it for chartjs
@@ -61,20 +61,20 @@ export const guildMemberCountChart = async (
   const config = chartConfig(
     data.slice(
       // splice only the lookback range if it fits. 2 values minium needed for chart
-      data.length - 2 < lookback ? 0 : lookback * -1
-    ) as any
+      data.length - 2 < lookback ? 0 : lookback * -1,
+    ) as any,
   );
 
   // render image from chartjs config as png
-  const image = await chartJSNodeCanvas.renderToBuffer(
-    config as unknown as ChartConfiguration,
-    'image/png'
-  );
+  // const image = await chartJSNodeCanvas.renderToBuffer(
+  //   config as unknown as ChartConfiguration,
+  //   "image/png",
+  // );
 
   // crete local img file
   const fileName = `${guildId}.png`;
   const imgPath = path.join(path.resolve(), fileName);
-  fs.writeFileSync(imgPath, image);
+  // fs.writeFileSync(imgPath, image);
 
   log(`Created guild member count ${guildName}`);
 
