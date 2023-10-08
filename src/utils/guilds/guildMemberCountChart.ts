@@ -1,12 +1,13 @@
-import type { ChartConfiguration } from "chart.js";
+import { Chart } from "chart.js";
 import { log } from "console";
 import dayjs from "dayjs";
 import type { Guild } from "discord.js";
-import fs from "fs";
 import path from "path";
 import { prisma } from "../../prisma.js";
-import type { ChartDataset, GuildMemberCountChart } from "../../types/index.js";
+import type { ChartDataset,GuildMemberCountChart } from "../../types/index.js";
 // import { chartConfig } from "../constants.js";
+import { writeFileSync } from "fs";
+import { chartConfig,chartJSNodeCanvas,globalCanvas } from "../constants.js";
 import { getDaysArray } from "../helpers.js";
 
 export const guildMemberCountChart = async (
@@ -58,23 +59,20 @@ export const guildMemberCountChart = async (
   // const link = await megaUpload(JSON.stringify(data, null, 1), 'chart.json');
 
   // create chartjs config
-  // const config = chartConfig(
-  //   data.slice(
-  //     // splice only the lookback range if it fits. 2 values minium needed for chart
-  //     data.length - 2 < lookback ? 0 : lookback * -1,
-  //   ) as any,
-  // );
+  const config = chartConfig(
+    data.slice(
+      // splice only the lookback range if it fits. 2 values minium needed for chart
+      data.length - 2 < lookback ? 0 : lookback * -1,
+    ) as any,
+  );
 
   // render image from chartjs config as png
-  // const image = await chartJSNodeCanvas.renderToBuffer(
-  //   config as unknown as ChartConfiguration,
-  //   "image/png",
-  // );
+  new Chart(chartJSNodeCanvas as unknown as CanvasRenderingContext2D, config);
 
   // crete local img file
   const fileName = `${guildId}.png`;
   const imgPath = path.join(path.resolve(), fileName);
-  // fs.writeFileSync(imgPath, image);
+  writeFileSync(fileName, globalCanvas.toBuffer("image/png"));
 
   log(`Created guild member count ${guildName}`);
 

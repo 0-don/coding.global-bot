@@ -17,14 +17,8 @@ import {
   Partials,
 } from "discord.js";
 import "dotenv/config";
-import { writeFileSync } from "fs";
 import "./deploy-commands.js";
 import "./types/index.js";
-import {
-  chartConfig,
-  chartJSNodeCanvas,
-  globalCanvas,
-} from "./utils/constants.js";
 import { filesPaths } from "./utils/helpers.js";
 
 Chart.register(
@@ -95,14 +89,3 @@ const main = async () => {
 };
 
 main();
-
-function generateChart() {
-  new Chart(
-    chartJSNodeCanvas as unknown as CanvasRenderingContext2D,
-    chartConfig([]),
-  );
-  writeFileSync("chart.png", globalCanvas.toBuffer("image/png"));
-  console.log("finished");
-}
-
-generateChart();
