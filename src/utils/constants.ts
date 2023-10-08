@@ -290,7 +290,19 @@ export const chartConfig = (data: ChartDataset[]) => {
         },
       ],
     },
-
+    plugins: [
+      {
+        id: "customCanvasBackgroundColor",
+        beforeDraw: (chart, _args, options) => {
+          const { ctx } = chart;
+          ctx.save();
+          ctx.globalCompositeOperation = "destination-over";
+          ctx.fillStyle = options.color || "#34363c";
+          ctx.fillRect(0, 0, chart.width, chart.height);
+          ctx.restore();
+        },
+      },
+    ],
     options: {
       showLine: true,
       elements: {
@@ -301,6 +313,9 @@ export const chartConfig = (data: ChartDataset[]) => {
       plugins: {
         legend: {
           display: false,
+        },
+        customCanvasBackgroundColor: {
+          color: "#34363c",
         },
       },
 
@@ -326,4 +341,5 @@ export const chartConfig = (data: ChartDataset[]) => {
   } as ChartConfiguration<"line", ChartDataset[]>;
 };
 export const globalCanvas = createCanvas(1200, 400);
+
 export const chartJSNodeCanvas = globalCanvas.getContext("2d");
