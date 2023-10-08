@@ -6,7 +6,7 @@ import fs from "fs";
 import path from "path";
 import { prisma } from "../../prisma.js";
 import type { ChartDataset, GuildMemberCountChart } from "../../types/index.js";
-import { chartConfig } from "../constants.js";
+// import { chartConfig } from "../constants.js";
 import { getDaysArray } from "../helpers.js";
 
 export const guildMemberCountChart = async (
@@ -58,12 +58,12 @@ export const guildMemberCountChart = async (
   // const link = await megaUpload(JSON.stringify(data, null, 1), 'chart.json');
 
   // create chartjs config
-  const config = chartConfig(
-    data.slice(
-      // splice only the lookback range if it fits. 2 values minium needed for chart
-      data.length - 2 < lookback ? 0 : lookback * -1,
-    ) as any,
-  );
+  // const config = chartConfig(
+  //   data.slice(
+  //     // splice only the lookback range if it fits. 2 values minium needed for chart
+  //     data.length - 2 < lookback ? 0 : lookback * -1,
+  //   ) as any,
+  // );
 
   // render image from chartjs config as png
   // const image = await chartJSNodeCanvas.renderToBuffer(

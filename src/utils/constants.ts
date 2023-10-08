@@ -1,5 +1,5 @@
 import type { ChartConfiguration, ChartDataset } from "chart.js";
-import { ChartJSNodeCanvas } from "chartjs-node-canvas";
+import adapter from "date-fns/locale/en-US/index.js";
 import dayjs from "dayjs";
 import type { APIEmbed } from "discord.js";
 import type {
@@ -7,6 +7,7 @@ import type {
   UserStatsExampleEmbed,
 } from "../types/index.js";
 
+import { createCanvas } from "canvas";
 import { codeString, placementSuffix } from "./helpers.js";
 
 export const statusRoles = [
@@ -289,6 +290,7 @@ export const chartConfig = (data: ChartDataset[]) => {
         },
       ],
     },
+
     options: {
       showLine: true,
       elements: {
@@ -301,6 +303,7 @@ export const chartConfig = (data: ChartDataset[]) => {
           display: false,
         },
       },
+
       scales: {
         yAxes: {
           ticks: { color: "#fff" },
@@ -311,18 +314,16 @@ export const chartConfig = (data: ChartDataset[]) => {
           ticks: { color: "#fff" },
           grid: { display: false, drawBorder: false },
           type: "timeseries",
+          adapters: {
+            date: {
+              locale: adapter,
+            },
+          },
           time: { unit: data.length > 360 ? "month" : "day" },
         },
       },
     },
   } as ChartConfiguration<"line", ChartDataset[]>;
 };
-
-// export const chartJSNodeCanvas = new ChartJSNodeCanvas({
-//   width: 1200,
-//   height: 400,
-//   backgroundColour: "#34363c",
-//   plugins: {
-//     globalVariableLegacy: ["chartjs-adapter-dayjs-3"],
-//   },
-// });
+export const globalCanvas = createCanvas(1200, 400);
+export const chartJSNodeCanvas = globalCanvas.getContext("2d");

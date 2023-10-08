@@ -33,6 +33,7 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
 
     // Language and Environment
     "emitDecoratorMetadata": true,
