@@ -1,12 +1,12 @@
-import type { Event } from '../types/index.js';
-import { replyChatGPT } from '../utils/chatgpt/replyChatGPT.js';
-import { addMessageDb } from '../utils/messages/addMessageDb.js';
-import { checkWarnings } from '../utils/messages/checkWarnings.js';
-import { cleanUpVerifyChannel } from '../utils/messages/cleanUpVerifyChannel.js';
-import { translateReply } from '../utils/messages/translateReply.js';
+import { replyChatGPT } from "../modules/chatgpt/replyChatGPT.js";
+import { addMessageDb } from "../modules/messages/addMessageDb.js";
+import { checkWarnings } from "../modules/messages/checkWarnings.js";
+import { cleanUpVerifyChannel } from "../modules/messages/cleanUpVerifyChannel.js";
+import { translateReply } from "../modules/messages/translateReply.js";
+import type { Event } from "../types/index.js";
 
 export default {
-  name: 'messageCreate',
+  name: "messageCreate",
   once: false,
   async execute(message) {
     // remove regular messages in verify channel
@@ -24,4 +24,4 @@ export default {
     // add Message to Database for statistics
     await addMessageDb(message);
   },
-} as Event<'messageCreate'>;
+} as Event<"messageCreate">;

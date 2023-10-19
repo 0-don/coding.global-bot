@@ -1,40 +1,40 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
-import type { RoleTemplateReaction } from '../types/index.js';
-import { ROLE_TEMPLATE } from '../utils/constants.js';
-import { parseJSON } from '../utils/helpers.js';
-import { createRoleTemplateEmbed } from '../utils/roles/roleTemplate.js';
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import type { CacheType, CommandInteraction, TextChannel } from "discord.js";
+import { ROLE_TEMPLATE } from "../modules/constants.js";
+import { parseJSON } from "../modules/helpers.js";
+import { createRoleTemplateEmbed } from "../modules/roles/roleTemplate.js";
+import type { RoleTemplateReaction } from "../types/index.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('edit-role-template')
-    .setDescription('Create a role template from JSON')
+    .setName("edit-role-template")
+    .setDescription("Create a role template from JSON")
     .addStringOption((option) =>
       option
-        .setName('message-id')
-        .setDescription('copy the message ID of the embeded message')
-        .setRequired(true)
+        .setName("message-id")
+        .setDescription("copy the message ID of the embeded message")
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
-        .setName('json')
-        .setDescription('JSON input for the role template')
-        .setRequired(true)
+        .setName("json")
+        .setDescription("JSON input for the role template")
+        .setRequired(true),
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get message id
-    const messageID = interaction.options.get('message-id')?.value as string;
+    const messageID = interaction.options.get("message-id")?.value as string;
 
     // get role json template
     const inputTemplate = parseJSON(
-      interaction.options.get('json')?.value as string
+      interaction.options.get("json")?.value as string,
     ) as RoleTemplateReaction;
 
     // fetch message if it exists
     const msg = await (interaction.channel as TextChannel)?.messages.fetch(
-      messageID
+      messageID,
     );
 
     // check if exits and if it is an embeded role template message
@@ -48,13 +48,13 @@ export default {
     // create role template from input or get error
     const { roleTemplateEmbed, error } = await createRoleTemplateEmbed(
       inputTemplate,
-      interaction.client
+      interaction.client,
     );
 
     // error found while creating role template
     if (!roleTemplateEmbed || error) {
       return await interaction.reply({
-        content: error ?? 'Something went wrong.',
+        content: error ?? "Something went wrong.",
         ephemeral: true,
       });
     }

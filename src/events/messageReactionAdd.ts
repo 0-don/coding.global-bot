@@ -1,9 +1,9 @@
-import type { Event } from '../types/index.js';
-import { switchRoleFromTemplate } from '../utils/roles/roleTemplateReaction.js';
-import { verifyReaction } from '../utils/roles/verifyReaction.js';
+import { switchRoleFromTemplate } from "../modules/roles/roleTemplateReaction.js";
+import { verifyReaction } from "../modules/roles/verifyReaction.js";
+import type { Event } from "../types/index.js";
 
 export default {
-  name: 'messageReactionAdd',
+  name: "messageReactionAdd",
   once: false,
   async execute(reaction, user) {
     // fetch reaction status and roles
@@ -13,6 +13,6 @@ export default {
     await verifyReaction(reaction, user);
 
     // add role if not exist when clicked on role template embed
-    return await switchRoleFromTemplate(reaction, user, 'add');
+    return await switchRoleFromTemplate(reaction, user, "add");
   },
-} as Event<'messageReactionAdd'>;
+} as Event<"messageReactionAdd">;

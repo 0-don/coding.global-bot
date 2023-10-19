@@ -1,7 +1,7 @@
 import { GuildMember } from "discord.js";
+import { updateMemberCount } from "../modules/members/updateMemberCount.js";
+import { upsertDbMember } from "../modules/members/upsertDbMember.js";
 import type { Event } from "../types/index.js";
-import { updateMemberCount } from "../utils/members/updateMemberCount.js";
-import { upsertDbMember } from "../utils/members/upsertDbMember.js";
 
 export default {
   name: "guildMemberRemove",

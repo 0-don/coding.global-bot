@@ -1,10 +1,10 @@
 import type { GuildMember } from "discord.js";
+import { joinSettings } from "../modules/members/joinNickname.js";
+import { joinRole } from "../modules/members/joinRole.js";
+import { logJoinLeaveEvents } from "../modules/members/logJoinLeaveEvents.js";
+import { updateMemberCount } from "../modules/members/updateMemberCount.js";
+import { upsertDbMember } from "../modules/members/upsertDbMember.js";
 import type { Event } from "../types/index.js";
-import { joinSettings } from "../utils/members/joinNickname.js";
-import { joinRole } from "../utils/members/joinRole.js";
-import { logJoinLeaveEvents } from "../utils/members/logJoinLeaveEvents.js";
-import { updateMemberCount } from "../utils/members/updateMemberCount.js";
-import { upsertDbMember } from "../utils/members/upsertDbMember.js";
 
 export default {
   name: "guildMemberAdd",

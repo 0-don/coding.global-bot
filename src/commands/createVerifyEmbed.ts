@@ -1,23 +1,23 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { PermissionFlagsBits } from 'discord-api-types/v9';
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import type {
   APIEmbed,
   CacheType,
   CommandInteraction,
   Message,
   TextChannel,
-} from 'discord.js';
+} from "discord.js";
 import {
   BOT_ICON,
   RED_COLOR,
   VERIFY_CHANNEL,
   VERIFY_TEMPLATE,
-} from '../utils/constants.js';
+} from "../modules/constants.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('create-verify-embed')
-    .setDescription('verify all users in the server')
+    .setName("create-verify-embed")
+    .setDescription("verify all users in the server")
     .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get text channel
@@ -29,7 +29,7 @@ export default {
     // create verify embed
     const embed: APIEmbed = {
       color: RED_COLOR,
-      title: 'Verification process...',
+      title: "Verification process...",
       description: `**--- :flag_gb: Welcome to our Coding Server! :flag_gb: ---**
 
 We are dedicated members, who are professionally and in their spare time engaged in programming and other IT topics.
@@ -66,6 +66,6 @@ add 👍 to get verified
     });
 
     // add reactions for verify role
-    (message as Message<boolean>).react('👍');
+    (message as Message<boolean>).react("👍");
   },
 };
