@@ -19,7 +19,7 @@ export default {
     if (member.pending) return;
 
     // if first time user give him status role
-    await joinRole(member, "unverified");
+    // await joinRole(member, "unverified");
 
     // update user count channel
     await updateMemberCount(member);
