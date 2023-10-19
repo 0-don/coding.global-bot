@@ -6,7 +6,6 @@ import type {
   ToptatsExampleEmbed,
   UserStatsExampleEmbed,
 } from "../types/index.js";
-
 import { createCanvas } from "canvas";
 import { codeString, placementSuffix } from "./helpers.js";
 
@@ -30,10 +29,10 @@ export const READ_ONLY = statusRoles[2];
 export const MUTE = statusRoles[3];
 export const UNVERIFIED = statusRoles[4];
 
-export const VERIFY_CHANNEL = "verify";
-export const BOT_CHANNEL = "bot";
-export const VOICE_EVENT_CHANNEL = "voice-events";
-export const JOIN_EVENTS_CHANNEL = "join-events";
+export const VERIFY_CHANNEL = "✅│𝖵𝖾𝗋𝗂𝖿𝗒";
+export const BOT_CHANNEL = "🤖│𝖡𝗈𝗍";
+export const VOICE_EVENT_CHANNEL = "🔔│𝖵𝗈𝗂𝖼𝖾-𝖤𝗏𝖾𝗇𝗍𝗌";
+export const JOIN_EVENTS_CHANNEL = "🌟│𝖩𝗈𝗂𝗇-𝖤𝗏𝖾𝗇𝗍𝗌";
 export const MEMBERS_COUNT_CHANNEL = "Members:";
 
 export const ROLE_TEMPLATE = "role template";
