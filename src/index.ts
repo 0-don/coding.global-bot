@@ -18,8 +18,8 @@ import {
 } from "discord.js";
 import "dotenv/config";
 import "./deploy-commands";
+import { filesPaths } from "./modules/helpers.js";
 import "./types";
-import { filesPaths } from "./utils/helpers.js";
 
 Chart.register(
   LineController,

@@ -1,24 +1,22 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { PermissionFlagsBits } from 'discord-api-types/v9';
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import type {
-CacheType,
-CommandInteraction,
-Message,
-TextChannel,
-} from 'discord.js';
-import { fetchMessages } from '../utils/messages/fetchMessages.js';
-
-
+  CacheType,
+  CommandInteraction,
+  Message,
+  TextChannel,
+} from "discord.js";
+import { fetchMessages } from "../modules/messages/fetchMessages.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('delete-messages')
-    .setDescription('Deletes messages from a channel')
+    .setName("delete-messages")
+    .setDescription("Deletes messages from a channel")
     .addStringOption((option) =>
       option
-        .setName('amount')
-        .setDescription('Delete message History')
-        .setRequired(true)
+        .setName("amount")
+        .setDescription("Delete message History")
+        .setRequired(true),
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
@@ -27,7 +25,7 @@ export default {
 
     if (!channel) return;
     // get how many days to delete
-    const amount = interaction.options.get('amount')?.value as number;
+    const amount = interaction.options.get("amount")?.value as number;
 
     const guildId = interaction.guild?.id;
 
@@ -50,7 +48,7 @@ export default {
         }
         return acc;
       },
-      [[]] as Message<boolean>[][]
+      [[]] as Message<boolean>[][],
     );
 
     for (const message of messageList) {
@@ -58,6 +56,6 @@ export default {
     }
 
     // notify that messages were deleted
-    return await interaction.editReply({ content: 'messages are deleted' });
+    return await interaction.editReply({ content: "messages are deleted" });
   },
 };

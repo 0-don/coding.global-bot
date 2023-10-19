@@ -1,11 +1,11 @@
-import type { Event } from '../types/index.js';
-import { deleteMessageDb } from '../utils/messages/deleteMessageDb.js';
+import { deleteMessageDb } from "../modules/messages/deleteMessageDb.js";
+import type { Event } from "../types/index.js";
 
 export default {
-  name: 'messageDelete',
+  name: "messageDelete",
   once: false,
   async execute(message) {
     // add Message to Database for statistics
     await deleteMessageDb(message);
   },
-} as Event<'messageDelete'>;
+} as Event<"messageDelete">;

@@ -1,17 +1,17 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { log } from 'console';
-import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
-import { prisma } from '../prisma.js';
-import { VERIFIED, statusRoles } from '../utils/constants.js';
-import { upsertDbMember } from '../utils/members/upsertDbMember.js';
-import { getGuildStatusRoles } from '../utils/roles/getGuildStatusRoles.js';
-import { recreateMemberDbRoles } from '../utils/roles/recreateMemberDbRoles.js';
+import { SlashCommandBuilder } from "@discordjs/builders";
+import { log } from "console";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import type { CacheType, CommandInteraction, TextChannel } from "discord.js";
+import { VERIFIED, statusRoles } from "../modules/constants.js";
+import { upsertDbMember } from "../modules/members/upsertDbMember.js";
+import { getGuildStatusRoles } from "../modules/roles/getGuildStatusRoles.js";
+import { recreateMemberDbRoles } from "../modules/roles/recreateMemberDbRoles.js";
+import { prisma } from "../prisma.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('verify-all-users')
-    .setDescription('verify all users in the server')
+    .setName("verify-all-users")
+    .setDescription("verify all users in the server")
     .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     if (!interaction.guild) return;
@@ -35,9 +35,9 @@ export default {
       const content = statusRoles
         .map(
           (role) =>
-            `${role}: ${new Boolean(!!guildStatusRoles[role]).toString()}`
+            `${role}: ${new Boolean(!!guildStatusRoles[role]).toString()}`,
         )
-        .join('\n');
+        .join("\n");
       return await interaction.editReply({ content });
     }
 
@@ -49,7 +49,7 @@ export default {
     });
 
     const rolesWithoutUnverified = [...statusRoles].filter(
-      (role) => role !== 'unverified'
+      (role) => role !== "unverified",
     );
 
     // loop over all guild members
@@ -60,7 +60,7 @@ export default {
 
       if (i % Math.floor((members.size / 100) * 10) === 0) {
         await interaction.editReply(
-          `Members: ${i}/${members.size} ${member.user.username}`
+          `Members: ${i}/${members.size} ${member.user.username}`,
         );
       }
 
@@ -70,7 +70,7 @@ export default {
       if (member.user.bot) continue;
 
       // check if user exists in db
-      await upsertDbMember(member, 'join');
+      await upsertDbMember(member, "join");
 
       // recreate roles delete old add new
       await recreateMemberDbRoles(member);
@@ -78,7 +78,7 @@ export default {
       // if one of the status roles is on user, continue
       if (
         rolesWithoutUnverified.some((role) =>
-          member.roles.cache.has(guildStatusRoles[role]!.id)
+          member.roles.cache.has(guildStatusRoles[role]!.id),
         )
       )
         continue;

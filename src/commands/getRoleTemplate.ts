@@ -1,29 +1,29 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import crypto from 'crypto';
-import { PermissionFlagsBits } from 'discord-api-types/v9';
-import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
-import { ROLE_TEMPLATE } from '../utils/constants.js';
-import { megaUpload } from '../utils/megaUpload.js';
-import { parseRoleTemplateFromMsg } from '../utils/roles/roleTemplate.js';
+import { SlashCommandBuilder } from "@discordjs/builders";
+import crypto from "crypto";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import type { CacheType, CommandInteraction, TextChannel } from "discord.js";
+import { ROLE_TEMPLATE } from "../modules/constants.js";
+import { megaUpload } from "../modules/megaUpload.js";
+import { parseRoleTemplateFromMsg } from "../modules/roles/roleTemplate.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('get-role-template')
-    .setDescription('get a role template as JSON')
+    .setName("get-role-template")
+    .setDescription("get a role template as JSON")
     .addStringOption((option) =>
       option
-        .setName('message-id')
-        .setDescription('copy the message ID of the embeded message')
-        .setRequired(true)
+        .setName("message-id")
+        .setDescription("copy the message ID of the embeded message")
+        .setRequired(true),
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get message id
-    const messageID = interaction.options.get('message-id')?.value as string;
+    const messageID = interaction.options.get("message-id")?.value as string;
 
     // fetch message if it exists
     const msg = await (interaction.channel as TextChannel)?.messages.fetch(
-      messageID
+      messageID,
     );
 
     // check if exits and if it is an embeded message
@@ -41,7 +41,7 @@ export default {
     const roleTemplate = JSON.stringify(
       await parseRoleTemplateFromMsg(msg),
       null,
-      1
+      1,
     );
     // unique id for the file
     const fileName = `${crypto.randomUUID()}-roleTemplate.json`;

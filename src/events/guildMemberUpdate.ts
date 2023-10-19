@@ -1,7 +1,7 @@
+import { updateNickname } from "../modules/members/saveNickname.js";
+import { updateDbRoles } from "../modules/roles/updateDbRoles.js";
+import { updateStatusRoles } from "../modules/roles/updateStatusRoles.js";
 import type { Event } from "../types/index.js";
-import { updateNickname } from "../utils/members/saveNickname.js";
-import { updateDbRoles } from "../utils/roles/updateDbRoles.js";
-import { updateStatusRoles } from "../utils/roles/updateStatusRoles.js";
 
 export default {
   name: "guildMemberUpdate",

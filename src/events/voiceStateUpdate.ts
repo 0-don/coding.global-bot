@@ -1,15 +1,15 @@
-import type { GuildMember } from 'discord.js';
-import { prisma } from '../prisma.js';
-import type { Event } from '../types/index.js';
-import { joinSettings } from '../utils/members/joinNickname.js';
-import { moveMemberToChannel } from '../utils/members/moveMemberToChannel.js';
-import { logVoiceEvents } from '../utils/voice/logVoiceEvents.js';
-import { logVoiceEventsDb } from '../utils/voice/logVoiceEventsDb.js';
-import { updateUserVoiceState } from '../utils/voice/updateUserVoiceState.js';
-import { closeDeadVoiceEvents } from '../utils/voice/closeDeadVoiceEvents.js';
+import type { GuildMember } from "discord.js";
+import { joinSettings } from "../modules/members/joinNickname.js";
+import { moveMemberToChannel } from "../modules/members/moveMemberToChannel.js";
+import { closeDeadVoiceEvents } from "../modules/voice/closeDeadVoiceEvents.js";
+import { logVoiceEvents } from "../modules/voice/logVoiceEvents.js";
+import { logVoiceEventsDb } from "../modules/voice/logVoiceEventsDb.js";
+import { updateUserVoiceState } from "../modules/voice/updateUserVoiceState.js";
+import { prisma } from "../prisma.js";
+import type { Event } from "../types/index.js";
 
 export default {
-  name: 'voiceStateUpdate',
+  name: "voiceStateUpdate",
   once: false,
   async execute(oldVoiceState, newVoiceState) {
     const member =
@@ -40,4 +40,4 @@ export default {
 
     await closeDeadVoiceEvents();
   },
-} as Event<'voiceStateUpdate'>;
+} as Event<"voiceStateUpdate">;

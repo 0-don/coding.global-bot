@@ -1,8 +1,8 @@
-import type { GuildVoiceEvents, MemberMessages } from '@prisma/client';
-import type { APIEmbed, Awaitable, ClientEvents } from 'discord.js';
-import type { statusRoles } from '../utils/constants.js';
-import './discord.js';
-import './enviroment.js';
+import type { GuildVoiceEvents, MemberMessages } from "@prisma/client";
+import type { APIEmbed, Awaitable, ClientEvents } from "discord.js";
+import type { statusRoles } from "../modules/constants.js";
+import "./discord.js";
+import "./enviroment.js";
 
 export type RoleTemplateReactionValues = {
   name: string;
@@ -30,7 +30,7 @@ export type RoleTemplateReactionTuple = [
   RoleTemplateReactionValues?,
   RoleTemplateReactionValues?,
   RoleTemplateReactionValues?,
-  RoleTemplateReactionValues?
+  RoleTemplateReactionValues?,
 ];
 
 export type RoleTemplateReaction = {
@@ -100,13 +100,13 @@ export type ToptatsExampleEmbed = {
       memberId: string;
       count: number;
       username: string;
-    }
+    },
   ];
   mostActiveMessageChannels: [
     {
       channelId: string;
       count: number;
-    }
+    },
   ];
   mostActiveVoiceUsers: { memberId: string; username: string; sum: number }[];
   mostActiveVoiceChannels: { channelId: string; sum: number }[];

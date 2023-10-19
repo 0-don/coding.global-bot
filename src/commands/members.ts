@@ -1,25 +1,23 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { SlashCommandBuilder } from "@discordjs/builders";
 import type {
-APIEmbed,
-CacheType,
-CommandInteraction,
-TextChannel,
-} from 'discord.js';
+  APIEmbed,
+  CacheType,
+  CommandInteraction,
+  TextChannel,
+} from "discord.js";
 import {
-BOT_CHANNEL,
-BOT_ICON,
-MEMBERS_TEMPLATE,
-RED_COLOR,
-} from '../utils/constants.js';
-import { guildMemberCountChart } from '../utils/guilds/guildMemberCountChart.js';
-import { codeString } from '../utils/helpers.js';
-
-
+  BOT_CHANNEL,
+  BOT_ICON,
+  MEMBERS_TEMPLATE,
+  RED_COLOR,
+} from "../modules/constants.js";
+import { guildMemberCountChart } from "../modules/guilds/guildMemberCountChart.js";
+import { codeString } from "../modules/helpers.js";
 
 export default {
   data: new SlashCommandBuilder()
-    .setName('members')
-    .setDescription('Memberflow and count of the past'),
+    .setName("members")
+    .setDescription("Memberflow and count of the past"),
   async execute(interaction: CommandInteraction<CacheType>) {
     // get text channel
     const channel = (await interaction.channel?.fetch()) as TextChannel;
@@ -29,13 +27,13 @@ export default {
 
     // if not bot channel, return
     if (channel.name !== BOT_CHANNEL)
-      return await  interaction.editReply(
-        'Please use this command in the bot channel'
+      return await interaction.editReply(
+        "Please use this command in the bot channel",
       );
 
     // if somehow no guild, return
     if (!interaction.guild)
-      return await interaction.editReply('Please use this command in a server');
+      return await interaction.editReply("Please use this command in a server");
 
     // get guild member chart data from specifc guild
     const chart = await guildMemberCountChart(interaction.guild);
@@ -50,7 +48,7 @@ export default {
 
     const count = interaction.guild.members.cache.size;
     const memberCount = interaction.guild.members.cache.filter(
-      (member) => !member.user.bot
+      (member) => !member.user.bot,
     ).size;
     const botCount = count - memberCount;
 
