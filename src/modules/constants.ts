@@ -10,11 +10,11 @@ import { createCanvas } from "canvas";
 import { codeString, placementSuffix } from "./helpers.js";
 
 export const statusRoles = [
-  "verified",
-  "voiceOnly",
-  "readOnly",
-  "jail",
-  "unverified",
+  "Verified",
+  "VoiceOnly",
+  "ReadOnly",
+  "Jail",
+  "Unverified",
 ] as const;
 
 export const memberRoles = ["Admin", "Owner", "Helper", "Member"].map((e) =>
