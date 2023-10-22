@@ -1,5 +1,5 @@
 import { Message, MessageType, TextChannel } from "discord.js";
-import { memberRoles } from "../constants.js";
+import { GENERAL_CHANNEL, memberRoles } from "../constants.js";
 import { chunkedSend } from "../messages/chunkedSend.js";
 import { fetchMessages } from "../messages/fetchMessages.js";
 import { getTextFromImage } from "../tesseract/tesseract.js";
@@ -24,7 +24,7 @@ export const replyChatGPT = async (message: Message<boolean>) => {
     const botChannel = channels.find((channel) => channel?.name === "bot");
 
     if (
-      channel.name === "general" &&
+      channel.name === GENERAL_CHANNEL &&
       !guildMember?.roles.cache.some((role) =>
         memberRoles.includes(role.name.toLowerCase()),
       )

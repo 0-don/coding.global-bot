@@ -1,3 +1,4 @@
+import { createCanvas } from "canvas";
 import type { ChartConfiguration, ChartDataset } from "chart.js";
 import adapter from "date-fns/locale/en-US/index.js";
 import dayjs from "dayjs";
@@ -6,7 +7,6 @@ import type {
   ToptatsExampleEmbed,
   UserStatsExampleEmbed,
 } from "../types/index.js";
-import { createCanvas } from "canvas";
 import { codeString, placementSuffix } from "./helpers.js";
 
 export const statusRoles = [
@@ -21,6 +21,7 @@ export const memberRoles = ["Admin", "Owner", "Helper", "Member"].map((e) =>
   e.toLowerCase(),
 );
 
+export const GENERAL_CHANNEL = "💬│𝖦𝖾𝗇𝖾𝗋𝖺𝗅";
 export const EVERYONE = "@everyone";
 export const BUMPER = "Bumper";
 export const VERIFIED = statusRoles[0];
