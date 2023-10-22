@@ -49,7 +49,7 @@ export default {
     });
 
     const rolesWithoutUnverified = [...statusRoles].filter(
-      (role) => role !== "unverified",
+      (role) => role !== "Unverified",
     );
 
     // loop over all guild members
