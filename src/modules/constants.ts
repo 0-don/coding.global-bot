@@ -34,7 +34,9 @@ export const VERIFY_CHANNEL = "✅│𝖵𝖾𝗋𝗂𝖿𝗒";
 export const BOT_CHANNEL = "🤖│𝖡𝗈𝗍";
 export const VOICE_EVENT_CHANNEL = "🔔│𝖵𝗈𝗂𝖼𝖾-𝖤𝗏𝖾𝗇𝗍𝗌";
 export const JOIN_EVENTS_CHANNEL = "🌟│𝖩𝗈𝗂𝗇-𝖤𝗏𝖾𝗇𝗍𝗌";
-export const MEMBERS_COUNT_CHANNEL = "Members:";
+export const MEMBERS_COUNT_CHANNEL = "𝖬𝖾𝗆𝖻𝖾𝗋𝗌:";
+
+export const NUMBERS = "𝟢𝟣𝟤𝟥𝟦𝟧𝟨𝟩𝟪𝟫".split("");
 
 export const ROLE_TEMPLATE = "role template";
 export const MEMBERS_TEMPLATE = "members count";
