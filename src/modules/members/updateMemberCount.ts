@@ -1,5 +1,5 @@
 import type { GuildMember, PartialGuildMember } from "discord.js";
-import { MEMBERS_COUNT_CHANNEL, NUMBERS } from "../constants.js";
+import { MEMBERS_COUNT_CHANNEL } from "../constants.js";
 
 export const updateMemberCount = async (
   member: GuildMember | PartialGuildMember,
@@ -25,13 +25,6 @@ export const updateMemberCount = async (
 
   // set channel name as member count
   try {
-    await memberCountChannel.setName(`${MEMBERS_COUNT_CHANNEL} ${convertToCustomFont(memberCount)}`);
+    await memberCountChannel.setName(`${MEMBERS_COUNT_CHANNEL} ${memberCount}`);
   } catch (_) {}
 };
-
-function convertToCustomFont(number: number) {
-  return String(number)
-    .split("")
-    .map((digit) => NUMBERS[parseInt(digit, 10)])
-    .join("");
-}
