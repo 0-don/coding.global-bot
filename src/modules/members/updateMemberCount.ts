@@ -1,15 +1,15 @@
-import type { GuildMember, PartialGuildMember } from 'discord.js';
-import { MEMBERS_COUNT_CHANNEL } from '../constants.js';
+import type { GuildMember, PartialGuildMember } from "discord.js";
+import { MEMBERS_COUNT_CHANNEL, NUMBERS } from "../constants.js";
 
 export const updateMemberCount = async (
-  member: GuildMember | PartialGuildMember
+  member: GuildMember | PartialGuildMember,
 ) => {
   // dont add bots to the list
   if (member.user.bot) return;
 
   // find member: channel
   const memberCountChannel = member.guild.channels.cache.find((channel) =>
-    channel.name.includes(MEMBERS_COUNT_CHANNEL)
+    channel.name.includes(MEMBERS_COUNT_CHANNEL),
   );
 
   // if no channel return
@@ -20,11 +20,18 @@ export const updateMemberCount = async (
 
   // count members exc
   const memberCount = member.guild.members.cache.filter(
-    (member) => !member.user.bot
+    (member) => !member.user.bot,
   ).size;
 
   // set channel name as member count
   try {
-    await memberCountChannel.setName(`${MEMBERS_COUNT_CHANNEL} ${memberCount}`);
+    await memberCountChannel.setName(`${MEMBERS_COUNT_CHANNEL} ${convertToCustomFont(memberCount)}`);
   } catch (_) {}
 };
+
+function convertToCustomFont(number: number) {
+  return String(number)
+    .split("")
+    .map((digit) => NUMBERS[parseInt(digit, 10)])
+    .join("");
+}
