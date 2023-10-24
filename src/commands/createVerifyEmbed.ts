@@ -5,7 +5,6 @@ import type {
   CacheType,
   CommandInteraction,
   Message,
-  TextChannel,
 } from "discord.js";
 import { BOT_ICON, RED_COLOR, VERIFY_TEMPLATE } from "../modules/constants.js";
 
@@ -15,9 +14,6 @@ export default {
     .setDescription("verify all users in the server")
     .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
   async execute(interaction: CommandInteraction<CacheType>) {
-    // get text channel
-    const channel = (await interaction.channel?.fetch()) as TextChannel;
-
     // create verify embed
     const embed: APIEmbed = {
       color: RED_COLOR,
