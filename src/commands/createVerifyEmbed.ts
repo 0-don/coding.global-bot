@@ -7,12 +7,7 @@ import type {
   Message,
   TextChannel,
 } from "discord.js";
-import {
-  BOT_ICON,
-  RED_COLOR,
-  VERIFY_CHANNEL,
-  VERIFY_TEMPLATE,
-} from "../modules/constants.js";
+import { BOT_ICON, RED_COLOR, VERIFY_TEMPLATE } from "../modules/constants.js";
 
 export default {
   data: new SlashCommandBuilder()
@@ -22,9 +17,6 @@ export default {
   async execute(interaction: CommandInteraction<CacheType>) {
     // get text channel
     const channel = (await interaction.channel?.fetch()) as TextChannel;
-
-    // if not verify channel, return
-    if (channel.name !== VERIFY_CHANNEL) return;
 
     // create verify embed
     const embed: APIEmbed = {
