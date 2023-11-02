@@ -20,8 +20,8 @@ export const updateStatusRoles = async (
   const activeStatusRoles = statusRoles.some((role) => newRoles.includes(role));
 
   // if somehow user has no STATUS role make him unverfied
-  if (!newRoles.length || !activeStatusRoles)
-    joinRole(newMember as GuildMember, 'Unverified');
+  // if (!newRoles.length || !activeStatusRoles)
+  //   joinRole(newMember as GuildMember, 'Unverified');
   // only run if user has a new role
   if (oldRoles.length >= newRoles.length) return;
 
