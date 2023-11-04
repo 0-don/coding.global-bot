@@ -8,7 +8,7 @@ import {
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { moveMemberToChannel } from "../../modules/members/moveMemberToChannel.js";
+import { moveMemberToChannel } from "../../lib/members/moveMemberToChannel.js";
 import { prisma } from "../../prisma.js";
 
 @Discord()

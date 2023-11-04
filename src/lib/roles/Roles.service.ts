@@ -9,18 +9,9 @@ import {
   User,
 } from "discord.js";
 import { StatusRoles } from "../../types/index.js";
-import {
-  MUTE,
-  READ_ONLY,
-  VERIFIED,
-  VERIFY_TEMPLATE,
-  VOICE_ONLY,
-  statusRoles,
-} from "../constants.js";
+import { VERIFIED, VERIFY_TEMPLATE, statusRoles } from "../constants.js";
 
-const roles = [VERIFIED, VOICE_ONLY, READ_ONLY, MUTE];
-
-export class RolesModule {
+export class RolesService {
   static async joinRole(
     member: GuildMember | PartialGuildMember,
     role: StatusRoles,
@@ -77,13 +68,13 @@ export class RolesModule {
     // if icon reaction role on user then exit
     if (
       member?.roles.cache.some((role) =>
-        roles.includes(role.name as (typeof roles)[number]),
+        statusRoles.includes(role.name as (typeof statusRoles)[number]),
       )
     )
       return;
 
     // get icon reaction role
-    const guildStatusRoles = RolesModule.getGuildStatusRoles(
+    const guildStatusRoles = RolesService.getGuildStatusRoles(
       reaction.message.guild!,
     );
 

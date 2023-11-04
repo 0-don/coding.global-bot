@@ -2,11 +2,11 @@ import { log } from "console";
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { VERIFIED, statusRoles } from "../../modules/constants.js";
-import { MembersModule } from "../../modules/members/Members.module.js";
+import { VERIFIED, statusRoles } from "../../lib/constants.js";
+import { MembersService } from "../../lib/members/Members.service.js";
 
-import { RolesModule } from "../../modules/roles/Roles.module.js";
-import { recreateMemberDbRoles } from "../../modules/roles/recreateMemberDbRoles.js";
+import { RolesService } from "../../lib/roles/Roles.service.js";
+import { recreateMemberDbRoles } from "../../lib/roles/recreateMemberDbRoles.js";
 import { prisma } from "../../prisma.js";
 
 @Discord()
@@ -31,7 +31,7 @@ export class VerifyAllUsers {
     });
 
     // create a guild role key object pair
-    let guildStatusRoles = RolesModule.getGuildStatusRoles(interaction.guild);
+    let guildStatusRoles = RolesService.getGuildStatusRoles(interaction.guild);
 
     // if one of the roles is missing, return
     if (statusRoles.some((role) => !guildStatusRoles[role])) {
@@ -73,7 +73,7 @@ export class VerifyAllUsers {
       if (member.user.bot) continue;
 
       // check if user exists in db
-      await MembersModule.upsertDbMember(member, "join");
+      await MembersService.upsertDbMember(member, "join");
 
       // recreate roles delete old add new
       await recreateMemberDbRoles(member);

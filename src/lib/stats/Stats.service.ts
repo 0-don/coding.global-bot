@@ -5,7 +5,7 @@ import { ChartDataset } from "../../types/index.js";
 import { topStatsExampleEmbed, userStatsExampleEmbed } from "../constants.js";
 import { getDaysArray } from "../helpers.js";
 
-export class StatsModule {
+export class VoiceService {
   static async topStatsEmbed(guildId: string) {
     const limit = 10;
 
@@ -109,7 +109,7 @@ export class StatsModule {
       sevenDaysCount,
       mostActiveTextChannelId,
       mostActiveTextChannelMessageCount,
-    } = await StatsModule.messagesStats(
+    } = await VoiceService.messagesStats(
       memberId,
       guildId,
       memberGuild.lookback,
@@ -120,7 +120,7 @@ export class StatsModule {
       lookbackVoiceSum,
       sevenDayVoiceSum,
       oneDayVoiceSum,
-    } = await StatsModule.voiceStats(memberId, guildId, memberGuild.lookback);
+    } = await VoiceService.voiceStats(memberId, guildId, memberGuild.lookback);
 
     const embed = userStatsExampleEmbed({
       id: memberId,

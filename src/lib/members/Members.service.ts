@@ -23,7 +23,7 @@ import {
 } from "../constants.js";
 import { getDaysArray } from "../helpers.js";
 
-export class MembersModule {
+export class MembersService {
   static async upsertDbMember(
     member: GuildMember | PartialGuildMember,
     status: "join" | "leave",

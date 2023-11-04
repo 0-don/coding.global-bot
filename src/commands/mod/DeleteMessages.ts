@@ -1,7 +1,7 @@
 import type { CommandInteraction, Message, TextChannel } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { fetchMessages } from "../../modules/messages/fetchMessages.js";
+import { fetchMessages } from "../../lib/messages/fetchMessages.js";
 
 @Discord()
 export class DeleteMessages {
