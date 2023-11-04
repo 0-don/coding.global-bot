@@ -1,50 +1,21 @@
 {
-  // Mapped from https://www.typescriptlang.org/tsconfig
   "compilerOptions": {
-    // Type Checking
-    "skipLibCheck": true,
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    // if true: conflicts with discord-api-types
-    "exactOptionalPropertyTypes": false,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": true,
-    "strict": true,
-    "useUnknownInCatchVariables": true,
-    "noUncheckedIndexedAccess": true,
-
-    // Modules
+    "target": "ESNext",
     "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "resolveJsonModule": true,
-
-    // Emit
-    "declaration": false,
-    "importHelpers": true,
-    "inlineSources": true,
-    "newLine": "lf",
-    "noEmitHelpers": true,
     "outDir": "dist",
-    "preserveConstEnums": true,
-    "removeComments": false,
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "rootDir": "src",
+    "strict": true,
+    "moduleResolution": "NodeNext",
     "allowSyntheticDefaultImports": true,
 
-    // Language and Environment
-    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "lib": ["ESNext"],
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "typeRoots": ["./src/types/**.*"],
+    "emitDecoratorMetadata": true,
+
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts"]
+  "exclude": ["build", "node_modules"]
 }

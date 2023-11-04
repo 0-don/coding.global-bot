@@ -1,6 +1,6 @@
-import type { Message } from 'discord.js';
-import { prisma } from '../../prisma.js';
-import { deleteUserMessages } from './deleteUserMessages.js';
+import type { Message } from "discord.js";
+import { prisma } from "../../prisma.js";
+import { deleteUserMessages } from "./deleteUserMessages.js";
 
 export const checkWarnings = async (message: Message<boolean>) => {
   const content = message.content;
@@ -14,7 +14,7 @@ export const checkWarnings = async (message: Message<boolean>) => {
 
   if (!memberGuild) return;
 
-  if (content.includes('discord.gg/' || 'discordapp.com/invite/')) {
+  if (content.includes("discord.gg/" || "discordapp.com/invite/")) {
     await message.delete();
 
     const currentWarnings = memberGuild.warnings + 1;
@@ -26,7 +26,7 @@ export const checkWarnings = async (message: Message<boolean>) => {
 
     if (currentWarnings < 4) {
       await member.send(
-        `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be muted at 3 warnings.`
+        `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be muted at 3 warnings.`,
       );
     } else {
       await deleteUserMessages({

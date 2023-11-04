@@ -1,11 +1,11 @@
-import type { Prisma } from '@prisma/client';
-import type { GuildMember } from 'discord.js';
-import { prisma } from '../../prisma.js';
-import { EVERYONE } from '../constants.js';
+import type { Prisma } from "@prisma/client";
+import type { GuildMember } from "discord.js";
+import { prisma } from "../../prisma.js";
+import { EVERYONE } from "../constants.js";
 
 export const recreateMemberDbRoles = async (
   member: GuildMember,
-  reload?: boolean
+  reload?: boolean,
 ) => {
   // return if member is bot
   if (member.user.bot) return;
