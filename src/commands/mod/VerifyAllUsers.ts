@@ -2,11 +2,11 @@ import { log } from "console";
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { VERIFIED, statusRoles } from "../modules/constants.js";
-import { upsertDbMember } from "../modules/members/upsertDbMember.js";
-import { getGuildStatusRoles } from "../modules/roles/getGuildStatusRoles.js";
-import { recreateMemberDbRoles } from "../modules/roles/recreateMemberDbRoles.js";
-import { prisma } from "../prisma.js";
+import { VERIFIED, statusRoles } from "../../modules/constants.js";
+import { upsertDbMember } from "../../modules/members/upsertDbMember.js";
+import { getGuildStatusRoles } from "../../modules/roles/getGuildStatusRoles.js";
+import { recreateMemberDbRoles } from "../../modules/roles/recreateMemberDbRoles.js";
+import { prisma } from "../../prisma.js";
 
 @Discord()
 export class VerifyAllUsers {

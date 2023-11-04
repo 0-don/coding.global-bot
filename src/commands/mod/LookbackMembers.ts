@@ -1,7 +1,7 @@
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { prisma } from "../prisma.js";
+import { prisma } from "../../prisma.js";
 
 @Discord()
 export class LookbackMembers {
