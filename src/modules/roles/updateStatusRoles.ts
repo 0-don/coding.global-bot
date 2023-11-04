@@ -1,6 +1,7 @@
 import type { GuildMember, PartialGuildMember } from "discord.js";
 import { StatusRoles } from "../../types/index.js";
 import { EVERYONE, statusRoles } from "../constants.js";
+import { RolesModule } from "./Roles.module.js";
 
 export const updateStatusRoles = async (
   oldMember: GuildMember | PartialGuildMember,
@@ -19,8 +20,8 @@ export const updateStatusRoles = async (
   const activeStatusRoles = statusRoles.some((role) => newRoles.includes(role));
 
   // if somehow user has no STATUS role make him unverfied
-  // if (!newRoles.length || !activeStatusRoles)
-  //   joinRole(newMember as GuildMember, 'Unverified');
+  if (!newRoles.length || !activeStatusRoles)
+    RolesModule.joinRole(newMember as GuildMember, "Unverified");
   // only run if user has a new role
   if (oldRoles.length >= newRoles.length) return;
 
