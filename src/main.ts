@@ -46,6 +46,10 @@ const bot = new Client({
     Partials.GuildScheduledEvent,
     Partials.User,
   ],
+  silent: true,
+  simpleCommand: {
+    prefix: "/",
+  },
 });
 
 bot.once("ready", async () => {
