@@ -6,8 +6,8 @@ import {
   MEMBERS_TEMPLATE,
   RED_COLOR,
 } from "../../modules/constants.js";
-import { guildMemberCountChart } from "../../modules/members/guildMemberCountChart.js";
 import { codeString } from "../../modules/helpers.js";
+import { MembersModule } from "../../modules/members/Members.module.js";
 
 @Discord()
 export class Members {
@@ -33,7 +33,7 @@ export class Members {
       return await interaction.editReply("Please use this command in a server");
 
     // get guild member chart data from specifc guild
-    const chart = await guildMemberCountChart(interaction.guild);
+    const chart = await MembersModule.guildMemberCountChart(interaction.guild);
 
     // if error occured, return
     if (chart?.error) return await interaction.editReply(chart.error);
