@@ -5,6 +5,7 @@ import { APIEmbed, TextChannel, VoiceState } from "discord.js";
 import { prisma } from "../../prisma.js";
 import { VOICE_EVENT_CHANNEL, simpleEmbedExample } from "../constants.js";
 import { getDaysArray } from "../helpers.js";
+
 dayjs.extend(utc);
 
 export class VoiceModule {
