@@ -6,10 +6,8 @@ export const CHARTJS_NODE_CANVAS = GLOBAL_CANVAS.getContext("2d");
 export const TRANSLATOR = new deepl.Translator(process.env.DEEPL!);
 
 export const STATUS_ROLES = ["Verified", "VoiceOnly", "Jail", "Unverified"] as const;
-
 export const MEMBER_ROLES = ["Admin", "Owner", "Helper", "Member"] as const;
 
-export const GENERAL_CHANNEL = "💬│𝖦𝖾𝗇𝖾𝗋𝖺𝗅";
 export const EVERYONE = "@everyone";
 export const BUMPER = "Bumper";
 export const VERIFIED = STATUS_ROLES[0];
@@ -17,6 +15,7 @@ export const VOICE_ONLY = STATUS_ROLES[1];
 export const JAIL = STATUS_ROLES[2];
 export const UNVERIFIED = STATUS_ROLES[3];
 
+export const GENERAL_CHANNEL = "💬│𝖦𝖾𝗇𝖾𝗋𝖺𝗅";
 export const VERIFY_CHANNEL = "✅│𝖵𝖾𝗋𝗂𝖿𝗒";
 export const BOT_CHANNEL = "🤖│𝖡𝗈𝗍";
 export const VOICE_EVENT_CHANNEL = "🔔│𝖵𝗈𝗂𝖼𝖾-𝖤𝗏𝖾𝗇𝗍𝗌";
