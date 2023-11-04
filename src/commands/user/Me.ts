@@ -2,7 +2,7 @@ import type { CommandInteraction, TextChannel } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { BOT_CHANNEL } from "../../modules/constants.js";
-import { userStatsEmbed } from "../../modules/stats/userStatsEmbed.js";
+import { StatsModule } from "../../modules/stats/Stats.module.js";
 
 @Discord()
 export class Me {
@@ -24,7 +24,7 @@ export class Me {
         "Please use this command in the bot channel",
       );
 
-    const embed = await userStatsEmbed(interaction);
+    const embed = await StatsModule.userStatsEmbed(interaction);
 
     if (typeof embed === "string") return await interaction.editReply(embed);
 
