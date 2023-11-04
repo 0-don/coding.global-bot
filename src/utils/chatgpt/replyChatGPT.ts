@@ -1,7 +1,7 @@
 import { Message, MessageType, TextChannel } from "discord.js";
-import { GENERAL_CHANNEL, memberRoles } from "../constants.js";
-import { chunkedSend } from "../messages/chunkedSend.js";
-import { fetchMessages } from "../messages/fetchMessages.js";
+import { GENERAL_CHANNEL, memberRoles } from "../../modules/constants.js";
+import { chunkedSend } from "../../modules/messages/chunkedSend.js";
+import { fetchMessages } from "../../modules/messages/fetchMessages.js";
 import { getTextFromImage } from "../tesseract/tesseract.js";
 import { askChatGPT } from "./askChatGPT.js";
 

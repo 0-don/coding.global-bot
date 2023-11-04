@@ -2,9 +2,9 @@ import { ChatMessage } from "chatgpt";
 import dayjs from "dayjs";
 import type { CacheType, CommandInteraction, User } from "discord.js";
 import { gpt } from "../../chatgpt.js";
+import { chunkedSend } from "../../modules/messages/chunkedSend.js";
 import { prisma } from "../../prisma.js";
 import { ChatGptError } from "../../types/index.js";
-import { chunkedSend } from "../messages/chunkedSend.js";
 
 export const askChatGPT = async ({
   interaction,
