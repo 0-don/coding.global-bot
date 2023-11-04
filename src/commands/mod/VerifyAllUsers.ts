@@ -4,7 +4,8 @@ import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { VERIFIED, statusRoles } from "../../modules/constants.js";
 import { MembersModule } from "../../modules/members/Members.module.js";
-import { getGuildStatusRoles } from "../../modules/roles/getGuildStatusRoles.js";
+
+import { RolesModule } from "../../modules/roles/Roles.module.js";
 import { recreateMemberDbRoles } from "../../modules/roles/recreateMemberDbRoles.js";
 import { prisma } from "../../prisma.js";
 
@@ -30,7 +31,7 @@ export class VerifyAllUsers {
     });
 
     // create a guild role key object pair
-    let guildStatusRoles = getGuildStatusRoles(interaction.guild);
+    let guildStatusRoles = RolesModule.getGuildStatusRoles(interaction.guild);
 
     // if one of the roles is missing, return
     if (statusRoles.some((role) => !guildStatusRoles[role])) {

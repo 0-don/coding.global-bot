@@ -1,6 +1,6 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { verifyReaction } from "../modules/roles/verifyReaction.js";
+import { RolesModule } from "../modules/roles/Roles.module.js";
 
 @Discord()
 export class MessageReactionAdd {
@@ -13,7 +13,7 @@ export class MessageReactionAdd {
     await reaction.fetch();
 
     // add verify role on like reaction in verify template
-    await verifyReaction(reaction, user);
+    await RolesModule.verifyReaction(reaction, user);
 
     return;
   }
