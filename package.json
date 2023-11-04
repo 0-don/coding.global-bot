@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "npx prisma migrate deploy && cross-env NODE_ENV=production node build/main.js",
+    "start": "npx prisma migrate deploy && cross-env NODE_ENV=production node dist/main.js",
     "dev": "ts-node --esm src/main.ts",
     "watch": "nodemon --exec ts-node-esm src/main.ts",
     "prisma": "npx prisma migrate dev --name init & npx prisma generate",
