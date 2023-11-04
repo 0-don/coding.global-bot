@@ -5,8 +5,15 @@ export const GLOBAL_CANVAS = createCanvas(1200, 400);
 export const CHARTJS_NODE_CANVAS = GLOBAL_CANVAS.getContext("2d");
 export const TRANSLATOR = new deepl.Translator(process.env.DEEPL!);
 
+export const HELPER_ROLES = ["Helper", "Senior Helper", "Lead Helper"] as const;
 export const STATUS_ROLES = ["Verified", "VoiceOnly", "Jail", "Unverified"] as const;
-export const MEMBER_ROLES = ["Admin", "Owner", "Helper", "Member"] as const;
+export const MEMBER_ROLES = ["Admin", "Owner", "Helper", "Member", ...HELPER_ROLES] as const;
+
+export const HELPER_RANKING = [
+  { name: HELPER_ROLES[0], points: 10 },
+  { name: HELPER_ROLES[1], points: 25 },
+  { name: HELPER_ROLES[2], points: 100 },
+];
 
 export const EVERYONE = "@everyone";
 export const BUMPER = "Bumper";

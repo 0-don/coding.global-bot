@@ -61,20 +61,20 @@ model MemberGuild {
   status   Boolean
   nickname String?
 
-  moveCounter Int     @default(0) // /troll-move-user
-  moving      Boolean @default(false) // /troll-move-user
-  moveTimeout Int     @default(0) // /troll-move-user
+  moveCounter Int     @default(0) // troll-move-user command
+  moving      Boolean @default(false) // troll-move-user command
+  moveTimeout Int     @default(0) // troll-move-user command
 
   warnings Int @default(0) // spamming external links
 
   gptId   String? // gpt session key
   gptDate DateTime @default(now()) // refresh session every 30 minutes
 
-  
+  muted    Boolean @default(false) // if true, mute on join
+  deafened Boolean @default(false) // if true, deafen on join
+  lookback Int     @default(9999) // stats looback period
 
-  muted    Boolean @default(false)
-  deafened Boolean @default(false)
-  lookback Int     @default(9999)
+  helpCounter Int @default(0) // helped in threads
 
   member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
   guild  Guild  @relation(fields: [guildId], references: [guildId])
