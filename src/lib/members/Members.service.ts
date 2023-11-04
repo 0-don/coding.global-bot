@@ -18,10 +18,9 @@ import {
   GLOBAL_CANVAS,
   JOIN_EVENTS_CHANNEL,
   MEMBERS_COUNT_CHANNEL,
-  chartConfig,
-  simpleEmbedExample,
 } from "../constants.js";
-import { getDaysArray } from "../helpers.js";
+import { simpleEmbedExample } from "../embeds.js";
+import { chartConfig, getDaysArray } from "../helpers.js";
 
 export class MembersService {
   static async upsertDbMember(

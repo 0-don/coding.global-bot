@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import { CacheType, CommandInteraction, GuildMember, User } from "discord.js";
 import { prisma } from "../../prisma.js";
 import { ChartDataset } from "../../types/index.js";
-import { topStatsExampleEmbed, userStatsExampleEmbed } from "../constants.js";
+import { topStatsExampleEmbed, userStatsExampleEmbed } from "../embeds.js";
 import { getDaysArray } from "../helpers.js";
 
 export class VoiceService {

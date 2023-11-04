@@ -3,7 +3,8 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import { APIEmbed, TextChannel, VoiceState } from "discord.js";
 import { prisma } from "../../prisma.js";
-import { VOICE_EVENT_CHANNEL, simpleEmbedExample } from "../constants.js";
+import { VOICE_EVENT_CHANNEL } from "../constants.js";
+import { simpleEmbedExample } from "../embeds.js";
 import { getDaysArray } from "../helpers.js";
 
 dayjs.extend(utc);
