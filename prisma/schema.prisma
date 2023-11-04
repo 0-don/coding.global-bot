@@ -55,22 +55,29 @@ model MemberMessages {
 }
 
 model MemberGuild {
-  id          Int      @id @default(autoincrement())
-  memberId    String
-  guildId     String
-  status      Boolean
-  nickname    String?
-  moveCounter Int      @default(0)
-  moving      Boolean  @default(false)
-  moveTimeout Int      @default(0)
-  warnings    Int      @default(0)
-  gptId       String?
-  gptDate     DateTime @default(now())
-  muted       Boolean  @default(false)
-  deafened    Boolean  @default(false)
-  lookback    Int      @default(9999)
-  member      Member   @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
-  guild       Guild    @relation(fields: [guildId], references: [guildId])
+  id       Int     @id @default(autoincrement())
+  memberId String
+  guildId  String
+  status   Boolean
+  nickname String?
+
+  moveCounter Int     @default(0) // /troll-move-user
+  moving      Boolean @default(false) // /troll-move-user
+  moveTimeout Int     @default(0) // /troll-move-user
+
+  warnings Int @default(0) // spamming external links
+
+  gptId   String? // gpt session key
+  gptDate DateTime @default(now()) // refresh session every 30 minutes
+
+  
+
+  muted    Boolean @default(false)
+  deafened Boolean @default(false)
+  lookback Int     @default(9999)
+
+  member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
+  guild  Guild  @relation(fields: [guildId], references: [guildId])
 
   @@unique([memberId, guildId], name: "member_guild")
 }
