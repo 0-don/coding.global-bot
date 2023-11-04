@@ -9,7 +9,6 @@ import { codeString, placementSuffix } from "./helpers.js";
 export const statusRoles = [
   "Verified",
   "VoiceOnly",
-  "ReadOnly",
   "Jail",
   "Unverified",
 ] as const;
@@ -25,7 +24,6 @@ export const VERIFIED = statusRoles[0];
 export const VOICE_ONLY = statusRoles[1];
 export const READ_ONLY = statusRoles[2];
 export const MUTE = statusRoles[3];
-export const UNVERIFIED = statusRoles[4];
 
 export const VERIFY_CHANNEL = "✅│𝖵𝖾𝗋𝗂𝖿𝗒";
 export const BOT_CHANNEL = "🤖│𝖡𝗈𝗍";
@@ -33,14 +31,10 @@ export const VOICE_EVENT_CHANNEL = "🔔│𝖵𝗈𝗂𝖼𝖾-𝖤𝗏𝖾𝗇
 export const JOIN_EVENTS_CHANNEL = "🌟│𝖩𝗈𝗂𝗇-𝖤𝗏𝖾𝗇𝗍𝗌";
 export const MEMBERS_COUNT_CHANNEL = "𝖬𝖾𝗆𝖻𝖾𝗋𝗌:";
 
-export const NUMBERS = "𝟢𝟣𝟤𝟥𝟦𝟧𝟨𝟩𝟪𝟫".split("");
-
-export const ROLE_TEMPLATE = "role template";
 export const MEMBERS_TEMPLATE = "members count";
 export const STATS_TEMPLATE = "user stats";
 export const TOP_STATS_TEMPLATE = "top stats";
 export const VERIFY_TEMPLATE = "verify yourself";
-export const BUMP_LEADERBOARDS_TEMPLATE = "bump leaderboard";
 
 export const RED_COLOR = 0xff0000;
 export const BOT_ICON =
@@ -52,18 +46,6 @@ export const simpleEmbedExample: APIEmbed = {
   timestamp: new Date().toISOString(),
   footer: {
     text: "*",
-    icon_url: BOT_ICON,
-  },
-};
-
-export const roleTemplateExampleEmbed: APIEmbed = {
-  color: RED_COLOR,
-  title: "Server Roles",
-  description: "Select your roles",
-  fields: [],
-  timestamp: new Date().toISOString(),
-  footer: {
-    text: ROLE_TEMPLATE,
     icon_url: BOT_ICON,
   },
 };
