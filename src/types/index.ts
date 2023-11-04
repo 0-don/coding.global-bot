@@ -1,5 +1,6 @@
 import type { GuildVoiceEvents, MemberMessages } from "@prisma/client";
 import type { STATUS_ROLES } from "../lib/constants.js";
+import "./enviroment.js";
 
 export type StatusRoles = (typeof STATUS_ROLES)[number];
 
