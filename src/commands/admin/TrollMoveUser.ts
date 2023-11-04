@@ -8,8 +8,8 @@ import {
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { moveMemberToChannel } from "../modules/members/moveMemberToChannel.js";
-import { prisma } from "../prisma.js";
+import { moveMemberToChannel } from "../../modules/members/moveMemberToChannel.js";
+import { prisma } from "../../prisma.js";
 
 @Discord()
 export class TrollMoveUser {

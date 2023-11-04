@@ -1,8 +1,8 @@
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { BOT_CHANNEL } from "../modules/constants.js";
-import { userStatsEmbed } from "../modules/stats/userStatsEmbed.js";
+import { BOT_CHANNEL } from "../../modules/constants.js";
+import { userStatsEmbed } from "../../modules/stats/userStatsEmbed.js";
 
 @Discord()
 export class Me {

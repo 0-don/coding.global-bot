@@ -1,7 +1,7 @@
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { BOT_CHANNEL } from "../modules/constants.js";
-import { topStatsEmbed } from "../modules/stats/topStatsEmbed.js";
+import { BOT_CHANNEL } from "../../modules/constants.js";
+import { topStatsEmbed } from "../../modules/stats/topStatsEmbed.js";
 
 @Discord()
 export class Top {
