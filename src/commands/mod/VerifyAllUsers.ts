@@ -2,7 +2,7 @@ import { log } from "console";
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { STATUS_ROLES, VERIFIED } from "../../lib/constants.js";
+import { STATUS_ROLES, UNVERIFIED, VERIFIED } from "../../lib/constants.js";
 import { MembersService } from "../../lib/members/Members.service.js";
 
 import { RolesService } from "../../lib/roles/Roles.service.js";
@@ -48,7 +48,7 @@ export class VerifyAllUsers {
       content: `updating user count:${members.size}`,
     });
 
-    const rolesWithoutUnverified = [...STATUS_ROLES].filter((role) => role !== "Unverified");
+    const rolesWithoutUnverified = [...STATUS_ROLES].filter((role) => role !== UNVERIFIED);
 
     // loop over all guild members
     for (let memberCollection of members) {
