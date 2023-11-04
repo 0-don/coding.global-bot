@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "exports": "./dist/index.js",
   "type": "module",
-  "license": "MIT",
+  "private": true,
   "scripts": {
     "start": "npx prisma migrate deploy && cross-env NODE_ENV=production node build/main.js",
     "dev": "ts-node --esm src/main.ts",
