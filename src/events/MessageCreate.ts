@@ -1,10 +1,10 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { replyChatGPT } from "../modules/chatgpt/replyChatGPT.js";
 import { addMessageDb } from "../modules/messages/addMessageDb.js";
 import { checkWarnings } from "../modules/messages/checkWarnings.js";
 import { cleanUpVerifyChannel } from "../modules/messages/cleanUpVerifyChannel.js";
 import { translateReply } from "../modules/messages/translateReply.js";
+import { replyChatGPT } from "../utils/chatgpt/replyChatGPT.js";
 
 @Discord()
 export class MessageCreate {
