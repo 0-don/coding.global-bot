@@ -2,7 +2,7 @@ import { log } from "console";
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { VERIFIED, statusRoles } from "../../lib/constants.js";
+import { STATUS_ROLES, VERIFIED } from "../../lib/constants.js";
 import { MembersService } from "../../lib/members/Members.service.js";
 
 import { RolesService } from "../../lib/roles/Roles.service.js";
@@ -34,13 +34,11 @@ export class VerifyAllUsers {
     let guildStatusRoles = RolesService.getGuildStatusRoles(interaction.guild);
 
     // if one of the roles is missing, return
-    if (statusRoles.some((role) => !guildStatusRoles[role])) {
-      const content = statusRoles
-        .map(
-          (role) =>
-            `${role}: ${new Boolean(!!guildStatusRoles[role]).toString()}`,
-        )
-        .join("\n");
+    if (STATUS_ROLES.some((role) => !guildStatusRoles[role])) {
+      const content = STATUS_ROLES.map(
+        (role) =>
+          `${role}: ${new Boolean(!!guildStatusRoles[role]).toString()}`,
+      ).join("\n");
       return await interaction.editReply({ content });
     }
 
@@ -51,7 +49,7 @@ export class VerifyAllUsers {
       content: `updating user count:${members.size}`,
     });
 
-    const rolesWithoutUnverified = [...statusRoles].filter(
+    const rolesWithoutUnverified = [...STATUS_ROLES].filter(
       (role) => role !== "Unverified",
     );
 
