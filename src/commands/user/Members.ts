@@ -6,7 +6,7 @@ import {
   MEMBERS_TEMPLATE,
   RED_COLOR,
 } from "../../modules/constants.js";
-import { guildMemberCountChart } from "../../modules/guilds/guildMemberCountChart.js";
+import { guildMemberCountChart } from "../../modules/members/guildMemberCountChart.js";
 import { codeString } from "../../modules/helpers.js";
 
 @Discord()
