@@ -9,7 +9,7 @@ import {
   User,
 } from "discord.js";
 import { StatusRoles } from "../../types/index.js";
-import { VERIFIED, VERIFY_TEMPLATE, statusRoles } from "../constants.js";
+import { STATUS_ROLES, VERIFIED, VERIFY_TEMPLATE } from "../constants.js";
 
 export class RolesService {
   static async joinRole(
@@ -27,7 +27,7 @@ export class RolesService {
     // if status role on user then exit
     if (
       member.roles.cache.some((role) =>
-        statusRoles.includes(role.name as StatusRoles),
+        STATUS_ROLES.includes(role.name as StatusRoles),
       ) ||
       !addRole
     )
@@ -42,7 +42,7 @@ export class RolesService {
       [x: string]: Role | undefined;
     } = {};
     //check for verified roles "verified", "voiceOnly", "readOnly", "mute", "unverified"
-    for (let role of statusRoles)
+    for (let role of STATUS_ROLES)
       guildStatusRoles[role] = guild?.roles.cache.find(
         ({ name }) => name === role,
       );
@@ -68,7 +68,7 @@ export class RolesService {
     // if icon reaction role on user then exit
     if (
       member?.roles.cache.some((role) =>
-        statusRoles.includes(role.name as (typeof statusRoles)[number]),
+        STATUS_ROLES.includes(role.name as (typeof STATUS_ROLES)[number]),
       )
     )
       return;

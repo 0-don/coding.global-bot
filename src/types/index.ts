@@ -1,9 +1,7 @@
 import type { GuildVoiceEvents, MemberMessages } from "@prisma/client";
-import type { statusRoles } from "../lib/constants.js";
-import "./discord.js";
-import "./enviroment.js";
+import type { STATUS_ROLES } from "../lib/constants.js";
 
-export type StatusRoles = (typeof statusRoles)[number];
+export type StatusRoles = (typeof STATUS_ROLES)[number];
 
 export type ChartDataset = { x: Date; y: number };
 

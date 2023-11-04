@@ -14,11 +14,11 @@ import path from "path";
 import { prisma } from "../../prisma.js";
 import { ChartDataset, GuildMemberCountChart } from "../../types/index.js";
 import {
+  CHARTJS_NODE_CANVAS,
+  GLOBAL_CANVAS,
   JOIN_EVENTS_CHANNEL,
   MEMBERS_COUNT_CHANNEL,
   chartConfig,
-  chartJSNodeCanvas,
-  globalCanvas,
   simpleEmbedExample,
 } from "../constants.js";
 import { getDaysArray } from "../helpers.js";
@@ -200,12 +200,15 @@ export class MembersService {
     );
 
     // render image from chartjs config as png
-    new Chart(chartJSNodeCanvas as unknown as CanvasRenderingContext2D, config);
+    new Chart(
+      CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D,
+      config,
+    );
 
     // crete local img file
     const fileName = `${guildId}.png`;
     const imgPath = path.join(path.resolve(), fileName);
-    writeFileSync(fileName, globalCanvas.toBuffer("image/png"));
+    writeFileSync(fileName, GLOBAL_CANVAS.toBuffer("image/png"));
 
     log(`Created guild member count ${guildName}`);
 

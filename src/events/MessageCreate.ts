@@ -4,7 +4,7 @@ import { Discord, On, SimpleCommand } from "discordx";
 import { askChatGPT } from "../chatgpt/askChatGPT.js";
 import { chunkedSend } from "../chatgpt/chunkedSend.js";
 import { getTextFromImage } from "../chatgpt/tesseract.js";
-import { GENERAL_CHANNEL, memberRoles } from "../lib/constants.js";
+import { GENERAL_CHANNEL, MEMBER_ROLES } from "../lib/constants.js";
 import { translate } from "../lib/helpers.js";
 import { MessagesService } from "../lib/messages/Messages.service.js";
 import { checkWarnings } from "../lib/messages/checkWarnings.js";
@@ -63,7 +63,7 @@ export class MessageCreate {
       if (
         channel.name === GENERAL_CHANNEL &&
         !guildMember?.roles.cache.some((role) =>
-          memberRoles.includes(role.name.toLowerCase()),
+          MEMBER_ROLES.includes(role.name as (typeof MEMBER_ROLES)[number]),
         )
       ) {
         return channel.send(

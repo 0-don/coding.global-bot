@@ -1,6 +1,6 @@
 import type { GuildMember, PartialGuildMember } from "discord.js";
 import { StatusRoles } from "../../types/index.js";
-import { EVERYONE, statusRoles } from "../constants.js";
+import { EVERYONE, STATUS_ROLES } from "../constants.js";
 import { RolesService } from "./Roles.service.js";
 
 export const updateStatusRoles = async (
@@ -17,7 +17,9 @@ export const updateStatusRoles = async (
     .map((role) => role.name);
 
   // check if status role exist
-  const activeStatusRoles = statusRoles.some((role) => newRoles.includes(role));
+  const activeStatusRoles = STATUS_ROLES.some((role) =>
+    newRoles.includes(role),
+  );
 
   // if somehow user has no STATUS role make him unverfied
   if (!newRoles.length || !activeStatusRoles)
@@ -30,8 +32,8 @@ export const updateStatusRoles = async (
   )[0] as StatusRoles;
 
   // check if role is a status role if yes then remove the unused status role
-  if (statusRoles.includes(newAddedRole)) {
-    const unusedRoles = statusRoles.filter((role) => newAddedRole !== role);
+  if (STATUS_ROLES.includes(newAddedRole)) {
+    const unusedRoles = STATUS_ROLES.filter((role) => newAddedRole !== role);
     unusedRoles.forEach((roleName) => {
       const role = newMember.roles.cache.find((r) => r.name === roleName);
       if (role) newMember.roles.remove(role);
