@@ -1,9 +1,9 @@
 import { ChatMessage } from "chatgpt";
 import dayjs from "dayjs";
 import type { CacheType, CommandInteraction, User } from "discord.js";
-import { gpt } from "../../chatgpt.js";
-import { prisma } from "../../prisma.js";
-import { ChatGptError } from "../../types/index.js";
+import { gpt } from "../chatgpt.js";
+import { prisma } from "../prisma.js";
+import { ChatGptError } from "../types/index.js";
 import { chunkedSend } from "./chunkedSend.js";
 
 export const askChatGPT = async ({

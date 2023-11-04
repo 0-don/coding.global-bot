@@ -1,9 +1,9 @@
 import { GuildMember } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { joinSettings } from "../modules/members/joinNickname.js";
-import { moveMemberToChannel } from "../modules/members/moveMemberToChannel.js";
-import { VoiceModule } from "../modules/voice/Voice.module.js";
+import { joinSettings } from "../lib/members/joinNickname.js";
+import { moveMemberToChannel } from "../lib/members/moveMemberToChannel.js";
+import { VoiceModule } from "../lib/voice/Voice.service.js";
 import { prisma } from "../prisma.js";
 
 @Discord()

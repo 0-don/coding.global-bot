@@ -1,6 +1,6 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { MembersModule } from "../modules/members/Members.module.js";
+import { MembersService } from "../lib/members/Members.service.js";
 
 @Discord()
 export class GuildMemberRemove {
@@ -10,10 +10,10 @@ export class GuildMemberRemove {
     client: Client,
   ) {
     // create or update user with his roles
-    await MembersModule.upsertDbMember(member, "leave");
+    await MembersService.upsertDbMember(member, "leave");
 
     // update user count channel
-    await MembersModule.updateMemberCount(member);
+    await MembersService.updateMemberCount(member);
 
     //  await logJoinLeaveEvents(member, 'leave')
   }

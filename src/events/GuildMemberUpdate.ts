@@ -1,8 +1,8 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { updateNickname } from "../modules/members/saveNickname.js";
-import { updateDbRoles } from "../modules/roles/updateDbRoles.js";
-import { updateStatusRoles } from "../modules/roles/updateStatusRoles.js";
+import { updateNickname } from "../lib/members/saveNickname.js";
+import { updateDbRoles } from "../lib/roles/updateDbRoles.js";
+import { updateStatusRoles } from "../lib/roles/updateStatusRoles.js";
 
 @Discord()
 export class GuildMemberUpdate {

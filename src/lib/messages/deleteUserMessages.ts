@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { ChannelType, Guild, User } from "discord.js";
 import { prisma } from "../../prisma.js";
 import { MUTE } from "../constants.js";
-import { RolesModule } from "../roles/Roles.module.js";
+import { RolesService } from "../roles/Roles.service.js";
 
 export const deleteUserMessages = async ({
   guild,
@@ -20,7 +20,7 @@ export const deleteUserMessages = async ({
 }) => {
   if (jail) {
     //get status roles
-    const guildStatusRoles = RolesModule.getGuildStatusRoles(guild);
+    const guildStatusRoles = RolesService.getGuildStatusRoles(guild);
 
     // delete all roles
     await prisma.memberRole.deleteMany({

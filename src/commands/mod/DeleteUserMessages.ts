@@ -1,7 +1,7 @@
 import type { CommandInteraction, User } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashChoice, SlashOption } from "discordx";
-import { deleteUserMessages } from "../../modules/messages/deleteUserMessages.js";
+import { deleteUserMessages } from "../../lib/messages/deleteUserMessages.js";
 
 @Discord()
 export class DeleteMessages {

@@ -2,7 +2,7 @@ import { Message, MessageType, PartialMessage, TextChannel } from "discord.js";
 import { prisma } from "../../prisma.js";
 import { VERIFY_CHANNEL } from "../constants.js";
 
-export class MessagesModule {
+export class MessagesService {
   static async addMessageDb(message: Message<boolean>) {
     // check if disboard bump command was used
 

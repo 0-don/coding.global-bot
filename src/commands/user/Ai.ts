@@ -1,8 +1,8 @@
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { askChatGPT } from "../../utils/chatgpt/askChatGPT.js";
-import { chunkedSend } from "../../utils/chatgpt/chunkedSend.js";
+import { askChatGPT } from "../../chatgpt/askChatGPT.js";
+import { chunkedSend } from "../../chatgpt/chunkedSend.js";
 
 @Discord()
 export class Ai {

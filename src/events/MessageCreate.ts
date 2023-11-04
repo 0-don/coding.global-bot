@@ -1,27 +1,27 @@
 import { Message, MessageType, TextChannel } from "discord.js";
 import type { ArgsOf, Client, SimpleCommandMessage } from "discordx";
 import { Discord, On, SimpleCommand } from "discordx";
-import { GENERAL_CHANNEL, memberRoles } from "../modules/constants.js";
-import { translate } from "../modules/helpers.js";
-import { MessagesModule } from "../modules/messages/Messages.module.js";
-import { checkWarnings } from "../modules/messages/checkWarnings.js";
-import { fetchMessages } from "../modules/messages/fetchMessages.js";
-import { askChatGPT } from "../utils/chatgpt/askChatGPT.js";
-import { chunkedSend } from "../utils/chatgpt/chunkedSend.js";
-import { getTextFromImage } from "../utils/tesseract/tesseract.js";
+import { askChatGPT } from "../chatgpt/askChatGPT.js";
+import { chunkedSend } from "../chatgpt/chunkedSend.js";
+import { getTextFromImage } from "../chatgpt/tesseract.js";
+import { GENERAL_CHANNEL, memberRoles } from "../lib/constants.js";
+import { translate } from "../lib/helpers.js";
+import { MessagesService } from "../lib/messages/Messages.service.js";
+import { checkWarnings } from "../lib/messages/checkWarnings.js";
+import { fetchMessages } from "../lib/messages/fetchMessages.js";
 
 @Discord()
 export class MessageCreate {
   @On({ event: "messageCreate" })
   async messageCreate([message]: ArgsOf<"messageCreate">, client: Client) {
     // remove regular messages in verify channel
-    await MessagesModule.cleanUpVerifyChannel(message);
+    await MessagesService.cleanUpVerifyChannel(message);
 
     //delete messages with links
     await checkWarnings(message);
 
     // add Message to Database for statistics
-    await MessagesModule.addMessageDb(message);
+    await MessagesService.addMessageDb(message);
   }
 
   @SimpleCommand({ aliases: ["translate"] })

@@ -5,8 +5,8 @@ import {
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { BOT_CHANNEL } from "../../modules/constants.js";
-import { StatsModule } from "../../modules/stats/Stats.module.js";
+import { BOT_CHANNEL } from "../../lib/constants.js";
+import { VoiceService } from "../../lib/stats/Stats.service.js";
 
 @Discord()
 export class UserCommand {
@@ -36,7 +36,7 @@ export class UserCommand {
         "Please use this command in the bot channel",
       );
 
-    const embed = await StatsModule.userStatsEmbed(interaction, user);
+    const embed = await VoiceService.userStatsEmbed(interaction, user);
 
     if (typeof embed === "string") return await interaction.editReply(embed);
 
