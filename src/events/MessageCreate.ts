@@ -12,7 +12,7 @@ import { getTextFromImage } from "../utils/tesseract/tesseract.js";
 
 @Discord()
 export class MessageCreate {
-  @On()
+  @On({ event: "messageCreate" })
   async messageCreate([message]: ArgsOf<"messageCreate">, client: Client) {
     // remove regular messages in verify channel
     await MessagesModule.cleanUpVerifyChannel(message);
