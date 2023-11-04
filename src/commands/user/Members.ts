@@ -1,11 +1,6 @@
 import type { APIEmbed, CommandInteraction, TextChannel } from "discord.js";
 import { Discord, Slash } from "discordx";
-import {
-  BOT_CHANNEL,
-  BOT_ICON,
-  MEMBERS_TEMPLATE,
-  RED_COLOR,
-} from "../../lib/constants.js";
+import { BOT_CHANNEL, BOT_ICON, MEMBERS_TEMPLATE, RED_COLOR } from "../../lib/constants.js";
 import { codeString } from "../../lib/helpers.js";
 import { MembersService } from "../../lib/members/Members.service.js";
 
@@ -23,14 +18,10 @@ export class Members {
     await interaction.deferReply();
 
     // if not bot channel, return
-    if (channel.name !== BOT_CHANNEL)
-      return await interaction.editReply(
-        "Please use this command in the bot channel",
-      );
+    if (channel.name !== BOT_CHANNEL) return await interaction.editReply("Please use this command in the bot channel");
 
     // if somehow no guild, return
-    if (!interaction.guild)
-      return await interaction.editReply("Please use this command in a server");
+    if (!interaction.guild) return await interaction.editReply("Please use this command in a server");
 
     // get guild member chart data from specifc guild
     const chart = await MembersService.guildMemberCountChart(interaction.guild);
@@ -44,9 +35,7 @@ export class Members {
     };
 
     const count = interaction.guild.members.cache.size;
-    const memberCount = interaction.guild.members.cache.filter(
-      (member) => !member.user.bot,
-    ).size;
+    const memberCount = interaction.guild.members.cache.filter((member) => !member.user.bot).size;
     const botCount = count - memberCount;
 
     const thirtyDaysPercent = (chart.thirtyDaysCount! * 100) / memberCount;

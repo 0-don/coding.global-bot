@@ -1,4 +1,4 @@
-import { ChatGPTAPI } from 'chatgpt';
+import { ChatGPTAPI } from "chatgpt";
 
 const globalForPrisma = global as unknown as { api: ChatGPTAPI };
 
@@ -7,8 +7,8 @@ export const gpt =
   new ChatGPTAPI({
     apiKey: process.env.OPEN_AI,
     completionParams: {
-      model: 'gpt-3.5-turbo',
+      model: "gpt-3.5-turbo",
     },
   });
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.api = gpt;
+if (process.env.NODE_ENV !== "production") globalForPrisma.api = gpt;

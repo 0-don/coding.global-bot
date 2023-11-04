@@ -1,10 +1,7 @@
-import type { GuildMember, PartialGuildMember, VoiceState } from 'discord.js';
-import { prisma } from '../../prisma.js';
+import type { GuildMember, PartialGuildMember, VoiceState } from "discord.js";
+import { prisma } from "../../prisma.js";
 
-export const joinSettings = async (
-  member: GuildMember | PartialGuildMember,
-  voiceState?: VoiceState
-) => {
+export const joinSettings = async (member: GuildMember | PartialGuildMember, voiceState?: VoiceState) => {
   // dont add bots to the list
   if (member && member?.user?.bot) return;
 
@@ -23,11 +20,9 @@ export const joinSettings = async (
     }
 
     if (voiceState?.channelId) {
-      if (member.voice.serverMute !== guildMember.muted)
-        await member.voice.setMute(guildMember.muted);
+      if (member.voice.serverMute !== guildMember.muted) await member.voice.setMute(guildMember.muted);
 
-      if (member.voice.serverDeaf !== guildMember.deafened)
-        await member.voice.setDeaf(guildMember.deafened);
+      if (member.voice.serverDeaf !== guildMember.deafened) await member.voice.setDeaf(guildMember.deafened);
     }
   }
 };

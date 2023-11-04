@@ -19,10 +19,7 @@ export class Me {
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
     // if not bot channel, return
-    if (channel.name !== BOT_CHANNEL)
-      return await interaction.editReply(
-        "Please use this command in the bot channel",
-      );
+    if (channel.name !== BOT_CHANNEL) return await interaction.editReply("Please use this command in the bot channel");
 
     const embed = await VoiceService.userStatsEmbed(interaction);
 

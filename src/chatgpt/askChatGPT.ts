@@ -23,13 +23,9 @@ export const askChatGPT = async ({
 
   if (!memberGuild) return null;
 
-  const content = reply
-    ? []
-    : [`**<@${user.id}> ${user.username}'s Question:**`, `\n**_${text}_**\n`];
+  const content = reply ? [] : [`**<@${user.id}> ${user.username}'s Question:**`, `\n**_${text}_**\n`];
 
-  const olderThen30Min = dayjs(memberGuild.gptDate).isBefore(
-    dayjs().subtract(30, "minute"),
-  );
+  const olderThen30Min = dayjs(memberGuild.gptDate).isBefore(dayjs().subtract(30, "minute"));
 
   let counter = 0;
   let res: ChatMessage | null = null;
