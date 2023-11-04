@@ -2,8 +2,8 @@ import type { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { ChannelType, Guild, User } from "discord.js";
 import { prisma } from "../../prisma.js";
-import { MUTE } from "../constants.js";
 import { RolesService } from "../roles/Roles.service.js";
+import { JAIL } from "../constants.js";
 
 export const deleteUserMessages = async ({
   guild,
@@ -32,7 +32,7 @@ export const deleteUserMessages = async ({
 
     // role input
     const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
-      roleId: guildStatusRoles[MUTE]!.id,
+      roleId: guildStatusRoles[JAIL]!.id,
       memberId,
       guildId: guild.id,
     };

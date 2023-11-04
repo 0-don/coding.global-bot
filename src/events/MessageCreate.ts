@@ -15,7 +15,9 @@ export class MessageCreate {
   @On({ event: "messageCreate" })
   async messageCreate([message]: ArgsOf<"messageCreate">, client: Client) {
     // remove regular messages in verify channel
-    await MessagesService.cleanUpVerifyChannel(message);
+    MessagesService.cleanUpVerifyChannel(message);
+
+    console.log(message.type);
 
     //delete messages with links
     await checkWarnings(message);

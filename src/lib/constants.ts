@@ -14,8 +14,8 @@ export const EVERYONE = "@everyone";
 export const BUMPER = "Bumper";
 export const VERIFIED = STATUS_ROLES[0];
 export const VOICE_ONLY = STATUS_ROLES[1];
-export const READ_ONLY = STATUS_ROLES[2];
-export const MUTE = STATUS_ROLES[3];
+export const JAIL = STATUS_ROLES[2];
+export const UNVERIFIED = STATUS_ROLES[3];
 
 export const VERIFY_CHANNEL = "✅│𝖵𝖾𝗋𝗂𝖿𝗒";
 export const BOT_CHANNEL = "🤖│𝖡𝗈𝗍";
