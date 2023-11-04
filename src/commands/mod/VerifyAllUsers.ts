@@ -3,7 +3,7 @@ import type { CommandInteraction, TextChannel } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { VERIFIED, statusRoles } from "../../modules/constants.js";
-import { upsertDbMember } from "../../modules/members/upsertDbMember.js";
+import { MembersModule } from "../../modules/members/Members.module.js";
 import { getGuildStatusRoles } from "../../modules/roles/getGuildStatusRoles.js";
 import { recreateMemberDbRoles } from "../../modules/roles/recreateMemberDbRoles.js";
 import { prisma } from "../../prisma.js";
@@ -72,7 +72,7 @@ export class VerifyAllUsers {
       if (member.user.bot) continue;
 
       // check if user exists in db
-      await upsertDbMember(member, "join");
+      await MembersModule.upsertDbMember(member, "join");
 
       // recreate roles delete old add new
       await recreateMemberDbRoles(member);
