@@ -1,10 +1,10 @@
-import { ChatMessage } from 'chatgpt';
-import dayjs from 'dayjs';
-import type { CacheType, CommandInteraction, User } from 'discord.js';
-import { gpt } from '../../chatgpt.js';
-import { prisma } from '../../prisma.js';
-import { ChatGptError } from '../../types/index.js';
-import { chunkedSend } from '../messages/chunkedSend.js';
+import { ChatMessage } from "chatgpt";
+import dayjs from "dayjs";
+import type { CacheType, CommandInteraction, User } from "discord.js";
+import { gpt } from "../../chatgpt.js";
+import { prisma } from "../../prisma.js";
+import { ChatGptError } from "../../types/index.js";
+import { chunkedSend } from "../messages/chunkedSend.js";
 
 export const askChatGPT = async ({
   interaction,
@@ -28,7 +28,7 @@ export const askChatGPT = async ({
     : [`**<@${user.id}> ${user.username}'s Question:**`, `\n**_${text}_**\n`];
 
   const olderThen30Min = dayjs(memberGuild.gptDate).isBefore(
-    dayjs().subtract(30, 'minute')
+    dayjs().subtract(30, "minute"),
   );
 
   let counter = 0;
@@ -44,7 +44,7 @@ export const askChatGPT = async ({
 
       onProgress: async (partialResponse) => {
         counter++;
-        const text = [...content, partialResponse.text].join('\n');
+        const text = [...content, partialResponse.text].join("\n");
         if (counter % 20 === 0 && text.length < 2000 && interaction) {
           await chunkedSend({
             content: text,
@@ -56,7 +56,7 @@ export const askChatGPT = async ({
   } catch (err) {
     const { message } = err as { message: string };
     const regex = message.match(/(?<=[{])(.*)(?=[}])/s);
-    const { error } = JSON.parse(`{${regex?.[0] || ''}}`) as ChatGptError;
+    const { error } = JSON.parse(`{${regex?.[0] || ""}}`) as ChatGptError;
 
     return error.message;
   }
@@ -69,7 +69,7 @@ export const askChatGPT = async ({
     data: { gptId: res.id, gptDate: new Date() },
   });
 
-  const fullContent = [...content, res.text].join('\n');
+  const fullContent = [...content, res.text].join("\n");
 
   return fullContent;
 };

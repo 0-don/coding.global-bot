@@ -3,10 +3,7 @@ import type { ChartConfiguration, ChartDataset } from "chart.js";
 import adapter from "date-fns/locale/en-US/index.js";
 import dayjs from "dayjs";
 import type { APIEmbed } from "discord.js";
-import type {
-  ToptatsExampleEmbed,
-  UserStatsExampleEmbed,
-} from "../types/index.js";
+import { ToptatsExampleEmbed, UserStatsExampleEmbed } from "../types/index.js";
 import { codeString, placementSuffix } from "./helpers.js";
 
 export const statusRoles = [

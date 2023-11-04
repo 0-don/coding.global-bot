@@ -1,9 +1,9 @@
-import type { Prisma } from '@prisma/client';
-import dayjs from 'dayjs';
-import { ChannelType, Guild, User } from 'discord.js';
-import { prisma } from '../../prisma.js';
-import { MUTE } from '../constants.js';
-import { getGuildStatusRoles } from '../roles/getGuildStatusRoles.js';
+import type { Prisma } from "@prisma/client";
+import dayjs from "dayjs";
+import { ChannelType, Guild, User } from "discord.js";
+import { prisma } from "../../prisma.js";
+import { MUTE } from "../constants.js";
+import { getGuildStatusRoles } from "../roles/getGuildStatusRoles.js";
 
 export const deleteUserMessages = async ({
   guild,
@@ -54,7 +54,7 @@ export const deleteUserMessages = async ({
   }
 
   // create date before which messages should be deleted
-  const daysTimestamp = dayjs().subtract(Number(days), 'day');
+  const daysTimestamp = dayjs().subtract(Number(days), "day");
 
   // get all channels
   const channels = guild?.channels.cache;
@@ -90,7 +90,7 @@ export const deleteUserMessages = async ({
         // check if message was sent by user and if it was sent before daysTimestamp
         if (
           message.author.id === memberId &&
-          0 < dayjs(message.createdAt).diff(daysTimestamp, 'minutes')
+          0 < dayjs(message.createdAt).diff(daysTimestamp, "minutes")
         )
           await message.delete();
       }

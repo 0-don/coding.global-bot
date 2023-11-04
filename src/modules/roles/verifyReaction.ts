@@ -3,21 +3,21 @@ import type {
   PartialMessageReaction,
   PartialUser,
   User,
-} from 'discord.js';
+} from "discord.js";
 import {
   MUTE,
   READ_ONLY,
   VERIFIED,
   VERIFY_TEMPLATE,
   VOICE_ONLY,
-} from '../constants.js';
-import { getGuildStatusRoles } from './getGuildStatusRoles.js';
+} from "../constants.js";
+import { getGuildStatusRoles } from "./getGuildStatusRoles.js";
 
 const roles = [VERIFIED, VOICE_ONLY, READ_ONLY, MUTE];
 
 export const verifyReaction = async (
   reaction: MessageReaction | PartialMessageReaction,
-  user: User | PartialUser
+  user: User | PartialUser,
 ) => {
   // check if template
   const isTemplate = reaction.message.embeds[0]?.footer?.text;
@@ -34,7 +34,7 @@ export const verifyReaction = async (
   // if icon reaction role on user then exit
   if (
     member?.roles.cache.some((role) =>
-      roles.includes(role.name as (typeof roles)[number])
+      roles.includes(role.name as (typeof roles)[number]),
     )
   )
     return;

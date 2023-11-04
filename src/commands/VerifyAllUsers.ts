@@ -1,19 +1,21 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
 import { log } from "console";
-import { PermissionFlagsBits } from "discord-api-types/v9";
-import type { CacheType, CommandInteraction, TextChannel } from "discord.js";
+import type { CommandInteraction, TextChannel } from "discord.js";
+import { PermissionFlagsBits } from "discord.js";
+import { Discord, Slash } from "discordx";
 import { VERIFIED, statusRoles } from "../modules/constants.js";
 import { upsertDbMember } from "../modules/members/upsertDbMember.js";
 import { getGuildStatusRoles } from "../modules/roles/getGuildStatusRoles.js";
 import { recreateMemberDbRoles } from "../modules/roles/recreateMemberDbRoles.js";
 import { prisma } from "../prisma.js";
 
-export default {
-  data: new SlashCommandBuilder()
-    .setName("verify-all-users")
-    .setDescription("verify all users in the server")
-    .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
-  async execute(interaction: CommandInteraction<CacheType>) {
+@Discord()
+export class VerifyAllUsers {
+  @Slash({
+    name: "verify-all-users",
+    description: "verify all users in the server",
+    defaultMemberPermissions: PermissionFlagsBits.DeafenMembers,
+  })
+  async verifyAllUsers(interaction: CommandInteraction) {
     if (!interaction.guild) return;
 
     await interaction.deferReply({ ephemeral: true });
@@ -90,5 +92,5 @@ export default {
     return (interaction.channel as TextChannel)?.send({
       content: `Verified all users (${members.size}) in ${interaction.guild.name}`,
     });
-  },
-};
+  }
+}

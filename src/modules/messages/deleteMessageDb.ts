@@ -1,8 +1,8 @@
-import type { Message, PartialMessage } from 'discord.js';
-import { prisma } from '../../prisma.js';
+import type { Message, PartialMessage } from "discord.js";
+import { prisma } from "../../prisma.js";
 
 export const deleteMessageDb = async (
-  message: Message<boolean> | PartialMessage
+  message: Message<boolean> | PartialMessage,
 ) => {
   // get info
   const messageId = message.id;

@@ -1,11 +1,10 @@
-import type { GuildMember, PartialGuildMember } from 'discord.js';
-import type { StatusRoles } from '../../types/index.js';
-import { EVERYONE, statusRoles } from '../constants.js';
-import { joinRole } from '../members/joinRole.js';
+import type { GuildMember, PartialGuildMember } from "discord.js";
+import { StatusRoles } from "../../types/index.js";
+import { EVERYONE, statusRoles } from "../constants.js";
 
 export const updateStatusRoles = async (
   oldMember: GuildMember | PartialGuildMember,
-  newMember: GuildMember | PartialGuildMember
+  newMember: GuildMember | PartialGuildMember,
 ) => {
   // get old roles as string[]
   const oldRoles = oldMember.roles.cache
@@ -26,7 +25,7 @@ export const updateStatusRoles = async (
   if (oldRoles.length >= newRoles.length) return;
 
   const newAddedRole = newRoles.filter(
-    (role) => !oldRoles.includes(role)
+    (role) => !oldRoles.includes(role),
   )[0] as StatusRoles;
 
   // check if role is a status role if yes then remove the unused status role

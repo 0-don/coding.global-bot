@@ -1,11 +1,11 @@
-import type { Prisma } from '@prisma/client';
-import type { GuildMember, PartialGuildMember } from 'discord.js';
-import { prisma } from '../../prisma.js';
-import { EVERYONE } from '../constants.js';
+import type { Prisma } from "@prisma/client";
+import type { GuildMember, PartialGuildMember } from "discord.js";
+import { prisma } from "../../prisma.js";
+import { EVERYONE } from "../constants.js";
 
 export const updateDbRoles = async (
   oldMember: GuildMember | PartialGuildMember,
-  newMember: GuildMember | PartialGuildMember
+  newMember: GuildMember | PartialGuildMember,
 ) => {
   // get new roles as string[]
   const newRoles = newMember.roles.cache
@@ -46,7 +46,7 @@ export const updateDbRoles = async (
   } else if (newRoles.length < oldRoles.length) {
     // get the removed role
     const newRemovedRole = oldRoles.filter(
-      (role) => !newRoles.includes(role)
+      (role) => !newRoles.includes(role),
     )[0];
 
     // if no role was removed return
