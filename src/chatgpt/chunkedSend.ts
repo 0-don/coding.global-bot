@@ -1,4 +1,4 @@
-import type { CacheType, CommandInteraction, TextChannel } from 'discord.js';
+import type { CacheType, CommandInteraction, TextChannel } from "discord.js";
 
 export const chunkedSend = async ({
   content,
@@ -11,18 +11,18 @@ export const chunkedSend = async ({
 }) => {
   const currentChannel = channel || (interaction?.channel as TextChannel);
 
-  const splitContent = content.split(' ');
+  const splitContent = content.split(" ");
 
   const chunks = [];
 
-  let currentChunk = '';
+  let currentChunk = "";
 
   for (const word of splitContent) {
     if (currentChunk.length + word.length > 2000) {
       chunks.push(currentChunk);
-      currentChunk = '';
+      currentChunk = "";
     }
-    currentChunk += word + ' ';
+    currentChunk += word + " ";
   }
 
   chunks.push(currentChunk);

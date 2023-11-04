@@ -1,9 +1,9 @@
-import type { GuildMember, PartialGuildMember } from 'discord.js';
-import { prisma } from '../../prisma.js';
+import type { GuildMember, PartialGuildMember } from "discord.js";
+import { prisma } from "../../prisma.js";
 
 export const updateNickname = async (
   oldMember: GuildMember | PartialGuildMember,
-  newMember: GuildMember | PartialGuildMember
+  newMember: GuildMember | PartialGuildMember,
 ) => {
   if (oldMember.user.bot) return;
 

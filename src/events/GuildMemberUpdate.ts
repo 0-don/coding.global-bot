@@ -7,10 +7,7 @@ import { updateStatusRoles } from "../lib/roles/updateStatusRoles.js";
 @Discord()
 export class GuildMemberUpdate {
   @On()
-  async guildMemberUpdate(
-    [oldMember, newMember]: ArgsOf<"guildMemberUpdate">,
-    client: Client,
-  ) {
+  async guildMemberUpdate([oldMember, newMember]: ArgsOf<"guildMemberUpdate">, client: Client) {
     // update db roles
     await updateDbRoles(oldMember, newMember);
 

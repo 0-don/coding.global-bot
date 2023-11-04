@@ -14,15 +14,7 @@ import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
 import "dotenv/config";
 
-Chart.register(
-  LineController,
-  LineElement,
-  LinearScale,
-  CategoryScale,
-  PointElement,
-  TimeSeriesScale,
-  Filler,
-);
+Chart.register(LineController, LineElement, LinearScale, CategoryScale, PointElement, TimeSeriesScale, Filler);
 
 const token = process.env.TOKEN;
 
@@ -57,17 +49,12 @@ bot.once("ready", async () => {
   console.log("Bot started");
 });
 
-bot.on(
-  "interactionCreate",
-  (interaction) => void bot.executeInteraction(interaction),
-);
+bot.on("interactionCreate", (interaction) => void bot.executeInteraction(interaction));
 
 bot.on("messageCreate", (message) => void bot.executeCommand(message));
 
 const main = async () => {
-  await importx(
-    `${dirname(import.meta.url)}/{events,commands,api}/**/*.{ts,js}`,
-  );
+  await importx(`${dirname(import.meta.url)}/{events,commands,api}/**/*.{ts,js}`);
 
   // Let's start the bot
   if (!token) {

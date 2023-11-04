@@ -1,9 +1,4 @@
-import {
-  ApplicationCommandOptionType,
-  TextChannel,
-  User,
-  type CommandInteraction,
-} from "discord.js";
+import { ApplicationCommandOptionType, TextChannel, User, type CommandInteraction } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { BOT_CHANNEL } from "../../lib/constants.js";
 import { VoiceService } from "../../lib/stats/Stats.service.js";
@@ -31,10 +26,7 @@ export class UserCommand {
     await interaction.deferReply();
 
     // if not bot channel, return
-    if (channel.name !== BOT_CHANNEL)
-      return await interaction.editReply(
-        "Please use this command in the bot channel",
-      );
+    if (channel.name !== BOT_CHANNEL) return await interaction.editReply("Please use this command in the bot channel");
 
     const embed = await VoiceService.userStatsEmbed(interaction, user);
 

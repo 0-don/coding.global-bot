@@ -5,12 +5,7 @@ export const GLOBAL_CANVAS = createCanvas(1200, 400);
 export const CHARTJS_NODE_CANVAS = GLOBAL_CANVAS.getContext("2d");
 export const TRANSLATOR = new deepl.Translator(process.env.DEEPL!);
 
-export const STATUS_ROLES = [
-  "Verified",
-  "VoiceOnly",
-  "Jail",
-  "Unverified",
-] as const;
+export const STATUS_ROLES = ["Verified", "VoiceOnly", "Jail", "Unverified"] as const;
 
 export const MEMBER_ROLES = ["Admin", "Owner", "Helper", "Member"] as const;
 

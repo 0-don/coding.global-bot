@@ -28,8 +28,7 @@ export class TrollMoveUser {
     user: User,
     @SlashOption({
       name: "count",
-      description:
-        "How many times should the user be moved, to disable set to 0",
+      description: "How many times should the user be moved, to disable set to 0",
       required: true,
       minValue: 0,
       maxValue: 9999,
@@ -49,8 +48,7 @@ export class TrollMoveUser {
   ) {
     await interaction.deferReply({ ephemeral: true });
 
-    if (interaction.user.id === user.id)
-      return interaction.editReply(`You can't troll yourself`);
+    if (interaction.user.id === user.id) return interaction.editReply(`You can't troll yourself`);
 
     await prisma.memberGuild.update({
       where: {
@@ -73,9 +71,7 @@ export class TrollMoveUser {
       } catch (_) {}
     }
 
-    const guildMember = (await interaction.guild?.members.fetch(
-      user.id,
-    )) as GuildMember;
+    const guildMember = (await interaction.guild?.members.fetch(user.id)) as GuildMember;
 
     if (count > 0) moveMemberToChannel(guildMember);
 

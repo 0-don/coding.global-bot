@@ -9,12 +9,8 @@ import { prisma } from "../prisma.js";
 @Discord()
 export class VoiceStateUpdate {
   @On()
-  async voiceStateUpdate(
-    [oldVoiceState, newVoiceState]: ArgsOf<"voiceStateUpdate">,
-    client: Client,
-  ) {
-    const member =
-      newVoiceState?.member || (oldVoiceState?.member as GuildMember);
+  async voiceStateUpdate([oldVoiceState, newVoiceState]: ArgsOf<"voiceStateUpdate">, client: Client) {
+    const member = newVoiceState?.member || (oldVoiceState?.member as GuildMember);
     const guild = newVoiceState?.guild || oldVoiceState?.guild;
     const memberGuild = await prisma.memberGuild.findFirst({
       where: {
@@ -25,13 +21,11 @@ export class VoiceStateUpdate {
 
     if (memberGuild?.moving && memberGuild.moveCounter > 0) return;
 
-    if (!oldVoiceState.channelId)
-      await joinSettings(newVoiceState.member as GuildMember, newVoiceState);
+    if (!oldVoiceState.channelId) await joinSettings(newVoiceState.member as GuildMember, newVoiceState);
 
     await VoiceModule.updateUserVoiceState(newVoiceState);
 
-    if (!oldVoiceState.channelId && newVoiceState.channelId)
-      moveMemberToChannel(newVoiceState.member as GuildMember);
+    if (!oldVoiceState.channelId && newVoiceState.channelId) moveMemberToChannel(newVoiceState.member as GuildMember);
 
     // save logs to db
     await VoiceModule.logVoiceEventsDb(oldVoiceState, newVoiceState);

@@ -20,9 +20,7 @@ export class Top {
 
     if (channel.name !== BOT_CHANNEL)
       // if not bot channel, return
-      return await interaction.editReply(
-        "Please use this command in the bot channel",
-      );
+      return await interaction.editReply("Please use this command in the bot channel");
 
     const embed = await VoiceService.topStatsEmbed(interaction.guildId);
 
