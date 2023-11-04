@@ -53,7 +53,11 @@ export class MembersService {
     if (status === "join" && dbMember.roles.length)
       for (let role of dbMember.roles) {
         if (member.roles.cache.has(role.roleId)) continue;
-        await member.roles.add(role.roleId);
+        try {
+          await member.roles.add(role.roleId);
+        } catch (error) {
+          await prisma.memberRole.delete({ where: { member_role: { memberId, roleId: role.roleId } } });
+        }
       }
 
     // return user
