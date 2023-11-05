@@ -86,6 +86,10 @@ export class VoiceService {
       take: 1,
     });
 
+    const helpCount = await prisma.memberHelper.count({
+      where: { guildId, memberId },
+    });
+
     const userServerName = user?.toString() ?? interaction.member?.user.toString();
 
     if (!memberId || !guildId || !memberGuild || !userServerName) return "Something went wrong";
@@ -108,6 +112,7 @@ export class VoiceService {
 
     const embed = userStatsExampleEmbed({
       id: memberId,
+      helpCount,
       userGlobalName: memberGuild.member.username,
       userServerName,
       lookback: memberGuild.lookback,

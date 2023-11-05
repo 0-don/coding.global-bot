@@ -19,6 +19,7 @@ export type GuildMemberCountChart = {
 
 export type UserStatsExampleEmbed = {
   id: string;
+  helpCount: number;
   userGlobalName: string;
   userServerName: string;
   lookback: number;

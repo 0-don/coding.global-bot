@@ -103,6 +103,7 @@ export const userStatsExampleEmbed = ({
   userGlobalName,
   userServerName,
   lookback,
+  helpCount,
   joinedAt,
   createdAt,
   lookbackDaysCount,
@@ -160,6 +161,9 @@ User ID: ${codeString(id)}
 **Most Active Channels**
 Messages: ${mostActiveTextChannelString} ${mostActiveTextChannelCountString}
 Voice: ${mostActiveVoiceChannelString}
+
+**Help Stats**
+Helped people ${codeString(helpCount.toLocaleString("en"))} times.
 `,
 
     fields: [
