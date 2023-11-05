@@ -23,7 +23,7 @@ export class StatsService {
       FROM "MemberHelper"
       LEFT JOIN "Member" ON "Member"."memberId" = "MemberHelper"."memberId" 
       WHERE "MemberHelper"."guildId" = ${guildId}
-      GROUP BY "memberId", "Member"."username"
+      GROUP BY "MemberHelper"."memberId", "Member"."username"
       ORDER BY count(*) DESC
       LIMIT ${limit}`) as [{ memberId: string; count: number; username: string }];
 
