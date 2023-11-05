@@ -36,6 +36,9 @@ export class Ai {
         name: `${user.username}/${member.displayName}: ${text.substring(0, 20)}}`,
         autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
       });
+
+      thread?.members.add(user.id);
+      
       const content = await askChatGPT({
         text,
         user,
