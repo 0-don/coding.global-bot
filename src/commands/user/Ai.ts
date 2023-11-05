@@ -38,7 +38,7 @@ export class Ai {
       });
 
       thread?.members.add(user.id);
-      
+
       const content = await askChatGPT({
         text,
         user,
@@ -50,8 +50,8 @@ export class Ai {
 
       await interaction.editReply("Please continue the conversation in the thread below");
     } catch (error) {
-      thread?.delete();
-
+      await thread?.delete();
+      await channel.lastMessage?.delete();
       return await interaction.editReply(JSON.stringify(error));
     }
   }
