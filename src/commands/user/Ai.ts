@@ -40,13 +40,14 @@ export class Ai {
         user,
       });
 
-      if (!content) return await channel.send("Chat GPT failed");
+      if (!content) return await interaction.editReply("Chat GPT failed");
 
       await chunkedSend({ content, channel: thread });
 
       await interaction.editReply("Please continue the conversation in the thread below");
     } catch (error) {
       thread?.delete();
+
       return await interaction.editReply(JSON.stringify(error));
     }
   }
