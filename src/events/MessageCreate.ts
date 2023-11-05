@@ -9,6 +9,7 @@ import { translate } from "../lib/helpers.js";
 import { MessagesService } from "../lib/messages/Messages.service.js";
 import { checkWarnings } from "../lib/messages/checkWarnings.js";
 import { fetchMessages } from "../lib/messages/fetchMessages.js";
+import { HelperService } from "../lib/roles/Helper.service.js";
 import { prisma } from "../prisma.js";
 
 @Discord()
@@ -58,6 +59,8 @@ export class MessageCreate {
           threadOwnerId: thread.ownerId,
         },
       });
+
+      HelperService.helperRoleChecker(previousMessage);
     }
   }
 
