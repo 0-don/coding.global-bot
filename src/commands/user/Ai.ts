@@ -1,4 +1,4 @@
-import type { CommandInteraction, TextChannel, ThreadChannel } from "discord.js";
+import type { CommandInteraction, GuildMember, TextChannel, ThreadChannel } from "discord.js";
 import { ApplicationCommandOptionType, ThreadAutoArchiveDuration } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { askChatGPT } from "../../chatgpt/askChatGPT.js";
@@ -18,6 +18,7 @@ export class Ai {
     interaction: CommandInteraction,
   ) {
     const user = interaction.user;
+    const member = interaction.member as GuildMember;
     const channel = interaction.channel as TextChannel;
     let thread: ThreadChannel | null = null;
     try {
@@ -32,7 +33,7 @@ export class Ai {
 
       await interaction.deferReply({ ephemeral: true });
       thread = await channel.threads.create({
-        name: `${text.substring(0, 100)}`,
+        name: `${user.username} - ${member.displayName}`,
         autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
       });
       const content = await askChatGPT({
