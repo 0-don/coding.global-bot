@@ -79,6 +79,7 @@ Top users and channels in the past __9,999 Days__.
 
 **Help | Top ${mostHelpfulUsers?.length ?? 0} - Helpers**
 Top Helper Sum: 
+
 ${mostHelpfulUsersString.join("\n")}
 
 **Messages | Top ${mostActiveMessageUsers?.length ?? 0} - Members**
