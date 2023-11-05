@@ -1,5 +1,5 @@
-import type { CommandInteraction } from "discord.js";
-import { ApplicationCommandOptionType } from "discord.js";
+import type { CommandInteraction, TextChannel, ThreadChannel } from "discord.js";
+import { ApplicationCommandOptionType, ThreadAutoArchiveDuration } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { askChatGPT } from "../../chatgpt/askChatGPT.js";
 import { chunkedSend } from "../../chatgpt/chunkedSend.js";
@@ -17,17 +17,36 @@ export class Ai {
     text: string,
     interaction: CommandInteraction,
   ) {
-    await interaction.deferReply();
-
     const user = interaction.user;
+    const channel = interaction.channel as TextChannel;
+    let thread: ThreadChannel | null = null;
     try {
-      const content = await askChatGPT({ interaction, user, text });
+      if (channel.isThread()) {
+        await interaction.deferReply();
+        const content = await askChatGPT({ interaction, user, text });
 
-      if (!content) return await interaction.editReply("User not Found");
+        if (!content) return await interaction.editReply("User not Found");
 
-      return await chunkedSend({ content, interaction });
+        return await chunkedSend({ content, interaction });
+      }
+
+      await interaction.deferReply({ ephemeral: true });
+      thread = await channel.threads.create({
+        name: `**${user.username}** - ${text}`,
+        autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+      });
+      const content = await askChatGPT({
+        text,
+        user,
+      });
+
+      if (!content) return await channel.send("Chat GPT failed");
+
+      await chunkedSend({ content, channel: thread });
+
+      await interaction.editReply("Please continue the conversation in the thread below");
     } catch (error) {
-      console.log(error);
+      thread?.delete();
       return await interaction.editReply(JSON.stringify(error));
     }
   }
