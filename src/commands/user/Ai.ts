@@ -20,11 +20,15 @@ export class Ai {
     await interaction.deferReply();
 
     const user = interaction.user;
+    try {
+      const content = await askChatGPT({ interaction, user, text });
 
-    const content = await askChatGPT({ interaction, user, text });
+      if (!content) return await interaction.editReply("User not Found");
 
-    if (!content) return await interaction.editReply("User not Found");
-
-    return await chunkedSend({ content, interaction });
+      return await chunkedSend({ content, interaction });
+    } catch (error) {
+      console.log(error);
+      return await interaction.editReply(JSON.stringify(error));
+    }
   }
 }
