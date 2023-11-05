@@ -1,4 +1,4 @@
-import type { CacheType, CommandInteraction, TextChannel } from "discord.js";
+import type { CacheType, CommandInteraction, TextChannel, ThreadChannel } from "discord.js";
 
 export const chunkedSend = async ({
   content,
@@ -6,7 +6,7 @@ export const chunkedSend = async ({
   interaction,
 }: {
   content: string;
-  channel?: TextChannel;
+  channel?: TextChannel | ThreadChannel;
   interaction?: CommandInteraction<CacheType>;
 }) => {
   const currentChannel = channel || (interaction?.channel as TextChannel);
