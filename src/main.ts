@@ -40,7 +40,8 @@ const bot = new Client({
   ],
   silent: true,
   simpleCommand: {
-    prefix: "/",
+    // prefix: "/",
+    
   },
 });
 
@@ -53,12 +54,14 @@ bot.on("interactionCreate", (interaction) => void bot.executeInteraction(interac
 
 bot.on("messageCreate", (message) => void bot.executeCommand(message));
 
+bot.on("messageReactionAdd", (reaction, user) => void bot.executeReaction(reaction, user));
+
 const main = async () => {
-  await importx(`${dirname(import.meta.url)}/{events,commands,api}/**/*.{ts,js}`);
+  await importx(`${dirname(import.meta.url)}/{events,commands}/**/*.{ts,js}`);
 
   // Let's start the bot
   if (!token) {
-    throw Error("Could not find BOT_TOKEN in your environment");
+    throw Error("Could not find TOKEN in your environment");
   }
 
   // Log in with your bot token
