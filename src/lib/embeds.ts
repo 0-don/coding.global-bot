@@ -17,6 +17,7 @@ export const simpleEmbedExample: APIEmbed = {
 export const topStatsExampleEmbed = ({
   mostActiveMessageUsers,
   mostActiveMessageChannels,
+  mostHelpfulUsers,
   mostActiveVoiceUsers,
   mostActiveVoiceChannels,
 }: ToptatsExampleEmbed): APIEmbed => {
@@ -44,6 +45,13 @@ export const topStatsExampleEmbed = ({
     mostActiveMessageUsers.reduce((a, b) => a + Number(b.count), 0).toLocaleString("en") + " messages",
   );
 
+  const mostHelpfulUsersString = mostHelpfulUsers.map(
+    ({ count, memberId, username }, i) =>
+      `${codeString(placementSuffix(i + 1))} <@${memberId}>: (${username}) ${codeString(
+        count.toLocaleString("en") + " messages",
+      )}`,
+  );
+
   const mostActiveMessageUsersString = mostActiveMessageUsers.map(
     ({ count, memberId, username }, i) =>
       `${codeString(placementSuffix(i + 1))} <@${memberId}>: (${username}) ${codeString(
@@ -68,6 +76,9 @@ export const topStatsExampleEmbed = ({
 
     description: `
 Top users and channels in the past __9,999 Days__.
+
+**Help | Top ${mostHelpfulUsers?.length ?? 0} - Members**
+Top Member Sum: ${mostActiveMessageUsersSumString}
 
 **Messages | Top ${mostActiveMessageUsers?.length ?? 0} - Members**
 Top Member Sum: ${mostActiveMessageUsersSumString} 

@@ -18,6 +18,15 @@ export class StatsService {
       ORDER BY count(*) DESC 
       LIMIT ${limit}`) as [{ memberId: string; count: number; username: string }];
 
+    const mostHelpfulUsers = (await prisma.$queryRaw`
+      SELECT "memberId", "Member"."username", count(*)
+      FROM "MemberHelper"
+      LEFT JOIN "Member" ON "Member"."memberId" = "MemberHelper"."memberId" 
+      WHERE "MemberHelper"."guildId" = ${guildId}
+      GROUP BY "memberId", "Member"."username"
+      ORDER BY count(*) DESC
+      LIMIT ${limit}`) as [{ memberId: string; count: number; username: string }];
+
     const mostActiveMessageChannels = (await prisma.$queryRaw`
       SELECT "channelId", count(*) 
       FROM "MemberMessages" 
@@ -54,6 +63,7 @@ export class StatsService {
     return topStatsExampleEmbed({
       mostActiveMessageUsers,
       mostActiveMessageChannels,
+      mostHelpfulUsers,
       mostActiveVoiceUsers: mostActiveVoiceUsers.map((user) => ({
         ...user,
         sum: Number((user.sum / 60 / 60).toFixed(2)),

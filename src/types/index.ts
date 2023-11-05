@@ -50,6 +50,7 @@ export type ToptatsExampleEmbed = {
       username: string;
     },
   ];
+  mostHelpfulUsers: [{ memberId: string; count: number; username: string }];
   mostActiveMessageChannels: [
     {
       channelId: string;
