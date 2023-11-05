@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@discordx/importer": "^1.2.3",
-    "@discordx/pagination": "^3.4.1",
     "@prisma/client": "5.5.2",
     "canvas": "^2.11.2",
     "chart.js": "4.4.0",

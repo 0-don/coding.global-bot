@@ -17,8 +17,6 @@ export class MessageCreate {
     // remove regular messages in verify channel
     MessagesService.cleanUpVerifyChannel(message);
 
-    console.log(message.type);
-
     //delete messages with links
     await checkWarnings(message);
 
@@ -26,7 +24,22 @@ export class MessageCreate {
     await MessagesService.addMessageDb(message);
   }
 
-  @SimpleCommand({ aliases: ["translate"] })
+  @SimpleCommand({ aliases: [""], prefix: ["✅", ":white_check_mark:"] })
+  async checkThreadHelpLike(command: SimpleCommandMessage) {
+    const message = command.message;
+    const channel = message.channel;
+    if (channel.isThread()) {
+      const thread = await channel.fetch();
+      const members = await command.message.guild?.members.fetch();
+      const threadOwner = members?.get(thread.ownerId!);
+
+      if (threadOwner?.id === message.author.id || threadOwner?.user.bot) {
+        return;
+      }
+    }
+  }
+
+  @SimpleCommand({ aliases: ["translate"], prefix: "/" })
   async translateReply(command: SimpleCommandMessage) {
     const message = command.message;
     if (message.type === MessageType.Reply && message.reference?.messageId) {
@@ -43,7 +56,7 @@ export class MessageCreate {
     }
   }
 
-  @SimpleCommand({ aliases: ["ai", "gpt"] })
+  @SimpleCommand({ aliases: ["ai", "gpt"], prefix: "/" })
   async replyChatGPT(command: SimpleCommandMessage) {
     const message = command.message;
     if (message.type === MessageType.Reply && message.reference?.messageId) {

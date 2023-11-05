@@ -19,6 +19,7 @@ model Guild {
   MemberRole       MemberRole[]
   MemberMessages   MemberMessages[]
   GuildVoiceEvents GuildVoiceEvents[]
+  MemberHelper     MemberHelper[]
 }
 
 model GuildVoiceEvents {
@@ -41,6 +42,7 @@ model Member {
   bumps            MemberBump[]
   MemberMessages   MemberMessages[]
   GuildVoiceEvents GuildVoiceEvents[]
+  MemberHelper     MemberHelper[]
 }
 
 model MemberMessages {
@@ -74,12 +76,23 @@ model MemberGuild {
   deafened Boolean @default(false) // if true, deafen on join
   lookback Int     @default(9999) // stats looback period
 
-  helpCounter Int @default(0) // helped in threads
-
   member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
   guild  Guild  @relation(fields: [guildId], references: [guildId])
 
   @@unique([memberId, guildId], name: "member_guild")
+}
+
+model MemberHelper {
+  id Int @id @default(autoincrement())
+
+  memberId String
+  guildId  String
+
+  threadId      String?
+  threadOwnerId String?
+
+  member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
+  guild  Guild  @relation(fields: [guildId], references: [guildId])
 }
 
 model MemberRole {

@@ -1,5 +1,6 @@
+import { MessageReaction } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
-import { Discord, On } from "discordx";
+import { Discord, On, Reaction } from "discordx";
 import { RolesService } from "../lib/roles/Roles.service.js";
 
 @Discord()
@@ -13,5 +14,10 @@ export class MessageReactionAdd {
     await RolesService.verifyReaction(reaction, user);
 
     return;
+  }
+
+  @Reaction({ emoji: "✅" })
+  async helperEmoji(reaction: MessageReaction): Promise<void> {
+    // await reaction.message.pin();
   }
 }

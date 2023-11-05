@@ -15,7 +15,7 @@ export class DeleteMessages {
       name: "amount",
       description: "Delete message amount",
       required: true,
-      type: ApplicationCommandOptionType.Integer,
+      type: ApplicationCommandOptionType.String,
     })
     amount: number,
     interaction: CommandInteraction,
