@@ -77,8 +77,8 @@ export const topStatsExampleEmbed = ({
     description: `
 Top users and channels in the past __9,999 Days__.
 
-**Help | Top ${mostHelpfulUsers?.length ?? 0} - Members**
-Top Member Sum: ${mostActiveMessageUsersSumString}
+**Help | Top ${mostHelpfulUsers?.length ?? 0} - Helpers**
+Top Helper Sum: ${mostHelpfulUsersString}
 
 **Messages | Top ${mostActiveMessageUsers?.length ?? 0} - Members**
 Top Member Sum: ${mostActiveMessageUsersSumString} 

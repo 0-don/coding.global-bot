@@ -19,7 +19,7 @@ export class StatsService {
       LIMIT ${limit}`) as [{ memberId: string; count: number; username: string }];
 
     const mostHelpfulUsers = (await prisma.$queryRaw`
-      SELECT "memberId", "Member"."username", count(*)
+      SELECT "MemberHelper"."memberId", "Member"."username", count(*)
       FROM "MemberHelper"
       LEFT JOIN "Member" ON "Member"."memberId" = "MemberHelper"."memberId" 
       WHERE "MemberHelper"."guildId" = ${guildId}
