@@ -91,6 +91,8 @@ model MemberHelper {
   threadId      String?
   threadOwnerId String?
 
+  createdAt DateTime @default(now())
+
   member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
   guild  Guild  @relation(fields: [guildId], references: [guildId])
 }

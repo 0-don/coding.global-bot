@@ -9,6 +9,7 @@ import { translate } from "../lib/helpers.js";
 import { MessagesService } from "../lib/messages/Messages.service.js";
 import { checkWarnings } from "../lib/messages/checkWarnings.js";
 import { fetchMessages } from "../lib/messages/fetchMessages.js";
+import { prisma } from "../prisma.js";
 
 @Discord()
 export class MessageCreate {
@@ -27,15 +28,36 @@ export class MessageCreate {
   @SimpleCommand({ aliases: [""], prefix: ["✅", ":white_check_mark:"] })
   async checkThreadHelpLike(command: SimpleCommandMessage) {
     const message = command.message;
+
     const channel = message.channel;
     if (channel.isThread()) {
       const thread = await channel.fetch();
       const members = await command.message.guild?.members.fetch();
       const threadOwner = members?.get(thread.ownerId!);
 
-      if (threadOwner?.id === message.author.id || threadOwner?.user.bot) {
+      if (threadOwner?.id !== message.author.id || threadOwner?.user.bot) {
         return;
       }
+
+      const messages = await fetchMessages(channel, 500);
+      const previousMessage = messages.reverse().find((msg) => msg.author.id !== message.author.id);
+
+      if (!previousMessage) return;
+
+      const isHelpedThread = await prisma.memberHelper.findFirst({
+        where: { threadId: thread.id, threadOwnerId: thread.ownerId },
+      });
+
+      if (isHelpedThread) return;
+
+      await prisma.memberHelper.create({
+        data: {
+          memberId: previousMessage.author.id,
+          guildId: message.guildId!,
+          threadId: thread.id,
+          threadOwnerId: thread.ownerId,
+        },
+      });
     }
   }
 
