@@ -41,7 +41,6 @@ export class RolesService {
     // check if template
     const isTemplate = reaction.message.embeds[0]?.footer?.text;
 
-    console.log("test");
     // check embed template a verify template
     if (isTemplate !== VERIFY_TEMPLATE) return;
     // check if reaction is from bot
