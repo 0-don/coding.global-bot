@@ -35,7 +35,7 @@ export class MessageReactionAdd {
       const isHelpedThread = await prisma.memberHelper.findFirst({
         where: { threadId: thread.id, threadOwnerId: thread.ownerId },
       });
-      console.log("reaction");
+
       if (isHelpedThread) return;
 
       await prisma.memberHelper.create({
