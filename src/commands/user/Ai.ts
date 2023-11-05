@@ -33,7 +33,7 @@ export class Ai {
 
       await interaction.deferReply({ ephemeral: true });
       thread = await channel.threads.create({
-        name: `${member.displayName}: ${text.substring(0, 20)}}`,
+        name: `${member.displayName}: ${text.substring(0, 50)}}`,
         autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
       });
 
