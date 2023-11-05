@@ -36,4 +36,4 @@ export const VERIFY_TEMPLATE = "verify yourself";
 
 export const RED_COLOR = 0xff0000;
 export const BOT_ICON =
-  "https://raw.githubusercontent.com/Don-Cryptus/coding.global-web/main/public/favicon/favicon-96x96.png";
+  "https://raw.githubusercontent.com/don-cryptus/coding.global-web/master/public/images/logo_512.gif";

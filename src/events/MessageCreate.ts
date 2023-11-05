@@ -1,10 +1,11 @@
-import { Message, MessageType, TextChannel } from "discord.js";
+import { APIEmbed, Message, MessageType, TextChannel } from "discord.js";
 import type { ArgsOf, Client, SimpleCommandMessage } from "discordx";
 import { Discord, On, SimpleCommand } from "discordx";
 import { askChatGPT } from "../chatgpt/askChatGPT.js";
 import { chunkedSend } from "../chatgpt/chunkedSend.js";
 import { getTextFromImage } from "../chatgpt/tesseract.js";
 import { GENERAL_CHANNEL, MEMBER_ROLES } from "../lib/constants.js";
+import { simpleEmbedExample } from "../lib/embeds.js";
 import { translate } from "../lib/helpers.js";
 import { MessagesService } from "../lib/messages/Messages.service.js";
 import { checkWarnings } from "../lib/messages/checkWarnings.js";
@@ -19,11 +20,33 @@ export class MessageCreate {
     // remove regular messages in verify channel
     MessagesService.cleanUpVerifyChannel(message);
 
+    // check for thread start
+    this.checkThreadStart(message);
+
     //delete messages with links
     await checkWarnings(message);
 
     // add Message to Database for statistics
     await MessagesService.addMessageDb(message);
+  }
+
+  private async checkThreadStart(message: Message) {
+    const channel = message.channel;
+    if (channel.isThread()) {
+      const firstMessage = await channel.fetchStarterMessage();
+      const messages = await channel.messages.fetch();
+
+      if (message.author.bot || firstMessage?.author.bot || messages.size > 1) return;
+
+      if (firstMessage?.author.id === message.author.id) {
+        const embed = JSON.parse(JSON.stringify(simpleEmbedExample)) as APIEmbed;
+        embed.description =
+          "Thanks for your question :clap:, if someone gives you an answer it would be great if you thanked them with a :white_check_mark: in response. This response will earn you both points for special roles on this server.";
+        embed.footer!.text = "You can also use /ai to get help from the bot";
+
+        await channel.send({ embeds: [embed], allowedMentions: { users: [] } });
+      }
+    }
   }
 
   @SimpleCommand({ aliases: [""], prefix: ["✅", ":white_check_mark:"] })
@@ -41,9 +64,10 @@ export class MessageCreate {
       }
 
       const messages = await fetchMessages(channel, 500);
-      const previousMessage = messages.reverse().find((msg) => msg.author.id !== message.author.id);
+      const previousMessage = messages.reverse().find((msg) => msg.author.id !== message.author.id && !msg.author.bot);
 
       if (!previousMessage) return;
+      if (previousMessage.author.bot) return;
 
       const isHelpedThread = await prisma.memberHelper.findFirst({
         where: { threadId: thread.id, threadOwnerId: thread.ownerId },

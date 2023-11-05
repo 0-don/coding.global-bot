@@ -1,4 +1,4 @@
-import { MessageReaction } from "discord.js";
+import { MessageReaction, User } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On, Reaction } from "discordx";
 import { HelperService } from "../lib/roles/Helper.service.js";
@@ -19,7 +19,7 @@ export class MessageReactionAdd {
   }
 
   @Reaction({ emoji: "✅" })
-  async helperEmoji(reaction: MessageReaction): Promise<void> {
+  async helperEmojiAdd(reaction: MessageReaction, user: User): Promise<void> {
     const message = await reaction.message.fetch();
     const channel = message.channel;
 
@@ -28,9 +28,11 @@ export class MessageReactionAdd {
       const members = await message.guild?.members.fetch();
       const threadOwner = members?.get(thread.ownerId!);
 
-      if (threadOwner?.id === message.author?.id || threadOwner?.user.bot) {
+      if (threadOwner?.id !== user?.id || threadOwner?.user.bot) {
         return;
       }
+
+      if (threadOwner?.id === message.author?.id) return;
 
       const isHelpedThread = await prisma.memberHelper.findFirst({
         where: { threadId: thread.id, threadOwnerId: thread.ownerId },
