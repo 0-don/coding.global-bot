@@ -9,7 +9,7 @@ import { getDaysArray } from "../helpers.js";
 
 dayjs.extend(utc);
 
-export class VoiceModule {
+export class VoiceService {
   static async closeDeadVoiceEvents() {
     // roll dice with if statemen 1/10 chance to run
     if (Math.floor(Math.random() * 10) === 0) return;

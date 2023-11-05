@@ -3,7 +3,7 @@ import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { joinSettings } from "../lib/members/joinNickname.js";
 import { moveMemberToChannel } from "../lib/members/moveMemberToChannel.js";
-import { VoiceModule } from "../lib/voice/Voice.service.js";
+import { VoiceService } from "../lib/voice/Voice.service.js";
 import { prisma } from "../prisma.js";
 
 @Discord()
@@ -23,16 +23,16 @@ export class VoiceStateUpdate {
 
     if (!oldVoiceState.channelId) await joinSettings(newVoiceState.member as GuildMember, newVoiceState);
 
-    await VoiceModule.updateUserVoiceState(newVoiceState);
+    await VoiceService.updateUserVoiceState(newVoiceState);
 
     if (!oldVoiceState.channelId && newVoiceState.channelId) moveMemberToChannel(newVoiceState.member as GuildMember);
 
     // save logs to db
-    await VoiceModule.logVoiceEventsDb(oldVoiceState, newVoiceState);
+    await VoiceService.logVoiceEventsDb(oldVoiceState, newVoiceState);
 
     // internal logging
-    await VoiceModule.logVoiceEvents(oldVoiceState, newVoiceState);
+    await VoiceService.logVoiceEvents(oldVoiceState, newVoiceState);
 
-    await VoiceModule.closeDeadVoiceEvents();
+    await VoiceService.closeDeadVoiceEvents();
   }
 }

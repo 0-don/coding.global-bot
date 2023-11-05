@@ -1,7 +1,7 @@
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { BOT_CHANNEL } from "../../lib/constants.js";
-import { VoiceService } from "../../lib/stats/Stats.service.js";
+import { StatsService } from "../../lib/stats/Stats.service.js";
 
 @Discord()
 export class Top {
@@ -22,7 +22,7 @@ export class Top {
       // if not bot channel, return
       return await interaction.editReply("Please use this command in the bot channel");
 
-    const embed = await VoiceService.topStatsEmbed(interaction.guildId);
+    const embed = await StatsService.topStatsEmbed(interaction.guildId);
 
     if (typeof embed === "string") return await interaction.editReply(embed);
 
