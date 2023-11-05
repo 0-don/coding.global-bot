@@ -10,8 +10,8 @@ export const STATUS_ROLES = ["Verified", "VoiceOnly", "Jail", "Unverified"] as c
 export const MEMBER_ROLES = ["Admin", "Owner", "Helper", "Member", ...HELPER_ROLES] as const;
 
 export const HELPER_RANKING = [
-  { name: HELPER_ROLES[0], points: 10 },
-  { name: HELPER_ROLES[1], points: 25 },
+  { name: HELPER_ROLES[0], points: 25 },
+  { name: HELPER_ROLES[1], points: 50 },
   { name: HELPER_ROLES[2], points: 100 },
 ];
 
