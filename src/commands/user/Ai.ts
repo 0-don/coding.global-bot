@@ -32,7 +32,7 @@ export class Ai {
 
       await interaction.deferReply({ ephemeral: true });
       thread = await channel.threads.create({
-        name: `**${user.username}** - ${text}`,
+        name: `${text.substring(0, 100)}`,
         autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
       });
       const content = await askChatGPT({
