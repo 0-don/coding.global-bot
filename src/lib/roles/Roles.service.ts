@@ -9,7 +9,7 @@ import {
   User,
 } from "discord.js";
 import { StatusRoles } from "../../types/index.js";
-import { STATUS_ROLES, VERIFIED, VERIFY_TEMPLATE } from "../constants.js";
+import { JAIL, STATUS_ROLES, VERIFIED, VERIFY_TEMPLATE, VOICE_ONLY } from "../constants.js";
 
 export class RolesService {
   static async joinRole(member: GuildMember | PartialGuildMember, role: StatusRoles) {
@@ -40,6 +40,8 @@ export class RolesService {
   static async verifyReaction(reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser) {
     // check if template
     const isTemplate = reaction.message.embeds[0]?.footer?.text;
+
+    console.log("test");
     // check embed template a verify template
     if (isTemplate !== VERIFY_TEMPLATE) return;
     // check if reaction is from bot
@@ -49,7 +51,7 @@ export class RolesService {
     const member = await reaction.message.guild?.members.cache.get(user.id)?.fetch();
 
     // if icon reaction role on user then exit
-    if (member?.roles.cache.some((role) => STATUS_ROLES.includes(role.name as (typeof STATUS_ROLES)[number]))) return;
+    if (member?.roles.cache.some((role) => [VERIFIED, JAIL, VOICE_ONLY].includes(role.name as any))) return;
 
     // get icon reaction role
     const guildStatusRoles = RolesService.getGuildStatusRoles(reaction.message.guild!);
