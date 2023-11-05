@@ -1,6 +1,16 @@
-import type { Collection, FetchMessagesOptions, Message, TextChannel } from "discord.js";
+import type {
+  Collection,
+  FetchMessagesOptions,
+  Message,
+  PrivateThreadChannel,
+  PublicThreadChannel,
+  TextChannel,
+} from "discord.js";
 
-export async function fetchMessages(channel: TextChannel, limit: number = 100): Promise<Message[]> {
+export async function fetchMessages(
+  channel: TextChannel | PrivateThreadChannel | PublicThreadChannel<boolean>,
+  limit: number = 100,
+): Promise<Message[]> {
   let out: Message[] = [];
   if (limit <= 100) {
     let messages: Collection<string, Message> = await channel.messages.fetch({
@@ -26,5 +36,6 @@ export async function fetchMessages(channel: TextChannel, limit: number = 100): 
       lastId = messagesArray[messagesArray.length - 1]?.id || "";
     }
   }
-  return out;
+  // remove duplicates
+  return out.filter((message, index, self) => self.findIndex((m) => m.id === message.id) === index);
 }
