@@ -10,6 +10,7 @@ import {
   TimeSeriesScale,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
+import { log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
 import "dotenv/config";
@@ -41,13 +42,12 @@ const bot = new Client({
   silent: true,
   simpleCommand: {
     // prefix: "/",
-    
   },
 });
 
 bot.once("ready", async () => {
   await bot.initApplicationCommands();
-  console.log("Bot started");
+  log("Bot started");
 });
 
 bot.on("interactionCreate", (interaction) => void bot.executeInteraction(interaction));
