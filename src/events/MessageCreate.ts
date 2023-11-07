@@ -138,7 +138,7 @@ export class MessageCreate {
       // get before messages until we hit a message from a different user
       for (let i = replyMsgIndex - 1; i >= 0; i--) {
         const msg = messages[i] as Message<boolean>;
-        if (msg.author.id === user.id) {
+        if (msg?.author?.id === user?.id) {
           userMessages.push(msg);
         } else {
           break;
@@ -148,7 +148,7 @@ export class MessageCreate {
       // get after messages until we hit a message from a different user
       for (let i = replyMsgIndex + 1; i <= messages.length; i++) {
         const msg = messages[i] as Message<boolean>;
-        if (msg.author.id === user.id) {
+        if (msg?.author?.id === user?.id) {
           userMessages.push(msg);
         } else {
           break;
