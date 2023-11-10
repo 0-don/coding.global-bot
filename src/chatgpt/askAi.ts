@@ -9,7 +9,7 @@ interface AskAi {
 
 export const askAi = async (props: AskAi) => {
   const memberGuild = await prisma.memberGuild.findFirst({
-    where: { memberId: props.user.id },
+    where: { memberId: props.user.id, guildId: props.channel.guild.id },
   });
 
   if (!memberGuild) return null;
@@ -27,11 +27,12 @@ export const askAi = async (props: AskAi) => {
   let currentMessage = await props.channel.send("Processing...");
   let chatMessage: ChatMessage | null = null;
   let messageCount = 0;
-  const editThreshold = 5; // Number of messages to accumulate before editing
+  const editThreshold = 2; // Number of messages to accumulate before editing
 
   for await (const msg of stream) {
     messageContent += msg.delta?.content || "";
     messageCount++;
+    chatMessage = msg;
 
     if (messageCount >= editThreshold || messageContent.length <= 2000) {
       messageContent.length > 0 && (await currentMessage.edit(messageContent));
@@ -42,16 +43,15 @@ export const askAi = async (props: AskAi) => {
       currentMessage = await props.channel.send("Continuing...");
       messageContent = messageContent.substring(2000);
     }
-
-    chatMessage = msg;
   }
 
-  if (messageContent.length > 0) {
-    await currentMessage.edit(messageContent);
+  if (messageContent.length && messageCount) {
+    currentMessage.edit(messageContent);
   }
 
   await prisma.memberGuild.update({
     where: { member_guild: { guildId: props.channel.guild.id, memberId: props.user.id } },
-    data: { gptId: chatMessage?.conversationId },
+    data: { gptId: chatMessage?.id },
   });
+  console.log("updated");
 };

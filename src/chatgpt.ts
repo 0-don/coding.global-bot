@@ -3,6 +3,7 @@ import { Tiktoken, getEncoding } from "js-tiktoken";
 import Keyv from "keyv";
 import OpenAI from "openai";
 import {
+  ChatCompletionAssistantMessageParam,
   ChatCompletionChunk,
   ChatCompletionCreateParamsBase,
   ChatCompletionMessageParam,
@@ -17,7 +18,7 @@ class ChatGPTAPI {
   private systemMessage: string;
   private store: Keyv<ChatMessage>;
   private openai: OpenAI;
-  private maxModelTokens: number = 4000;
+  private maxModelTokens: number = 8000;
   private maxResponseTokens: number = 1000;
   private tokenizer: Tiktoken = getEncoding("cl100k_base");
 
@@ -30,8 +31,8 @@ class ChatGPTAPI {
   }
 
   public async *sendMessage(opts: SendMessageOptions): AsyncGenerator<ChatMessage, void, unknown> {
-    const latestQuestion = this.createMessage("user", opts, opts.text);
-    const newMessage = this.createMessage("assistant", opts);
+    const latestQuestion = this.createMessage({ role: "user", text: opts.text }, opts);
+    const newMessage = this.createMessage({ role: "assistant", text: "", parentMessageId: latestQuestion.id }, opts);
 
     const { maxTokens, messages } = await this.buildMessages(opts.text, opts);
 
@@ -42,12 +43,15 @@ class ChatGPTAPI {
     }
   }
 
-  private createMessage(role: ChatMessage["role"], opts: SendMessageOptions, text: string = ""): ChatMessage {
+  private createMessage(
+    config: { role: ChatMessage["role"]; text: string; parentMessageId?: string },
+    opts: SendMessageOptions,
+  ): ChatMessage {
     return {
       id: crypto.randomUUID(),
-      role,
-      text,
-      parentMessageId: opts?.parentMessageId || crypto.randomUUID(),
+      role: config.role,
+      text: config.text,
+      parentMessageId: config?.parentMessageId || opts?.parentMessageId || undefined,
       fileLink: opts?.fileLink,
     };
   }
@@ -79,6 +83,7 @@ class ChatGPTAPI {
       if (numTokens > maxNumTokens || !opts.parentMessageId) break;
 
       const parentMessage = await this.store.get(opts.parentMessageId);
+      console.log(parentMessage);
       if (!parentMessage) break;
 
       text = parentMessage.text;
@@ -89,12 +94,18 @@ class ChatGPTAPI {
     return { messages, maxTokens };
   }
 
-  private formatPrompt(messages: Array<ChatCompletionUserMessageParam | ChatCompletionSystemMessageParam>): string {
+  private formatPrompt(
+    messages: Array<
+      ChatCompletionUserMessageParam | ChatCompletionSystemMessageParam | ChatCompletionAssistantMessageParam
+    >,
+  ): string {
     return messages
       .map((message) => {
         switch (message.role) {
           case "system":
             return `Instructions:\n${message.content}`;
+          case "assistant":
+            return `Assistant:\n${(message as ChatCompletionAssistantMessageParam).content}`;
           case "user":
             return `User:\n${
               Array.isArray(message.content)
@@ -124,9 +135,7 @@ class ChatGPTAPI {
     const choice = chunk.choices?.[0];
     if (choice?.delta?.content) {
       result.text += choice.delta.content;
-      result.role = choice.delta.role;
       result.detail = chunk;
-      result.id = chunk.id;
       result.delta = choice.delta;
     }
   }
@@ -163,7 +172,6 @@ export interface ChatMessage {
   detail?: OpenAI.Chat.Completions.ChatCompletionChunk;
   usage?: ChatUsage;
   parentMessageId?: string;
-  conversationId?: string;
   fileLink?: string;
 }
 
