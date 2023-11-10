@@ -19,6 +19,9 @@ Chart.register(LineController, LineElement, LinearScale, CategoryScale, PointEle
 
 const token = process.env.TOKEN;
 
+// sleep
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 // discord client config
 const bot = new Client({
   intents: [

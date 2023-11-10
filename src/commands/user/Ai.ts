@@ -1,8 +1,7 @@
 import type { CommandInteraction, GuildMember, TextChannel, ThreadChannel } from "discord.js";
 import { ApplicationCommandOptionType, ThreadAutoArchiveDuration } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { askChatGPT } from "../../chatgpt/askChatGPT.js";
-import { chunkedSend } from "../../chatgpt/chunkedSend.js";
+import { askAi } from "../../chatgpt/askAi.js";
 
 @Discord()
 export class Ai {
@@ -17,42 +16,33 @@ export class Ai {
     text: string,
     interaction: CommandInteraction,
   ) {
-    const user = interaction.user;
-    const member = interaction.member as GuildMember;
-    const channel = interaction.channel as TextChannel;
-    let thread: ThreadChannel | null = null;
     try {
+      const channel = interaction.channel as TextChannel | ThreadChannel;
+
       if (channel.isThread()) {
         await interaction.deferReply();
-        const content = await askChatGPT({ interaction, user, text });
-
-        if (!content) return await interaction.editReply("User not Found");
-
-        return await chunkedSend({ content, interaction });
+        return await askAi({ channel, user: interaction.user, text });
+      } else {
+        await interaction.deferReply({ ephemeral: true });
+        const thread = await this.createThread(channel as TextChannel, interaction.member as GuildMember, text);
+        askAi({ channel: thread, user: interaction.user, text });
       }
-
-      await interaction.deferReply({ ephemeral: true });
-      thread = await channel.threads.create({
-        name: `${member.displayName}: ${text.substring(0, 50)}`,
-        autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
-      });
-
-      thread?.members.add(user.id);
-
-      const content = await askChatGPT({
-        text,
-        user,
-      });
-
-      if (!content) return await interaction.editReply("Chat GPT failed");
-
-      await chunkedSend({ content, channel: thread });
 
       await interaction.editReply("Please continue the conversation in the thread below");
     } catch (error) {
-      await thread?.delete();
-      await channel.lastMessage?.delete();
-      return await interaction.editReply(JSON.stringify(error));
+      console.error(error);
+      await interaction.editReply("An error occurred while processing your request.");
     }
+  }
+
+  private async createThread(channel: TextChannel, member: GuildMember, text: string): Promise<ThreadChannel> {
+    const threadName = `${member.displayName}: ${text.substring(0, 50)}`;
+    const thread = await channel.threads.create({
+      name: threadName,
+      autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+    });
+
+    await thread.members.add(member.id);
+    return thread;
   }
 }
