@@ -150,7 +150,7 @@ export type ChatGPTAPIOptions = {
 
 export type SendMessageOptions = {
   text: string;
-  parentMessageId?: string;
+  parentMessageId?: string | null;
   systemMessage?: string;
   fileLink?: string;
 };
