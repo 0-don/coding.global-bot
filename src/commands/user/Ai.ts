@@ -19,14 +19,18 @@ export class Ai {
     try {
       const channel = interaction.channel as TextChannel | ThreadChannel;
 
-      if (channel.isThread()) {
-        await interaction.deferReply();
-        return await askAi({ channel, user: interaction.user, text });
-      } else {
-        await interaction.deferReply({ ephemeral: true });
-        const thread = await this.createThread(channel as TextChannel, interaction.member as GuildMember, text);
-        askAi({ channel: thread, user: interaction.user, text });
-      }
+      // if (channel.isThread()) {
+      //   await interaction.deferReply();
+      //   return await askAi({ channel, user: interaction.user, text });
+      // } else {
+      //   await interaction.deferReply({ ephemeral: true });
+      //   const thread = await this.createThread(channel as TextChannel, interaction.member as GuildMember, text);
+      //   askAi({ channel: thread, user: interaction.user, text });
+      // }
+
+      await interaction.deferReply();
+      await interaction.editReply("Please continue the conversation in the thread below");
+      return await askAi({ channel, user: interaction.user, text });
 
       await interaction.editReply("Please continue the conversation in the thread below");
     } catch (error) {
