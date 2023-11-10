@@ -1,8 +1,7 @@
 import { APIEmbed, Message, MessageType, TextChannel } from "discord.js";
 import type { ArgsOf, Client, SimpleCommandMessage } from "discordx";
 import { Discord, On, SimpleCommand } from "discordx";
-import { askChatGPT } from "../chatgpt/askChatGPT.js";
-import { chunkedSend } from "../chatgpt/chunkedSend.js";
+import { askAi } from "../chatgpt/askAi.js";
 import { getTextFromImage } from "../chatgpt/tesseract.js";
 import { GENERAL_CHANNEL, MEMBER_ROLES } from "../lib/constants.js";
 import { simpleEmbedExample } from "../lib/embeds.js";
@@ -172,18 +171,7 @@ export class MessageCreate {
 
       if (!messagesContent.length) return await channel.send("No messages found");
 
-      const content = await askChatGPT({
-        text: messagesContent,
-        user,
-        reply: true,
-      });
-
-      if (!content) return await channel.send("Chat GPT failed");
-
-      return await chunkedSend({
-        content,
-        channel: message.channel as TextChannel,
-      });
+      await askAi({ channel, user, text: messagesContent });
     }
   }
 }
