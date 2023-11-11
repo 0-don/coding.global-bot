@@ -31,7 +31,7 @@ export class Ai {
         .cache;
       if (!userRoles?.some((r) => MEMBER_ROLES.includes(r.name as any)))
         return await interaction.reply("You need to be a member to upload an image");
-      fileLink = image.url;
+      fileLink = new URL(image.url).origin + new URL(image.url).pathname;
     }
 
     try {
