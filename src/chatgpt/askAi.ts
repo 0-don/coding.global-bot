@@ -1,6 +1,7 @@
 import { TextChannel, ThreadChannel, User } from "discord.js";
 import { ChatMessage, gpt } from "../chatgpt.js";
 import { prisma } from "../prisma.js";
+
 interface AskAi {
   channel: TextChannel | ThreadChannel;
   user: User;
@@ -8,6 +9,7 @@ interface AskAi {
 }
 
 const MSG_LIMIT = 2000;
+const EDIT_THRESHOLD = 2;
 
 export const askAi = async (props: AskAi) => {
   const memberGuild = await prisma.memberGuild.findFirst({
@@ -29,14 +31,13 @@ export const askAi = async (props: AskAi) => {
   let currentMessage = await props.channel.send("Processing...");
   let chatMessage: ChatMessage | null = null;
   let messageCount = 0;
-  const editThreshold = 2; // Number of messages to accumulate before editing
 
   for await (const msg of stream) {
     messageContent += msg.delta?.content || "";
     messageCount++;
     chatMessage = msg;
 
-    if (messageCount >= editThreshold || messageContent.length <= MSG_LIMIT) {
+    if (messageCount >= EDIT_THRESHOLD || messageContent.length <= MSG_LIMIT) {
       messageContent.length > 0 && (await currentMessage.edit(messageContent));
       messageCount = 0;
     }
