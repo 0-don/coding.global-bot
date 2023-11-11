@@ -81,7 +81,6 @@ class ChatGPTAPI {
       if (numTokens > maxNumTokens || !opts.parentMessageId) break;
 
       const parentMessage = await this.store.get(opts.parentMessageId);
-      console.log(parentMessage);
       if (!parentMessage) break;
 
       text = parentMessage.text;
