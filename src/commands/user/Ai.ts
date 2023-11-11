@@ -1,3 +1,4 @@
+import { error } from "console";
 import type { CommandInteraction, GuildMember, TextChannel, ThreadChannel } from "discord.js";
 import { ApplicationCommandOptionType, ThreadAutoArchiveDuration } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
@@ -32,8 +33,8 @@ export class Ai {
         askAi({ channel: thread, user: interaction.user, text });
         await interaction.editReply("Please continue the conversation in the thread below");
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      error(err);
       await interaction.editReply("An error occurred while processing your request.");
     }
   }
