@@ -13,7 +13,7 @@ interface AskAi {
 }
 
 const MSG_LIMIT = 2000;
-const EDIT_THRESHOLD = 5;
+const EDIT_THRESHOLD = 10;
 
 export const askAi = async (props: AskAi) => {
   const memberGuild = await prisma.memberGuild.findFirst({
