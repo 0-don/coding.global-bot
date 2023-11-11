@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import { writeFileSync } from "fs";
 import { Tiktoken, getEncoding } from "js-tiktoken";
 import Keyv from "keyv";
 import OpenAI from "openai";
@@ -65,9 +64,7 @@ class ChatGPTAPI {
     opts: SendMessageOptions,
   ): Promise<{ messages: ChatCompletionMessageParam[]; maxTokens: number }> {
     let messages: Array<ChatCompletionUserMessageParam | ChatCompletionSystemMessageParam> = [];
-    if (opts.systemMessage) {
-      messages.push({ role: "system", content: opts.systemMessage });
-    }
+    if (opts.systemMessage) messages.unshift({ role: "system", content: opts.systemMessage });
 
     const maxNumTokens = this.maxModelTokens - this.maxResponseTokens;
     let numTokens = 0;
@@ -78,10 +75,12 @@ class ChatGPTAPI {
         role: (role || "user") as any,
         content: [
           { type: "text", text },
-          opts.fileLink ? { type: "image_url", image_url: { url: opts.fileLink } } : null,
+          opts.fileLink && !role && this.model === "gpt-4-vision-preview"
+            ? { type: "image_url", image_url: { url: opts.fileLink } }
+            : null,
         ].filter(Boolean) as ChatCompletionUserMessageParam["content"],
       };
-      messages = [userMessages, ...messages];
+      messages.unshift(userMessages);
       const prompt = this.formatPrompt(messages);
       numTokens = this.getTokenCount(prompt);
 
@@ -96,7 +95,6 @@ class ChatGPTAPI {
     } while (true);
 
     const maxTokens = Math.max(1, Math.min(this.maxModelTokens - numTokens, this.maxResponseTokens));
-
 
     // writeFileSync("messages.json", JSON.stringify(messages, null, 2));
     return { messages, maxTokens };
