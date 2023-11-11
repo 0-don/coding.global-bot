@@ -15,7 +15,6 @@ import QuickLRU from "quick-lru";
 
 class ChatGPTAPI {
   private model: ChatCompletionCreateParamsBase["model"] = "gpt-3.5-turbo";
-  private systemMessage: string;
   private store: Keyv<ChatMessage>;
   private openai: OpenAI;
   private maxModelTokens: number = 8000;
@@ -24,7 +23,6 @@ class ChatGPTAPI {
 
   constructor(opts: ChatGPTAPIOptions) {
     this.openai = new OpenAI({ apiKey: opts.apiKey });
-    this.systemMessage = opts.systemMessage || "";
     this.store = new Keyv<ChatMessage, any>({
       store: new QuickLRU<string, ChatMessage>({ maxSize: 10000 }),
     });
@@ -61,8 +59,8 @@ class ChatGPTAPI {
     opts: SendMessageOptions,
   ): Promise<{ messages: ChatCompletionMessageParam[]; maxTokens: number }> {
     let messages: Array<ChatCompletionUserMessageParam | ChatCompletionSystemMessageParam> = [];
-    if (this.systemMessage) {
-      messages.push({ role: "system", content: this.systemMessage });
+    if (opts.systemMessage) {
+      messages.push({ role: "system", content: opts.systemMessage });
     }
 
     const maxNumTokens = this.maxModelTokens - this.maxResponseTokens;
@@ -133,7 +131,7 @@ class ChatGPTAPI {
 
   private updateResultFromStream(chunk: ChatCompletionChunk, result: ChatMessage): void {
     const choice = chunk.choices?.[0];
-    if (choice?.delta?.content) {
+    if (choice?.delta?.content && choice.finish_reason !== "stop") {
       result.text += choice.delta.content;
       result.detail = chunk;
       result.delta = choice.delta;
@@ -154,7 +152,6 @@ export type Role = OpenAI.Chat.Completions.ChatCompletionChunk["choices"][0]["de
 
 export type ChatGPTAPIOptions = {
   apiKey: string;
-  systemMessage?: string;
 };
 
 export type SendMessageOptions = {
