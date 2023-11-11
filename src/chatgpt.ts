@@ -65,25 +65,27 @@ class ChatGPTAPI {
     opts: SendMessageOptions,
   ): Promise<{ messages: ChatCompletionMessageParam[]; maxTokens: number }> {
     let messages: Array<ChatCompletionUserMessageParam | ChatCompletionSystemMessageParam> = [];
-    if (opts.systemMessage) messages.unshift({ role: "system", content: opts.systemMessage });
 
     const maxNumTokens = this.maxModelTokens - this.maxResponseTokens;
     let numTokens = 0;
-    let role: ChatMessage["role"] | null = null;
+    let role: ChatMessage["role"] = "user";
 
     do {
       const userMessages: ChatCompletionUserMessageParam | ChatCompletionAssistantMessageParam = {
-        role: (role || "user") as any,
-        content: !role
-          ? ([
-              { type: "text", text },
-              opts.fileLink && this.model === "gpt-4-vision-preview"
-                ? { type: "image_url", image_url: { url: opts.fileLink } }
-                : null,
-            ].filter(Boolean) as ChatCompletionUserMessageParam["content"])
-          : text,
+        role: role as any,
+        content:
+          role === "user"
+            ? ([
+                { type: "text", text },
+                opts.fileLink && this.model === "gpt-4-vision-preview"
+                  ? { type: "image_url", image_url: { url: opts.fileLink } }
+                  : null,
+              ].filter(Boolean) as ChatCompletionUserMessageParam["content"])
+            : text,
       };
-      messages = [...messages, userMessages];
+      messages = [userMessages, ...messages] as Array<
+        ChatCompletionUserMessageParam | ChatCompletionSystemMessageParam
+      >;
       const prompt = this.formatPrompt(messages);
       numTokens = this.getTokenCount(prompt);
 
@@ -96,6 +98,8 @@ class ChatGPTAPI {
       role = parentMessage.role;
       opts.parentMessageId = parentMessage.parentMessageId;
     } while (true);
+
+    if (opts.systemMessage) messages.unshift({ role: "system", content: opts.systemMessage });
 
     const maxTokens = Math.max(1, Math.min(this.maxModelTokens - numTokens, this.maxResponseTokens));
 
