@@ -7,6 +7,8 @@ interface AskAi {
   text: string;
 }
 
+const MSG_LIMIT = 2000;
+
 export const askAi = async (props: AskAi) => {
   const memberGuild = await prisma.memberGuild.findFirst({
     where: { memberId: props.user.id, guildId: props.channel.guild.id },
@@ -34,14 +36,14 @@ export const askAi = async (props: AskAi) => {
     messageCount++;
     chatMessage = msg;
 
-    if (messageCount >= editThreshold || messageContent.length <= 2000) {
+    if (messageCount >= editThreshold || messageContent.length <= MSG_LIMIT) {
       messageContent.length > 0 && (await currentMessage.edit(messageContent));
-      messageCount = 0; // Reset counter after edit
+      messageCount = 0;
     }
 
-    if (messageContent.length >= 2000) {
+    if (messageContent.length >= MSG_LIMIT) {
       currentMessage = await props.channel.send("Continuing...");
-      messageContent = messageContent.substring(2000);
+      messageContent = messageContent.substring(MSG_LIMIT);
     }
   }
 
@@ -53,5 +55,4 @@ export const askAi = async (props: AskAi) => {
     where: { member_guild: { guildId: props.channel.guild.id, memberId: props.user.id } },
     data: { gptId: chatMessage?.id },
   });
-  console.log("updated");
 };
