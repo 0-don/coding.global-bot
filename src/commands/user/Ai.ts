@@ -38,16 +38,16 @@ export class Ai {
       const channel = interaction.channel as TextChannel | ThreadChannel;
       if (process.env.NODE_ENV !== "production") {
         await interaction.deferReply();
-        return await askAi({ channel, interaction, user: interaction.user, text, fileLink });
+        return await askAi({ channel, interaction, user: interaction.user, text, fileLink, withHeaders: true });
       }
 
       if (channel.isThread()) {
         await interaction.deferReply();
-        return await askAi({ channel, interaction, user: interaction.user, text, fileLink });
+        return await askAi({ channel, interaction, user: interaction.user, text, fileLink, withHeaders: true });
       } else {
         await interaction.deferReply({ ephemeral: true });
         const thread = await this.createThread(channel as TextChannel, interaction.member as GuildMember, text);
-        askAi({ channel: thread, user: interaction.user, text, fileLink });
+        askAi({ channel: thread, user: interaction.user, text, fileLink, withHeaders: true });
         await interaction.editReply("Please continue the conversation in the thread below");
       }
     } catch (err) {
