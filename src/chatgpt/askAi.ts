@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { TextChannel, ThreadChannel, User } from "discord.js";
 import { ChatMessage, gpt } from "../chatgpt.js";
 import { prisma } from "../prisma.js";
@@ -18,13 +19,15 @@ export const askAi = async (props: AskAi) => {
 
   if (!memberGuild) return null;
 
+  const olderThen30Min = dayjs(memberGuild.gptDate).isBefore(dayjs().subtract(30, "minute"));
+
   const stream = gpt.sendMessage({
     text: props.text,
     systemMessage: `You are coding.global AI, a large language model trained by coding.global. 
     You answer as concisely as possible for each response, if its programming related you add specific code tag to the snippet.
     If you have links add <> tags around them. 
     Current date: ${new Date().toISOString()}`,
-    parentMessageId: memberGuild.gptId,
+    parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
   });
 
   let messageContent = "";
@@ -54,6 +57,6 @@ export const askAi = async (props: AskAi) => {
 
   await prisma.memberGuild.update({
     where: { member_guild: { guildId: props.channel.guild.id, memberId: props.user.id } },
-    data: { gptId: chatMessage?.id },
+    data: { gptId: chatMessage?.id, gptDate: new Date() },
   });
 };

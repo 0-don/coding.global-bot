@@ -19,7 +19,7 @@ export class Ai {
     try {
       const channel = interaction.channel as TextChannel | ThreadChannel;
       if (process.env.NODE_ENV !== "production") {
-        await interaction.reply({ ephemeral: true, content: "dev" });
+        await interaction.reply({ ephemeral: true, content: "dev", });
         return await askAi({ channel, user: interaction.user, text });
       }
 
