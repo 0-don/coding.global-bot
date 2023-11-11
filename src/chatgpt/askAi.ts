@@ -1,9 +1,10 @@
 import dayjs from "dayjs";
-import { TextChannel, ThreadChannel, User } from "discord.js";
+import { CommandInteraction, TextChannel, ThreadChannel, User } from "discord.js";
 import { ChatMessage, gpt } from "../chatgpt.js";
 import { prisma } from "../prisma.js";
 
 interface AskAi {
+  interaction?: CommandInteraction;
   channel: TextChannel | ThreadChannel;
   user: User;
   text: string;
@@ -31,11 +32,13 @@ export const askAi = async (props: AskAi) => {
   });
 
   let messageContent = "";
-  let currentMessage = await props.channel.send("Processing...");
+  let currentMessage =
+    (await props.interaction?.editReply("Processing...")) || (await props.channel.send("Processing..."));
   let chatMessage: ChatMessage | null = null;
   let messageCount = 0;
 
   for await (const msg of stream) {
+    console.log(msg.delta?.content || "");
     messageContent += msg.delta?.content || "";
     messageCount++;
     chatMessage = msg;

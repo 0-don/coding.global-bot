@@ -36,7 +36,9 @@ class ChatGPTAPI {
 
     for await (const chunk of await this.streamCompletion(messages, maxTokens)) {
       this.updateResultFromStream(chunk, newMessage);
-      yield newMessage;
+      console.log(latestQuestion.choice?.finish_reason);
+      if (latestQuestion.choice?.finish_reason !== "stop") yield newMessage;
+
       this.storeMessages(latestQuestion, newMessage);
     }
   }
@@ -130,10 +132,14 @@ class ChatGPTAPI {
 
   private updateResultFromStream(chunk: ChatCompletionChunk, result: ChatMessage): void {
     const choice = chunk.choices?.[0];
-    if (choice?.delta?.content && choice.finish_reason !== "stop") {
+    if (choice?.delta?.content) {
       result.text += choice.delta.content;
       result.detail = chunk;
       result.delta = choice.delta;
+    }
+    if (choice.finish_reason === "stop") {
+      console.log("stop");
+      result.choice = choice;
     }
   }
 
@@ -165,6 +171,7 @@ export interface ChatMessage {
   text: string;
   role: Role;
   delta?: OpenAI.Chat.Completions.ChatCompletionChunk["choices"][0]["delta"];
+  choice?: OpenAI.Chat.Completions.ChatCompletionChunk["choices"][0];
   detail?: OpenAI.Chat.Completions.ChatCompletionChunk;
   usage?: ChatUsage;
   parentMessageId?: string;
