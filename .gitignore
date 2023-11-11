@@ -10,3 +10,4 @@ yarn-error.log
 *.traineddata
 app.js
 bun.lockb
+messages.json
