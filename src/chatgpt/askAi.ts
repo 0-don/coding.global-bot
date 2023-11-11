@@ -34,9 +34,12 @@ export const askAi = async (props: AskAi) => {
     parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
   });
 
-  let messageContent = "";
+  let messageContent = props?.withHeaders
+    ? `${props.fileLink ? `${props.fileLink}\n` : ""}**<@${props.user.id}> ${props.user.username}'s Question:**\n\n`
+    : "";
   let currentMessage =
-    (await props.interaction?.editReply("Processing...")) || (await props.channel.send("Processing..."));
+    (await props.interaction?.editReply(messageContent + "Processing...")) ||
+    (await props.channel.send(messageContent + "Processing..."));
   let chatMessage: ChatMessage | null = null;
   let messageCount = 0;
 
