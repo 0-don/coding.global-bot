@@ -19,13 +19,13 @@ export class Ai {
     try {
       const channel = interaction.channel as TextChannel | ThreadChannel;
       if (process.env.NODE_ENV !== "production") {
-        await interaction.reply({ ephemeral: true, content: "dev", });
-        return await askAi({ channel, user: interaction.user, text });
+        await interaction.deferReply();
+        return await askAi({ channel, interaction, user: interaction.user, text });
       }
 
       if (channel.isThread()) {
         await interaction.deferReply();
-        return await askAi({ channel, user: interaction.user, text });
+        return await askAi({ channel, interaction, user: interaction.user, text });
       } else {
         await interaction.deferReply({ ephemeral: true });
         const thread = await this.createThread(channel as TextChannel, interaction.member as GuildMember, text);
