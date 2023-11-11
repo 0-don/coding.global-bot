@@ -3,7 +3,7 @@ import type { Attachment, CommandInteraction, GuildMember, TextChannel, ThreadCh
 import { ApplicationCommandOptionType, ThreadAutoArchiveDuration } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { askAi } from "../../chatgpt/askAi.js";
-import { tr } from "date-fns/locale";
+import { MEMBER_ROLES } from "../../lib/constants.js";
 
 @Discord()
 export class Ai {
@@ -25,21 +25,29 @@ export class Ai {
     image: Attachment,
     interaction: CommandInteraction,
   ) {
+    let fileLink: string | undefined = undefined;
+    if (image.contentType?.startsWith("image")) {
+      const userRoles = (await (await interaction.guild?.members.fetch())?.get(interaction.user.id)?.fetch())?.roles
+        .cache;
+      if (!userRoles?.some((r) => MEMBER_ROLES.includes(r.name as any)))
+        return await interaction.reply("You need to be a member to upload an image");
+      fileLink = image.url;
+    }
 
     try {
       const channel = interaction.channel as TextChannel | ThreadChannel;
       if (process.env.NODE_ENV !== "production") {
         await interaction.deferReply();
-        return await askAi({ channel, interaction, user: interaction.user, text });
+        return await askAi({ channel, interaction, user: interaction.user, text, fileLink });
       }
 
       if (channel.isThread()) {
         await interaction.deferReply();
-        return await askAi({ channel, interaction, user: interaction.user, text });
+        return await askAi({ channel, interaction, user: interaction.user, text, fileLink });
       } else {
         await interaction.deferReply({ ephemeral: true });
         const thread = await this.createThread(channel as TextChannel, interaction.member as GuildMember, text);
-        askAi({ channel: thread, user: interaction.user, text });
+        askAi({ channel: thread, user: interaction.user, text, fileLink });
         await interaction.editReply("Please continue the conversation in the thread below");
       }
     } catch (err) {

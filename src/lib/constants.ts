@@ -7,7 +7,7 @@ export const TRANSLATOR = new deepl.Translator(process.env.DEEPL!);
 
 export const HELPER_ROLES = ["Helper", "Senior Helper", "Lead Helper"] as const;
 export const STATUS_ROLES = ["Verified", "VoiceOnly", "Jail", "Unverified"] as const;
-export const MEMBER_ROLES = ["Admin", "Owner", "Helper", "Member", ...HELPER_ROLES] as const;
+export const MEMBER_ROLES = ["Admin", "Owner", "Member", "Moderator", ...HELPER_ROLES] as const;
 
 export const HELPER_RANKING = [
   { name: HELPER_ROLES[0], points: 25 },
