@@ -48,6 +48,7 @@ export const askAi = async (props: AskAi) => {
     }
 
     if (messageContent.length >= MSG_LIMIT) {
+      await currentMessage.edit(messageContent.substring(0, MSG_LIMIT));
       currentMessage = await props.channel.send("Continuing...");
       messageContent = messageContent.substring(MSG_LIMIT);
     }
