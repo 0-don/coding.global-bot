@@ -13,7 +13,7 @@ interface AskAi {
 }
 
 const MSG_LIMIT = 2000;
-const EDIT_THRESHOLD = 10;
+const EDIT_THRESHOLD = 5;
 
 export const askAi = async (props: AskAi) => {
   const memberGuild = await prisma.memberGuild.findFirst({
@@ -48,7 +48,7 @@ export const askAi = async (props: AskAi) => {
     messageCount++;
     chatMessage = msg;
 
-    if (messageCount >= EDIT_THRESHOLD || messageContent.length <= MSG_LIMIT) {
+    if (messageCount >= EDIT_THRESHOLD && messageContent.length <= MSG_LIMIT) {
       messageContent.length > 0 && (await currentMessage.edit(messageContent));
       messageCount = 0;
     }
