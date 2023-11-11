@@ -35,7 +35,9 @@ export const askAi = async (props: AskAi) => {
   });
 
   let messageContent = props?.withHeaders
-    ? `${props.fileLink ? `${props.fileLink}\n` : ""}**<@${props.user.id}> ${props.user.username}'s Question:**\n\n`
+    ? `${props.fileLink ? `${props.fileLink}\n` : ""}**<@${props.user.id}> ${props.user.username}'s Question:**\n\n${
+        props.text
+      }\n\n`
     : "";
   let currentMessage =
     (await props.interaction?.editReply(messageContent + "Processing...")) ||
