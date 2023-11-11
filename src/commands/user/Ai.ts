@@ -26,7 +26,7 @@ export class Ai {
     interaction: CommandInteraction,
   ) {
     let fileLink: string | undefined = undefined;
-    if (image.contentType?.startsWith("image")) {
+    if (image?.contentType?.startsWith("image")) {
       const userRoles = (await (await interaction.guild?.members.fetch())?.get(interaction.user.id)?.fetch())?.roles
         .cache;
       if (!userRoles?.some((r) => MEMBER_ROLES.includes(r.name as any)))

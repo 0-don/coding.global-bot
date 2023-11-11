@@ -9,6 +9,7 @@ interface AskAi {
   user: User;
   text: string;
   fileLink?: string;
+  withHeaders?: boolean;
 }
 
 const MSG_LIMIT = 2000;
@@ -29,6 +30,7 @@ export const askAi = async (props: AskAi) => {
     You answer as concisely as possible for each response, if its programming related you add specific code tag to the snippet.
     If you have links add <> tags around them. 
     Current date: ${new Date().toISOString()}`,
+    fileLink: props.fileLink,
     parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
   });
 
