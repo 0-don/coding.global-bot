@@ -1,8 +1,9 @@
 import { error } from "console";
-import type { CommandInteraction, GuildMember, TextChannel, ThreadChannel } from "discord.js";
+import type { Attachment, CommandInteraction, GuildMember, TextChannel, ThreadChannel } from "discord.js";
 import { ApplicationCommandOptionType, ThreadAutoArchiveDuration } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { askAi } from "../../chatgpt/askAi.js";
+import { tr } from "date-fns/locale";
 
 @Discord()
 export class Ai {
@@ -15,8 +16,16 @@ export class Ai {
       type: ApplicationCommandOptionType.String,
     })
     text: string,
+    @SlashOption({
+      name: "image",
+      description: "upload an image to ai (member only)",
+      required: false,
+      type: ApplicationCommandOptionType.Attachment,
+    })
+    image: Attachment,
     interaction: CommandInteraction,
   ) {
+
     try {
       const channel = interaction.channel as TextChannel | ThreadChannel;
       if (process.env.NODE_ENV !== "production") {

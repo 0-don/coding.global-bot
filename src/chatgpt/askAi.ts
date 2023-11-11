@@ -8,6 +8,7 @@ interface AskAi {
   channel: TextChannel | ThreadChannel;
   user: User;
   text: string;
+  fileLink?: string;
 }
 
 const MSG_LIMIT = 2000;
