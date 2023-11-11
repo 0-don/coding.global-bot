@@ -1,6 +1,6 @@
 # Install dependencies only when needed
 # Stage 0
-FROM node:18 AS deps
+FROM node:lts AS deps
 WORKDIR /app
 
 COPY package.json ./
@@ -12,7 +12,7 @@ RUN yarn install
 
 # Rebuild the source code only when needed
 # Stage 1
-FROM node:18 AS builder
+FROM node:lts AS builder
 WORKDIR /app
 
 COPY . .
@@ -23,7 +23,7 @@ RUN yarn build
 
 # Production image, copy only production files
 # Stage 2
-FROM node:18 AS prod
+FROM node:lts AS prod
 
 USER root
 
