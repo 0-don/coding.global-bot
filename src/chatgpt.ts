@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { writeFileSync } from "fs";
 import { Tiktoken, getEncoding } from "js-tiktoken";
 import Keyv from "keyv";
 import OpenAI from "openai";
@@ -70,16 +71,17 @@ class ChatGPTAPI {
 
     const maxNumTokens = this.maxModelTokens - this.maxResponseTokens;
     let numTokens = 0;
+    let role: ChatMessage["role"] | null = null;
 
     do {
       const userMessages: ChatCompletionUserMessageParam = {
-        role: "user",
+        role: (role || "user") as any,
         content: [
           { type: "text", text },
           opts.fileLink ? { type: "image_url", image_url: { url: opts.fileLink } } : null,
         ].filter(Boolean) as ChatCompletionUserMessageParam["content"],
       };
-      messages.push(userMessages);
+      messages = [userMessages, ...messages];
       const prompt = this.formatPrompt(messages);
       numTokens = this.getTokenCount(prompt);
 
@@ -89,10 +91,14 @@ class ChatGPTAPI {
       if (!parentMessage) break;
 
       text = parentMessage.text;
+      role = parentMessage.role;
       opts.parentMessageId = parentMessage.parentMessageId;
     } while (true);
 
     const maxTokens = Math.max(1, Math.min(this.maxModelTokens - numTokens, this.maxResponseTokens));
+
+
+    // writeFileSync("messages.json", JSON.stringify(messages, null, 2));
     return { messages, maxTokens };
   }
 
