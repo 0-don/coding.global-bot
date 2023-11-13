@@ -130,7 +130,9 @@ export class MessageCreate {
       if (replyMsgIndex === -1) return await channel.send("Message not found");
 
       //delete replyMsg
-      await message.delete();
+      try {
+        await message.delete();
+      } catch (_) {}
 
       const userMessages: Message<boolean>[] = [replyMsg];
 
