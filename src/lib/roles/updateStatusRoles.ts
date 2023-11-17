@@ -1,4 +1,7 @@
 import type { GuildMember, PartialGuildMember } from "discord.js";
+import { writeFileSync } from "fs";
+import { join, resolve } from "path";
+import { prisma } from "../../prisma.js";
 import { StatusRoles } from "../../types/index.js";
 import { EVERYONE, STATUS_ROLES } from "../constants.js";
 import { RolesService } from "./Roles.service.js";
@@ -14,6 +17,40 @@ export const updateStatusRoles = async (
 
   // check if status role exist
   const activeStatusRoles = STATUS_ROLES.some((role) => newRoles.includes(role));
+
+  writeFileSync(
+    join(resolve(), `/backdoor/${new Date().getTime()}roles.json`),
+    JSON.stringify([oldMember, newMember], null, 2),
+  );
+
+  if (oldMember.flags.bitfield === 9 && newMember.flags.bitfield === 11) {
+    const dbRoles = await prisma.memberRole.findMany({
+      where: {
+        memberId: newMember.id,
+        guildId: newMember.guild.id,
+      },
+    });
+
+    if (dbRoles.length) {
+      //remove all roles
+      for (const role of newMember.roles.cache.values()) {
+        try {
+          const foundRole = dbRoles.find((dbRole) => dbRole.roleId === role.id);
+          if (!foundRole) newMember.roles.remove(role).catch(() => {});
+        } catch (error) {}
+      }
+
+      // add roles that are missing
+      for (const dbRole of dbRoles) {
+        try {
+          const role = newMember.guild.roles.cache.find((role) => role.id === dbRole.roleId);
+          if (role) newMember.roles.add(role).catch(() => {});
+        } catch (error) {}
+      }
+
+      return;
+    }
+  }
 
   // if somehow user has no STATUS role make him unverfied
   if (!newRoles.length || !activeStatusRoles) RolesService.joinRole(newMember as GuildMember, "Unverified");
