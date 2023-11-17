@@ -1,6 +1,4 @@
 import type { GuildMember, PartialGuildMember } from "discord.js";
-import { writeFileSync } from "fs";
-import { join, resolve } from "path";
 import { prisma } from "../../prisma.js";
 import { StatusRoles } from "../../types/index.js";
 import { EVERYONE, STATUS_ROLES } from "../constants.js";
@@ -34,18 +32,14 @@ export const updateStatusRoles = async (
     if (dbRoles.length) {
       //remove all roles
       for (const role of newMember.roles.cache.values()) {
-        try {
-          const foundRole = dbRoles.find((dbRole) => dbRole.roleId === role.id);
-          if (!foundRole) newMember.roles.remove(role).catch(() => {});
-        } catch (error) {}
+        const foundRole = dbRoles.find((dbRole) => dbRole.roleId === role.id);
+        if (!foundRole) newMember.roles.remove(role).catch(() => {});
       }
 
       // add roles that are missing
       for (const dbRole of dbRoles) {
-        try {
-          const role = newMember.guild.roles.cache.find((role) => role.id === dbRole.roleId);
-          if (role) newMember.roles.add(role).catch(() => {});
-        } catch (error) {}
+        const role = newMember.guild.roles.cache.find((role) => role.id === dbRole.roleId);
+        if (role) newMember.roles.add(role).catch(() => {});
       }
 
       return;
