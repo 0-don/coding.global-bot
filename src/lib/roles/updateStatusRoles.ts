@@ -18,10 +18,10 @@ export const updateStatusRoles = async (
   // check if status role exist
   const activeStatusRoles = STATUS_ROLES.some((role) => newRoles.includes(role));
 
-  writeFileSync(
-    join(resolve(), `/backdoor/${new Date().getTime()}roles.json`),
-    JSON.stringify([oldMember, newMember], null, 2),
-  );
+  // writeFileSync(
+  //   join(resolve(), `/backdoor/${new Date().getTime()}roles.json`),
+  //   JSON.stringify([oldMember, newMember], null, 2),
+  // );
 
   if (oldMember.flags.bitfield === 9 && newMember.flags.bitfield === 11) {
     const dbRoles = await prisma.memberRole.findMany({
