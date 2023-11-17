@@ -21,6 +21,7 @@ export const updateStatusRoles = async (
   //   JSON.stringify([oldMember, newMember], null, 2),
   // );
 
+  // onboarding querstion bypass
   if (oldMember.flags.bitfield === 9 && newMember.flags.bitfield === 11) {
     const dbRoles = await prisma.memberRole.findMany({
       where: {
