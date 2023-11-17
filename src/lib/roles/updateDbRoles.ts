@@ -12,6 +12,8 @@ export const updateDbRoles = async (
   // get old roles as string[]
   const oldRoles = oldMember.roles.cache.filter(({ name }) => name !== EVERYONE).map((role) => role);
 
+  if (oldMember.flags.bitfield === 9 && newMember.flags.bitfield === 11) return;
+
   // check if new role was aded
   if (newRoles.length > oldRoles.length) {
     // add or update new role
