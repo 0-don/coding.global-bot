@@ -71,12 +71,8 @@ export class MessageCreate {
       if (userState.lastMessage) {
         // Überprüfen, ob die vorherige Nachricht gleich der neuen Nachricht ist
         if (userState.lastMessage.content === message.content) {
-          console.log("Same message");
-          console.log("Memory: " + userState.lastMessage.content, "New: " + message.content);
           userState.same = true;
         } else {
-          console.log("Not same message");
-          console.log("Memory: " + userState.lastMessage.content, "New: " + message.content);
           userState.same = false;
         }
       }
@@ -84,7 +80,7 @@ export class MessageCreate {
       if (userState.same) {
         userState.count++;
       }
-      console.log(userState.count);
+
       userState.lastMessage = message;
 
       if (userState.count === 5) {
