@@ -8,9 +8,13 @@ import { simpleEmbedExample } from "../lib/embeds.js";
 import { translate } from "../lib/helpers.js";
 import { MessagesService } from "../lib/messages/Messages.service.js";
 import { checkWarnings } from "../lib/messages/checkWarnings.js";
+import { deleteUserMessages } from "../lib/messages/deleteUserMessages.js";
 import { fetchMessages } from "../lib/messages/fetchMessages.js";
 import { HelperService } from "../lib/roles/Helper.service.js";
 import { prisma } from "../prisma.js";
+import { UserState } from "../types/index.js";
+
+const previousMessages = new Map<string, UserState>();
 
 @Discord()
 export class MessageCreate {
@@ -21,6 +25,9 @@ export class MessageCreate {
 
     // check for thread start
     this.checkThreadStart(message);
+
+    // check for spam
+    this.checkSpam(message);
 
     //delete messages with links
     await checkWarnings(message);
@@ -44,6 +51,52 @@ export class MessageCreate {
         embed.footer!.text = "You can also use /ai to get help from the bot";
 
         await channel.send({ embeds: [embed], allowedMentions: { users: [] } });
+      }
+    }
+  }
+
+  private async checkSpam(message: Message) {
+    if (message.author.bot) return;
+
+    if (!previousMessages.has(message.author.id)) {
+      previousMessages.set(message.author.id, {
+        count: 0,
+        lastMessage: null,
+      });
+    }
+
+    const userState = previousMessages.get(message.author.id) as UserState;
+
+    if (userState.count < 5) {
+      if (userState.lastMessage) {
+        // Überprüfen, ob die vorherige Nachricht gleich der neuen Nachricht ist
+        if (userState.lastMessage.content === message.content) {
+          console.log("Same message");
+          console.log("Memory: " + userState.lastMessage.content, "New: " + message.content);
+          userState.same = true;
+        } else {
+          console.log("Not same message");
+          console.log("Memory: " + userState.lastMessage.content, "New: " + message.content);
+          userState.same = false;
+        }
+      }
+
+      if (userState.same) {
+        userState.count++;
+      }
+      console.log(userState.count);
+      userState.lastMessage = message;
+
+      if (userState.count === 5) {
+        await deleteUserMessages({
+          days: 7,
+          jail: true,
+          memberId: message.author.id,
+          user: message.author,
+          guild: message.guild!,
+        });
+
+        userState.count = 0;
       }
     }
   }
