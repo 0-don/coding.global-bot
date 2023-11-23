@@ -1,4 +1,5 @@
 import type { GuildVoiceEvents, MemberMessages } from "@prisma/client";
+import { Message } from "discord.js";
 import type { STATUS_ROLES } from "../lib/constants.js";
 import "./enviroment.js";
 
@@ -68,4 +69,10 @@ export interface ChatGptError {
     param: string;
     code: string;
   };
+}
+
+export interface UserState {
+  count: number;
+  lastMessage: Message | null;
+  same?: boolean;
 }
