@@ -69,7 +69,7 @@
 ### restore db in docker
 
 ```sh
-docker exec -ti coding-global-db pg_restore -U postgres -c -d test /backups/daily/coding-global-db-latest.sql.gz
+docker exec -i coding-global-db pg_restore -U postgres -c -d coding-global-db -v < ~/coding-global-db-latest.sql.gz
 ```
 
 
