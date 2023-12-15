@@ -2,8 +2,8 @@ import type { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { ChannelType, Guild, User } from "discord.js";
 import { prisma } from "../../prisma.js";
-import { RolesService } from "../roles/Roles.service.js";
 import { JAIL } from "../constants.js";
+import { RolesService } from "../roles/Roles.service.js";
 
 export const deleteUserMessages = async ({
   guild,
@@ -88,7 +88,10 @@ export const deleteUserMessages = async ({
       // loop over all messages
       for (let message of messages) {
         // check if message was sent by user and if it was sent before daysTimestamp
-        if (message.author.id === memberId && 0 < dayjs(message.createdAt).diff(daysTimestamp, "minutes"))
+        if (
+          message.author.id === memberId &&
+          0 < dayjs(message.createdAt).diff(daysTimestamp, "minutes")
+        )
           await message.delete();
       }
     } catch (_) {}

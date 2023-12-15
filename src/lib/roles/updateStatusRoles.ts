@@ -9,17 +9,18 @@ export const updateStatusRoles = async (
   newMember: GuildMember | PartialGuildMember,
 ) => {
   // get old roles as string[]
-  const oldRoles = oldMember.roles.cache.filter(({ name }) => name !== EVERYONE).map((role) => role.name);
+  const oldRoles = oldMember.roles.cache
+    .filter(({ name }) => name !== EVERYONE)
+    .map((role) => role.name);
   // get new roles as string[]
-  const newRoles = newMember.roles.cache.filter(({ name }) => name !== EVERYONE).map((role) => role.name);
+  const newRoles = newMember.roles.cache
+    .filter(({ name }) => name !== EVERYONE)
+    .map((role) => role.name);
 
   // check if status role exist
-  const activeStatusRoles = STATUS_ROLES.some((role) => newRoles.includes(role));
-
-  // writeFileSync(
-  //   join(resolve(), `/backdoor/${new Date().getTime()}roles.json`),
-  //   JSON.stringify([oldMember, newMember], null, 2),
-  // );
+  const activeStatusRoles = STATUS_ROLES.some((role) =>
+    newRoles.includes(role),
+  );
 
   // onboarding querstion bypass
   if (oldMember.flags.bitfield === 9 && newMember.flags.bitfield === 11) {
@@ -39,7 +40,9 @@ export const updateStatusRoles = async (
 
       // add roles that are missing
       for (const dbRole of dbRoles) {
-        const role = newMember.guild.roles.cache.find((role) => role.id === dbRole.roleId);
+        const role = newMember.guild.roles.cache.find(
+          (role) => role.id === dbRole.roleId,
+        );
         if (role) newMember.roles.add(role).catch(() => {});
       }
 
@@ -48,11 +51,14 @@ export const updateStatusRoles = async (
   }
 
   // if somehow user has no STATUS role make him unverfied
-  if (!newRoles.length || !activeStatusRoles) RolesService.joinRole(newMember as GuildMember, "Unverified");
+  if (!newRoles.length || !activeStatusRoles)
+    RolesService.joinRole(newMember as GuildMember, "Unverified");
   // only run if user has a new role
   if (oldRoles.length >= newRoles.length) return;
 
-  const newAddedRole = newRoles.filter((role) => !oldRoles.includes(role))[0] as StatusRoles;
+  const newAddedRole = newRoles.filter(
+    (role) => !oldRoles.includes(role),
+  )[0] as StatusRoles;
 
   // check if role is a status role if yes then remove the unused status role
   if (STATUS_ROLES.includes(newAddedRole)) {

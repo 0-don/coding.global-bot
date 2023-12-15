@@ -55,6 +55,17 @@ export class RolesService {
     return guildStatusRoles;
   }
 
+  static async verify(
+    member: GuildMember | PartialGuildMember,
+    role: StatusRoles,
+  ) {
+    // get icon reaction role
+    const guildStatusRoles = RolesService.getGuildStatusRoles(member.guild);
+
+    // if icon reaction role exist exist add role to user
+    guildStatusRoles[role] && (await member.roles.add(guildStatusRoles[role]!));
+  }
+
   static async verifyReaction(
     reaction: MessageReaction | PartialMessageReaction,
     user: User | PartialUser,
@@ -86,6 +97,7 @@ export class RolesService {
     );
 
     // if icon reaction role exist exist add role to user
-    guildStatusRoles[VERIFIED] && member?.roles.add(guildStatusRoles[VERIFIED]);
+    guildStatusRoles[VERIFIED] &&
+      member?.roles.add(guildStatusRoles[VERIFIED] as Role);
   }
 }

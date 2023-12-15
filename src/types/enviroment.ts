@@ -18,6 +18,7 @@ declare global {
       IS_CONSTRAINED_TO_BOT_CHANNEL: string;
       SHOULD_LOG_VOICE_EVENTS: string;
       BOT_ICON: string;
+      SHOULD_COUNT_MEMBERS: string;
     }
   }
 }

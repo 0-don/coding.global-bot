@@ -42,10 +42,13 @@ export class MessageCreate {
       const firstMessage = await channel.fetchStarterMessage();
       const messages = await channel.messages.fetch();
 
-      if (message.author.bot || firstMessage?.author.bot || messages.size > 1) return;
+      if (message.author.bot || firstMessage?.author.bot || messages.size > 1)
+        return;
 
       if (firstMessage?.author.id === message.author.id) {
-        const embed = JSON.parse(JSON.stringify(simpleEmbedExample)) as APIEmbed;
+        const embed = JSON.parse(
+          JSON.stringify(simpleEmbedExample),
+        ) as APIEmbed;
         embed.description =
           "Thanks for your question :clap:, if someone gives you an answer it would be great if you thanked them with a :white_check_mark: in response. This response will earn you both points for special roles on this server.";
         embed.footer!.text = "You can also use /ai to get help from the bot";
@@ -112,7 +115,9 @@ export class MessageCreate {
       }
 
       const messages = await fetchMessages(channel, 500);
-      const previousMessage = messages.reverse().find((msg) => msg.author.id !== message.author.id && !msg.author.bot);
+      const previousMessage = messages
+        .reverse()
+        .find((msg) => msg.author.id !== message.author.id && !msg.author.bot);
 
       if (!previousMessage) return;
       if (previousMessage.author.bot) return;
@@ -142,12 +147,16 @@ export class MessageCreate {
     if (message.type === MessageType.Reply && message.reference?.messageId) {
       const channel = (await message.channel.fetch()) as TextChannel;
 
-      const replyMsg = await channel.messages.fetch(message.reference?.messageId);
+      const replyMsg = await channel.messages.fetch(
+        message.reference?.messageId,
+      );
 
       await message.delete();
 
       channel.send({
-        content: await translate(Buffer.from(replyMsg.content, "utf-8").toString()),
+        content: await translate(
+          Buffer.from(replyMsg.content, "utf-8").toString(),
+        ),
         allowedMentions: { users: [] },
       });
     }
@@ -158,7 +167,9 @@ export class MessageCreate {
     const message = command.message;
     if (message.type === MessageType.Reply && message.reference?.messageId) {
       const channel = (await message.channel.fetch()) as TextChannel;
-      const replyMsg = await channel.messages.fetch(message.reference?.messageId);
+      const replyMsg = await channel.messages.fetch(
+        message.reference?.messageId,
+      );
       const user = message.author;
 
       const guildMember = await channel.guild.members.fetch(user.id);
@@ -168,9 +179,13 @@ export class MessageCreate {
 
       if (
         channel.name === GENERAL_CHANNEL &&
-        !guildMember?.roles.cache.some((role) => MEMBER_ROLES.includes(role.name as (typeof MEMBER_ROLES)[number]))
+        !guildMember?.roles.cache.some((role) =>
+          MEMBER_ROLES.includes(role.name as (typeof MEMBER_ROLES)[number]),
+        )
       ) {
-        return channel.send(`use this command /ai (your text) in ${botChannel?.toString()}`);
+        return channel.send(
+          `use this command /ai (your text) in ${botChannel?.toString()}`,
+        );
       }
 
       const messages = await fetchMessages(channel, 500);
@@ -205,7 +220,9 @@ export class MessageCreate {
         }
       }
 
-      const dateSortedMessages = userMessages.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+      const dateSortedMessages = userMessages.sort(
+        (a, b) => a.createdTimestamp - b.createdTimestamp,
+      );
 
       const getAllImagesFromMessages = (
         await Promise.all(
@@ -220,7 +237,8 @@ export class MessageCreate {
       messagesContentArray.push(getAllImagesFromMessages);
       const messagesContent = messagesContentArray.join("\n");
 
-      if (!messagesContent.length) return await channel.send("No messages found");
+      if (!messagesContent.length)
+        return await channel.send("No messages found");
 
       await askAi({ channel, user, text: messagesContent });
     }

@@ -1,7 +1,9 @@
 import { ChannelType, GuildMember, VoiceChannel } from "discord.js";
 import { prisma } from "../../prisma.js";
 
-export const moveMemberToChannel = async (member: GuildMember): Promise<void> => {
+export const moveMemberToChannel = async (
+  member: GuildMember,
+): Promise<void> => {
   let guildMemberDb = await prisma.memberGuild.findFirst({
     where: {
       guildId: member.guild.id,
@@ -14,11 +16,17 @@ export const moveMemberToChannel = async (member: GuildMember): Promise<void> =>
   if (!guildMemberDb || count === 0) return;
 
   let guildMember = await member.guild.members.fetch(member.id);
-  const allVoiceChannels = (await member.guild.channels.fetch()).filter((c) => c?.type === ChannelType.GuildVoice);
+  const allVoiceChannels = (await member.guild.channels.fetch()).filter(
+    (c) => c?.type === ChannelType.GuildVoice,
+  );
 
-  const voiceChannelsWithUsers = allVoiceChannels.filter((c) => c && c?.members.size > 0);
+  const voiceChannelsWithUsers = allVoiceChannels.filter(
+    (c) => c && c?.members.size > 0,
+  );
 
-  const voiceChannelsWithoutUsers = allVoiceChannels.filter((c) => c && c?.members.size === 0);
+  const voiceChannelsWithoutUsers = allVoiceChannels.filter(
+    (c) => c && c?.members.size === 0,
+  );
 
   for (const [id, channel] of voiceChannelsWithoutUsers) {
     const voiceChannel = channel as VoiceChannel;
@@ -28,7 +36,8 @@ export const moveMemberToChannel = async (member: GuildMember): Promise<void> =>
   }
 
   const voiceChannels = allVoiceChannels.filter(
-    (c) => c && c?.members.size === 0 && guildMember.permissionsIn(c).has("Connect"),
+    (c) =>
+      c && c?.members.size === 0 && guildMember.permissionsIn(c).has("Connect"),
   );
 
   for (const [id, channel] of voiceChannelsWithUsers) {
