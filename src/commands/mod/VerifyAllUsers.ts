@@ -35,9 +35,10 @@ export class VerifyAllUsers {
 
     // if one of the roles is missing, return
     if (STATUS_ROLES.some((role) => !guildStatusRoles[role])) {
-      const content = STATUS_ROLES.map((role) => `${role}: ${new Boolean(!!guildStatusRoles[role]).toString()}`).join(
-        "\n",
-      );
+      const content = STATUS_ROLES.map(
+        (role) =>
+          `${role}: ${new Boolean(!!guildStatusRoles[role]).toString()}`,
+      ).join("\n");
       return await interaction.editReply({ content });
     }
 
@@ -48,7 +49,9 @@ export class VerifyAllUsers {
       content: `updating user count:${members.size}`,
     });
 
-    const rolesWithoutUnverified = [...STATUS_ROLES].filter((role) => role !== UNVERIFIED);
+    const rolesWithoutUnverified = [...STATUS_ROLES].filter(
+      (role) => role !== UNVERIFIED,
+    );
 
     // loop over all guild members
     for (let memberCollection of members) {
@@ -57,7 +60,9 @@ export class VerifyAllUsers {
       // refetch user if some roles were reasinged
 
       if (i % Math.floor((members.size / 100) * 10) === 0) {
-        await interaction.editReply(`Members: ${i}/${members.size} ${member.user.username}`);
+        await interaction.editReply(
+          `Members: ${i}/${members.size} ${member.user.username}`,
+        );
       }
 
       log(`${i}/${members.size} user: ${member.user.username}`);
@@ -72,10 +77,16 @@ export class VerifyAllUsers {
       await recreateMemberDbRoles(member);
 
       // if one of the status roles is on user, continue
-      if (rolesWithoutUnverified.some((role) => member.roles.cache.has(guildStatusRoles[role]!.id))) continue;
+      if (
+        rolesWithoutUnverified.some((role) =>
+          member.roles.cache.has(guildStatusRoles[role]!.id),
+        )
+      )
+        continue;
 
       // verify user
-      guildStatusRoles[VERIFIED] && (await member.roles.add(guildStatusRoles[VERIFIED].id));
+      guildStatusRoles[VERIFIED] &&
+        (await member.roles.add(guildStatusRoles[VERIFIED]!.id));
     }
     return (interaction.channel as TextChannel)?.send({
       content: `Verified all users (${members.size}) in ${interaction.guild.name}`,

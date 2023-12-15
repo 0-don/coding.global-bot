@@ -26,7 +26,8 @@ export class LookbackMembers {
     const guildId = interaction.guild?.id;
     const guildName = interaction.guild?.name;
 
-    if (!guildId || !guildName) return await interaction.reply("Please use this command in a server");
+    if (!guildId || !guildName)
+      return await interaction.reply("Please use this command in a server");
 
     // create or update guild
     await prisma.guild.upsert({
@@ -36,6 +37,8 @@ export class LookbackMembers {
     });
 
     // send success message
-    return await interaction.reply(`Lookback set to ${lookback} days for ${guildName}`);
+    return await interaction.reply(
+      `Lookback set to ${lookback} days for ${guildName}`,
+    );
   }
 }
