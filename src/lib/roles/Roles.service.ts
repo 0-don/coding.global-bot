@@ -9,10 +9,19 @@ import {
   User,
 } from "discord.js";
 import { StatusRoles } from "../../types/index.js";
-import { JAIL, STATUS_ROLES, VERIFIED, VERIFY_TEMPLATE, VOICE_ONLY } from "../constants.js";
+import {
+  JAIL,
+  STATUS_ROLES,
+  VERIFIED,
+  VERIFY_TEMPLATE,
+  VOICE_ONLY,
+} from "../constants.js";
 
 export class RolesService {
-  static async joinRole(member: GuildMember | PartialGuildMember, role: StatusRoles) {
+  static async joinRole(
+    member: GuildMember | PartialGuildMember,
+    role: StatusRoles,
+  ) {
     // dont add bots to the list
     if (member.user.bot) return;
 
@@ -22,7 +31,13 @@ export class RolesService {
     const addRole = member.guild.roles.cache.find(({ name }) => name === role);
 
     // if status role on user then exit
-    if (member.roles.cache.some((role) => STATUS_ROLES.includes(role.name as StatusRoles)) || !addRole) return;
+    if (
+      member.roles.cache.some((role) =>
+        STATUS_ROLES.includes(role.name as StatusRoles),
+      ) ||
+      !addRole
+    )
+      return;
 
     // if first time member add unverified role
     await member.roles.add(addRole);
@@ -33,11 +48,17 @@ export class RolesService {
       [x: string]: Role | undefined;
     } = {};
     //check for verified roles "verified", "voiceOnly", "readOnly", "mute", "unverified"
-    for (let role of STATUS_ROLES) guildStatusRoles[role] = guild?.roles.cache.find(({ name }) => name === role);
+    for (let role of STATUS_ROLES)
+      guildStatusRoles[role] = guild?.roles.cache.find(
+        ({ name }) => name === role,
+      );
     return guildStatusRoles;
   }
 
-  static async verifyReaction(reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser) {
+  static async verifyReaction(
+    reaction: MessageReaction | PartialMessageReaction,
+    user: User | PartialUser,
+  ) {
     // check if template
     const isTemplate = reaction.message.embeds[0]?.footer?.text;
 
@@ -47,13 +68,22 @@ export class RolesService {
     if (user.bot) return;
 
     // get member
-    const member = await reaction.message.guild?.members.cache.get(user.id)?.fetch();
+    const member = await reaction.message.guild?.members.cache
+      .get(user.id)
+      ?.fetch();
 
     // if icon reaction role on user then exit
-    if (member?.roles.cache.some((role) => [VERIFIED, JAIL, VOICE_ONLY].includes(role.name as any))) return;
+    if (
+      member?.roles.cache.some((role) =>
+        [VERIFIED, JAIL, VOICE_ONLY].includes(role.name as any),
+      )
+    )
+      return;
 
     // get icon reaction role
-    const guildStatusRoles = RolesService.getGuildStatusRoles(reaction.message.guild!);
+    const guildStatusRoles = RolesService.getGuildStatusRoles(
+      reaction.message.guild!,
+    );
 
     // if icon reaction role exist exist add role to user
     guildStatusRoles[VERIFIED] && member?.roles.add(guildStatusRoles[VERIFIED]);
