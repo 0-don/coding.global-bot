@@ -16,7 +16,7 @@ import { ChartDataset, GuildMemberCountChart } from "../../types/index.js";
 import {
   CHARTJS_NODE_CANVAS,
   GLOBAL_CANVAS,
-  JOIN_EVENTS_CHANNEL,
+  JOIN_EVENT_CHANNEL,
   MEMBERS_COUNT_CHANNEL,
   SHOULD_COUNT_MEMBERS,
 } from "../constants.js";
@@ -88,7 +88,7 @@ export class MembersService {
     try {
       // get voice channel by name
       const joinEventsChannel = member.guild.channels.cache.find(
-        ({ name }) => name === JOIN_EVENTS_CHANNEL,
+        ({ name }) => name === JOIN_EVENT_CHANNEL,
       );
 
       // check if voice channel exists and it is voice channel
