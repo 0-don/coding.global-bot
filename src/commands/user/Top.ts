@@ -1,6 +1,9 @@
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { BOT_CHANNEL } from "../../lib/constants.js";
+import {
+  BOT_CHANNEL,
+  IS_CONSTRAINED_TO_BOT_CHANNEL,
+} from "../../lib/constants.js";
 import { StatsService } from "../../lib/stats/Stats.service.js";
 
 @Discord()
@@ -18,10 +21,13 @@ export class Top {
 
     if (!interaction.guildId) return await interaction.editReply("No Guild");
 
-    if (channel.name !== BOT_CHANNEL)
-      // if not bot channel, return
-      return await interaction.editReply("Please use this command in the bot channel");
-
+    if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
+      if (channel.name !== BOT_CHANNEL)
+        // if not bot channel, return
+        return await interaction.editReply(
+          "Please use this command in the bot channel",
+        );
+    }
     const embed = await StatsService.topStatsEmbed(interaction.guildId);
 
     if (typeof embed === "string") return await interaction.editReply(embed);

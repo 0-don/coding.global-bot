@@ -28,7 +28,8 @@ export async function fetchMessages(
 
       if (lastId.length > 0) options.before = lastId;
 
-      const messages: Collection<string, Message> = await channel.messages.fetch(options);
+      const messages: Collection<string, Message> =
+        await channel.messages.fetch(options);
 
       const messagesArray = Array.from(messages.values(), (value) => value);
       out.push(...messagesArray);
@@ -37,5 +38,8 @@ export async function fetchMessages(
     }
   }
   // remove duplicates
-  return out.filter((message, index, self) => self.findIndex((m) => m.id === message.id) === index);
+  return out.filter(
+    (message, index, self) =>
+      self.findIndex((m) => m.id === message.id) === index,
+  );
 }

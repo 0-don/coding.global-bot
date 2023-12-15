@@ -1,6 +1,14 @@
-import { ApplicationCommandOptionType, TextChannel, User, type CommandInteraction } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  TextChannel,
+  User,
+  type CommandInteraction,
+} from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { BOT_CHANNEL } from "../../lib/constants.js";
+import {
+  BOT_CHANNEL,
+  IS_CONSTRAINED_TO_BOT_CHANNEL,
+} from "../../lib/constants.js";
 import { StatsService } from "../../lib/stats/Stats.service.js";
 
 @Discord()
@@ -25,8 +33,13 @@ export class UserCommand {
     // deferReply if it takes longer then usual
     await interaction.deferReply();
 
-    // if not bot channel, return
-    if (channel.name !== BOT_CHANNEL) return await interaction.editReply("Please use this command in the bot channel");
+    if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
+      // if not bot channel, return
+      if (channel.name !== BOT_CHANNEL)
+        return await interaction.editReply(
+          "Please use this command in the bot channel",
+        );
+    }
 
     const embed = await StatsService.userStatsEmbed(interaction, user);
 

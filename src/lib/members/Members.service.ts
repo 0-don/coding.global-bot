@@ -2,17 +2,32 @@ import { Prisma } from "@prisma/client";
 import { Chart } from "chart.js";
 import { log } from "console";
 import dayjs from "dayjs";
-import { APIEmbed, Guild, GuildMember, PartialGuildMember, TextChannel } from "discord.js";
+import {
+  APIEmbed,
+  Guild,
+  GuildMember,
+  PartialGuildMember,
+  TextChannel,
+} from "discord.js";
 import { writeFileSync } from "fs";
 import path from "path";
 import { prisma } from "../../prisma.js";
 import { ChartDataset, GuildMemberCountChart } from "../../types/index.js";
-import { CHARTJS_NODE_CANVAS, GLOBAL_CANVAS, JOIN_EVENTS_CHANNEL, MEMBERS_COUNT_CHANNEL } from "../constants.js";
+import {
+  CHARTJS_NODE_CANVAS,
+  GLOBAL_CANVAS,
+  JOIN_EVENTS_CHANNEL,
+  MEMBERS_COUNT_CHANNEL,
+  SHOULD_COUNT_MEMBERS,
+} from "../constants.js";
 import { simpleEmbedExample } from "../embeds.js";
 import { chartConfig, getDaysArray } from "../helpers.js";
 
 export class MembersService {
-  static async upsertDbMember(member: GuildMember | PartialGuildMember, status: "join" | "leave") {
+  static async upsertDbMember(
+    member: GuildMember | PartialGuildMember,
+    status: "join" | "leave",
+  ) {
     // dont add bots to the list
     if (member.user.bot) return;
 
@@ -56,7 +71,9 @@ export class MembersService {
         try {
           await member.roles.add(role.roleId);
         } catch (error) {
-          await prisma.memberRole.delete({ where: { member_role: { memberId, roleId: role.roleId } } });
+          await prisma.memberRole.delete({
+            where: { member_role: { memberId, roleId: role.roleId } },
+          });
         }
       }
 
@@ -64,10 +81,15 @@ export class MembersService {
     return dbMember;
   }
 
-  static async logJoinLeaveEvents(member: GuildMember, event: "join" | "leave") {
+  static async logJoinLeaveEvents(
+    member: GuildMember,
+    event: "join" | "leave",
+  ) {
     try {
       // get voice channel by name
-      const joinEventsChannel = member.guild.channels.cache.find(({ name }) => name === JOIN_EVENTS_CHANNEL);
+      const joinEventsChannel = member.guild.channels.cache.find(
+        ({ name }) => name === JOIN_EVENTS_CHANNEL,
+      );
 
       // check if voice channel exists and it is voice channel
       if (!joinEventsChannel || !joinEventsChannel.isTextBased()) return;
@@ -76,7 +98,9 @@ export class MembersService {
       const userGlobalName = member?.user.username;
 
       // copy paste embed so it doesnt get overwritten
-      const joinEmbed = JSON.parse(JSON.stringify(simpleEmbedExample)) as APIEmbed;
+      const joinEmbed = JSON.parse(
+        JSON.stringify(simpleEmbedExample),
+      ) as APIEmbed;
 
       // create embed based on event
       joinEmbed.timestamp = new Date().toISOString();
@@ -98,9 +122,7 @@ export class MembersService {
   }
 
   static async updateMemberCount(member: GuildMember | PartialGuildMember) {
-    // dont add bots to the list
-    if (member.user.bot) return;
-
+    if (member.user.bot || !SHOULD_COUNT_MEMBERS) return;
     // find member: channel
     const memberCountChannel = member.guild.channels.cache.find((channel) =>
       channel.name.includes(MEMBERS_COUNT_CHANNEL),
@@ -113,15 +135,21 @@ export class MembersService {
     await member.guild.members.fetch();
 
     // count members exc
-    const memberCount = member.guild.members.cache.filter((member) => !member.user.bot).size;
+    const memberCount = member.guild.members.cache.filter(
+      (member) => !member.user.bot,
+    ).size;
 
     // set channel name as member count
     try {
-      await memberCountChannel.setName(`${MEMBERS_COUNT_CHANNEL} ${memberCount}`);
+      await memberCountChannel.setName(
+        `${MEMBERS_COUNT_CHANNEL} ${memberCount}`,
+      );
     } catch (_) {}
   }
 
-  static async guildMemberCountChart(guild: Guild): Promise<GuildMemberCountChart> {
+  static async guildMemberCountChart(
+    guild: Guild,
+  ): Promise<GuildMemberCountChart> {
     // get guild data
     const guildId = guild.id;
     const guildName = guild.name;
@@ -142,7 +170,10 @@ export class MembersService {
     if (!dates[0]) return { error: "No members found" };
 
     // create date array from first to today for each day
-    const startEndDateArray = getDaysArray(dates[0], dayjs().add(1, "day").toDate());
+    const startEndDateArray = getDaysArray(
+      dates[0],
+      dayjs().add(1, "day").toDate(),
+    );
 
     // get member count for each day and format it for chartjs
     const data: ChartDataset[] = startEndDateArray.map((date) => ({
@@ -155,9 +186,12 @@ export class MembersService {
     let oneDayCount = data[data.length - 1]?.y;
 
     // count total members for date ranges
-    if (data.length > 31) thirtyDaysCount = data[data.length - 1]!.y - data[data.length - 30]!.y;
-    if (data.length > 8) sevedDaysCount = data[data.length - 1]!.y - data[data.length - 7]!.y;
-    if (data.length > 3) oneDayCount = data[data.length - 1]!.y - data[data.length - 2]!.y;
+    if (data.length > 31)
+      thirtyDaysCount = data[data.length - 1]!.y - data[data.length - 30]!.y;
+    if (data.length > 8)
+      sevedDaysCount = data[data.length - 1]!.y - data[data.length - 7]!.y;
+    if (data.length > 3)
+      oneDayCount = data[data.length - 1]!.y - data[data.length - 2]!.y;
 
     // const link = await megaUpload(JSON.stringify(data, null, 1), 'chart.json');
 
@@ -170,7 +204,10 @@ export class MembersService {
     );
 
     // render image from chartjs config as png
-    new Chart(CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D, config);
+    new Chart(
+      CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D,
+      config,
+    );
 
     // crete local img file
     const fileName = `${guildId}.png`;

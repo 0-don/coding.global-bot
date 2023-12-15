@@ -24,7 +24,21 @@ jobs:
 
           echo OPEN_AI=${{ secrets.OPEN_AI }} >> .env
           echo DEEPL=${{ secrets.DEEPL }} >> .env
-          
+
+          echo HELPER_ROLES=${{ secrets.HELPER_ROLES }} >> .env
+          echo STATUS_ROLES=${{ secrets.STATUS_ROLES }} >> .env
+          echo MEMBER_ROLES=${{ secrets.MEMBER_ROLES }} >> .env
+          echo GENERAL_CHANNEL=${{ secrets.GENERAL_CHANNEL }} >> .env
+          echo VERIFY_CHANNEL=${{ secrets.VERIFY_CHANNEL }} >> .env
+          echo BOT_CHANNEL=${{ secrets.BOT_CHANNEL }} >> .env
+          echo VOICE_EVENT_CHANNEL=${{ secrets.VOICE_EVENT_CHANNEL }} >> .env
+          echo JOIN_EVENT_CHANNEL=${{ secrets.JOIN_EVENT_CHANNEL }} >> .env
+          echo MEMBERS_COUNT_CHANNEL=${{ secrets.MEMBERS_COUNT_CHANNEL }} >> .env
+          echo IS_CONSTRAINED_TO_BOT_CHANNEL=${{ secrets.IS_CONSTRAINED_TO_BOT_CHANNEL }} >> .env
+          echo SHOULD_LOG_VOICE_EVENTS=${{ secrets.SHOULD_LOG_VOICE_EVENTS }} >> .env
+          echo SHOULD_COUNT_MEMBERS=${{ secrets.SHOULD_COUNT_MEMBERS }} >> .env
+          echo BOT_ICON=${{ secrets.BOT_ICON }} >> .env
+
           cat .env
 
       - name: Docker run

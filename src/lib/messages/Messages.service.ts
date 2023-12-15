@@ -14,7 +14,8 @@ export class MessagesService {
     const guildId = message.guild?.id;
 
     // if info doesnt exist
-    if (!content || !guildId || !memberId || message.interaction?.user.bot) return;
+    if (!content || !guildId || !memberId || message.interaction?.user.bot)
+      return;
 
     // catch message edits
     try {
@@ -43,7 +44,10 @@ export class MessagesService {
   static async cleanUpVerifyChannel(message: Message<boolean>) {
     const channel = (await message.channel?.fetch()) as TextChannel;
     // remove non command messages in verify channel
-    if (channel.name === VERIFY_CHANNEL && message.type !== MessageType.ChatInputCommand) {
+    if (
+      channel.name === VERIFY_CHANNEL &&
+      message.type !== MessageType.ChatInputCommand
+    ) {
       message.delete();
     }
   }

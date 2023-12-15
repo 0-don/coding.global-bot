@@ -8,7 +8,10 @@ import { prisma } from "../prisma.js";
 @Discord()
 export class MessageReactionAdd {
   @On()
-  async messageReactionAdd([reaction, user]: ArgsOf<"messageReactionAdd">, client: Client) {
+  async messageReactionAdd(
+    [reaction, user]: ArgsOf<"messageReactionAdd">,
+    client: Client,
+  ) {
     // fetch reaction status and roles
     await reaction.fetch();
 
