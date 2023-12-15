@@ -15,7 +15,8 @@ import { Stream } from "openai/streaming.mjs";
 import QuickLRU from "quick-lru";
 
 class ChatGPTAPI {
-  private model: ChatCompletionCreateParamsBase["model"] = "gpt-3.5-turbo-16k-0613";
+  private model: ChatCompletionCreateParamsBase["model"] =
+    "gpt-3.5-turbo-16k-0613";
   private store: Keyv<ChatMessage>;
   private openai: OpenAI;
   private maxModelTokens: number = 8000;
@@ -29,16 +30,27 @@ class ChatGPTAPI {
     });
   }
 
-  public async *sendMessage(opts: SendMessageOptions): AsyncGenerator<ChatMessage, void, unknown> {
+  public async *sendMessage(
+    opts: SendMessageOptions,
+  ): AsyncGenerator<ChatMessage, void, unknown> {
     this.model = opts.fileLink
       ? <ChatCompletionCreateParamsBase["model"]>"gpt-4-vision-preview"
       : "gpt-3.5-turbo-16k-0613";
-    const latestQuestion = this.createMessage({ role: "user", text: opts.text }, opts);
-    const newMessage = this.createMessage({ role: "assistant", text: "", parentMessageId: latestQuestion.id }, opts);
+    const latestQuestion = this.createMessage(
+      { role: "user", text: opts.text },
+      opts,
+    );
+    const newMessage = this.createMessage(
+      { role: "assistant", text: "", parentMessageId: latestQuestion.id },
+      opts,
+    );
 
     const { maxTokens, messages } = await this.buildMessages(opts.text, opts);
 
-    for await (const chunk of await this.streamCompletion(messages, maxTokens)) {
+    for await (const chunk of await this.streamCompletion(
+      messages,
+      maxTokens,
+    )) {
       this.updateResultFromStream(chunk, newMessage);
       if (newMessage.choice?.finish_reason !== "stop") {
         yield newMessage;
@@ -48,14 +60,19 @@ class ChatGPTAPI {
   }
 
   private createMessage(
-    config: { role: ChatMessage["role"]; text: string; parentMessageId?: string },
+    config: {
+      role: ChatMessage["role"];
+      text: string;
+      parentMessageId?: string;
+    },
     opts: SendMessageOptions,
   ): ChatMessage {
     return {
       id: crypto.randomUUID(),
       role: config.role,
       text: config.text,
-      parentMessageId: config?.parentMessageId || opts?.parentMessageId || undefined,
+      parentMessageId:
+        config?.parentMessageId || opts?.parentMessageId || undefined,
       fileLink: opts?.fileLink,
     };
   }
@@ -64,14 +81,18 @@ class ChatGPTAPI {
     text: string,
     opts: SendMessageOptions,
   ): Promise<{ messages: ChatCompletionMessageParam[]; maxTokens: number }> {
-    let messages: Array<ChatCompletionUserMessageParam | ChatCompletionSystemMessageParam> = [];
+    let messages: Array<
+      ChatCompletionUserMessageParam | ChatCompletionSystemMessageParam
+    > = [];
 
     const maxNumTokens = this.maxModelTokens - this.maxResponseTokens;
     let numTokens = 0;
     let role: ChatMessage["role"] = "user";
 
     do {
-      const userMessages: ChatCompletionUserMessageParam | ChatCompletionAssistantMessageParam = {
+      const userMessages:
+        | ChatCompletionUserMessageParam
+        | ChatCompletionAssistantMessageParam = {
         role: role as any,
         content:
           role === "user"
@@ -99,9 +120,13 @@ class ChatGPTAPI {
       opts.parentMessageId = parentMessage.parentMessageId;
     } while (true);
 
-    if (opts.systemMessage) messages.unshift({ role: "system", content: opts.systemMessage });
+    if (opts.systemMessage)
+      messages.unshift({ role: "system", content: opts.systemMessage });
 
-    const maxTokens = Math.max(1, Math.min(this.maxModelTokens - numTokens, this.maxResponseTokens));
+    const maxTokens = Math.max(
+      1,
+      Math.min(this.maxModelTokens - numTokens, this.maxResponseTokens),
+    );
 
     writeFileSync("messages.json", JSON.stringify(messages, null, 2));
     return { messages, maxTokens };
@@ -109,7 +134,9 @@ class ChatGPTAPI {
 
   private formatPrompt(
     messages: Array<
-      ChatCompletionUserMessageParam | ChatCompletionSystemMessageParam | ChatCompletionAssistantMessageParam
+      | ChatCompletionUserMessageParam
+      | ChatCompletionSystemMessageParam
+      | ChatCompletionAssistantMessageParam
     >,
   ): string {
     return messages
@@ -118,11 +145,15 @@ class ChatGPTAPI {
           case "system":
             return `Instructions:\n${message.content}`;
           case "assistant":
-            return `Assistant:\n${(message as ChatCompletionAssistantMessageParam).content}`;
+            return `Assistant:\n${
+              (message as ChatCompletionAssistantMessageParam).content
+            }`;
           case "user":
             return `User:\n${
               Array.isArray(message.content)
-                ? message.content.map((p) => (p.type === "text" ? p.text : p.image_url.url)).join("")
+                ? message.content
+                    .map((p) => (p.type === "text" ? p.text : p.image_url.url))
+                    .join("")
                 : message.content
             }`;
           default:
@@ -144,7 +175,10 @@ class ChatGPTAPI {
     });
   }
 
-  private updateResultFromStream(chunk: ChatCompletionChunk, result: ChatMessage): void {
+  private updateResultFromStream(
+    chunk: ChatCompletionChunk,
+    result: ChatMessage,
+  ): void {
     const choice = chunk.choices?.[0];
     if (choice?.finish_reason !== "stop") {
       result.text += choice.delta.content;
@@ -153,7 +187,10 @@ class ChatGPTAPI {
     result.choice = choice;
   }
 
-  private storeMessages(latestQuestion: ChatMessage, result: ChatMessage): void {
+  private storeMessages(
+    latestQuestion: ChatMessage,
+    result: ChatMessage,
+  ): void {
     this.store.set(latestQuestion.id, latestQuestion);
     this.store.set(result.id, result);
   }
@@ -163,7 +200,8 @@ class ChatGPTAPI {
   }
 }
 
-export type Role = OpenAI.Chat.Completions.ChatCompletionChunk["choices"][0]["delta"]["role"];
+export type Role =
+  OpenAI.Chat.Completions.ChatCompletionChunk["choices"][0]["delta"]["role"];
 
 export type ChatGPTAPIOptions = {
   apiKey: string;
@@ -195,6 +233,7 @@ export interface ChatUsage {
 
 const globalForPrisma = global as unknown as { api: ChatGPTAPI };
 
-export const gpt = globalForPrisma.api || new ChatGPTAPI({ apiKey: process.env.OPEN_AI });
+export const gpt =
+  globalForPrisma.api || new ChatGPTAPI({ apiKey: process.env.OPEN_AI });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.api = gpt;
