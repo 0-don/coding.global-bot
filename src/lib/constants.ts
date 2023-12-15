@@ -42,7 +42,7 @@ export const GENERAL_CHANNEL = process.env.GENERAL_CHANNEL.trim();
 export const VERIFY_CHANNEL = process.env.VERIFY_CHANNEL.trim();
 export const BOT_CHANNEL = process.env.BOT_CHANNEL.trim();
 export const VOICE_EVENT_CHANNEL = process.env.VOICE_EVENT_CHANNEL.trim();
-export const JOIN_EVENTS_CHANNEL = process.env.JOIN_EVENTS_CHANNEL.trim();
+export const JOIN_EVENT_CHANNEL = process.env.JOIN_EVENT_CHANNEL.trim();
 export const MEMBERS_COUNT_CHANNEL = process.env.MEMBERS_COUNT_CHANNEL.trim();
 
 export const MEMBERS_TEMPLATE = "members count";

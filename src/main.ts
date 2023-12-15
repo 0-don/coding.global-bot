@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { dirname, importx } from "@discordx/importer";
 import {
   CategoryScale,
@@ -13,7 +14,7 @@ import "chartjs-adapter-date-fns";
 import { log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
-import "dotenv/config";
+
 
 Chart.register(
   LineController,
