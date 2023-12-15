@@ -16,7 +16,7 @@ export const MEMBER_ROLES = [
 
 export const HELPER_RANKING = HELPER_ROLES.map((role, i) => ({
   name: role,
-  position: (i + 1) * 10,
+  points: (i + 1) * 10,
 }));
 
 export const IS_CONSTRAINED_TO_BOT_CHANNEL =

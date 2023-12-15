@@ -26,13 +26,18 @@ export class VoiceService {
     });
   }
 
-  static async logVoiceEvents(oldVoiceState: VoiceState, newVoiceState: VoiceState) {
+  static async logVoiceEvents(
+    oldVoiceState: VoiceState,
+    newVoiceState: VoiceState,
+  ) {
     try {
       // if mute, deafen, stream etc. => exit
       if (oldVoiceState.channelId === newVoiceState.channelId) return;
 
       // get voice channel by name
-      const voiceEventsChannel = oldVoiceState.guild.channels.cache.find(({ name }) => name === VOICE_EVENT_CHANNEL);
+      const voiceEventsChannel = oldVoiceState.guild.channels.cache.find(
+        ({ name }) => name === VOICE_EVENT_CHANNEL,
+      );
 
       // check if voice channel exists and it is voice channel
       if (!voiceEventsChannel || !voiceEventsChannel.isTextBased()) return;
@@ -44,7 +49,9 @@ export class VoiceService {
       const newChannel = newVoiceState.channel?.name;
 
       // copy paste embed so it doesnt get overwritten
-      const voiceEmbed = JSON.parse(JSON.stringify(simpleEmbedExample)) as APIEmbed;
+      const voiceEmbed = JSON.parse(
+        JSON.stringify(simpleEmbedExample),
+      ) as APIEmbed;
 
       // create embed based on event
       voiceEmbed.timestamp = new Date().toISOString();
@@ -64,7 +71,10 @@ export class VoiceService {
     } catch (_) {}
   }
 
-  static async logVoiceEventsDb(oldVoiceState: VoiceState, newVoiceState: VoiceState) {
+  static async logVoiceEventsDb(
+    oldVoiceState: VoiceState,
+    newVoiceState: VoiceState,
+  ) {
     const memberId = newVoiceState.member?.id ?? oldVoiceState.member?.id;
     const guildId = newVoiceState.guild.id ?? oldVoiceState.guild.id;
     const channelId = newVoiceState.channel?.id ?? oldVoiceState.channel?.id;

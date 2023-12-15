@@ -11,7 +11,9 @@ export class HelperService {
     });
 
     //check if user has helper role
-    const hasHelperRole = memberRoles.some((role) => HELPER_ROLES.includes(role.name as (typeof HELPER_ROLES)[number]));
+    const hasHelperRole = memberRoles.some((role) =>
+      HELPER_ROLES.includes(role.name as (typeof HELPER_ROLES)[number]),
+    );
     if (!hasHelperRole) return;
 
     //remove roles
@@ -25,7 +27,11 @@ export class HelperService {
     const helperRole = HELPER_RANKING.find((role) => role.points <= helpCount);
     if (helperRole) {
       await guildMember.roles.add(helperRole.name);
-      message.channel.send(`Congratulations ${guildMember.toString()} you are now ${helperRole.name} 🎉`);
+      message.channel.send(
+        `Congratulations ${guildMember.toString()} you are now ${
+          helperRole.name
+        } 🎉`,
+      );
     }
   }
 }

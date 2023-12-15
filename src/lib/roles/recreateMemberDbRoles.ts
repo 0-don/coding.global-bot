@@ -3,7 +3,10 @@ import type { GuildMember } from "discord.js";
 import { prisma } from "../../prisma.js";
 import { EVERYONE } from "../constants.js";
 
-export const recreateMemberDbRoles = async (member: GuildMember, reload?: boolean) => {
+export const recreateMemberDbRoles = async (
+  member: GuildMember,
+  reload?: boolean,
+) => {
   // return if member is bot
   if (member.user.bot) return;
 

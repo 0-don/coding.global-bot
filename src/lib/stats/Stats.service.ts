@@ -16,7 +16,9 @@ export class StatsService {
       WHERE "MemberMessages"."guildId" = ${guildId}
       GROUP BY "MemberMessages"."memberId", "Member"."username" 
       ORDER BY count(*) DESC 
-      LIMIT ${limit}`) as [{ memberId: string; count: number; username: string }];
+      LIMIT ${limit}`) as [
+      { memberId: string; count: number; username: string },
+    ];
 
     const mostHelpfulUsers = (await prisma.$queryRaw`
       SELECT "MemberHelper"."memberId", "Member"."username", count(*)
@@ -25,7 +27,9 @@ export class StatsService {
       WHERE "MemberHelper"."guildId" = ${guildId}
       GROUP BY "MemberHelper"."memberId", "Member"."username"
       ORDER BY count(*) DESC
-      LIMIT ${limit}`) as [{ memberId: string; count: number; username: string }];
+      LIMIT ${limit}`) as [
+      { memberId: string; count: number; username: string },
+    ];
 
     const mostActiveMessageChannels = (await prisma.$queryRaw`
       SELECT "channelId", count(*) 
@@ -46,7 +50,9 @@ export class StatsService {
       JOIN "Member" ON "Member"."memberId" = t."memberId"
       GROUP BY t."memberId", "Member"."username"
       ORDER BY "sum" DESC
-      LIMIT ${limit};`) as [{ memberId: string; username: string; sum: number }];
+      LIMIT ${limit};`) as [
+      { memberId: string; username: string; sum: number },
+    ];
 
     const mostActiveVoiceChannels = (await prisma.$queryRaw`
       SELECT "channelId", SUM(difference) AS sum
@@ -75,7 +81,10 @@ export class StatsService {
     });
   }
 
-  static async userStatsEmbed(interaction: CommandInteraction<CacheType>, user?: User | null) {
+  static async userStatsEmbed(
+    interaction: CommandInteraction<CacheType>,
+    user?: User | null,
+  ) {
     const memberId = user?.id ?? interaction.member?.user.id;
     const guildId = interaction.guild?.id;
 
@@ -104,11 +113,15 @@ export class StatsService {
       where: { guildId, threadOwnerId: memberId },
     });
 
-    const userServerName = user?.toString() ?? interaction.member?.user.toString();
+    const userServerName =
+      user?.toString() ?? interaction.member?.user.toString();
 
-    if (!memberId || !guildId || !memberGuild || !userServerName) return "Something went wrong";
+    if (!memberId || !guildId || !memberGuild || !userServerName)
+      return "Something went wrong";
 
-    const member = user?.id ? await interaction.guild?.members.fetch(user.id) : (interaction.member as GuildMember);
+    const member = user?.id
+      ? await interaction.guild?.members.fetch(user.id)
+      : (interaction.member as GuildMember);
 
     const {
       lookbackDaysCount,
@@ -116,13 +129,18 @@ export class StatsService {
       sevenDaysCount,
       mostActiveTextChannelId,
       mostActiveTextChannelMessageCount,
-    } = await StatsService.messagesStats(memberId, guildId, memberGuild.lookback);
-
-    const { mostActiveVoice, lookbackVoiceSum, sevenDayVoiceSum, oneDayVoiceSum } = await StatsService.voiceStats(
+    } = await StatsService.messagesStats(
       memberId,
       guildId,
       memberGuild.lookback,
     );
+
+    const {
+      mostActiveVoice,
+      lookbackVoiceSum,
+      sevenDayVoiceSum,
+      oneDayVoiceSum,
+    } = await StatsService.voiceStats(memberId, guildId, memberGuild.lookback);
 
     const embed = userStatsExampleEmbed({
       id: memberId,
@@ -197,20 +215,32 @@ export class StatsService {
       sum: Number((Number(voiceStatsLookback?.[0]?.sum) / 60 / 60).toFixed(2)),
     };
     const lookbackVoiceSum = Number(
-      (voiceStatsLookback.reduce((acc, curr) => acc + Number(curr.sum), 0) / 60 / 60).toFixed(2),
+      (
+        voiceStatsLookback.reduce((acc, curr) => acc + Number(curr.sum), 0) /
+        60 /
+        60
+      ).toFixed(2),
     );
 
     const sevenDayVoiceSum = Number(
       (
-        voiceStatsSevenDays.reduce((acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)), 0) /
+        voiceStatsSevenDays.reduce(
+          (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)),
+          0,
+        ) /
         60 /
         60
       ).toFixed(2),
     );
     const oneDayVoiceSum = Number(
-      (voiceStatsOneDay.reduce((acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)), 0) / 60 / 60).toFixed(
-        2,
-      ),
+      (
+        voiceStatsOneDay.reduce(
+          (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)),
+          0,
+        ) /
+        60 /
+        60
+      ).toFixed(2),
     );
 
     return {
@@ -221,7 +251,11 @@ export class StatsService {
     };
   }
 
-  static async messagesStats(memberId: string, guildId: string, lookback: number) {
+  static async messagesStats(
+    memberId: string,
+    guildId: string,
+    lookback: number,
+  ) {
     const memberMessagesByDate = (await prisma.memberMessages.findMany({
       where: { memberId, guildId },
       orderBy: { createdAt: "asc" },
@@ -236,14 +270,21 @@ export class StatsService {
       LIMIT 1`) as { channelId: string; count: number }[];
 
     const mostActiveTextChannelId = mostActiveTextChannel?.[0]?.channelId;
-    const mostActiveTextChannelMessageCount = Number(mostActiveTextChannel?.[0]?.count ?? 0);
+    const mostActiveTextChannelMessageCount = Number(
+      mostActiveTextChannel?.[0]?.count ?? 0,
+    );
 
     // create date array from first to today for each day
-    const startEndDateArray = getDaysArray(memberMessagesByDate[0]?.createdAt!, dayjs().add(1, "day").toDate());
+    const startEndDateArray = getDaysArray(
+      memberMessagesByDate[0]?.createdAt!,
+      dayjs().add(1, "day").toDate(),
+    );
 
     const messages: ChartDataset[] = startEndDateArray.map((date) => ({
       x: dayjs(date).toDate(),
-      y: memberMessagesByDate.filter(({ createdAt }) => dayjs(createdAt) <= dayjs(date)).length,
+      y: memberMessagesByDate.filter(
+        ({ createdAt }) => dayjs(createdAt) <= dayjs(date),
+      ).length,
     }));
 
     let lookbackDaysCount = messages[messages.length - 1]?.y ?? 0;
@@ -252,9 +293,15 @@ export class StatsService {
 
     // count total members for date ranges
     if (messages.length > lookback)
-      lookbackDaysCount = messages[messages.length - 1]!.y - messages[messages.length - lookback]!.y;
-    if (messages.length > 8) sevenDaysCount = messages[messages.length - 1]!.y - messages[messages.length - 7]!.y;
-    if (messages.length > 3) oneDayCount = messages[messages.length - 1]!.y - messages[messages.length - 2]!.y;
+      lookbackDaysCount =
+        messages[messages.length - 1]!.y -
+        messages[messages.length - lookback]!.y;
+    if (messages.length > 8)
+      sevenDaysCount =
+        messages[messages.length - 1]!.y - messages[messages.length - 7]!.y;
+    if (messages.length > 3)
+      oneDayCount =
+        messages[messages.length - 1]!.y - messages[messages.length - 2]!.y;
 
     return {
       mostActiveTextChannelId,
