@@ -1,5 +1,10 @@
 import dayjs from "dayjs";
-import { CommandInteraction, TextChannel, ThreadChannel, User } from "discord.js";
+import {
+  CommandInteraction,
+  TextChannel,
+  ThreadChannel,
+  User,
+} from "discord.js";
 import { ChatMessage, gpt } from "../chatgpt.js";
 import { prisma } from "../prisma.js";
 
@@ -22,7 +27,9 @@ export const askAi = async (props: AskAi) => {
 
   if (!memberGuild) return null;
 
-  const olderThen30Min = dayjs(memberGuild.gptDate).isBefore(dayjs().subtract(30, "minute"));
+  const olderThen30Min = dayjs(memberGuild.gptDate).isBefore(
+    dayjs().subtract(30, "minute"),
+  );
 
   const stream = gpt.sendMessage({
     text: props.text,
@@ -67,7 +74,12 @@ export const askAi = async (props: AskAi) => {
   }
 
   await prisma.memberGuild.update({
-    where: { member_guild: { guildId: props.channel.guild.id, memberId: props.user.id } },
+    where: {
+      member_guild: {
+        guildId: props.channel.guild.id,
+        memberId: props.user.id,
+      },
+    },
     data: { gptId: chatMessage?.id, gptDate: new Date() },
   });
 };
