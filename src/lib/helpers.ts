@@ -1,5 +1,5 @@
 import { ChartConfiguration, ChartDataset } from "chart.js";
-import adapter from "date-fns/locale/en-US/index.js";
+import { enUS } from "date-fns/locale";
 import { TRANSLATOR } from "./constants.js";
 
 export function placementSuffix(i: number) {
@@ -93,7 +93,7 @@ export const chartConfig = (data: ChartDataset[]) => {
           type: "timeseries",
           adapters: {
             date: {
-              locale: adapter,
+              locale: enUS,
             },
           },
           time: { unit: data.length > 360 ? "month" : "day" },
