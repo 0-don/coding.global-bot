@@ -31,7 +31,7 @@
     "tesseract.js": "5.0.4"
   },
   "devDependencies": {
-    "@types/node": "20.10.5",
+    "@types/node": "20.10.6",
     "cross-env": "7.0.3",
     "dotenv": "16.3.1",
     "nodemon": "^3.0.2",
@@ -40,5 +40,5 @@
     "prisma": "5.7.1",
     "ts-node": "^10.9.2",
     "typescript": "5.3.3"
-  }
+  } 
 }
