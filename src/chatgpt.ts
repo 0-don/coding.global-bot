@@ -34,7 +34,7 @@ class ChatGPTAPI {
   ): AsyncGenerator<ChatMessage, void, unknown> {
     this.model = opts.fileLink
       ? <ChatCompletionCreateParamsBase["model"]>"gpt-4-vision-preview"
-      : "";
+      : "gpt-4-1106-preview";
     const latestQuestion = this.createMessage(
       { role: "user", text: opts.text },
       opts,
