@@ -25,9 +25,11 @@ export const checkWarnings = async (message: Message<boolean>) => {
     });
 
     if (currentWarnings < 4) {
-      await member.send(
-        `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be muted at 3 warnings.`,
-      );
+      try {
+        await member.send(
+          `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be muted at 3 warnings.`,
+        );
+      } catch (error) {}
     } else {
       await deleteUserMessages({
         days: 7,
@@ -37,7 +39,9 @@ export const checkWarnings = async (message: Message<boolean>) => {
         guild: message.guild,
       });
 
-      await member.send(`You have been muted asks a mod to unmute you.`);
+      try {
+        await member.send(`You have been muted asks a mod to unmute you.`);
+      } catch (error) {}
     }
   }
 };
