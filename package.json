@@ -25,7 +25,7 @@
     "discordx": "^11.9.0",
     "js-tiktoken": "^1.0.10",
     "keyv": "^4.5.4",
-    "openai": "^4.26.0",
+    "openai": "^4.26.1",
     "quick-lru": "^7.0.0",
     "tesseract.js": "5.0.4"
   },
@@ -34,7 +34,7 @@
     "cross-env": "7.0.3",
     "dotenv": "16.4.1",
     "nodemon": "^3.0.3",
-    "prettier": "3.2.4",
+    "prettier": "3.2.5",
     "prettier-plugin-organize-imports": "3.2.4",
     "prisma": "5.9.1",
     "ts-node": "^10.9.2",
