@@ -4,8 +4,6 @@ import { VERIFY_CHANNEL } from "../constants.js";
 
 export class MessagesService {
   static async addMessageDb(message: Message<boolean>) {
-    // check if disboard bump command was used
-
     // get info
     const content = message.content;
     const memberId = message.member?.user.id;
@@ -28,10 +26,8 @@ export class MessagesService {
   }
 
   static async deleteMessageDb(message: Message<boolean> | PartialMessage) {
-    // get info
     const messageId = message.id;
 
-    // if info doesnt exist
     if (!messageId) return;
 
     try {
@@ -45,7 +41,7 @@ export class MessagesService {
     const channel = (await message.channel?.fetch()) as TextChannel;
     // remove non command messages in verify channel
     if (
-      channel.name === VERIFY_CHANNEL &&
+      VERIFY_CHANNEL.includes(channel.name) &&
       message.type !== MessageType.ChatInputCommand
     ) {
       message.delete();
