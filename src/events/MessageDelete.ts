@@ -6,6 +6,8 @@ import { MessagesService } from "../lib/messages/Messages.service.js";
 export class MessageDelete {
   @On()
   async messageDelete([message]: ArgsOf<"messageDelete">, client: Client) {
-    await MessagesService.deleteMessageDb(message);
+    MessagesService.deleteMessageDb(message);
+
+    MessagesService.saveDeleteMessageHistory(message);
   }
 }

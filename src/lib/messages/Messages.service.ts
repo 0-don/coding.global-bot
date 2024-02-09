@@ -47,4 +47,21 @@ export class MessagesService {
       message.delete();
     }
   }
+
+  static async saveDeleteMessageHistory(message: Message<boolean> | PartialMessage) {
+    const content = message.content;
+    const memberId = message.member?.user.id;
+    const channelId = message.channelId;
+    const messageId = message.id;
+    const guildId = message.guild?.id;
+
+    if (!content || !guildId || !memberId || message.interaction?.user.bot)
+      return;
+
+    try {
+      await prisma.memberDeletedMessages.create({
+        data: { content, memberId, channelId, messageId, guildId },
+      });
+    } catch (_) {}
+  }
 }
