@@ -8,9 +8,13 @@ export const updateDbRoles = async (
   newMember: GuildMember | PartialGuildMember,
 ) => {
   // get new roles as string[]
-  const newRoles = newMember.roles.cache.filter(({ name }) => name !== EVERYONE).map((role) => role);
+  const newRoles = newMember.roles.cache
+    .filter(({ name }) => name !== EVERYONE)
+    .map((role) => role);
   // get old roles as string[]
-  const oldRoles = oldMember.roles.cache.filter(({ name }) => name !== EVERYONE).map((role) => role);
+  const oldRoles = oldMember.roles.cache
+    .filter(({ name }) => name !== EVERYONE)
+    .map((role) => role);
 
   if (oldMember.flags.bitfield === 9 && newMember.flags.bitfield === 11) return;
 
@@ -43,7 +47,9 @@ export const updateDbRoles = async (
     // remove role
   } else if (newRoles.length < oldRoles.length) {
     // get the removed role
-    const newRemovedRole = oldRoles.filter((role) => !newRoles.includes(role))[0];
+    const newRemovedRole = oldRoles.filter(
+      (role) => !newRoles.includes(role),
+    )[0];
 
     // if no role was removed return
     if (!newRemovedRole) return;
