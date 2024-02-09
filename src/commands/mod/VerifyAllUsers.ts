@@ -49,7 +49,7 @@ export class VerifyAllUsers {
       content: `updating user count:${members.size}`,
     });
 
-    const rolesWithoutUnverified = [...STATUS_ROLES].filter(
+    const rolesWithoutUnverified = STATUS_ROLES.filter(
       (role) => role !== UNVERIFIED,
     );
 

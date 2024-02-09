@@ -19,76 +19,70 @@ export const simpleEmbedExample: APIEmbed = {
   },
 };
 
-export const topStatsExampleEmbed = ({
-  mostActiveMessageUsers,
-  mostActiveMessageChannels,
-  mostHelpfulUsers,
-  mostActiveVoiceUsers,
-  mostActiveVoiceChannels,
-}: ToptatsExampleEmbed): APIEmbed => {
+export const topStatsExampleEmbed = (args: ToptatsExampleEmbed): APIEmbed => {
   const mostActiveVoiceUserSumString = codeString(
-    mostActiveVoiceUsers
+    args.mostActiveVoiceUsers
       .reduce((acc, { sum }) => acc + sum, 0)
-      .toLocaleString("en") + " hours",
+      .toLocaleString("en") + " hours"
   );
 
-  const mostActiveVoiceUsersString = mostActiveVoiceUsers?.map(
+  const mostActiveVoiceUsersString = args.mostActiveVoiceUsers?.map(
     ({ memberId, sum, username }, i) =>
       `${codeString(
-        placementSuffix(i + 1),
+        placementSuffix(i + 1)
       )} <@${memberId}>: (${username}) ${codeString(
-        sum.toLocaleString("en") + " hours",
-      )}`,
+        sum.toLocaleString("en") + " hours"
+      )}`
   );
 
   const mostActiveVoiceChannelSumString = codeString(
-    mostActiveVoiceChannels
+    args.mostActiveVoiceChannels
       .reduce((a, b) => a + b.sum, 0)
-      .toLocaleString("en") + " hours",
+      .toLocaleString("en") + " hours"
   );
 
-  const mostActiveVoiceChannelString = mostActiveVoiceChannels.map(
+  const mostActiveVoiceChannelString = args.mostActiveVoiceChannels.map(
     ({ sum, channelId }, i) =>
       `${codeString(placementSuffix(i + 1))} <#${channelId}>: ${codeString(
-        sum.toLocaleString("en") + " hours",
-      )}`,
+        sum.toLocaleString("en") + " hours"
+      )}`
   );
 
   const mostActiveMessageUsersSumString = codeString(
-    mostActiveMessageUsers
+    args.mostActiveMessageUsers
       .reduce((a, b) => a + Number(b.count), 0)
-      .toLocaleString("en") + " messages",
+      .toLocaleString("en") + " messages"
   );
 
-  const mostHelpfulUsersString = mostHelpfulUsers.map(
+  const mostHelpfulUsersString = args.mostHelpfulUsers.map(
     ({ count, memberId, username }, i) =>
       `${codeString(
-        placementSuffix(i + 1),
+        placementSuffix(i + 1)
       )} <@${memberId}>: (${username}) ${codeString(
-        count.toLocaleString("en") + " helps",
-      )}`,
+        count.toLocaleString("en") + " helps"
+      )}`
   );
 
-  const mostActiveMessageUsersString = mostActiveMessageUsers.map(
+  const mostActiveMessageUsersString = args.mostActiveMessageUsers.map(
     ({ count, memberId, username }, i) =>
       `${codeString(
-        placementSuffix(i + 1),
+        placementSuffix(i + 1)
       )} <@${memberId}>: (${username}) ${codeString(
-        "messaged " + count.toLocaleString("en") + " times",
-      )}`,
+        "messaged " + count.toLocaleString("en") + " times"
+      )}`
   );
 
   const mostActiveMessageChannelSumString = codeString(
-    mostActiveMessageChannels
+    args.mostActiveMessageChannels
       .reduce((a, b) => a + Number(b.count), 0)
-      .toLocaleString("en") + " messages",
+      .toLocaleString("en") + " messages"
   );
 
-  const mostActiveMessageChannelString = mostActiveMessageChannels.map(
+  const mostActiveMessageChannelString = args.mostActiveMessageChannels.map(
     ({ count, channelId }, i) =>
       `${codeString(placementSuffix(i + 1))} <#${channelId}>: ${codeString(
-        Number(count).toLocaleString("en") + " messages",
-      )}`,
+        Number(count).toLocaleString("en") + " messages"
+      )}`
   );
 
   return {
@@ -98,27 +92,27 @@ export const topStatsExampleEmbed = ({
     description: `
 Top users and channels in the past __9,999 Days__.
 
-**Help | Top ${mostHelpfulUsers?.length ?? 0} - Helpers**
+**Help | Top ${args.mostHelpfulUsers?.length ?? 0} - Helpers**
 Top Helper Sum: 
 
 ${mostHelpfulUsersString.join("\n")}
 
-**Messages | Top ${mostActiveMessageUsers?.length ?? 0} - Members**
+**Messages | Top ${args.mostActiveMessageUsers?.length ?? 0} - Members**
 Top Member Sum: ${mostActiveMessageUsersSumString} 
 
 ${mostActiveMessageUsersString.join("\n")}
 
-Messages | Top ${mostActiveMessageChannels?.length ?? 0} - Channels
+Messages | Top ${args.mostActiveMessageChannels?.length ?? 0} - Channels
 Top Channel Sum: ${mostActiveMessageChannelSumString}
 
 ${mostActiveMessageChannelString.join("\n")}
 
-**Voice | Top ${mostActiveVoiceUsers?.length ?? 0} - Members**
+**Voice | Top ${args.mostActiveVoiceUsers?.length ?? 0} - Members**
 Top Member Sum: ${mostActiveVoiceUserSumString} 
 
 ${mostActiveVoiceUsersString.join("\n")}
 
-Voice | Top ${mostActiveVoiceChannels?.length ?? 0} - Channels
+Voice | Top ${args.mostActiveVoiceChannels?.length ?? 0} - Channels
 Top Channel Sum: ${mostActiveVoiceChannelSumString}
 
 ${mostActiveVoiceChannelString.join("\n")}
@@ -132,57 +126,41 @@ ${mostActiveVoiceChannelString.join("\n")}
   };
 };
 
-export const userStatsExampleEmbed = ({
-  id,
-  userGlobalName,
-  userServerName,
-  lookback,
-  helpCount,
-  helpReceivedCount,
-  joinedAt,
-  createdAt,
-  lookbackDaysCount,
-  sevenDaysCount,
-  oneDayCount,
-  mostActiveTextChannelId,
-  mostActiveTextChannelMessageCount,
-  lastMessage,
-  lastVoice,
-  mostActiveVoice,
-  lookbackVoiceSum,
-  oneDayVoiceSum,
-  sevenDayVoiceSum,
-}: UserStatsExampleEmbed): APIEmbed => {
+export const userStatsExampleEmbed = (
+  args: UserStatsExampleEmbed
+): APIEmbed => {
   const lookbackCommand = codeString("/lookback-me");
-  const mostActiveTextChannelString = mostActiveTextChannelId
-    ? `<#${mostActiveTextChannelId}>`
+  const mostActiveTextChannelString = args.mostActiveTextChannelId
+    ? `<#${args.mostActiveTextChannelId}>`
     : "";
   const mostActiveTextChannelCountString = codeString(
-    mostActiveTextChannelMessageCount.toLocaleString("en") + " messages",
+    args.mostActiveTextChannelMessageCount.toLocaleString("en") + " messages"
   );
 
-  const mostActiveVoiceChannelString = mostActiveVoice?.channelId
-    ? `<#${mostActiveVoice.channelId}> ${codeString(
-        mostActiveVoice?.sum.toLocaleString("en") + " hours",
+  const mostActiveVoiceChannelString = args.mostActiveVoice?.channelId
+    ? `<#${args.mostActiveVoice.channelId}> ${codeString(
+        args.mostActiveVoice?.sum.toLocaleString("en") + " hours"
       )}`
     : "";
 
   const lookbackVoiceSumString = codeString(
-    lookbackVoiceSum.toLocaleString("en") + " hours",
+    args.lookbackVoiceSum.toLocaleString("en") + " hours"
   );
   const oneDayVoiceSumString = codeString(
-    oneDayVoiceSum.toLocaleString("en") + " hours",
+    args.oneDayVoiceSum.toLocaleString("en") + " hours"
   );
   const sevenDaysVoiceSumString = codeString(
-    sevenDayVoiceSum.toLocaleString("en") + " hours",
+    args.sevenDayVoiceSum.toLocaleString("en") + " hours"
   );
 
-  const joinedAtUnix = dayjs(joinedAt).unix();
-  const createdAtUnix = dayjs(createdAt).unix();
+  const joinedAtUnix = dayjs(args.joinedAt).unix();
+  const createdAtUnix = dayjs(args.createdAt).unix();
   const lastMessageUnix =
-    lastMessage?.length > 0 && dayjs(lastMessage[0]!.createdAt).unix();
+    args.lastMessage?.length > 0 &&
+    dayjs(args.lastMessage[0]?.createdAt).unix();
   const lastVoiceUnix =
-    lastVoice?.length > 0 && dayjs(lastVoice?.[0]?.leave ?? new Date()).unix();
+    args.lastVoice?.length > 0 &&
+    dayjs(args.lastVoice?.[0]?.leave ?? new Date()).unix();
   const lastMessageString = lastMessageUnix
     ? `__<t:${lastMessageUnix}:D>__ (<t:${lastMessageUnix}:R>)`
     : codeString("None");
@@ -193,38 +171,38 @@ export const userStatsExampleEmbed = ({
 
   return {
     color: RED_COLOR,
-    title: `👤 ${userGlobalName}'s Stats Overview`,
+    title: `👤 ${args.userGlobalName}'s Stats Overview`,
 
     description: `
-${userServerName} (${userGlobalName})
+${args.userServerName} (${args.userGlobalName})
 
-User stats in the past __${lookback}__ Days. (Change with the ${lookbackCommand} command.)
+User stats in the past __${args.lookback}__ Days. (Change with the ${lookbackCommand} command.)
 
 **User Info**
 Joined On: __<t:${joinedAtUnix}:D>__ (<t:${joinedAtUnix}:R>)
 Created On: __<t:${createdAtUnix}:D>__ (<t:${createdAtUnix}:R>)
 Last Message On: ${lastMessageString}
 Last Voice On: ${lastVoiceString}
-User ID: ${codeString(id)}
+User ID: ${codeString(args.id)}
 
 **Most Active Channels**
 Messages: ${mostActiveTextChannelString} ${mostActiveTextChannelCountString}
 Voice: ${mostActiveVoiceChannelString}
 
 **Help Stats**
-Helped people ${codeString(helpCount.toLocaleString("en"))} times.
-Received help ${codeString(helpReceivedCount.toLocaleString("en"))} times.
+Helped people ${codeString(args.helpCount.toLocaleString("en"))} times.
+Received help ${codeString(args.helpReceivedCount.toLocaleString("en"))} times.
 `,
 
     fields: [
       {
         name: "Messages",
         value: `
-__${lookback} Days__: ${codeString(
-          `${lookbackDaysCount.toLocaleString("en")} messages`,
+__${args.lookback} Days__: ${codeString(
+          `${args.lookbackDaysCount.toLocaleString("en")} messages`
         )} 
-7 Days: ${codeString(`${sevenDaysCount.toLocaleString("en")} messages`)}
-24 Hours: ${codeString(`${oneDayCount.toLocaleString("en")} messages`)}
+7 Days: ${codeString(`${args.sevenDaysCount.toLocaleString("en")} messages`)}
+24 Hours: ${codeString(`${args.oneDayCount.toLocaleString("en")} messages`)}
 `,
 
         inline: true,
@@ -232,14 +210,13 @@ __${lookback} Days__: ${codeString(
       {
         name: "Voice",
         value: `
-__${lookback} Days__: ${lookbackVoiceSumString}
+__${args.lookback} Days__: ${lookbackVoiceSumString}
 7 Days: ${sevenDaysVoiceSumString}
 24 Hours: ${oneDayVoiceSumString}
 `,
         inline: true,
       },
     ],
-
     timestamp: new Date().toISOString(),
     footer: {
       text: STATS_TEMPLATE,

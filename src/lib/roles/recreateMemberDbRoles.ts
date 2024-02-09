@@ -5,7 +5,7 @@ import { EVERYONE } from "../constants.js";
 
 export const recreateMemberDbRoles = async (
   member: GuildMember,
-  reload?: boolean,
+  reload?: boolean
 ) => {
   // return if member is bot
   if (member.user.bot) return;
@@ -28,9 +28,7 @@ export const recreateMemberDbRoles = async (
   const roles: Prisma.MemberRoleUncheckedCreateInput[] = [];
 
   // map over current member roles
-  for (let roleCollection of member.roles.cache) {
-    const role = roleCollection[1];
-
+  for (let [id, role] of member.roles.cache) {
     // if role is everyone continue
     if (role.name === EVERYONE) continue;
     // if role higher then bot continue
