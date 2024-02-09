@@ -11,15 +11,17 @@ datasource db {
 }
 
 model Guild {
-  guildId          String             @id @unique
-  guildName        String
-  lookback         Int                @default(9999)
-  MemberGuild      MemberGuild[]
-  MemberBump       MemberBump[]
-  MemberRole       MemberRole[]
-  MemberMessages   MemberMessages[]
-  GuildVoiceEvents GuildVoiceEvents[]
-  MemberHelper     MemberHelper[]
+  guildId   String @id @unique
+  guildName String
+  lookback  Int    @default(9999)
+
+  memberGuild           MemberGuild[]
+  memberRole            MemberRole[]
+  memberMessages        MemberMessages[]
+  guildVoiceEvents      GuildVoiceEvents[]
+  memberHelper          MemberHelper[]
+  memberCommandHistory  MemberCommandHistory[]
+  memberDeletedMessages MemberDeletedMessages[]
 }
 
 model GuildVoiceEvents {
@@ -35,24 +37,28 @@ model GuildVoiceEvents {
 }
 
 model Member {
-  memberId         String             @id @unique
-  username         String
-  roles            MemberRole[]
-  guilds           MemberGuild[]
-  bumps            MemberBump[]
-  MemberMessages   MemberMessages[]
-  GuildVoiceEvents GuildVoiceEvents[]
-  MemberHelper     MemberHelper[]
+  memberId String @id @unique
+  username String
+
+  roles                 MemberRole[]
+  guilds                MemberGuild[]
+  memberMessages        MemberMessages[]
+  guildVoiceEvents      GuildVoiceEvents[]
+  memberHelper          MemberHelper[]
+  memberCommandHistory  MemberCommandHistory[]
+  memberDeletedMessages MemberDeletedMessages[]
 }
 
 model MemberMessages {
-  id        String   @id @default(cuid())
+  id        String @id @default(cuid())
   memberId  String
   guildId   String
-  messageId String   @unique
+  messageId String @unique
   channelId String
-  member    Member   @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
-  guild     Guild    @relation(fields: [guildId], references: [guildId])
+
+  member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
+  guild  Guild  @relation(fields: [guildId], references: [guildId])
+
   createdAt DateTime @default(now())
 }
 
@@ -102,19 +108,32 @@ model MemberRole {
   roleId   String
   guildId  String
   memberId String
-  member   Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
-  guild    Guild  @relation(fields: [guildId], references: [guildId])
+
+  member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
+  guild  Guild  @relation(fields: [guildId], references: [guildId])
 
   @@unique([memberId, roleId], name: "member_role")
 }
 
-model MemberBump {
-  id       Int    @id @default(autoincrement())
-  memberId String
-  guildId  String
-  count    Int
-  member   Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
-  guild    Guild  @relation(fields: [guildId], references: [guildId])
+model MemberCommandHistory {
+  id        Int      @id @default(autoincrement())
+  memberId  String
+  guildId   String
+  command   String
+  createdAt DateTime @default(now())
 
-  @@unique([memberId, guildId], name: "member_guild")
+  member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
+  guild  Guild  @relation(fields: [guildId], references: [guildId])
+}
+
+model MemberDeletedMessages {
+  id        Int      @id @default(autoincrement())
+  memberId  String
+  guildId   String
+  messageId String
+  channelId String
+  createdAt DateTime @default(now())
+
+  member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
+  guild  Guild  @relation(fields: [guildId], references: [guildId])
 }
