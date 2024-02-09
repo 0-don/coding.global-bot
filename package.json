@@ -1,7 +1,5 @@
 {
   "name": "discord.global-bot",
-  "version": "1.0.0",
-  "exports": "./dist/index.js",
   "type": "module",
   "private": true,
   "scripts": {
