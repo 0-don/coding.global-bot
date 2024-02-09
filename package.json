@@ -25,12 +25,12 @@
     "discordx": "^11.9.0",
     "js-tiktoken": "^1.0.10",
     "keyv": "^4.5.4",
-    "openai": "^4.26.1",
+    "openai": "^4.27.0",
     "quick-lru": "^7.0.0",
     "tesseract.js": "5.0.4"
   },
   "devDependencies": {
-    "@types/node": "20.11.16",
+    "@types/node": "20.11.17",
     "cross-env": "7.0.3",
     "dotenv": "16.4.1",
     "nodemon": "^3.0.3",
