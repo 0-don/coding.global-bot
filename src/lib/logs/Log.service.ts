@@ -8,15 +8,17 @@ export class LogService {
     command: Commands
   ): Promise<void> {
     const memberId = interaction.member?.user.id;
+    const channelId = interaction.channelId;
     const guildId = interaction.guildId;
 
     if (!memberId || !guildId) return;
 
     await prisma.memberCommandHistory.create({
       data: {
-        memberId: memberId,
-        guildId: guildId,
-        command: command,
+        channelId,
+        memberId,
+        guildId,
+        command,
       },
     });
   }

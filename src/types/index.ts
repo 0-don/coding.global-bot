@@ -83,6 +83,7 @@ export type Commands =
   | "delete-member-db"
   | "delete-messages"
   | "delete-user-messages"
+  | "log-command-history"
   | "log-deleted-messages-history"
   | "lookback-members"
   | "verify-all-users"
