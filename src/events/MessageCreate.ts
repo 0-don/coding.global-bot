@@ -3,7 +3,7 @@ import type { ArgsOf, Client, SimpleCommandMessage } from "discordx";
 import { Discord, On, SimpleCommand } from "discordx";
 import { askAi } from "../chatgpt/askAi.js";
 import { getTextFromImage } from "../chatgpt/tesseract.js";
-import { GENERAL_CHANNEL, MEMBER_ROLES } from "../lib/constants.js";
+import { GENERAL_CHANNELS, MEMBER_ROLES } from "../lib/constants.js";
 import { simpleEmbedExample } from "../lib/embeds.js";
 import { translate } from "../lib/helpers.js";
 import { MessagesService } from "../lib/messages/Messages.service.js";
@@ -176,7 +176,7 @@ export class MessageCreate {
       const botChannel = channels.find((channel) => channel?.name === "bot");
 
       if (
-        channel.name === GENERAL_CHANNEL &&
+        GENERAL_CHANNELS.includes(channel.name) &&
         !guildMember?.roles.cache.some((role) =>
           MEMBER_ROLES.includes(role.name as (typeof MEMBER_ROLES)[number])
         )

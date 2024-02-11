@@ -6,7 +6,7 @@ import {
   TextChannel,
 } from "discord.js";
 import { prisma } from "../../prisma.js";
-import { VERIFY_CHANNEL } from "../constants.js";
+import { VERIFY_CHANNELS } from "../constants.js";
 
 export class MessagesService {
   static async addMessageDb(message: Message<boolean>) {
@@ -47,7 +47,7 @@ export class MessagesService {
     const channel = (await message.channel?.fetch()) as TextChannel;
     // remove non command messages in verify channel
     if (
-      VERIFY_CHANNEL.includes(channel.name) &&
+      VERIFY_CHANNELS.includes(channel.name) &&
       message.type !== MessageType.ChatInputCommand
     ) {
       message.delete();

@@ -9,12 +9,12 @@ declare global {
       HELPER_ROLES: string;
       STATUS_ROLES: string;
       MEMBER_ROLES: string;
-      GENERAL_CHANNEL: string;
-      BOT_CHANNEL: string;
-      VERIFY_CHANNEL: string;
-      VOICE_EVENT_CHANNEL: string;
-      JOIN_EVENT_CHANNEL: string;
-      MEMBERS_COUNT_CHANNEL: string;
+      GENERAL_CHANNELS: string;
+      BOT_CHANNELS: string;
+      VERIFY_CHANNELS: string;
+      VOICE_EVENT_CHANNELS: string;
+      JOIN_EVENT_CHANNELS: string;
+      MEMBERS_COUNT_CHANNELS: string;
       IS_CONSTRAINED_TO_BOT_CHANNEL: string;
       SHOULD_LOG_VOICE_EVENTS: string;
       BOT_ICON: string;

@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import { TextChannel, VoiceState } from "discord.js";
 import { prisma } from "../../prisma.js";
-import { VOICE_EVENT_CHANNEL } from "../constants.js";
+import { VOICE_EVENT_CHANNELS } from "../constants.js";
 import { simpleEmbedExample } from "../embeds.js";
 import { getDaysArray } from "../helpers.js";
 
@@ -36,7 +36,7 @@ export class VoiceService {
 
       // get voice channel by name
       const voiceEventsChannel = oldVoiceState.guild.channels.cache.find(
-        ({ name }) => name === VOICE_EVENT_CHANNEL
+        ({ name }) => VOICE_EVENT_CHANNELS.includes(name)
       );
 
       // check if voice channel exists and it is voice channel
@@ -50,7 +50,6 @@ export class VoiceService {
 
       // copy paste embed so it doesnt get overwritten
       const voiceEmbed = simpleEmbedExample();
-
 
       if (!oldChannel) {
         voiceEmbed.description = `${userServerName} (${userGlobalName}) joined ${newChannel}`;

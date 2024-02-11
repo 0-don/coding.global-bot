@@ -2,7 +2,7 @@ import type { CommandInteraction, TextChannel } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
 import {
-  BOT_CHANNEL,
+  BOT_CHANNELS,
   IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../lib/constants.js";
 import { LogService } from "../../lib/logs/Log.service.js";
@@ -19,13 +19,13 @@ export class Me {
     // get text channel
     // deferReply if it takes longer then usual
     await interaction.deferReply();
-    
+
     LogService.logCommandHistory(interaction, "me");
 
     if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
       const channel = (await interaction.channel?.fetch()) as TextChannel;
       // if not bot channel, return
-      if (channel.name !== BOT_CHANNEL)
+      if (!BOT_CHANNELS.includes(channel.name))
         return await interaction.editReply(
           "Please use this command in the bot channel"
         );

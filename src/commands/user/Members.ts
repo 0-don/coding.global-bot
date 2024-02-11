@@ -1,15 +1,15 @@
 import type { APIEmbed, CommandInteraction, TextChannel } from "discord.js";
 import { Discord, Slash } from "discordx";
 import {
-  BOT_CHANNEL,
+  BOT_CHANNELS,
   BOT_ICON,
   IS_CONSTRAINED_TO_BOT_CHANNEL,
   MEMBERS_TEMPLATE,
   RED_COLOR,
 } from "../../lib/constants.js";
 import { codeString } from "../../lib/helpers.js";
-import { MembersService } from "../../lib/members/Members.service.js";
 import { LogService } from "../../lib/logs/Log.service.js";
+import { MembersService } from "../../lib/members/Members.service.js";
 
 @Discord()
 export class Members {
@@ -27,7 +27,7 @@ export class Members {
 
     if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
       // if not bot channel, return
-      if (channel.name !== BOT_CHANNEL)
+      if (!BOT_CHANNELS.includes(channel.name))
         return await interaction.editReply(
           "Please use this command in the bot channel"
         );

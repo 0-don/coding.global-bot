@@ -15,8 +15,8 @@ import { ChartDataset, GuildMemberCountChart } from "../../types/index.js";
 import {
   CHARTJS_NODE_CANVAS,
   GLOBAL_CANVAS,
-  JOIN_EVENT_CHANNEL,
-  MEMBERS_COUNT_CHANNEL,
+  JOIN_EVENT_CHANNELS,
+  MEMBERS_COUNT_CHANNELS,
   SHOULD_COUNT_MEMBERS,
 } from "../constants.js";
 import { simpleEmbedExample } from "../embeds.js";
@@ -86,8 +86,8 @@ export class MembersService {
   ) {
     try {
       // get voice channel by name
-      const joinEventsChannel = member.guild.channels.cache.find(
-        ({ name }) => name === JOIN_EVENT_CHANNEL
+      const joinEventsChannel = member.guild.channels.cache.find(({ name }) =>
+        JOIN_EVENT_CHANNELS.includes(name)
       );
 
       // check if voice channel exists and it is voice channel
@@ -119,7 +119,7 @@ export class MembersService {
     if (member.user.bot || !SHOULD_COUNT_MEMBERS) return;
     // find member: channel
     const memberCountChannel = member.guild.channels.cache.find((channel) =>
-      channel.name.includes(MEMBERS_COUNT_CHANNEL)
+      MEMBERS_COUNT_CHANNELS.includes(channel.name)
     );
 
     // if no channel return
@@ -136,7 +136,7 @@ export class MembersService {
     // set channel name as member count
     try {
       await memberCountChannel.setName(
-        `${MEMBERS_COUNT_CHANNEL} ${memberCount}`
+        `${MEMBERS_COUNT_CHANNELS} ${memberCount}`
       );
     } catch (_) {}
   }
