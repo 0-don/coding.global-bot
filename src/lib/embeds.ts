@@ -24,15 +24,16 @@ export const deletedMessagesEmbed = (
   messages: MemberDeletedMessages[]
 ): APIEmbed => {
   const deletedMessages = messages.map(
-    ({ channelId, deletedByMemberId, messageMemberId }, i) =>
-      `${codeString(placementSuffix(i + 1))} <@${deletedByMemberId}> deleted msg from <@${messageMemberId}> in <#${channelId}> `
+    ({ channelId, deletedByMemberId, messageMemberId, createdAt }, i) =>
+      `${codeString(placementSuffix(i + 1))} <@${deletedByMemberId}> deleted msg from <@${messageMemberId}> in <#${channelId}>
+      at __<t:${dayjs(createdAt).unix()}:D>__ (<t:${dayjs(createdAt).unix()}:R>)`
   );
 
   return {
     color: RED_COLOR,
     title: `🗑️ Deleted Messages Overview`,
     description: `
-**Deleted Messages**
+**Last ${messages.length} Deleted Messages**
 
 ${deletedMessages}
 
