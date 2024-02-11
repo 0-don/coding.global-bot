@@ -34,9 +34,9 @@ export const deletedMessagesHistoryEmbed = (
     color: RED_COLOR,
     title: `🗑️ Deleted Messages Overview`,
     description: `
-**Last ${history.length} Deleted Messages**
+**last ${history.length} deleted messages**
 
-${historyText}
+${historyText.join("\n")}
 
 `,
     timestamp: new Date().toISOString(),
@@ -57,11 +57,11 @@ export const commandHistoryEmbed = (
 
   return {
     color: RED_COLOR,
-    title: `🗑️ Command History Overview`,
+    title: `🤖 Command History Overview`,
     description: `
-**Last ${history.length} Commands used**
+**last ${history.length} commands used**
 
-${historyText}
+${historyText.join("\n")}
 
 `,
     timestamp: new Date().toISOString(),
