@@ -1,4 +1,4 @@
-import { APIEmbed, Message, MessageType, TextChannel } from "discord.js";
+import { Message, MessageType, TextChannel } from "discord.js";
 import type { ArgsOf, Client, SimpleCommandMessage } from "discordx";
 import { Discord, On, SimpleCommand } from "discordx";
 import { askAi } from "../chatgpt/askAi.js";
@@ -46,9 +46,7 @@ export class MessageCreate {
         return;
 
       if (firstMessage?.author.id === message.author.id) {
-        const embed = JSON.parse(
-          JSON.stringify(simpleEmbedExample),
-        ) as APIEmbed;
+        const embed = simpleEmbedExample();
         embed.description =
           "Thanks for your question :clap:, if someone gives you an answer it would be great if you thanked them with a :white_check_mark: in response. This response will earn you both points for special roles on this server.";
         embed.footer!.text = "You can also use /ai to get help from the bot";
@@ -148,14 +146,14 @@ export class MessageCreate {
       const channel = (await message.channel.fetch()) as TextChannel;
 
       const replyMsg = await channel.messages.fetch(
-        message.reference?.messageId,
+        message.reference?.messageId
       );
 
       await message.delete();
 
       channel.send({
         content: await translate(
-          Buffer.from(replyMsg.content, "utf-8").toString(),
+          Buffer.from(replyMsg.content, "utf-8").toString()
         ),
         allowedMentions: { users: [] },
       });
@@ -168,7 +166,7 @@ export class MessageCreate {
     if (message.type === MessageType.Reply && message.reference?.messageId) {
       const channel = (await message.channel.fetch()) as TextChannel;
       const replyMsg = await channel.messages.fetch(
-        message.reference?.messageId,
+        message.reference?.messageId
       );
       const user = message.author;
 
@@ -180,11 +178,11 @@ export class MessageCreate {
       if (
         channel.name === GENERAL_CHANNEL &&
         !guildMember?.roles.cache.some((role) =>
-          MEMBER_ROLES.includes(role.name as (typeof MEMBER_ROLES)[number]),
+          MEMBER_ROLES.includes(role.name as (typeof MEMBER_ROLES)[number])
         )
       ) {
         return channel.send(
-          `use this command /ai (your text) in ${botChannel?.toString()}`,
+          `use this command /ai (your text) in ${botChannel?.toString()}`
         );
       }
 
@@ -221,7 +219,7 @@ export class MessageCreate {
       }
 
       const dateSortedMessages = userMessages.sort(
-        (a, b) => a.createdTimestamp - b.createdTimestamp,
+        (a, b) => a.createdTimestamp - b.createdTimestamp
       );
 
       const getAllImagesFromMessages = (
@@ -229,7 +227,7 @@ export class MessageCreate {
           dateSortedMessages
             .map((msg) => msg.attachments.map((attachment) => attachment.url))
             .flat()
-            .map((url) => getTextFromImage(url)),
+            .map((url) => getTextFromImage(url))
         )
       ).join("\n");
 

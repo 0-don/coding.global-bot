@@ -4,13 +4,15 @@ import { APIEmbed } from "discord.js";
 import { ToptatsExampleEmbed, UserStatsExampleEmbed } from "../types/index.js";
 import {
   BOT_ICON,
+  COMMAND_HISTORY_TEMPLATE,
+  DELETED_MESSAGES_HISTORY_TEMPLATE,
   RED_COLOR,
   STATS_TEMPLATE,
   TOP_STATS_TEMPLATE,
 } from "./constants.js";
 import { codeString, placementSuffix } from "./helpers.js";
 
-export const simpleEmbedExample: APIEmbed = {
+export const simpleEmbedExample = (): APIEmbed => ({
   color: RED_COLOR,
   description: `*`,
   timestamp: new Date().toISOString(),
@@ -18,12 +20,12 @@ export const simpleEmbedExample: APIEmbed = {
     text: "*",
     icon_url: BOT_ICON,
   },
-};
+});
 
-export const deletedMessagesEmbed = (
-  messages: MemberDeletedMessages[]
+export const deletedMessagesHistoryEmbed = (
+  history: MemberDeletedMessages[]
 ): APIEmbed => {
-  const deletedMessages = messages.map(
+  const historyText = history.map(
     ({ channelId, deletedByMemberId, messageMemberId, createdAt }, i) =>
       `${codeString(placementSuffix(i + 1))} <@${deletedByMemberId}> deleted msg from <@${messageMemberId}> in <#${channelId}>
       at __<t:${dayjs(createdAt).unix()}:D>__ (<t:${dayjs(createdAt).unix()}:R>)`
@@ -33,40 +35,40 @@ export const deletedMessagesEmbed = (
     color: RED_COLOR,
     title: `🗑️ Deleted Messages Overview`,
     description: `
-**Last ${messages.length} Deleted Messages**
+**Last ${history.length} Deleted Messages**
 
-${deletedMessages}
+${historyText}
 
 `,
     timestamp: new Date().toISOString(),
     footer: {
-      text: TOP_STATS_TEMPLATE,
+      text: DELETED_MESSAGES_HISTORY_TEMPLATE,
       icon_url: BOT_ICON,
     },
   };
 };
 
 export const commandHistoryEmbed = (
-  messages: MemberCommandHistory[]
+  history: MemberCommandHistory[]
 ): APIEmbed => {
-  const deletedMessages = messages.map(
+  const historyText = history.map(
     ({ memberId, command, channelId, createdAt }, i) =>
-      `${codeString(placementSuffix(i + 1))} <@${memberId}>: **command** in <#${channelId}>
+      `${codeString(placementSuffix(i + 1))} <@${memberId}>: **${command}** in <#${channelId}>
       at __<t:${dayjs(createdAt).unix()}:D>__ (<t:${dayjs(createdAt).unix()}:R>)`
   );
 
   return {
     color: RED_COLOR,
-    title: `🗑️ Deleted Messages Overview`,
+    title: `🗑️ Command History Overview`,
     description: `
-**Last ${messages.length} Deleted Messages**
+**Last ${history.length} Commands used**
 
-${deletedMessages}
+${historyText}
 
 `,
     timestamp: new Date().toISOString(),
     footer: {
-      text: TOP_STATS_TEMPLATE,
+      text: COMMAND_HISTORY_TEMPLATE,
       icon_url: BOT_ICON,
     },
   };

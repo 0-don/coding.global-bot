@@ -1,7 +1,7 @@
 import { GuildVoiceEvents } from "@prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
-import { APIEmbed, TextChannel, VoiceState } from "discord.js";
+import { TextChannel, VoiceState } from "discord.js";
 import { prisma } from "../../prisma.js";
 import { VOICE_EVENT_CHANNEL } from "../constants.js";
 import { simpleEmbedExample } from "../embeds.js";
@@ -28,7 +28,7 @@ export class VoiceService {
 
   static async logVoiceEvents(
     oldVoiceState: VoiceState,
-    newVoiceState: VoiceState,
+    newVoiceState: VoiceState
   ) {
     try {
       // if mute, deafen, stream etc. => exit
@@ -36,7 +36,7 @@ export class VoiceService {
 
       // get voice channel by name
       const voiceEventsChannel = oldVoiceState.guild.channels.cache.find(
-        ({ name }) => name === VOICE_EVENT_CHANNEL,
+        ({ name }) => name === VOICE_EVENT_CHANNEL
       );
 
       // check if voice channel exists and it is voice channel
@@ -49,12 +49,9 @@ export class VoiceService {
       const newChannel = newVoiceState.channel?.name;
 
       // copy paste embed so it doesnt get overwritten
-      const voiceEmbed = JSON.parse(
-        JSON.stringify(simpleEmbedExample),
-      ) as APIEmbed;
+      const voiceEmbed = simpleEmbedExample();
 
-      // create embed based on event
-      voiceEmbed.timestamp = new Date().toISOString();
+
       if (!oldChannel) {
         voiceEmbed.description = `${userServerName} (${userGlobalName}) joined ${newChannel}`;
       } else if (!newChannel) {
@@ -73,7 +70,7 @@ export class VoiceService {
 
   static async logVoiceEventsDb(
     oldVoiceState: VoiceState,
-    newVoiceState: VoiceState,
+    newVoiceState: VoiceState
   ) {
     const memberId = newVoiceState.member?.id ?? oldVoiceState.member?.id;
     const guildId = newVoiceState.guild.id ?? oldVoiceState.guild.id;
