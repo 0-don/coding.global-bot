@@ -54,7 +54,7 @@ export class MessagesService {
     }
   }
 
-  static async saveDeleteMessageHistory(
+  static async saveDeletedMessageHistory(
     message: Message<boolean> | PartialMessage
   ) {
     const content = message.content;
