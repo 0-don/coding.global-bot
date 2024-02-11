@@ -5,9 +5,9 @@ import { deletedMessagesEmbed } from "../../lib/embeds.js";
 import { prisma } from "../../prisma.js";
 
 @Discord()
-export class LogDeletedMessages {
+export class LogDeletedMessagesHistory {
   @Slash({
-    name: "log-deleted-messages",
+    name: "log-deleted-messages-history",
     description: "Show deleted messages",
     defaultMemberPermissions: PermissionFlagsBits.DeafenMembers,
   })
