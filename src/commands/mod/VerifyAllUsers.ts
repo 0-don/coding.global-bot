@@ -19,7 +19,7 @@ export class VerifyAllUsers {
   })
   async verifyAllUsers(interaction: CommandInteraction) {
     LogService.logCommandHistory(interaction, "verify-all-users");
-    
+
     if (!interaction.guild) return;
 
     await interaction.deferReply({ ephemeral: true });
@@ -56,9 +56,7 @@ export class VerifyAllUsers {
     );
 
     // loop over all guild members
-    for (let memberCollection of members) {
-      // get the user from map collection
-      let member = memberCollection[1];
+    for (let [id, member] of members) {
       // refetch user if some roles were reasinged
 
       if (i % Math.floor((members.size / 100) * 10) === 0) {

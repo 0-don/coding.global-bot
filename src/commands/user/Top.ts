@@ -1,11 +1,11 @@
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { Discord, Slash } from "discordx";
 import {
-  BOT_CHANNEL,
+  BOT_CHANNELS,
   IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../lib/constants.js";
-import { StatsService } from "../../lib/stats/Stats.service.js";
 import { LogService } from "../../lib/logs/Log.service.js";
+import { StatsService } from "../../lib/stats/Stats.service.js";
 
 @Discord()
 export class Top {
@@ -24,7 +24,7 @@ export class Top {
     if (!interaction.guildId) return await interaction.editReply("No Guild");
 
     if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
-      if (channel.name !== BOT_CHANNEL)
+      if (!BOT_CHANNELS.includes(channel.name))
         // if not bot channel, return
         return await interaction.editReply(
           "Please use this command in the bot channel"
