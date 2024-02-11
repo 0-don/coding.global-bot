@@ -32,7 +32,7 @@ export class Ai {
       type: ApplicationCommandOptionType.Attachment,
     })
     image: Attachment,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
     let fileLink: string | undefined = undefined;
     if (image?.contentType?.startsWith("image")) {
@@ -43,7 +43,7 @@ export class Ai {
       )?.roles.cache;
       if (!userRoles?.some((r) => MEMBER_ROLES.includes(r.name as any)))
         return await interaction.reply(
-          "You need to be a member to upload an image",
+          "You need to be a member to upload an image"
         );
       fileLink = new URL(image.url).origin + new URL(image.url).pathname;
     }
@@ -77,7 +77,7 @@ export class Ai {
         const thread = await this.createThread(
           channel as TextChannel,
           interaction.member as GuildMember,
-          text,
+          text
         );
         askAi({
           channel: thread,
@@ -87,13 +87,13 @@ export class Ai {
           withHeaders: true,
         });
         await interaction.editReply(
-          "Please continue the conversation in the thread below",
+          "Please continue the conversation in the thread below"
         );
       }
     } catch (err) {
       error(err);
       await interaction.editReply(
-        "An error occurred while processing your request.",
+        "An error occurred while processing your request."
       );
     }
   }
@@ -101,7 +101,7 @@ export class Ai {
   private async createThread(
     channel: TextChannel,
     member: GuildMember,
-    text: string,
+    text: string
   ): Promise<ThreadChannel> {
     const threadName = `${member.displayName}: ${text.substring(0, 50)}`;
     const thread = await channel.threads.create({
