@@ -1,4 +1,4 @@
-import { MemberDeletedMessages } from "@prisma/client";
+import { MemberCommandHistory, MemberDeletedMessages } from "@prisma/client";
 import dayjs from "dayjs";
 import { APIEmbed } from "discord.js";
 import { ToptatsExampleEmbed, UserStatsExampleEmbed } from "../types/index.js";
@@ -26,6 +26,32 @@ export const deletedMessagesEmbed = (
   const deletedMessages = messages.map(
     ({ channelId, deletedByMemberId, messageMemberId, createdAt }, i) =>
       `${codeString(placementSuffix(i + 1))} <@${deletedByMemberId}> deleted msg from <@${messageMemberId}> in <#${channelId}>
+      at __<t:${dayjs(createdAt).unix()}:D>__ (<t:${dayjs(createdAt).unix()}:R>)`
+  );
+
+  return {
+    color: RED_COLOR,
+    title: `🗑️ Deleted Messages Overview`,
+    description: `
+**Last ${messages.length} Deleted Messages**
+
+${deletedMessages}
+
+`,
+    timestamp: new Date().toISOString(),
+    footer: {
+      text: TOP_STATS_TEMPLATE,
+      icon_url: BOT_ICON,
+    },
+  };
+};
+
+export const commandHistoryEmbed = (
+  messages: MemberCommandHistory[]
+): APIEmbed => {
+  const deletedMessages = messages.map(
+    ({ memberId, command, channelId, createdAt }, i) =>
+      `${codeString(placementSuffix(i + 1))} <@${memberId}>: **command** in <#${channelId}>
       at __<t:${dayjs(createdAt).unix()}:D>__ (<t:${dayjs(createdAt).unix()}:R>)`
   );
 

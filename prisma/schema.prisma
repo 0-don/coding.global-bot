@@ -121,6 +121,7 @@ model MemberCommandHistory {
   id        Int      @id @default(autoincrement())
   memberId  String
   guildId   String
+  channelId String
   command   String
   createdAt DateTime @default(now())
 
