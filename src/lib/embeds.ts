@@ -27,8 +27,7 @@ export const deletedMessagesHistoryEmbed = (
 ): APIEmbed => {
   const historyText = history.map(
     ({ channelId, deletedByMemberId, messageMemberId, createdAt }, i) =>
-      `${codeString(placementSuffix(i + 1))} <@${deletedByMemberId}> deleted msg from <@${messageMemberId}> in <#${channelId}>
-      at __<t:${dayjs(createdAt).unix()}:D>__ (<t:${dayjs(createdAt).unix()}:R>)`
+      `${codeString(placementSuffix(i + 1))} <@${deletedByMemberId}> deleted msg from <@${messageMemberId}> in <#${channelId}> at <t:${dayjs(createdAt).unix()}:R>`
   );
 
   return {
@@ -53,8 +52,7 @@ export const commandHistoryEmbed = (
 ): APIEmbed => {
   const historyText = history.map(
     ({ memberId, command, channelId, createdAt }, i) =>
-      `${codeString(placementSuffix(i + 1))} <@${memberId}>: **${command}** in <#${channelId}>
-      at __<t:${dayjs(createdAt).unix()}:D>__ (<t:${dayjs(createdAt).unix()}:R>)`
+      `${codeString(placementSuffix(i + 1))} <@${memberId}>: **${command}** in <#${channelId}> at <t:${dayjs(createdAt).unix()}:R>`
   );
 
   return {
