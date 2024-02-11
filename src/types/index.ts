@@ -76,3 +76,21 @@ export interface UserState {
   lastMessage: Message | null;
   same?: boolean;
 }
+
+export type Commands =
+  | "troll-move-user"
+  | "create-verify-embed"
+  | "delete-member-db"
+  | "delete-messages"
+  | "delete-user-messages"
+  | "log-deleted-messages-history"
+  | "lookback-members"
+  | "verify-all-users"
+  | "ai"
+  | "ai-reset"
+  | "lookback-me"
+  | "me"
+  | "members"
+  | "top"
+  | "translate"
+  | "user";

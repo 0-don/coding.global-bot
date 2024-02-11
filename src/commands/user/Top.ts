@@ -5,6 +5,7 @@ import {
   IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../lib/constants.js";
 import { StatsService } from "../../lib/stats/Stats.service.js";
+import { LogService } from "../../lib/logs/Log.service.js";
 
 @Discord()
 export class Top {
@@ -14,6 +15,7 @@ export class Top {
   })
   async top(interaction: CommandInteraction) {
     // get text channel
+    LogService.logCommandHistory(interaction, "top");
     const channel = (await interaction.channel?.fetch()) as TextChannel;
 
     // deferReply if it takes longer then usual
@@ -25,7 +27,7 @@ export class Top {
       if (channel.name !== BOT_CHANNEL)
         // if not bot channel, return
         return await interaction.editReply(
-          "Please use this command in the bot channel",
+          "Please use this command in the bot channel"
         );
     }
     const embed = await StatsService.topStatsEmbed(interaction.guildId);

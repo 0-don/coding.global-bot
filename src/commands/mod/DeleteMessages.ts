@@ -1,6 +1,7 @@
 import type { CommandInteraction, Message, TextChannel } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
+import { LogService } from "../../lib/logs/Log.service.js";
 import { fetchMessages } from "../../lib/messages/fetchMessages.js";
 
 @Discord()
@@ -18,8 +19,9 @@ export class DeleteMessages {
       type: ApplicationCommandOptionType.String,
     })
     amount: number,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
+    LogService.logCommandHistory(interaction, "delete-messages");
     // get member from slash command input
     const channel = interaction.channel as TextChannel;
     const guildId = interaction.guild?.id;
@@ -43,7 +45,7 @@ export class DeleteMessages {
         }
         return acc;
       },
-      [[]] as Message<boolean>[][],
+      [[]] as Message<boolean>[][]
     );
 
     for (const message of messageList) {

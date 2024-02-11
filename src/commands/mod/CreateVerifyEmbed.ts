@@ -2,6 +2,7 @@ import type { APIEmbed, CommandInteraction, Message } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { BOT_ICON, RED_COLOR, VERIFY_TEMPLATE } from "../../lib/constants.js";
+import { LogService } from "../../lib/logs/Log.service.js";
 
 @Discord()
 export class CreateVerifyEmbed {
@@ -12,6 +13,8 @@ export class CreateVerifyEmbed {
   })
   async createVerifyEmbed(interaction: CommandInteraction) {
     // create verify embed
+
+    LogService.logCommandHistory(interaction, "create-verify-embed");
     const embed: APIEmbed = {
       color: RED_COLOR,
       title: "Verification process...",

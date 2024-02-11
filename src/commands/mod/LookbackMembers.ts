@@ -2,6 +2,7 @@ import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { prisma } from "../../prisma.js";
+import { LogService } from "../../lib/logs/Log.service.js";
 
 @Discord()
 export class LookbackMembers {
@@ -20,8 +21,9 @@ export class LookbackMembers {
       type: ApplicationCommandOptionType.Integer,
     })
     lookback: number,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
+    LogService.logCommandHistory(interaction, "lookback-members");
     // get guild data
     const guildId = interaction.guild?.id;
     const guildName = interaction.guild?.name;
@@ -38,7 +40,7 @@ export class LookbackMembers {
 
     // send success message
     return await interaction.reply(
-      `Lookback set to ${lookback} days for ${guildName}`,
+      `Lookback set to ${lookback} days for ${guildName}`
     );
   }
 }

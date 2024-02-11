@@ -3,6 +3,7 @@ import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { deletedMessagesEmbed } from "../../lib/embeds.js";
 import { prisma } from "../../prisma.js";
+import { LogService } from "../../lib/logs/Log.service.js";
 
 @Discord()
 export class LogDeletedMessagesHistory {
@@ -20,6 +21,7 @@ export class LogDeletedMessagesHistory {
     count: string,
     interaction: CommandInteraction
   ) {
+    LogService.logCommandHistory(interaction, "log-deleted-messages-history");
     const c = count ? Number(count) : 10;
     const guildId = interaction.guild?.id;
 

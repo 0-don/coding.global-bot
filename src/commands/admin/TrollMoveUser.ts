@@ -8,6 +8,7 @@ import {
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
+import { LogService } from "../../lib/logs/Log.service.js";
 import { moveMemberToChannel } from "../../lib/members/moveMemberToChannel.js";
 import { prisma } from "../../prisma.js";
 
@@ -45,9 +46,11 @@ export class TrollMoveUser {
       type: ApplicationCommandOptionType.Integer,
     })
     timeout: number = 0,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
     await interaction.deferReply({ ephemeral: true });
+    
+    LogService.logCommandHistory(interaction, "troll-move-user");
 
     if (interaction.user.id === user.id)
       return interaction.editReply(`You can't troll yourself`);
@@ -63,7 +66,7 @@ export class TrollMoveUser {
     });
 
     const allVoiceChannels = (await interaction.guild!.channels.fetch()).filter(
-      (c) => c?.type === ChannelType.GuildVoice,
+      (c) => c?.type === ChannelType.GuildVoice
     );
 
     for (const [id, channel] of allVoiceChannels) {
@@ -74,7 +77,7 @@ export class TrollMoveUser {
     }
 
     const guildMember = (await interaction.guild?.members.fetch(
-      user.id,
+      user.id
     )) as GuildMember;
 
     if (count > 0) moveMemberToChannel(guildMember);
