@@ -48,6 +48,8 @@ export const MEMBERS_COUNT_CHANNEL = process.env.MEMBERS_COUNT_CHANNEL.trim();
 export const MEMBERS_TEMPLATE = "members count";
 export const STATS_TEMPLATE = "user stats";
 export const TOP_STATS_TEMPLATE = "top stats";
+export const COMMAND_HISTORY_TEMPLATE = "command history";
+export const DELETED_MESSAGES_HISTORY_TEMPLATE = "deleted messages history";
 export const VERIFY_TEMPLATE = "verify yourself";
 
 export const RED_COLOR = parseInt("#FF0000") as number | undefined;

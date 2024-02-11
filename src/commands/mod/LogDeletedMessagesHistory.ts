@@ -1,9 +1,9 @@
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { deletedMessagesEmbed as deletedMessagesHistoryEmbed } from "../../lib/embeds.js";
-import { prisma } from "../../prisma.js";
+import { deletedMessagesHistoryEmbed } from "../../lib/embeds.js";
 import { LogService } from "../../lib/logs/Log.service.js";
+import { prisma } from "../../prisma.js";
 
 @Discord()
 export class LogDeletedMessagesHistory {
