@@ -8,8 +8,8 @@ import { commandHistoryEmbed } from "../../lib/embeds.js";
 @Discord()
 export class LogCommandHistory {
   @Slash({
-    name: "log-deleted-messages-history",
-    description: "Show deleted messages",
+    name: "log-command-history",
+    description: "Show command history",
     defaultMemberPermissions: PermissionFlagsBits.DeafenMembers,
   })
   async logDeletedMessages(
