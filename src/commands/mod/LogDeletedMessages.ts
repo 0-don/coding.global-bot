@@ -31,8 +31,6 @@ export class LogDeletedMessages {
       orderBy: { createdAt: "desc" },
     });
 
-    console.log(messages);
-
     const embed = deletedMessagesEmbed(messages);
 
     return await interaction.editReply({
