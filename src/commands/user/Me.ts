@@ -5,6 +5,7 @@ import {
   BOT_CHANNEL,
   IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../lib/constants.js";
+import { LogService } from "../../lib/logs/Log.service.js";
 import { StatsService } from "../../lib/stats/Stats.service.js";
 
 @Discord()
@@ -18,13 +19,15 @@ export class Me {
     // get text channel
     // deferReply if it takes longer then usual
     await interaction.deferReply();
+    
+    LogService.logCommandHistory(interaction, "me");
 
     if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
       const channel = (await interaction.channel?.fetch()) as TextChannel;
       // if not bot channel, return
       if (channel.name !== BOT_CHANNEL)
         return await interaction.editReply(
-          "Please use this command in the bot channel",
+          "Please use this command in the bot channel"
         );
     }
     const embed = await StatsService.userStatsEmbed(interaction);

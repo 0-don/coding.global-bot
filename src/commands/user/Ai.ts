@@ -13,6 +13,7 @@ import {
 import { Discord, Slash, SlashOption } from "discordx";
 import { askAi } from "../../chatgpt/askAi.js";
 import { MEMBER_ROLES } from "../../lib/constants.js";
+import { LogService } from "../../lib/logs/Log.service.js";
 
 @Discord()
 export class Ai {
@@ -35,6 +36,7 @@ export class Ai {
     interaction: CommandInteraction
   ) {
     let fileLink: string | undefined = undefined;
+    LogService.logCommandHistory(interaction, "ai");
     if (image?.contentType?.startsWith("image")) {
       const userRoles = (
         await (await interaction.guild?.members.fetch())

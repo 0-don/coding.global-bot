@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import type { CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
+import { LogService } from "../../lib/logs/Log.service.js";
 import { prisma } from "../../prisma.js";
 
 @Discord()
@@ -12,6 +13,8 @@ export class AiReset {
   async aiReset(interaction: CommandInteraction) {
     await interaction.deferReply();
 
+    LogService.logCommandHistory(interaction, "ai-reset");
+    
     const user = interaction.user;
 
     await prisma.memberGuild.update({

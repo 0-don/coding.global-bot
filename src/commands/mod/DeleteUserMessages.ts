@@ -2,6 +2,7 @@ import type { CommandInteraction, User } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashChoice, SlashOption } from "discordx";
 import { deleteUserMessages } from "../../lib/messages/deleteUserMessages.js";
+import { LogService } from "../../lib/logs/Log.service.js";
 
 @Discord()
 export class DeleteMessages {
@@ -38,8 +39,9 @@ export class DeleteMessages {
       type: ApplicationCommandOptionType.Boolean,
     })
     jail: boolean = false,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
+    LogService.logCommandHistory(interaction, "delete-user-messages");
     const memberId = user?.id ?? userId;
     const guildId = interaction.guild?.id;
 

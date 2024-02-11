@@ -1,6 +1,7 @@
 import type { CommandInteraction, User } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
+import { LogService } from "../../lib/logs/Log.service.js";
 import { prisma } from "../../prisma.js";
 
 @Discord()
@@ -18,10 +19,11 @@ export class DeleteMemberDb {
       type: ApplicationCommandOptionType.User,
     })
     user: User,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
     // get member from slash command input
 
+    LogService.logCommandHistory(interaction, "delete-member-db");
     try {
       // try to delete member from database if it exists
       await prisma.member.delete({ where: { memberId: user?.id } });
