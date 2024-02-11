@@ -40,13 +40,15 @@ model Member {
   memberId String @id @unique
   username String
 
-  roles                 MemberRole[]
-  guilds                MemberGuild[]
-  memberMessages        MemberMessages[]
-  guildVoiceEvents      GuildVoiceEvents[]
-  memberHelper          MemberHelper[]
-  memberCommandHistory  MemberCommandHistory[]
-  memberDeletedMessages MemberDeletedMessages[]
+  roles                MemberRole[]
+  guilds               MemberGuild[]
+  memberMessages       MemberMessages[]
+  guildVoiceEvents     GuildVoiceEvents[]
+  memberHelper         MemberHelper[]
+  memberCommandHistory MemberCommandHistory[]
+
+  deletedByMemberMessages MemberDeletedMessages[] @relation("deletedByMemberMessages")
+  memberDeletedMessages   MemberDeletedMessages[] @relation("memberDeletedMessages")
 }
 
 model MemberMessages {
@@ -127,14 +129,16 @@ model MemberCommandHistory {
 }
 
 model MemberDeletedMessages {
-  id        Int      @id @default(autoincrement())
-  memberId  String
-  guildId   String
-  messageId String
-  channelId String
-  content   String
-  createdAt DateTime @default(now())
+  id                Int      @id @default(autoincrement())
+  deletedByMemberId String
+  messageMemberId   String
+  guildId           String
+  messageId         String
+  channelId         String
+  content           String
+  createdAt         DateTime @default(now())
 
-  member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
-  guild  Guild  @relation(fields: [guildId], references: [guildId])
+  deletedByMember Member @relation(fields: [deletedByMemberId], references: [memberId], onDelete: Cascade, name: "deletedByMemberMessages")
+  messageMember   Member @relation(fields: [messageMemberId], references: [memberId], onDelete: Cascade, name: "memberDeletedMessages")
+  guild           Guild  @relation(fields: [guildId], references: [guildId])
 }

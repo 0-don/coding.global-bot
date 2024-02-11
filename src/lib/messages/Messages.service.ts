@@ -1,4 +1,10 @@
-import { Message, MessageType, PartialMessage, TextChannel } from "discord.js";
+import {
+  AuditLogEvent,
+  Message,
+  MessageType,
+  PartialMessage,
+  TextChannel,
+} from "discord.js";
 import { prisma } from "../../prisma.js";
 import { VERIFY_CHANNEL } from "../constants.js";
 
@@ -48,19 +54,55 @@ export class MessagesService {
     }
   }
 
-  static async saveDeleteMessageHistory(message: Message<boolean> | PartialMessage) {
+  static async saveDeleteMessageHistory(
+    message: Message<boolean> | PartialMessage
+  ) {
     const content = message.content;
-    const memberId = message.member?.user.id;
     const channelId = message.channelId;
     const messageId = message.id;
     const guildId = message.guild?.id;
 
-    if (!content || !guildId || !memberId || message.interaction?.user.bot)
+    if (
+      !content ||
+      !guildId ||
+      !message.member?.user?.id ||
+      message.interaction?.user.bot
+    )
       return;
 
+    const messageMemberId = message.member?.user?.id;
+    let deletedByMemberId = messageMemberId;
+
     try {
+      const auditLogs = await message.guild.fetchAuditLogs({
+        type: AuditLogEvent.MessageDelete,
+        limit: 1,
+      });
+      const deleteLog = auditLogs.entries.first();
+
+      if (deleteLog) {
+        const { executor, target, extra, createdTimestamp } = deleteLog;
+
+        const timeDiff = Date.now() - createdTimestamp;
+
+        if (
+          timeDiff < 5000 &&
+          (extra?.count ?? 0) >= 1 &&
+          target?.id === messageMemberId
+        ) {
+          deletedByMemberId = executor?.id ?? messageMemberId;
+        }
+      }
+
       await prisma.memberDeletedMessages.create({
-        data: { content, memberId, channelId, messageId, guildId },
+        data: {
+          content,
+          deletedByMemberId,
+          messageMemberId,
+          channelId,
+          messageId,
+          guildId,
+        },
       });
     } catch (_) {}
   }

@@ -1,3 +1,4 @@
+import { MemberDeletedMessages } from "@prisma/client";
 import dayjs from "dayjs";
 import { APIEmbed } from "discord.js";
 import { ToptatsExampleEmbed, UserStatsExampleEmbed } from "../types/index.js";
@@ -17,6 +18,31 @@ export const simpleEmbedExample: APIEmbed = {
     text: "*",
     icon_url: BOT_ICON,
   },
+};
+
+export const deletedMessagesEmbed = (
+  messages: MemberDeletedMessages[]
+): APIEmbed => {
+  const deletedMessages = messages.map(
+    ({ channelId, deletedByMemberId, messageMemberId }, i) =>
+      `${codeString(placementSuffix(i + 1))} <@${deletedByMemberId}> deleted msg from <@${messageMemberId}> in <#${channelId}> `
+  );
+
+  return {
+    color: RED_COLOR,
+    title: `🗑️ Deleted Messages Overview`,
+    description: `
+**Deleted Messages**
+
+${deletedMessages}
+
+`,
+    timestamp: new Date().toISOString(),
+    footer: {
+      text: TOP_STATS_TEMPLATE,
+      icon_url: BOT_ICON,
+    },
+  };
 };
 
 export const topStatsExampleEmbed = (args: ToptatsExampleEmbed): APIEmbed => {
