@@ -1,7 +1,7 @@
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { deletedMessagesEmbed } from "../../lib/embeds.js";
+import { deletedMessagesEmbed as deletedMessagesHistoryEmbed } from "../../lib/embeds.js";
 import { prisma } from "../../prisma.js";
 import { LogService } from "../../lib/logs/Log.service.js";
 
@@ -27,13 +27,13 @@ export class LogDeletedMessagesHistory {
 
     await interaction.deferReply();
 
-    const messages = await prisma.memberDeletedMessages.findMany({
+    const history = await prisma.memberDeletedMessages.findMany({
       where: { guildId },
       take: c,
       orderBy: { createdAt: "desc" },
     });
 
-    const embed = deletedMessagesEmbed(messages);
+    const embed = deletedMessagesHistoryEmbed(history);
 
     return await interaction.editReply({
       embeds: [embed],
