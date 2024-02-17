@@ -120,8 +120,8 @@ export class MembersService {
     // find member: channel
     let membersChannelName;
     const memberCountChannel = member.guild.channels.cache.find((channel) => {
-      membersChannelName = MEMBERS_COUNT_CHANNELS.find(
-        (name) => channel.name === name
+      membersChannelName = MEMBERS_COUNT_CHANNELS.find((name) =>
+        channel.name.includes(name)
       );
       return membersChannelName;
     });
