@@ -128,7 +128,7 @@ export class MembersService {
       );
 
       // if no channel return
-      if (!memberCountChannel) return;
+      if (!memberCountChannel) continue;
 
       // await member count
       await member.guild.members.fetch();
