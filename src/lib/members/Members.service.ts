@@ -117,30 +117,32 @@ export class MembersService {
 
   static async updateMemberCount(member: GuildMember | PartialGuildMember) {
     if (member.user.bot || !SHOULD_COUNT_MEMBERS) return;
-    // find member: channel
-    let membersChannelName;
-    const memberCountChannel = member.guild.channels.cache.find((channel) => {
-      membersChannelName = MEMBERS_COUNT_CHANNELS.find((name) =>
-        channel.name.includes(name)
-      );
-      return membersChannelName;
-    });
-
-    // if no channel return
-    if (!memberCountChannel) return;
 
     // await member count
     await member.guild.members.fetch();
 
-    // count members exc
-    const memberCount = member.guild.members.cache.filter(
-      (member) => !member.user.bot
-    ).size;
+    for (const channelName of MEMBERS_COUNT_CHANNELS) {
+      // find member: channel
+      const memberCountChannel = member.guild.channels.cache.find((channel) =>
+        channel.name.includes(channelName)
+      );
 
-    // set channel name as member count
-    try {
-      await memberCountChannel.setName(`${membersChannelName} ${memberCount}`);
-    } catch (_) {}
+      // if no channel return
+      if (!memberCountChannel) return;
+
+      // await member count
+      await member.guild.members.fetch();
+
+      // count members exc
+      const memberCount = member.guild.members.cache.filter(
+        (member) => !member.user.bot
+      ).size;
+
+      // set channel name as member count
+      try {
+        await memberCountChannel.setName(`${channelName} ${memberCount}`);
+      } catch (_) {}
+    }
   }
 
   static async guildMemberCountChart(
