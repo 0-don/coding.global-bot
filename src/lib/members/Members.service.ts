@@ -130,9 +130,6 @@ export class MembersService {
       // if no channel return
       if (!memberCountChannel) continue;
 
-      // await member count
-      await member.guild.members.fetch();
-
       // count members exc
       const memberCount = member.guild.members.cache.filter(
         (member) => !member.user.bot
