@@ -118,9 +118,13 @@ export class MembersService {
   static async updateMemberCount(member: GuildMember | PartialGuildMember) {
     if (member.user.bot || !SHOULD_COUNT_MEMBERS) return;
     // find member: channel
-    const memberCountChannel = member.guild.channels.cache.find((channel) =>
-      MEMBERS_COUNT_CHANNELS.includes(channel.name)
-    );
+    let membersChannelName;
+    const memberCountChannel = member.guild.channels.cache.find((channel) => {
+      membersChannelName = MEMBERS_COUNT_CHANNELS.find(
+        (name) => channel.name === name
+      );
+      return membersChannelName;
+    });
 
     // if no channel return
     if (!memberCountChannel) return;
@@ -135,9 +139,7 @@ export class MembersService {
 
     // set channel name as member count
     try {
-      await memberCountChannel.setName(
-        `${MEMBERS_COUNT_CHANNELS} ${memberCount}`
-      );
+      await memberCountChannel.setName(`${membersChannelName} ${memberCount}`);
     } catch (_) {}
   }
 
