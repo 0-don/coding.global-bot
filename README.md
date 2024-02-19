@@ -72,7 +72,6 @@
 docker exec -i coding-global-db pg_restore -U postgres -c -d coding-global-db -v < ~/coding-global-db-latest.sql.gz
 ```
 
-
 ### backup raw restore db in docker
 
 ```sh
@@ -80,3 +79,6 @@ docker exec -ti coding-global-db pg_dump -U postgres coding-global-db > coding-g
 
 cat coding-global-db.sql | docker exec -i coding-global-db psql -U postgres -d coding-global-db
 ```
+
+<!-- SELECT last_value FROM public."GuildVoiceEvents_id_seq"; -->
+<!-- SELECT setval('public."GuildVoiceEvents_id_seq"', 51980, false); -->
