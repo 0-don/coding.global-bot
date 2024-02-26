@@ -1,12 +1,11 @@
 import type { GuildMember, PartialGuildMember } from "discord.js";
 import { prisma } from "../../prisma.js";
 import { StatusRoles } from "../../types/index.js";
-import { EVERYONE, STATUS_ROLES } from "../constants.js";
-import { RolesService } from "./Roles.service.js";
+import { EVERYONE, JAIL, STATUS_ROLES } from "../constants.js";
 
 export const updateStatusRoles = async (
   oldMember: GuildMember | PartialGuildMember,
-  newMember: GuildMember | PartialGuildMember,
+  newMember: GuildMember | PartialGuildMember
 ) => {
   // get old roles as string[]
   const oldRoles = oldMember.roles.cache
@@ -17,12 +16,7 @@ export const updateStatusRoles = async (
     .filter(({ name }) => name !== EVERYONE)
     .map((role) => role.name);
 
-  // check if status role exist
-  const activeStatusRoles = STATUS_ROLES.some((role) =>
-    newRoles.includes(role),
-  );
-
-  // onboarding querstion bypass
+  // onboarding question bypass
   if (oldMember.flags.bitfield === 9 && newMember.flags.bitfield === 11) {
     const dbRoles = await prisma.memberRole.findMany({
       where: {
@@ -41,7 +35,7 @@ export const updateStatusRoles = async (
       // add roles that are missing
       for (const dbRole of dbRoles) {
         const role = newMember.guild.roles.cache.find(
-          (role) => role.id === dbRole.roleId,
+          (role) => role.id === dbRole.roleId
         );
         if (role) newMember.roles.add(role).catch(() => {});
       }
@@ -49,16 +43,28 @@ export const updateStatusRoles = async (
       return;
     }
   }
-
-  // if somehow user has no STATUS role make him unverfied
-  if (!newRoles.length || !activeStatusRoles)
-    RolesService.joinRole(newMember as GuildMember, "Unverified");
   // only run if user has a new role
   if (oldRoles.length >= newRoles.length) return;
 
   const newAddedRole = newRoles.filter(
-    (role) => !oldRoles.includes(role),
+    (role) => !oldRoles.includes(role)
   )[0] as StatusRoles;
+
+  if (newRoles.includes(JAIL) && !STATUS_ROLES.includes(newAddedRole)) {
+    // remove all roles expect jail
+    for (const role of newMember.roles.cache.values()) {
+      if (role.name !== JAIL) newMember.roles.remove(role).catch(() => {});
+    }
+    return prisma.memberRole.deleteMany({
+      where: {
+        memberId: newMember.id,
+        guildId: newMember.guild.id,
+        roleId: {
+          not: newMember.roles.cache.find((role) => role.name === JAIL)?.id,
+        },
+      },
+    });
+  }
 
   // check if role is a status role if yes then remove the unused status role
   if (STATUS_ROLES.includes(newAddedRole)) {
