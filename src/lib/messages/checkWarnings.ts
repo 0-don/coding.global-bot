@@ -15,9 +15,9 @@ export const checkWarnings = async (message: Message<boolean>) => {
   if (!memberGuild) return;
 
   if (
-    content.includes(
-      "discord.gg/" || "discordapp.com/invite/" || "discord.com/invite/"
-    )
+    content.includes("discord.gg/") ||
+    content.includes("discordapp.com/invite/") ||
+    content.includes("discord.com/invite/")
   ) {
     await message.delete();
 
