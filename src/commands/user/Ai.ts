@@ -35,6 +35,9 @@ export class Ai {
     image: Attachment,
     interaction: CommandInteraction
   ) {
+    if (!text.length)
+      return await interaction.reply("Please provide a question for the AI");
+
     let fileLink: string | undefined = undefined;
     LogService.logCommandHistory(interaction, "ai");
     if (image?.contentType?.startsWith("image")) {
