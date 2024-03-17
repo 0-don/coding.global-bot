@@ -65,6 +65,4 @@ fastify
     port: 3000,
     host: process.env.NODE_ENV === "production" ? "0.0.0.0" : undefined,
   })
-  .then((address) => {
-    console.log(`Server listening on ${address}`);
-  });
+  .then((address) => console.log(`Server listening on ${address}`));
