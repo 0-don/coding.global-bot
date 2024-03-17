@@ -12,9 +12,18 @@ await fastify.register(cors, {
   credentials: true,
 });
 
+const cache: Record<string, any> = {};
+
 fastify.get("/api/:guildId/staff", async (req, reply) => {
   const { guildId } = req.params as { guildId: string };
 
+  const cacheKey = `staff-${guildId}`;
+  const currentTime = Date.now();
+
+  if (cache[cacheKey] && currentTime - cache[cacheKey].timestamp < 3600000) {
+    return reply.send(cache[cacheKey].data);
+  }
+  
   const guild = bot.guilds.cache.get(guildId);
   if (!guild) {
     return reply.code(404).send({ error: "Guild not found" });
