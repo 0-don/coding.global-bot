@@ -44,7 +44,7 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
         id: member.id,
         username: member.user.username,
         globalName: member.user.globalName,
-        avatarUrl: member.user.displayAvatarURL(),
+        avatarUrl: member.user.displayAvatarURL({ size: 512 }),
         staffRoles,
       });
     }
