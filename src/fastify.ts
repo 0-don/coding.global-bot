@@ -8,7 +8,7 @@ const fastify = Fastify({
 });
 
 await fastify.register(cors, {
-  origin: false,
+  origin: ["*"],
   credentials: true,
 });
 
