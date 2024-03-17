@@ -30,6 +30,7 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
     id: string;
     username: string;
     globalName: string | null;
+    joinedAt: string;
     avatarUrl: string;
     memberRoles: string[];
   }[] = [];
@@ -49,6 +50,7 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
         id: member.id,
         username: member.user.username,
         globalName: member.user.globalName,
+        joinedAt: member.joinedAt!.toISOString(),
         avatarUrl: member.user.displayAvatarURL({ size: 512 }),
         memberRoles,
       });
