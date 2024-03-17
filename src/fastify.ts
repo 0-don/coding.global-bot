@@ -47,6 +47,7 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
       )
       .map((role) => role.name);
 
+    await member.user.fetch();
     if (memberRoles.length) {
       staff.push({
         id: member.id,
