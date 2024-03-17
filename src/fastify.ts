@@ -53,6 +53,8 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
   reply.send(staff);
 });
 
-fastify.listen({ port: 3000 }).then((address) => {
-  console.log(`Server listening on ${address}`);
-});
+fastify
+  .listen(3000, process.env.NODE_ENV === "production" ? "0.0.0.0" : undefined)
+  .then((address) => {
+    console.log(`Server listening on ${address}`);
+  });
