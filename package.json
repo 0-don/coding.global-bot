@@ -5,6 +5,7 @@
   "scripts": {
     "start": "npx prisma migrate deploy && cross-env NODE_ENV=production node dist/main.js",
     "dev": "nodemon --ignore './**/*.json' --exec node --no-warnings --loader ts-node/esm src/main.ts",
+    "dev:bun": "bun src/main.ts",
     "prisma": "npx prisma migrate dev --name init && npx prisma generate",
     "prettier": "prettier --ignore-path .gitignore -w ./src",
     "postinstall": "npx prisma generate",
