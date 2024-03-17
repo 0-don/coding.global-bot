@@ -54,8 +54,11 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
         username: member.user.username,
         globalName: member.user.globalName,
         joinedAt: member.joinedAt!.toISOString(),
-        displayAvatarURL: member.user.displayAvatarURL({ size: 512 }),
-        bannerUrl: member.user.bannerURL({ size: 512 }),
+        displayAvatarURL: member.user.displayAvatarURL({
+          size: 512,
+          extension: "webp",
+        }),
+        bannerUrl: member.user.bannerURL({ size: 512, extension: "webp" }),
         displayHexColor: member.displayHexColor,
         memberRoles,
       });
