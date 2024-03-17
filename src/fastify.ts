@@ -32,6 +32,8 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
     globalName: string | null;
     joinedAt: string;
     avatarUrl: string;
+    bannerUrl?: string | null;
+    displayHexColor: string;
     memberRoles: string[];
   }[] = [];
 
@@ -52,6 +54,8 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
         globalName: member.user.globalName,
         joinedAt: member.joinedAt!.toISOString(),
         avatarUrl: member.user.displayAvatarURL({ size: 512 }),
+        bannerUrl: member.user.bannerURL({ size: 512 }),
+        displayHexColor: member.displayHexColor,
         memberRoles,
       });
     }
