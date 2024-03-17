@@ -27,7 +27,7 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
   const staff: {
     id: string;
     username: string;
-    serverName: string;
+    guildName: string;
     avatarUrl: string;
     staffRoles: string[];
   }[] = [];
@@ -43,7 +43,7 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
       staff.push({
         id: member.id,
         username: member.user.username,
-        serverName: guild.name,
+        guildName: member.guild.name,
         avatarUrl: member.user.displayAvatarURL(),
         staffRoles,
       });
