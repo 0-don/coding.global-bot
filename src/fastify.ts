@@ -23,7 +23,7 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
   if (cache[cacheKey] && currentTime - cache[cacheKey].timestamp < 3600000) {
     return reply.send(cache[cacheKey].data);
   }
-  
+
   const guild = bot.guilds.cache.get(guildId);
   if (!guild) {
     return reply.code(404).send({ error: "Guild not found" });
@@ -45,6 +45,10 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
     displayHexColor: string;
     memberRoles: string[];
   }[] = [];
+
+  const userPromises = members.map((member) => member.user.fetch());
+
+  await Promise.all(userPromises);
 
   for (const member of members.values()) {
     if (member.user.bot) continue;
