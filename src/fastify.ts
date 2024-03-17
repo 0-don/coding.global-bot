@@ -20,9 +20,11 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
     return reply.code(404).send({ error: "Guild not found" });
   }
 
-  const members = (await guild.members.fetch()).filter((member) =>
-    member.permissions.has(PermissionsBitField.Flags.MuteMembers)
-  );
+  const members = (await guild.members.fetch())
+    .filter((member) =>
+      member.permissions.has(PermissionsBitField.Flags.MuteMembers)
+    )
+    .sort((a, b) => a.joinedAt!.getTime() - b.joinedAt!.getTime());
 
   const staff: {
     id: string;
