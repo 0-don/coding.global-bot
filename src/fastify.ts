@@ -15,7 +15,6 @@ await fastify.register(cors, {
 fastify.get("/api/:guildId/staff", async (req, reply) => {
   const { guildId } = req.params as { guildId: string };
 
-  // Ensure the bot is in the guild.
   const guild = bot.guilds.cache.get(guildId);
   if (!guild) {
     return reply.code(404).send({ error: "Guild not found" });
