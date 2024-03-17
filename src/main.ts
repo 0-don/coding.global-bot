@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { dirname, importx } from "@discordx/importer";
 import {
   CategoryScale,
@@ -14,6 +13,8 @@ import "chartjs-adapter-date-fns";
 import { log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
+import "dotenv/config";
+import "./fastify.js";
 
 Chart.register(
   LineController,
@@ -22,13 +23,13 @@ Chart.register(
   CategoryScale,
   PointElement,
   TimeSeriesScale,
-  Filler,
+  Filler
 );
 
 const token = process.env.TOKEN;
 
 // discord client config
-const bot = new Client({
+export const bot = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
@@ -60,14 +61,14 @@ bot.once("ready", async () => {
 
 bot.on(
   "interactionCreate",
-  (interaction) => void bot.executeInteraction(interaction),
+  (interaction) => void bot.executeInteraction(interaction)
 );
 
 bot.on("messageCreate", (message) => void bot.executeCommand(message));
 
 bot.on(
   "messageReactionAdd",
-  (reaction, user) => void bot.executeReaction(reaction, user),
+  (reaction, user) => void bot.executeReaction(reaction, user)
 );
 
 const main = async () => {
