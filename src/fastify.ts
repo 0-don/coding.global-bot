@@ -29,24 +29,24 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
     username: string;
     globalName: string | null;
     avatarUrl: string;
-    staffRoles: string[];
+    memberRoles: string[];
   }[] = [];
 
   for (const member of members.values()) {
     if (member.user.bot) continue;
-    const staffRoles = member.roles.cache
+    const memberRoles = member.roles.cache
       .filter((role) =>
         role.permissions.has(PermissionsBitField.Flags.MuteMembers)
       )
       .map((role) => role.name);
 
-    if (staffRoles.length) {
+    if (memberRoles.length) {
       staff.push({
         id: member.id,
         username: member.user.username,
         globalName: member.user.globalName,
         avatarUrl: member.user.displayAvatarURL({ size: 512 }),
-        staffRoles,
+        memberRoles,
       });
     }
   }
