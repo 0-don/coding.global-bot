@@ -20,7 +20,7 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
   const cacheKey = `staff-${guildId}`;
   const currentTime = Date.now();
 
-  if (cache[cacheKey] && currentTime - cache[cacheKey].timestamp < 3600000) {
+  if (cache[cacheKey] && currentTime - cache[cacheKey].timestamp < 3600000000) {
     return reply.send(cache[cacheKey].data);
   }
 
