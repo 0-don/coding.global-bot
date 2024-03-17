@@ -78,6 +78,11 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
     }
   }
 
+  cache[cacheKey] = {
+    timestamp: Date.now(),
+    data: staff,
+  };
+
   reply.send(staff);
 });
 
