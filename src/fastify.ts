@@ -35,8 +35,10 @@ fastify.get("/api/:guildId/staff", async (req, reply) => {
   for (const member of members.values()) {
     if (member.user.bot) continue;
     const memberRoles = member.roles.cache
-      .filter((role) =>
-        role.permissions.has(PermissionsBitField.Flags.MuteMembers)
+      .filter(
+        (role) =>
+          role.permissions.has(PermissionsBitField.Flags.MuteMembers) ||
+          role.permissions.has(PermissionsBitField.Flags.ManageMessages)
       )
       .map((role) => role.name);
 
