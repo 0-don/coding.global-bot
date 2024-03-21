@@ -43,9 +43,7 @@ const app = new Hono()
       memberRoles: string[];
     }[] = [];
 
-    const userPromises = members.map((member) => member.user.fetch());
-
-    await Promise.all(userPromises);
+    await Promise.all(members.map((member) => member.user.fetch()));
 
     for (const member of members.values()) {
       if (member.user.bot) continue;
