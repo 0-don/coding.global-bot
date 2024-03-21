@@ -14,7 +14,7 @@ import { log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
 import "dotenv/config";
-import "./fastify.js";
+import "./hono.js";
 
 Chart.register(
   LineController,
