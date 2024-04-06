@@ -238,7 +238,7 @@ export class MessageCreate {
       if (!messagesContent.length)
         return await channel.send("No messages found");
 
-      await askAi({ channel, user, text: messagesContent });
+      await askAi({ channel, user, text: messagesContent, onReply: true });
     }
   }
 }

@@ -6,6 +6,7 @@ import {
   User,
 } from "discord.js";
 import { ChatMessage, gpt } from "../chatgpt.js";
+import { BOT_CHANNELS } from "../lib/constants.js";
 import { prisma } from "../prisma.js";
 
 interface AskAi {
@@ -15,6 +16,7 @@ interface AskAi {
   text: string;
   fileLink?: string;
   withHeaders?: boolean;
+  onReply?: boolean;
 }
 
 const MSG_LIMIT = 2000;
@@ -37,7 +39,7 @@ export const askAi = async (props: AskAi) => {
     text: props.text,
     systemMessage: `You are coding.global AI, a large language model trained by coding.global. 
     You answer as concisely as possible for each response, if its programming related you add specific code tag to the snippet.
-    If you have links add <> tags around them. 
+    If you have links add <> tags around them. ${props.onReply ? "Be extremly conisce and simple try either returning only code oder a small explanation" : ""} 
     Current date: ${new Date().toISOString()}`,
     fileLink: props.fileLink,
     parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
@@ -73,6 +75,17 @@ export const askAi = async (props: AskAi) => {
 
   if (messageContent.length && messageCount) {
     currentMessage.edit(messageContent);
+  }
+
+  if (props.onReply) {
+    await props.channel.fetch();
+    const channel = props.channel.client.channels.cache.find(
+      (channel) => (channel as TextChannel).name === BOT_CHANNELS.at(0)
+    );
+
+    await props.channel.send(
+      `**go to <#${channel?.id}> to continue the conversation with the /ai command.**`
+    );
   }
 
   await prisma.memberGuild.update({
