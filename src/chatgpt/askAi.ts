@@ -78,13 +78,12 @@ export const askAi = async (props: AskAi) => {
   }
 
   if (props.onReply) {
-    await props.channel.fetch();
     const channel = props.channel.client.channels.cache.find(
       (channel) => (channel as TextChannel).name === BOT_CHANNELS.at(0)
     );
 
     await props.channel.send(
-      `**go to <#${channel?.id}> to continue the conversation with the /ai command.**`
+      `**go to <#${channel?.id}> to continue the conversation with the \`/ai\` command.**`
     );
   }
 
