@@ -39,7 +39,7 @@ export const askAi = async (props: AskAi) => {
     text: props.text,
     systemMessage: `You are coding.global AI, a large language model trained by coding.global. 
     You answer as concisely as possible for each response, if its programming related you add specific code tag to the snippet.
-    If you have links add <> tags around them. ${props.onReply ? "Be extremly conisce and simple try either returning only code oder a small explanation" : ""} 
+    If you have links add <> tags around them. ${props.onReply ? "Be extremly conisce and simple try either returning only code or a small explanation" : ""} 
     Current date: ${new Date().toISOString()}`,
     fileLink: props.fileLink,
     parentMessageId: (!olderThen30Min && memberGuild.gptId) || undefined,
