@@ -66,13 +66,13 @@
   - **Options**:
     - **text**: Ask the AI a question.
 
-### restore db in docker
+### restore db
 
 ```sh
 docker exec -i coding-global-db pg_restore -U postgres -c -d coding-global-db -v < ~/coding-global-db-latest.sql.gz
 ```
 
-### backup raw restore db in docker
+### backup raw db / restore raw db
 
 ```sh
 docker exec -ti coding-global-db pg_dump -U postgres coding-global-db > coding-global-db.sql
