@@ -80,9 +80,6 @@ const app = new Hono()
     return c.json(staff);
   });
 
-serve({
-  fetch: app.fetch,
-  port: 3000,
-});
+serve({ fetch: app.fetch, port: 3000 });
 
 console.log("Server started on port 3000");
