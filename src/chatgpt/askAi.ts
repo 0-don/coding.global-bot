@@ -73,13 +73,18 @@ export const askAi = async (props: AskAiProps) => {
   }
 
   if (props.onReply) {
-    const channel = props.channel.client.channels.cache.find(
-      (ch) => (ch as TextChannel).name === BOT_CHANNELS.at(0)
-    );
-
-    if (props.channel.isTextBased()) {
+    if (props.channel.isTextBased() && !props.channel.isThread()) {
+      const channel = props.channel.client.channels.cache.find(
+        (ch) => (ch as TextChannel).name === BOT_CHANNELS.at(0)
+      );
       await props.channel.send(
-        `**Go to <#${channel?.id}> to continue the conversation with the \`/ai\` command.**`
+        `**go to <#${channel?.id}> to continue the conversation with the \`/ai\` command.**`
+      );
+    }
+
+    if (props.channel.isThread()) {
+      await props.channel.send(
+        `**you to continue the conversation with the \`/ai\` command.**`
       );
     }
   }
