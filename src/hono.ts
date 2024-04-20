@@ -9,7 +9,7 @@ import { bot } from "./main.js";
 const cache: Record<string, any> = {};
 
 const app = new Hono()
-  .use("*", cors({ origin: "*" }))
+  .use("*", cors())
   .get("/api/:guildId/staff", async (c) => {
     const { guildId } = c.req.param();
     const cacheKey = `staff-${guildId}`;
