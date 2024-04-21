@@ -13,13 +13,15 @@ export class LogService {
 
     if (!memberId || !guildId) return;
 
-    await prisma.memberCommandHistory.create({
-      data: {
-        channelId,
-        memberId,
-        guildId,
-        command,
-      },
-    });
+    try {
+      await prisma.memberCommandHistory.create({
+        data: {
+          channelId,
+          memberId,
+          guildId,
+          command,
+        },
+      });
+    } catch (error) {}
   }
 }
