@@ -17,6 +17,14 @@
   </p>
 </p>
 
+## Setup
+
+```sh
+npm install
+npm run prisma
+npm run dev
+```
+
 ### Slash Commands
 
 ---
