@@ -19,6 +19,8 @@
 
 ## Setup
 
+create a `.env` file with the correct values
+
 ```sh
 npm install
 npm run prisma
