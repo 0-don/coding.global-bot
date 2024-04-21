@@ -27,6 +27,8 @@ npm run prisma
 npm run dev
 ```
 
+run `/verify-all-users` to verify all users in the server and the db
+
 ### Slash Commands
 
 ---
