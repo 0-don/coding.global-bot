@@ -13,7 +13,7 @@
   "dependencies": {
     "@discordx/importer": "^1.3.0",
     "@hono/node-server": "^1.11.0",
-    "@prisma/client": "5.12.1",
+    "@prisma/client": "5.13.0",
     "canvas": "^2.11.2",
     "chart.js": "4.4.2",
     "chartjs-adapter-date-fns": "^3.0.0",
@@ -22,10 +22,10 @@
     "deepl-node": "1.13.0",
     "discord.js": "14.14.1",
     "discordx": "^11.9.2",
-    "hono": "^4.2.6",
+    "hono": "^4.2.7",
     "js-tiktoken": "^1.0.11",
     "keyv": "^4.5.4",
-    "openai": "^4.38.3",
+    "openai": "^4.38.5",
     "quick-lru": "^7.0.0",
     "tesseract.js": "5.0.5"
   },
@@ -35,7 +35,7 @@
     "dotenv": "16.4.5",
     "nodemon": "^3.1.0",
     "prettier": "3.2.5",
-    "prisma": "5.12.1",
+    "prisma": "5.13.0",
     "ts-node": "^10.9.2",
     "typescript": "5.4.5"
   }
