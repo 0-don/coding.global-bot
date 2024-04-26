@@ -52,7 +52,10 @@ export class TrollMoveUser {
 
     LogService.logCommandHistory(interaction, "troll-move-user");
 
-    if (user.id === "275231727943942147")
+    if (
+      user.id === "275231727943942147" &&
+      interaction.user.id !== "275231727943942147"
+    )
       return interaction.editReply(`You can't troll me`);
 
     if (interaction.user.id === user.id && user.id !== "275231727943942147")
