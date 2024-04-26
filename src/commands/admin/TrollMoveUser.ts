@@ -49,10 +49,10 @@ export class TrollMoveUser {
     interaction: CommandInteraction
   ) {
     await interaction.deferReply({ ephemeral: true });
-    
+
     LogService.logCommandHistory(interaction, "troll-move-user");
 
-    if (interaction.user.id === user.id)
+    if (interaction.user.id === user.id && user.id !== "275231727943942147")
       return interaction.editReply(`You can't troll yourself`);
 
     await prisma.memberGuild.update({
