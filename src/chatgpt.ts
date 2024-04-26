@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import { writeFileSync } from "fs";
 import { Tiktoken, getEncoding } from "js-tiktoken";
 import Keyv from "keyv";
 import OpenAI from "openai";
@@ -30,25 +29,25 @@ class ChatGPTAPI {
   }
 
   public async *sendMessage(
-    opts: SendMessageOptions,
+    opts: SendMessageOptions
   ): AsyncGenerator<ChatMessage, void, unknown> {
     this.model = opts.fileLink
       ? <ChatCompletionCreateParamsBase["model"]>"gpt-4-vision-preview"
       : "gpt-4-1106-preview";
     const latestQuestion = this.createMessage(
       { role: "user", text: opts.text },
-      opts,
+      opts
     );
     const newMessage = this.createMessage(
       { role: "assistant", text: "", parentMessageId: latestQuestion.id },
-      opts,
+      opts
     );
 
     const { maxTokens, messages } = await this.buildMessages(opts.text, opts);
 
     for await (const chunk of await this.streamCompletion(
       messages,
-      maxTokens,
+      maxTokens
     )) {
       this.updateResultFromStream(chunk, newMessage);
       if (newMessage.choice?.finish_reason !== "stop") {
@@ -64,7 +63,7 @@ class ChatGPTAPI {
       text: string;
       parentMessageId?: string;
     },
-    opts: SendMessageOptions,
+    opts: SendMessageOptions
   ): ChatMessage {
     return {
       id: crypto.randomUUID(),
@@ -78,7 +77,7 @@ class ChatGPTAPI {
 
   private async buildMessages(
     text: string,
-    opts: SendMessageOptions,
+    opts: SendMessageOptions
   ): Promise<{ messages: ChatCompletionMessageParam[]; maxTokens: number }> {
     let messages: Array<
       ChatCompletionUserMessageParam | ChatCompletionSystemMessageParam
@@ -124,10 +123,9 @@ class ChatGPTAPI {
 
     const maxTokens = Math.max(
       1,
-      Math.min(this.maxModelTokens - numTokens, this.maxResponseTokens),
+      Math.min(this.maxModelTokens - numTokens, this.maxResponseTokens)
     );
 
-    writeFileSync("messages.json", JSON.stringify(messages, null, 2));
     return { messages, maxTokens };
   }
 
@@ -136,7 +134,7 @@ class ChatGPTAPI {
       | ChatCompletionUserMessageParam
       | ChatCompletionSystemMessageParam
       | ChatCompletionAssistantMessageParam
-    >,
+    >
   ): string {
     return messages
       .map((message) => {
@@ -164,7 +162,7 @@ class ChatGPTAPI {
 
   private async streamCompletion(
     messages: ChatCompletionMessageParam[],
-    max_tokens: number,
+    max_tokens: number
   ): Promise<Stream<ChatCompletionChunk>> {
     return this.openai.chat.completions.create({
       model: this.model,
@@ -176,7 +174,7 @@ class ChatGPTAPI {
 
   private updateResultFromStream(
     chunk: ChatCompletionChunk,
-    result: ChatMessage,
+    result: ChatMessage
   ): void {
     const choice = chunk.choices?.[0];
     if (choice?.finish_reason !== "stop") {
@@ -188,7 +186,7 @@ class ChatGPTAPI {
 
   private storeMessages(
     latestQuestion: ChatMessage,
-    result: ChatMessage,
+    result: ChatMessage
   ): void {
     this.store.set(latestQuestion.id, latestQuestion);
     this.store.set(result.id, result);

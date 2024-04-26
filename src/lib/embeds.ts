@@ -155,22 +155,21 @@ Top Member Sum: ${mostActiveMessageUsersSumString}
 
 ${mostActiveMessageUsersString.join("\n")}
 
-Messages | Top ${args.mostActiveMessageChannels?.length ?? 0} - Channels
-Top Channel Sum: ${mostActiveMessageChannelSumString}
-
-${mostActiveMessageChannelString.join("\n")}
 
 **Voice | Top ${args.mostActiveVoiceUsers?.length ?? 0} - Members**
 Top Member Sum: ${mostActiveVoiceUserSumString} 
 
 ${mostActiveVoiceUsersString.join("\n")}
-
-Voice | Top ${args.mostActiveVoiceChannels?.length ?? 0} - Channels
-Top Channel Sum: ${mostActiveVoiceChannelSumString}
-
-${mostActiveVoiceChannelString.join("\n")}
-
 `,
+    // Messages | Top ${args.mostActiveMessageChannels?.length ?? 0} - Channels
+    // Top Channel Sum: ${mostActiveMessageChannelSumString}
+
+    // ${mostActiveMessageChannelString.join("\n")}
+    // ########
+    // Voice | Top ${args.mostActiveVoiceChannels?.length ?? 0} - Channels
+    // Top Channel Sum: ${mostActiveVoiceChannelSumString}
+
+    // ${mostActiveVoiceChannelString.join("\n")}
     timestamp: new Date().toISOString(),
     footer: {
       text: TOP_STATS_TEMPLATE,
