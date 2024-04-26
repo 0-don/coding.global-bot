@@ -155,7 +155,6 @@ Top Member Sum: ${mostActiveMessageUsersSumString}
 
 ${mostActiveMessageUsersString.join("\n")}
 
-
 **Voice | Top ${args.mostActiveVoiceUsers?.length ?? 0} - Members**
 Top Member Sum: ${mostActiveVoiceUserSumString} 
 
