@@ -139,7 +139,7 @@ export class MessageCreate {
     }
   }
 
-  @SimpleCommand({ aliases: ["translate"], prefix: "/" })
+  @SimpleCommand({ aliases: ["translate", "explain", "slate"], prefix: "/" })
   async translateReply(command: SimpleCommandMessage) {
     const message = command.message;
     if (message.type === MessageType.Reply && message.reference?.messageId) {
