@@ -10,14 +10,14 @@ export class GuildMemberAdd {
     MembersService.logJoinLeaveEvents(member, "join");
 
     // create or update user with his roles
-    await MembersService.upsertDbMember(member, "join");
+    MembersService.upsertDbMember(member, "join");
 
     // rules not yet accepted
     if (member.pending) return;
 
     // update user count channel
-    await MembersService.updateMemberCount(member);
+    MembersService.updateMemberCount(member);
 
-    await joinSettings(member);
+    joinSettings(member);
   }
 }
