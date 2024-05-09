@@ -39,9 +39,8 @@ export const updateStatusRoles = async (
         );
         if (role) newMember.roles.add(role).catch(() => {});
       }
-
-      return;
     }
+    return;
   }
   // only run if user has a new role
   if (oldRoles.length >= newRoles.length) return;
