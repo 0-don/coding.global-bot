@@ -8,6 +8,7 @@ import {
   Role,
   User,
 } from "discord.js";
+import { prisma } from "../../prisma.js";
 import { StatusRoles } from "../../types/index.js";
 import {
   JAIL,
@@ -18,31 +19,6 @@ import {
 } from "../constants.js";
 
 export class RolesService {
-  static async joinRole(
-    member: GuildMember | PartialGuildMember,
-    role: StatusRoles,
-  ) {
-    // dont add bots to the list
-    if (member.user.bot) return;
-
-    await member.fetch();
-
-    // this status role will be given on new memeber join if he has no role
-    const addRole = member.guild.roles.cache.find(({ name }) => name === role);
-
-    // if status role on user then exit
-    if (
-      member.roles.cache.some((role) =>
-        STATUS_ROLES.includes(role.name as StatusRoles),
-      ) ||
-      !addRole
-    )
-      return;
-
-    // if first time member add unverified role
-    await member.roles.add(addRole);
-  }
-
   static getGuildStatusRoles(guild: Guild) {
     let guildStatusRoles: {
       [x: string]: Role | undefined;
@@ -50,14 +26,14 @@ export class RolesService {
     //check for verified roles "verified", "voiceOnly", "readOnly", "mute", "unverified"
     for (let role of STATUS_ROLES)
       guildStatusRoles[role] = guild?.roles.cache.find(
-        ({ name }) => name === role,
+        ({ name }) => name === role
       );
     return guildStatusRoles;
   }
 
   static async verify(
     member: GuildMember | PartialGuildMember,
-    role: StatusRoles,
+    role: StatusRoles
   ) {
     // get icon reaction role
     const guildStatusRoles = RolesService.getGuildStatusRoles(member.guild);
@@ -68,7 +44,7 @@ export class RolesService {
 
   static async verifyReaction(
     reaction: MessageReaction | PartialMessageReaction,
-    user: User | PartialUser,
+    user: User | PartialUser
   ) {
     // check if template
     const isTemplate = reaction.message.embeds[0]?.footer?.text;
@@ -83,17 +59,28 @@ export class RolesService {
       .get(user.id)
       ?.fetch();
 
+    const memberDbRoles = await prisma.memberRole.findMany({
+      where: { memberId: user.id },
+    });
+
+    const guildRoles = reaction.message.guild?.roles.cache.filter((role) =>
+      memberDbRoles.some((dbRole) => dbRole.roleId === role.id)
+    );
+
+    // if jail role exist then exit
+    if (guildRoles?.find(({ name }) => name === JAIL)) return;
+
     // if icon reaction role on user then exit
     if (
       member?.roles.cache.some((role) =>
-        [VERIFIED, JAIL, VOICE_ONLY].includes(role.name as any),
+        [VERIFIED, JAIL, VOICE_ONLY].includes(role.name as any)
       )
     )
       return;
 
     // get icon reaction role
     const guildStatusRoles = RolesService.getGuildStatusRoles(
-      reaction.message.guild!,
+      reaction.message.guild!
     );
 
     // if icon reaction role exist exist add role to user
