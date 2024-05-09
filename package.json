@@ -22,15 +22,15 @@
     "deepl-node": "1.13.0",
     "discord.js": "14.15.2",
     "discordx": "^11.9.2",
-    "hono": "^4.3.2",
+    "hono": "^4.3.3",
     "js-tiktoken": "^1.0.11",
     "keyv": "^4.5.4",
-    "openai": "^4.42.0",
+    "openai": "^4.43.0",
     "quick-lru": "^7.0.0",
     "tesseract.js": "5.1.0"
   },
   "devDependencies": {
-    "@types/node": "20.12.10",
+    "@types/node": "20.12.11",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
     "nodemon": "^3.1.0",
