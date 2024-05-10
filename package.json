@@ -22,10 +22,10 @@
     "deepl-node": "1.13.0",
     "discord.js": "14.15.2",
     "discordx": "^11.9.2",
-    "hono": "^4.3.3",
+    "hono": "^4.3.4",
     "js-tiktoken": "^1.0.11",
     "keyv": "^4.5.4",
-    "openai": "^4.43.0",
+    "openai": "^4.44.0",
     "quick-lru": "^7.0.0",
     "tesseract.js": "5.1.0"
   },
