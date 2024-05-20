@@ -32,9 +32,15 @@ export type UpdateDbRolesArgs = {
 export class RolesService {
   static updateDbRoles(args: UpdateDbRolesArgs) {
     // check if new role was aded
-    if (args.newRoles.length > args.oldRoles.length) {
-      if (args.oldMember.pending || args.newMember.pending) return;
+    if (
+      (args.oldMember.flags.bitfield === 9 &&
+        args.newMember.flags.bitfield === 11) ||
+      args.oldMember.pending ||
+      args.newMember.pending
+    )
+      return;
 
+    if (args.newRoles.length > args.oldRoles.length) {
       // add or update new role
       const newAddedRole = args.newRoles.filter(
         (role) => !args.oldRoles.includes(role)
@@ -86,11 +92,13 @@ export class RolesService {
     }
   }
 
-  static updateStatusRoles(args: UpdateDbRolesArgs) {
+  static async updateStatusRoles(args: UpdateDbRolesArgs) {
     // onboarding question bypass
     if (
-      (args.oldMember.pending || args.newMember.pending) &&
-      args.memberDbRoles.length
+      (args.oldMember.flags.bitfield === 9 &&
+        args.newMember.flags.bitfield === 11) ||
+      args.oldMember.pending ||
+      args.newMember.pending
     ) {
       const dbJailRole = args.memberDbRoles.find(
         (dbRole) =>
@@ -101,18 +109,23 @@ export class RolesService {
       if (dbJailRole) {
         //remove all roles
         for (const role of args.newMember.roles.cache.values()) {
-          args.newMember.roles.remove(role).catch(() => {});
+          if (role.name === JAIL) continue;
+          await args.newMember.roles.remove(role).catch(() => {});
         }
-        // add roles that are missing
-        args.newMember.roles.add(dbJailRole.roleId).catch(() => {});
+
+        //add only if not on user
+        if (!args.newMember.roles.cache.some((role) => role.name === JAIL))
+          args.newMember.roles.add(dbJailRole.roleId).catch(() => {});
+
+        prisma.memberRole.deleteMany({
+          where: {
+            memberId: args.newMember.id,
+            guildId: args.newMember.guild.id,
+            roleId: { not: dbJailRole?.roleId },
+          },
+        });
       }
-      prisma.memberRole.deleteMany({
-        where: {
-          memberId: args.newMember.id,
-          guildId: args.newMember.guild.id,
-          roleId: { not: dbJailRole?.roleId },
-        },
-      });
+
       return;
     }
     // only run if user has a new role

@@ -57,7 +57,7 @@ export class GuildMemberUpdate {
     });
 
     // // update status roles
-    RolesService.updateStatusRoles({
+    await RolesService.updateStatusRoles({
       oldMember,
       newMember,
       oldRoles,
