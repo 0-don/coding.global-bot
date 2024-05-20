@@ -29,7 +29,7 @@ export class GuildMemberUpdate {
       .map((role) => role);
 
     // update db roles
-    await RolesService.updateDbRoles({
+    RolesService.updateDbRoles({
       oldMember,
       newMember,
       oldRoles,
@@ -39,7 +39,7 @@ export class GuildMemberUpdate {
     });
 
     // // update status roles
-    await RolesService.updateStatusRoles({
+    RolesService.updateStatusRoles({
       oldMember,
       newMember,
       oldRoles,

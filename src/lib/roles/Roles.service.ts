@@ -30,7 +30,7 @@ export type UpdateDbRolesArgs = {
 };
 
 export class RolesService {
-  static async updateDbRoles(args: UpdateDbRolesArgs) {
+  static updateDbRoles(args: UpdateDbRolesArgs) {
     if (args.oldMember.pending && !args.newMember.pending) return;
 
     // check if new role was aded
@@ -85,7 +85,7 @@ export class RolesService {
     }
   }
 
-  static async updateStatusRoles(args: UpdateDbRolesArgs) {
+  static updateStatusRoles(args: UpdateDbRolesArgs) {
     // onboarding question bypass
     if (args.oldMember.pending && !args.newMember.pending) {
       if (args.memberDbRoles.length) {
@@ -127,13 +127,14 @@ export class RolesService {
           args.newMember.roles.remove(role).catch(() => {})
       );
 
-      return prisma.memberRole.deleteMany({
+      prisma.memberRole.deleteMany({
         where: {
           memberId: args.newMember.id,
           guildId: args.newMember.guild.id,
           roleId: { not: jailRole?.id },
         },
       });
+      return;
     }
 
     // check if role is a status role if yes then remove the unused status role
