@@ -13,7 +13,6 @@ export class GuildMemberUpdate {
     [oldMember, newMember]: ArgsOf<"guildMemberUpdate">,
     client: Client
   ) {
-    console.time("guildMemberUpdate");
     const guildRoles = newMember.guild.roles.cache;
     const memberDbRoles = await prisma.memberRole.findMany({
       where: { memberId: newMember.id, guildId: newMember.guild.id },
@@ -67,7 +66,5 @@ export class GuildMemberUpdate {
     });
 
     updateNickname(oldMember, newMember);
-
-    console.timeEnd("guildMemberUpdate");
   }
 }
