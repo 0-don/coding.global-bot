@@ -13,13 +13,11 @@ export class GuildMemberUpdate {
     [oldMember, newMember]: ArgsOf<"guildMemberUpdate">,
     client: Client
   ) {
-    const [guildRoles, memberDbRoles] = await Promise.all([
-      newMember.guild.roles.fetch(),
-      prisma.memberRole.findMany({
-        where: { memberId: newMember.id, guildId: newMember.guild.id },
-      }),
-    ]);
-
+    console.time("guildMemberUpdate");
+    const guildRoles = newMember.guild.roles.cache;
+    const memberDbRoles = await prisma.memberRole.findMany({
+      where: { memberId: newMember.id, guildId: newMember.guild.id },
+    });
     // get old roles as string[]
     const oldRoles = oldMember.roles.cache
       .filter(({ name }) => name !== EVERYONE)
@@ -28,6 +26,8 @@ export class GuildMemberUpdate {
     const newRoles = newMember.roles.cache
       .filter(({ name }) => name !== EVERYONE)
       .map((role) => role);
+
+    console.timeEnd("guildMemberUpdate");
 
     if (process.env.NODE_ENV !== "production")
       writeFileSync(
