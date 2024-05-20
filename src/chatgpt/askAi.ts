@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import {
   CommandInteraction,
+  Message,
   TextChannel,
   ThreadChannel,
   User,
@@ -34,6 +35,7 @@ export const askAi = async (props: AskAiProps) => {
   const isOlderThan30Min = dayjs(memberGuild.gptDate).isBefore(
     dayjs().subtract(30, "minute")
   );
+
   const systemMessage = `You are coding.global AI, trained to respond concisely. ${props.onReply ? "Return only code or a brief explanation." : ""} Current date: ${new Date().toISOString()}`;
 
   const stream = gpt.sendMessage({
@@ -46,11 +48,23 @@ export const askAi = async (props: AskAiProps) => {
   let messageContent = props.withHeaders
     ? `${props.fileLink ? `${props.fileLink}\n` : ""}**<@${props.user.id}> ${props.user.username}'s Question:**\n\n\`${props.text.replaceAll("`", "")}\`\n\n`
     : "";
-  let currentMessage = await (props.interaction?.editReply(
-    messageContent + "Processing..."
-  ) || props.channel.send(messageContent + "Processing..."));
+  let currentMessage: Message<boolean>;
+  const tempContent = messageContent + "Processing...";
+
+  if (tempContent.length > MSG_LIMIT) {
+    currentMessage = await (props.interaction?.editReply(
+      messageContent.substring(0, MSG_LIMIT)
+    ) || (await props.channel.send(messageContent.substring(0, MSG_LIMIT))));
+    messageContent = messageContent.substring(MSG_LIMIT);
+    currentMessage = await props.channel.send("Processing...");
+  } else {
+    currentMessage = await (props.interaction?.editReply(tempContent) ||
+      (await props.channel.send(tempContent)));
+  }
+
   let messageCount = 0;
   let lastChatMessageId: string | null = null;
+
   for await (const msg of stream) {
     messageContent += msg.choice?.delta?.content || "";
     lastChatMessageId = msg.id;
@@ -73,18 +87,22 @@ export const askAi = async (props: AskAiProps) => {
   }
 
   if (props.onReply) {
-    if (props.channel.isTextBased() && !props.channel.isThread()) {
-      const channel = props.channel.client.channels.cache.find(
-        (ch) => (ch as TextChannel).name === BOT_CHANNELS.at(0)
-      );
+    const textChannel =
+      props.channel.isTextBased() && !props.channel.isThread()
+        ? props.channel.client.channels.cache.find(
+            (ch) => (ch as TextChannel).name === BOT_CHANNELS.at(0)
+          )
+        : null;
+
+    if (textChannel) {
       await props.channel.send(
-        `**go to <#${channel?.id}> to continue the conversation with the \`/ai\` command.**`
+        `**go to <#${textChannel?.id}> to continue the conversation with the \`/ai\` command.**`
       );
     }
 
     if (props.channel.isThread()) {
       await props.channel.send(
-        `**you to continue the conversation with the \`/ai\` command.**`
+        `**you can continue the conversation with the \`/ai\` command.**`
       );
     }
   }

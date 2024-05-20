@@ -37,13 +37,6 @@ export class Ai {
     image: Attachment,
     interaction: CommandInteraction
   ) {
-    if (!text.length)
-      return await interaction.reply("Please provide a question for the AI");
-
-    if (text.length > 20000)
-      return await interaction.reply(
-        "The message is too long. Please keep it under 20000 characters."
-      );
 
     let fileLink: string | undefined = undefined;
     LogService.logCommandHistory(interaction, "ai");
