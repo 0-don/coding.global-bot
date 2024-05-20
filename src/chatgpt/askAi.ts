@@ -52,7 +52,7 @@ export const askAi = async (props: AskAiProps) => {
   const tempContent = messageContent + "Processing...";
 
   if (tempContent.length > MSG_LIMIT) {
-    currentMessage = await (props.interaction?.editReply(
+    await (props.interaction?.editReply(
       messageContent.substring(0, MSG_LIMIT)
     ) || (await props.channel.send(messageContent.substring(0, MSG_LIMIT))));
     messageContent = messageContent.substring(MSG_LIMIT);
