@@ -31,10 +31,10 @@ export type UpdateDbRolesArgs = {
 
 export class RolesService {
   static updateDbRoles(args: UpdateDbRolesArgs) {
-    if (args.oldMember.pending && !args.newMember.pending) return;
-
     // check if new role was aded
     if (args.newRoles.length > args.oldRoles.length) {
+      if (args.oldMember.pending || args.newMember.pending) return;
+
       // add or update new role
       const newAddedRole = args.newRoles.filter(
         (role) => !args.oldRoles.includes(role)
@@ -48,6 +48,7 @@ export class RolesService {
           memberId: args.newMember.id,
           guildId: args.newMember.guild.id,
         };
+
         prisma.memberRole
           .upsert({
             where: {
@@ -87,24 +88,31 @@ export class RolesService {
 
   static updateStatusRoles(args: UpdateDbRolesArgs) {
     // onboarding question bypass
-    if (args.oldMember.pending && !args.newMember.pending) {
-      if (args.memberDbRoles.length) {
+    if (
+      (args.oldMember.pending || args.newMember.pending) &&
+      args.memberDbRoles.length
+    ) {
+      const dbJailRole = args.memberDbRoles.find(
+        (dbRole) =>
+          dbRole.roleId ===
+          args.guildRoles.find((role) => role.name === JAIL)?.id
+      );
+
+      if (dbJailRole) {
         //remove all roles
         for (const role of args.newMember.roles.cache.values()) {
-          const foundRole = args.memberDbRoles.find(
-            (dbRole) => dbRole.roleId === role.id
-          );
-          if (!foundRole) args.newMember.roles.remove(role).catch(() => {});
+          args.newMember.roles.remove(role).catch(() => {});
         }
-
         // add roles that are missing
-        for (const dbRole of args.memberDbRoles) {
-          const role = args.newMember.guild.roles.cache.find(
-            (role) => role.id === dbRole.roleId
-          );
-          if (role) args.newMember.roles.add(role).catch(() => {});
-        }
+        args.newMember.roles.add(dbJailRole.roleId).catch(() => {});
       }
+      prisma.memberRole.deleteMany({
+        where: {
+          memberId: args.newMember.id,
+          guildId: args.newMember.guild.id,
+          roleId: { not: dbJailRole?.roleId },
+        },
+      });
       return;
     }
     // only run if user has a new role
