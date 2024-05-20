@@ -1,4 +1,6 @@
+import { MemberRole, Prisma } from "@prisma/client";
 import {
+  Collection,
   Guild,
   GuildMember,
   MessageReaction,
@@ -18,7 +20,133 @@ import {
   VOICE_ONLY,
 } from "../constants.js";
 
+export type UpdateDbRolesArgs = {
+  oldRoles: Role[];
+  newRoles: Role[];
+  oldMember: GuildMember | PartialGuildMember;
+  newMember: GuildMember | PartialGuildMember;
+  guildRoles: Collection<string, Role>;
+  memberDbRoles: MemberRole[];
+};
+
 export class RolesService {
+  static async updateDbRoles(args: UpdateDbRolesArgs) {
+    if (args.oldMember.pending && !args.newMember.pending) return;
+
+    // check if new role was aded
+    if (args.newRoles.length > args.oldRoles.length) {
+      // add or update new role
+      const newAddedRole = args.newRoles.filter(
+        (role) => !args.oldRoles.includes(role)
+      )[0];
+      if (!newAddedRole) return;
+
+      // create role in db if i can update it
+      if (newAddedRole.editable) {
+        const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
+          roleId: newAddedRole.id,
+          memberId: args.newMember.id,
+          guildId: args.newMember.guild.id,
+        };
+        try {
+          await prisma.memberRole.upsert({
+            where: {
+              member_role: {
+                memberId: memberRole.memberId,
+                roleId: memberRole.roleId,
+              },
+            },
+            create: memberRole,
+            update: memberRole,
+          });
+        } catch (_) {}
+      }
+      // remove role
+    } else if (args.newRoles.length < args.oldRoles.length) {
+      // get the removed role
+      const newRemovedRole = args.oldRoles.find(
+        (role) => !args.newRoles.includes(role)
+      );
+
+      // if no role was removed return
+      if (!newRemovedRole) return;
+
+      // try catch delete removed role from db
+      try {
+        await prisma.memberRole.delete({
+          where: {
+            member_role: {
+              memberId: args.newMember.id,
+              roleId: newRemovedRole.id,
+            },
+          },
+        });
+      } catch (_) {}
+    }
+  }
+
+  static async updateStatusRoles(args: UpdateDbRolesArgs) {
+    // onboarding question bypass
+    if (args.oldMember.pending && !args.newMember.pending) {
+      if (args.memberDbRoles.length) {
+        //remove all roles
+        for (const role of args.newMember.roles.cache.values()) {
+          const foundRole = args.memberDbRoles.find(
+            (dbRole) => dbRole.roleId === role.id
+          );
+          if (!foundRole) args.newMember.roles.remove(role).catch(() => {});
+        }
+
+        // add roles that are missing
+        for (const dbRole of args.memberDbRoles) {
+          const role = args.newMember.guild.roles.cache.find(
+            (role) => role.id === dbRole.roleId
+          );
+          if (role) args.newMember.roles.add(role).catch(() => {});
+        }
+      }
+      return;
+    }
+    // only run if user has a new role
+    if (args.oldRoles.length >= args.newRoles.length) return;
+
+    const newRoles = args.newRoles.map((role) => role.name);
+    const oldRoles = args.oldRoles.map((role) => role.name);
+    const newAddedRole = newRoles.find(
+      (role) => !oldRoles.includes(role)
+    ) as StatusRoles;
+
+    if (newRoles.includes(JAIL) && !STATUS_ROLES.includes(newAddedRole)) {
+      const jailRole = args.newMember.roles.cache.find(
+        (role) => role.name === JAIL
+      );
+
+      args.newMember.roles.cache.forEach(
+        (role) =>
+          role.name !== JAIL &&
+          args.newMember.roles.remove(role).catch(() => {})
+      );
+
+      return prisma.memberRole.deleteMany({
+        where: {
+          memberId: args.newMember.id,
+          guildId: args.newMember.guild.id,
+          roleId: { not: jailRole?.id },
+        },
+      });
+    }
+
+    // check if role is a status role if yes then remove the unused status role
+    if (STATUS_ROLES.includes(newAddedRole)) {
+      args.newMember.roles.cache.forEach(
+        (role) =>
+          newAddedRole !== role.name &&
+          STATUS_ROLES.includes(role.name) &&
+          args.newMember.roles.remove(role)
+      );
+    }
+  }
+
   static getGuildStatusRoles(guild: Guild) {
     let guildStatusRoles: {
       [x: string]: Role | undefined;
