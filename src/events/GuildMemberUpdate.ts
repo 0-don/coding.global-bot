@@ -27,8 +27,6 @@ export class GuildMemberUpdate {
       .filter(({ name }) => name !== EVERYONE)
       .map((role) => role);
 
-    console.timeEnd("guildMemberUpdate");
-
     if (process.env.NODE_ENV !== "production")
       writeFileSync(
         `test/${Date.now()}.json`,
@@ -66,6 +64,8 @@ export class GuildMemberUpdate {
       memberDbRoles,
     });
 
-    await updateNickname(oldMember, newMember);
+    updateNickname(oldMember, newMember);
+    
+    console.timeEnd("guildMemberUpdate");
   }
 }
