@@ -41,6 +41,13 @@ export class RolesService {
       return;
 
     if (args.newRoles.length > args.oldRoles.length) {
+      const jailId = args.guildRoles.find((role) => role.name === JAIL)?.id;
+      const jailDbRole = args.memberDbRoles.find(
+        (dbRole) => dbRole.roleId === jailId
+      );
+
+      if (jailDbRole) return;
+
       // add or update new role
       const newAddedRole = args.newRoles.filter(
         (role) => !args.oldRoles.includes(role)
