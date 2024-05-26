@@ -3,7 +3,7 @@
     <img src="https://raw.githubusercontent.com/0-don/coding.global-web/master/public/images/logo_512.gif" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">coding.global Discord Bot!</h3>
+  <h3 align="center">coding.global Discord Bot</h3>
 
   <p align="center">
     The official bot for the <a href="https://discord.gg/coding">discord.gg/coding</a> Discord Server.
@@ -19,7 +19,7 @@
 
 ## Setup
 
-create a `.env` file with the correct values
+create a `.env` file with the correct value
 
 ```sh
 npm install
