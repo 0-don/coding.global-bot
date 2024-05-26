@@ -19,7 +19,7 @@
 
 ## Setup
 
-create a `.env` file with the correct value
+create a `.env` file with the correct values
 
 ```sh
 npm install
