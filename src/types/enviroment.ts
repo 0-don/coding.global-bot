@@ -6,9 +6,11 @@ declare global {
       TOKEN: string;
       DEEPL: string;
       OPEN_AI: string;
+      SHOULD_USER_LEVEL_UP: string;
       HELPER_ROLES: string;
       STATUS_ROLES: string;
       MEMBER_ROLES: string;
+      LEVEL_ROLES: string;
       GENERAL_CHANNELS: string;
       BOT_CHANNELS: string;
       VERIFY_CHANNELS: string;
