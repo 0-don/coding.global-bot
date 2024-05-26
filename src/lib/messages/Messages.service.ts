@@ -6,7 +6,11 @@ import {
   TextChannel,
 } from "discord.js";
 import { prisma } from "../../prisma.js";
-import { VERIFY_CHANNELS } from "../constants.js";
+import {
+  LEVEL_LIST,
+  SHOULD_USER_LEVEL_UP,
+  VERIFY_CHANNELS,
+} from "../constants.js";
 
 export class MessagesService {
   static async addMessageDb(message: Message<boolean>) {
@@ -105,5 +109,29 @@ export class MessagesService {
         },
       });
     } catch (_) {}
+  }
+
+  static async levelUpMessage(message: Message<boolean>) {
+    if (!SHOULD_USER_LEVEL_UP || message.author.bot) return;
+
+    const memberMessages = await prisma.memberMessages.count({
+      where: { memberId: message.member?.id, guildId: message.guild?.id },
+    });
+
+    for (const item of LEVEL_LIST) {
+      if (memberMessages >= item.count) {
+        const role = message.guild?.roles.cache.find(
+          (role) => role.name === item.role
+        );
+
+        if (role && !message.member?.roles.cache.has(role?.id)) {
+          await message.member?.roles.add(role);
+
+          await message.channel.send(
+            `<@${message.member?.id}>, you just advanced to ${role.name}! 🎉🎉🎉`
+          );
+        }
+      }
+    }
   }
 }

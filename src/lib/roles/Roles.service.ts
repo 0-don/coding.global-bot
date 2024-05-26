@@ -14,6 +14,8 @@ import { prisma } from "../../prisma.js";
 import { StatusRoles } from "../../types/index.js";
 import {
   JAIL,
+  LEVEL_LIST,
+  LEVEL_ROLES,
   STATUS_ROLES,
   VERIFIED,
   VERIFY_TEMPLATE,
@@ -173,6 +175,25 @@ export class RolesService {
           STATUS_ROLES.includes(role.name) &&
           args.newMember.roles.remove(role)
       );
+    }
+
+    // check if level roles are added
+    if (LEVEL_ROLES.includes(newAddedRole)) {
+      const levelRole = LEVEL_LIST.find((role) => role.role === newAddedRole);
+      if (!levelRole) return;
+
+      const memberMessages = await prisma.memberMessages.count({
+        where: {
+          memberId: args.newMember?.id,
+          guildId: args.newMember?.guild?.id,
+        },
+      });
+      const role = args.newMember.guild.roles.cache.find(
+        (role) => role.name === newAddedRole
+      );
+      if (memberMessages < levelRole.count && role) {
+        args.newMember.roles.remove(role);
+      }
     }
   }
 

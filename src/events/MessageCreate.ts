@@ -34,6 +34,9 @@ export class MessageCreate {
 
     // add Message to Database for statistics
     await MessagesService.addMessageDb(message);
+
+    //Leveling System
+    await MessagesService.levelUpMessage(message);
   }
 
   private async checkThreadStart(message: Message) {
