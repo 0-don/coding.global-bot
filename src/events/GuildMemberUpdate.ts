@@ -26,24 +26,24 @@ export class GuildMemberUpdate {
       .filter(({ name }) => name !== EVERYONE)
       .map((role) => role);
 
-    if (process.env.NODE_ENV !== "production") {
-      mkdirSync("test", { recursive: true });
-      writeFileSync(
-        `test/${Date.now()}.json`,
-        JSON.stringify(
-          {
-            oldRoles,
-            newRoles,
-            memberDbRoles,
-            oldMember,
-            newMember,
-            guildRoles,
-          },
-          null,
-          2
-        )
-      );
-    }
+    // if (process.env.NODE_ENV !== "production") {
+    //   mkdirSync("test", { recursive: true });
+    //   writeFileSync(
+    //     `test/${Date.now()}.json`,
+    //     JSON.stringify(
+    //       {
+    //         oldRoles,
+    //         newRoles,
+    //         memberDbRoles,
+    //         oldMember,
+    //         newMember,
+    //         guildRoles,
+    //       },
+    //       null,
+    //       2
+    //     )
+    //   );
+    // }
 
     // update db roles
     RolesService.updateDbRoles({

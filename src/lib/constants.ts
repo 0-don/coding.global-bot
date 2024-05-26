@@ -9,6 +9,8 @@ export const HELPER_ROLES =
   process.env.HELPER_ROLES?.split(",").map((s) => s.trim()) || [];
 export const STATUS_ROLES =
   process.env.STATUS_ROLES?.split(",").map((s) => s.trim()) || [];
+export const LEVEL_ROLES =
+  process.env.LEVEL_ROLES?.split(",").map((s) => s.trim()) || [];
 export const MEMBER_ROLES = [
   ...(process.env.MEMBER_ROLES?.split(",").map((s) => s.trim()) || []),
   ...HELPER_ROLES,
@@ -25,6 +27,7 @@ export const SHOULD_LOG_VOICE_EVENTS =
   process.env.SHOULD_LOG_VOICE_EVENTS.trim() === "true";
 export const SHOULD_COUNT_MEMBERS =
   process.env.SHOULD_COUNT_MEMBERS.trim() === "true";
+export const SHOULD_USER_LEVEL_UP = process.env.SHOULD_USER_LEVEL_UP?.trim();
 
 export const EVERYONE = "@everyone";
 export const VERIFIED =
@@ -37,6 +40,20 @@ export const JAIL =
 export const UNVERIFIED =
   STATUS_ROLES.find((r) => r.toLowerCase() === "unverified") ||
   STATUS_ROLES?.[3];
+export const ACTIVE =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "active!") || LEVEL_ROLES?.[0];
+export const SUPER_ACTIVE =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "super active!") ||
+  LEVEL_ROLES?.[1];
+export const MEGA_ACTIVE =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "mega active!") ||
+  LEVEL_ROLES?.[2];
+export const GIGA_ACTIVE =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "giga active!") ||
+  LEVEL_ROLES?.[3];
+export const ULTRA_ACTIVE =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "ultra active!") ||
+  LEVEL_ROLES?.[4];
 
 export const GENERAL_CHANNELS =
   process.env.GENERAL_CHANNELS.split(",").map((s) => s.trim()) || [];

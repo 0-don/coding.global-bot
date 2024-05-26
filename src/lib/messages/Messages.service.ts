@@ -6,7 +6,16 @@ import {
   TextChannel,
 } from "discord.js";
 import { prisma } from "../../prisma.js";
-import { VERIFY_CHANNELS } from "../constants.js";
+import {
+  ACTIVE,
+  GIGA_ACTIVE,
+  MEGA_ACTIVE,
+  SHOULD_USER_LEVEL_UP,
+  SUPER_ACTIVE,
+  ULTRA_ACTIVE,
+  VERIFY_CHANNELS,
+} from "../constants.js";
+import { count } from "console";
 
 export class MessagesService {
   static async addMessageDb(message: Message<boolean>) {
@@ -105,5 +114,43 @@ export class MessagesService {
         },
       });
     } catch (_) {}
+  }
+
+  static async levelUpMessage(message: Message<boolean>) {
+    const LIST = [
+      { count: 10, role: ACTIVE },
+      { count: 100, role: SUPER_ACTIVE },
+      { count: 1000, role: MEGA_ACTIVE },
+      { count: 2500, role: GIGA_ACTIVE },
+      { count: 5000, role: ULTRA_ACTIVE },
+    ];
+
+    const memberId = message.member?.id;
+    const guildId = message.guild?.id;
+
+    const memberMessages = await prisma.memberMessages.count({
+      where: {
+        memberId: memberId,
+        guildId: guildId,
+      },
+    });
+
+    if (SHOULD_USER_LEVEL_UP) {
+      for (const item of LIST) {
+        if (memberMessages >= item.count) {
+          const role = message.guild?.roles.cache.find(
+            (role) => role.name === item.role
+          );
+
+          if (role && !message.member?.roles.cache.has(role?.id)) {
+            await message.member?.roles.add(role);
+
+            await message.channel.send(
+              `@${message.member?.displayName}, you just advanced to ${role.name}! 🎉🎉🎉`
+            );
+          }
+        }
+      }
+    }
   }
 }
