@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { prisma } from "../../prisma.js";
 import {
+  JAIL,
   LEVEL_LIST,
   SHOULD_USER_LEVEL_UP,
   VERIFY_CHANNELS,
@@ -113,6 +114,12 @@ export class MessagesService {
 
   static async levelUpMessage(message: Message<boolean>) {
     if (!SHOULD_USER_LEVEL_UP || message.author.bot) return;
+
+    const memberInJail = message.member?.roles.cache.some(
+      (role) => JAIL === role.name
+    );
+
+    if (memberInJail) return;
 
     const memberMessages = await prisma.memberMessages.count({
       where: { memberId: message.member?.id, guildId: message.guild?.id },
