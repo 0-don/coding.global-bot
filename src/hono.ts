@@ -1,11 +1,12 @@
 import { serve } from "@hono/node-server";
 import dayjs from "dayjs";
 import { PermissionsBitField } from "discord.js";
+import dotenv from "dotenv";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { bot } from "./main.js";
-
+dotenv.config();
 const cache: Record<string, any> = {};
 
 const app = new Hono()
@@ -80,6 +81,6 @@ const app = new Hono()
     return c.json(staff);
   });
 
-serve({ fetch: app.fetch, port: 3000 });
+serve({ fetch: app.fetch, port: parseInt(process.env.PORT ?? "3000") });
 
-console.log("Server started on port 3000");
+console.log(`Server running on port ${process.env.PORT ?? "3000"}`);
