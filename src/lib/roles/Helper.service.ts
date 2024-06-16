@@ -12,25 +12,29 @@ export class HelperService {
 
     //check if user has helper role
     const hasHelperRole = memberRoles.some((role) =>
-      HELPER_ROLES.includes(role.name as (typeof HELPER_ROLES)[number]),
+      HELPER_ROLES.includes(role.name as (typeof HELPER_ROLES)[number])
     );
     if (!hasHelperRole) return;
 
     //remove roles
     for (const role of memberRoles.values()) {
       if (HELPER_ROLES.includes(role.name as (typeof HELPER_ROLES)[number])) {
-        await guildMember.roles.remove(role);
+        try {
+          await guildMember.roles.remove(role);
+        } catch (_) {}
       }
     }
 
     //add role
     const helperRole = HELPER_RANKING.find((role) => role.points <= helpCount);
     if (helperRole) {
-      await guildMember.roles.add(helperRole.name);
+      try {
+        await guildMember.roles.add(helperRole.name);
+      } catch (_) {}
       message.channel.send(
         `Congratulations ${guildMember.toString()} you are now ${
           helperRole.name
-        } 🎉`,
+        } 🎉`
       );
     }
   }
