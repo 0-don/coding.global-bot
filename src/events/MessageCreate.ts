@@ -42,20 +42,25 @@ export class MessageCreate {
   private async checkThreadStart(message: Message) {
     const channel = message.channel;
     if (channel.isThread()) {
-      const firstMessage = await channel.fetchStarterMessage();
-      const messages = await channel.messages.fetch();
+      try {
+        const firstMessage = await channel.fetchStarterMessage();
+        const messages = await channel.messages.fetch();
 
-      if (message.author.bot || firstMessage?.author.bot || messages.size > 1)
-        return;
+        if (message.author.bot || firstMessage?.author.bot || messages.size > 1)
+          return;
 
-      if (firstMessage?.author.id === message.author.id) {
-        const embed = simpleEmbedExample();
-        embed.description =
-          "Thanks for your question :clap:, if someone gives you an answer it would be great if you thanked them with a :white_check_mark: in response. This response will earn you both points for special roles on this server.";
-        embed.footer!.text = "You can also use /ai to get help from the bot";
+        if (firstMessage?.author.id === message.author.id) {
+          const embed = simpleEmbedExample();
+          embed.description =
+            "Thanks for your question :clap:, if someone gives you an answer it would be great if you thanked them with a :white_check_mark: in response. This response will earn you both points for special roles on this server.";
+          embed.footer!.text = "You can also use /ai to get help from the bot";
 
-        await channel.send({ embeds: [embed], allowedMentions: { users: [] } });
-      }
+          await channel.send({
+            embeds: [embed],
+            allowedMentions: { users: [] },
+          });
+        }
+      } catch (_) {}
     }
   }
 
