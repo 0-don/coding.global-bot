@@ -95,3 +95,4 @@ cat coding-global-db.sql | docker exec -i coding-global-db psql -U postgres -d c
 <!-- SELECT last_value FROM public."GuildVoiceEvents_id_seq"; -->
 <!-- SELECT setval('public."GuildVoiceEvents_id_seq"', 51980, false); -->
 <!-- GIT_COMMITTER_DATE="2024-06-09T12:00:00" git commit --amend --no-edit --date "2024-06-09T12:00:00" -->
+<!-- a -->
