@@ -25,6 +25,8 @@ export class GuildMemberUpdate {
       .filter(({ name }) => name !== EVERYONE)
       .map((role) => role);
 
+    console.log(oldRoles, newRoles);
+
     // if (process.env.NODE_ENV !== "production") {
     //   mkdirSync("test", { recursive: true });
     //   writeFileSync(
