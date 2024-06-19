@@ -144,7 +144,7 @@ export class RolesService {
     const oldRoles = args.oldRoles.map((role) => role.name);
     const newAddedRole = newRoles.find((role) => !oldRoles.includes(role))!;
 
-    if (newAddedRole === JAIL) {
+    if (newAddedRole === JAIL || newRoles.includes(JAIL)) {
       const jailRole = args.newMember.roles.cache.find(
         (role) => role.name === JAIL
       );
