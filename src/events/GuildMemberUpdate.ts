@@ -25,7 +25,10 @@ export class GuildMemberUpdate {
       .filter(({ name }) => name !== EVERYONE)
       .map((role) => role);
 
-    console.log(oldRoles, newRoles);
+    console.log(
+      oldRoles.map((r) => r.name),
+      newRoles.map((r) => r.name)
+    );
 
     // if (process.env.NODE_ENV !== "production") {
     //   mkdirSync("test", { recursive: true });
