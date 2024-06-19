@@ -32,7 +32,7 @@ export type UpdateDbRolesArgs = {
 };
 
 export class RolesService {
-  static updateDbRoles(args: UpdateDbRolesArgs) {
+  static async updateDbRoles(args: UpdateDbRolesArgs) {
     // check if new role was aded
     if (
       (args.oldMember.flags.bitfield === 9 &&

@@ -45,7 +45,7 @@ export class GuildMemberUpdate {
     // }
 
     // update db roles
-    RolesService.updateDbRoles({
+    await RolesService.updateDbRoles({
       oldMember,
       newMember,
       oldRoles,
@@ -55,7 +55,7 @@ export class GuildMemberUpdate {
     });
 
     // // update status roles
-    RolesService.updateStatusRoles({
+    await RolesService.updateStatusRoles({
       oldMember,
       newMember,
       oldRoles,
