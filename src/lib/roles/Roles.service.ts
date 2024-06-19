@@ -142,11 +142,9 @@ export class RolesService {
 
     const newRoles = args.newRoles.map((role) => role.name);
     const oldRoles = args.oldRoles.map((role) => role.name);
-    const newAddedRole = newRoles.find(
-      (role) => !oldRoles.includes(role)
-    ) as StatusRoles;
+    const newAddedRole = newRoles.find((role) => !oldRoles.includes(role))!;
 
-    if (newRoles.includes(JAIL) && !STATUS_ROLES.includes(newAddedRole)) {
+    if (newAddedRole === JAIL) {
       const jailRole = args.newMember.roles.cache.find(
         (role) => role.name === JAIL
       );
@@ -157,14 +155,13 @@ export class RolesService {
           args.newMember.roles.remove(role).catch(() => {})
       );
 
-      prisma.memberRole.deleteMany({
+      return prisma.memberRole.deleteMany({
         where: {
           memberId: args.newMember.id,
           guildId: args.newMember.guild.id,
           roleId: { not: jailRole?.id },
         },
       });
-      return;
     }
 
     // check if role is a status role if yes then remove the unused status role
