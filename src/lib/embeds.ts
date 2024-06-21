@@ -116,6 +116,11 @@ export const topStatsExampleEmbed = (args: ToptatsExampleEmbed): APIEmbed => {
       )}`
   );
 
+  const mostHelpfulUsersCount =
+    args.mostHelpfulUsers
+      .reduce((a, b) => a + Number(b.count), 0)
+      .toLocaleString("en") + " helps";
+
   const mostActiveMessageUsersString = args.mostActiveMessageUsers.map(
     ({ count, memberId, username }, i) =>
       `${codeString(
@@ -146,7 +151,7 @@ export const topStatsExampleEmbed = (args: ToptatsExampleEmbed): APIEmbed => {
 Top users and channels in the past __9,999 Days__.
 
 **Help | Top ${args.mostHelpfulUsers?.length ?? 0} - Helpers**
-Top Helper Sum: 
+Top Helper Sum: ${mostHelpfulUsersCount}
 
 ${mostHelpfulUsersString.join("\n")}
 
