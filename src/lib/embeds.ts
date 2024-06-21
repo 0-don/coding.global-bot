@@ -112,7 +112,7 @@ export const topStatsExampleEmbed = (args: ToptatsExampleEmbed): APIEmbed => {
       `${codeString(
         placementSuffix(i + 1)
       )} <@${memberId}>: (${username}) ${codeString(
-        count.toLocaleString("en") + " helps"
+        count.toLocaleString("en") + ` help${count > 1 ? "s" : ""}`
       )}`
   );
 
