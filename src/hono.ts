@@ -1,11 +1,11 @@
 import { serve } from "@hono/node-server";
+import { log } from "console";
 import dayjs from "dayjs";
 import { PermissionsBitField } from "discord.js";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { bot } from "./main.js";
-import { log } from "console";
 
 const cache: Record<string, any> = {};
 
@@ -52,7 +52,8 @@ const app = new Hono()
         .filter(
           (role) =>
             role.permissions.has(PermissionsBitField.Flags.MuteMembers) ||
-            role.permissions.has(PermissionsBitField.Flags.ManageMessages)
+            role.permissions.has(PermissionsBitField.Flags.ManageMessages) ||
+            role.permissions.has(PermissionsBitField.Flags.ChangeNickname)
         )
         .map((role) => role.name);
 
