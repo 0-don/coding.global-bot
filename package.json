@@ -21,11 +21,11 @@
     "dayjs": "^1.11.11",
     "deepl-node": "1.13.0",
     "discord.js": "14.15.3",
-    "discordx": "^11.11.3",
-    "hono": "^4.4.9",
+    "discordx": "^11.12.0",
+    "hono": "^4.4.10",
     "js-tiktoken": "^1.0.12",
     "keyv": "^4.5.4",
-    "openai": "^4.52.1",
+    "openai": "^4.52.2",
     "quick-lru": "^7.0.0",
     "tesseract.js": "5.1.0"
   },
@@ -37,6 +37,6 @@
     "prettier": "3.3.2",
     "prisma": "5.16.1",
     "ts-node": "^10.9.2",
-    "typescript": "5.5.2"
+    "typescript": "5.5.3"
   }
 }
