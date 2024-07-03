@@ -144,7 +144,7 @@ export class RolesService {
     const oldRoles = args.oldRoles.map((role) => role.name);
     const newAddedRole = newRoles.find((role) => !oldRoles.includes(role))!;
 
-    if (newAddedRole === JAIL || newRoles.includes(JAIL)) {
+    if (newAddedRole === JAIL) {
       const jailRole = args.newMember.roles.cache.find(
         (role) => role.name === JAIL
       );
@@ -155,7 +155,7 @@ export class RolesService {
           args.newMember.roles.remove(role).catch(() => {})
       );
 
-      await prisma.memberRole.deleteMany({
+      return await prisma.memberRole.deleteMany({
         where: {
           memberId: args.newMember.id,
           guildId: args.newMember.guild.id,
