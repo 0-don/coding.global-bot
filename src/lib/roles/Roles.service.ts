@@ -155,7 +155,7 @@ export class RolesService {
           args.newMember.roles.remove(role).catch(() => {})
       );
 
-      return prisma.memberRole.deleteMany({
+      await prisma.memberRole.deleteMany({
         where: {
           memberId: args.newMember.id,
           guildId: args.newMember.guild.id,
