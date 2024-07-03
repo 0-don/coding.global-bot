@@ -16,6 +16,10 @@ export class GuildMemberUpdate {
     const memberDbRoles = await prisma.memberRole.findMany({
       where: { memberId: newMember.id, guildId: newMember.guild.id },
     });
+
+    // const jail = await oldMember.guild.fetchAuditLogs({ user: client.user?.id});
+    // console.log(jail.entries);
+    // writeFileSync("jail.json", JSON.stringify(jail.entries, null, 2));
     // get old roles as string[]
     const oldRoles = oldMember.roles.cache
       .filter(({ name }) => name !== EVERYONE)
