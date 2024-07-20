@@ -53,7 +53,7 @@ const app = new Hono()
           (role) =>
             role.permissions.has(PermissionsBitField.Flags.MuteMembers) ||
             role.permissions.has(PermissionsBitField.Flags.ManageMessages) ||
-            role.name === "Booster"
+            role.name.toLowerCase() === "booster"
         )
         .map((role) => role.name);
 
