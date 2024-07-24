@@ -25,18 +25,18 @@
     "hono": "^4.5.1",
     "js-tiktoken": "^1.0.12",
     "keyv": "^4.5.4",
-    "openai": "^4.52.7",
+    "openai": "^4.53.0",
     "quick-lru": "^7.0.0",
     "tesseract.js": "5.1.0"
   },
   "devDependencies": {
-    "@types/node": "20.14.11",
+    "@types/node": "20.14.12",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
     "nodemon": "^3.1.4",
     "prettier": "3.3.3",
     "prisma": "5.17.0",
     "ts-node": "^10.9.2",
-    "typescript": "5.5.3"
+    "typescript": "5.5.4"
   }
 }
