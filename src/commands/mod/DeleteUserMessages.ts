@@ -1,8 +1,8 @@
 import type { CommandInteraction, User } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
-import { Discord, Slash, SlashChoice, SlashOption } from "discordx";
-import { deleteUserMessages } from "../../lib/messages/deleteUserMessages.js";
+import { Discord, Slash, SlashOption } from "discordx";
 import { LogService } from "../../lib/logs/Log.service.js";
+import { deleteUserMessages } from "../../lib/messages/deleteUserMessages.js";
 
 @Discord()
 export class DeleteMessages {
@@ -12,15 +12,6 @@ export class DeleteMessages {
     defaultMemberPermissions: PermissionFlagsBits.DeafenMembers,
   })
   async deleteMessages(
-    @SlashChoice({ name: "Previous 24 Hours", value: "1" })
-    @SlashChoice({ name: "Previous 7 Days", value: "7" })
-    @SlashOption({
-      name: "days",
-      description: "Delete message History",
-      required: true,
-      type: ApplicationCommandOptionType.Integer,
-    })
-    days: number,
     @SlashOption({
       name: "user",
       description: "Select existing user",
@@ -50,7 +41,7 @@ export class DeleteMessages {
     await interaction.deferReply({ ephemeral: true });
 
     await deleteUserMessages({
-      days,
+      days: 7,
       guild: interaction.guild,
       memberId,
       jail,
