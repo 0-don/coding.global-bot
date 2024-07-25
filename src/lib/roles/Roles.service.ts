@@ -198,7 +198,7 @@ export class RolesService {
     let guildStatusRoles: {
       [x: string]: Role | undefined;
     } = {};
-    //check for verified roles "verified", "voiceOnly", "readOnly", "mute", "unverified"
+    //check for verified roles "verified", "voiceOnly", "readOnly", "mute"
     for (let role of STATUS_ROLES)
       guildStatusRoles[role] = guild?.roles.cache.find(
         ({ name }) => name === role

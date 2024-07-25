@@ -38,9 +38,6 @@ export const VOICE_ONLY =
   STATUS_ROLES?.[1];
 export const JAIL =
   STATUS_ROLES.find((r) => r.toLowerCase() === "jail") || STATUS_ROLES?.[2];
-export const UNVERIFIED =
-  STATUS_ROLES.find((r) => r.toLowerCase() === "unverified") ||
-  STATUS_ROLES?.[3];
 
 export const ACTIVE =
   LEVEL_ROLES.find((r) => r.toLowerCase() === "active!") || LEVEL_ROLES?.[0];

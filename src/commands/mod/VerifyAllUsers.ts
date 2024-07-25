@@ -2,7 +2,7 @@ import { log } from "console";
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { STATUS_ROLES, UNVERIFIED, VERIFIED } from "../../lib/constants.js";
+import { STATUS_ROLES, VERIFIED } from "../../lib/constants.js";
 import { MembersService } from "../../lib/members/Members.service.js";
 
 import { LogService } from "../../lib/logs/Log.service.js";
@@ -51,10 +51,6 @@ export class VerifyAllUsers {
       content: `updating user count:${members.size}`,
     });
 
-    const rolesWithoutUnverified = STATUS_ROLES.filter(
-      (role) => role !== UNVERIFIED
-    );
-
     // loop over all guild members
     for (let [id, member] of members) {
       // refetch user if some roles were reasinged
@@ -75,14 +71,6 @@ export class VerifyAllUsers {
 
       // recreate roles delete old add new
       await recreateMemberDbRoles(member);
-
-      // if one of the status roles is on user, continue
-      if (
-        rolesWithoutUnverified.some((role) =>
-          member.roles.cache.has(guildStatusRoles[role]!.id)
-        )
-      )
-        continue;
 
       // verify user
       guildStatusRoles[VERIFIED] &&
