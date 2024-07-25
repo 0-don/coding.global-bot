@@ -14,7 +14,8 @@ import { Stream } from "openai/streaming.mjs";
 import QuickLRU from "quick-lru";
 
 class ChatGPTAPI {
-  private model: ChatCompletionCreateParamsBase["model"] = "gpt-4-1106-preview";
+  private model: ChatCompletionCreateParamsBase["model"] =
+    "gpt-4o-mini-2024-07-18";
   private store: Keyv<ChatMessage>;
   private openai: OpenAI;
   private maxModelTokens: number = 8000;
@@ -32,8 +33,8 @@ class ChatGPTAPI {
     opts: SendMessageOptions
   ): AsyncGenerator<ChatMessage, void, unknown> {
     this.model = opts.fileLink
-      ? <ChatCompletionCreateParamsBase["model"]>"gpt-4-vision-preview"
-      : "gpt-4-1106-preview";
+      ? <ChatCompletionCreateParamsBase["model"]>"gpt-4o-mini-2024-07-18"
+      : "gpt-4o-mini-2024-07-18";
     const latestQuestion = this.createMessage(
       { role: "user", text: opts.text },
       opts
