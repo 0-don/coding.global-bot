@@ -92,7 +92,7 @@ export class MessageCreate {
 
       userState.lastMessage = message;
 
-      if (userState.count === 5) {
+      if (userState.count === 8) {
         await deleteUserMessages({
           days: 7,
           jail: true,
