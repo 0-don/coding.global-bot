@@ -27,7 +27,7 @@
     "keyv": "^4.5.4",
     "openai": "^4.56.0",
     "quick-lru": "^7.0.0",
-    "tesseract.js": "5.1.0"
+    "tesseract.js": "5.1.1"
   },
   "devDependencies": {
     "@types/node": "22.5.0",
