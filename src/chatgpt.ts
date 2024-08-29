@@ -16,7 +16,7 @@ import QuickLRU from "quick-lru";
 class ChatGPTAPI {
   private model: ChatCompletionCreateParamsBase["model"] =
     "gpt-4o-mini-2024-07-18";
-  private store: Keyv<ChatMessage>;
+  private store: Keyv;
   private openai: OpenAI;
   private maxModelTokens: number = 8000;
   private maxResponseTokens: number = 1000;
@@ -24,7 +24,7 @@ class ChatGPTAPI {
 
   constructor(opts: ChatGPTAPIOptions) {
     this.openai = new OpenAI({ apiKey: opts.apiKey });
-    this.store = new Keyv<ChatMessage, any>({
+    this.store = new Keyv({
       store: new QuickLRU<string, ChatMessage>({ maxSize: 10000 }),
     });
   }
@@ -111,7 +111,9 @@ class ChatGPTAPI {
 
       if (numTokens > maxNumTokens || !opts.parentMessageId) break;
 
-      const parentMessage = await this.store.get(opts.parentMessageId);
+      const parentMessage = await this.store.get<ChatMessage>(
+        opts.parentMessageId
+      );
       if (!parentMessage) break;
 
       text = parentMessage.text;
