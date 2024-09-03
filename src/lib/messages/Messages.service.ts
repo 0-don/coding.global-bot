@@ -134,7 +134,7 @@ export class MessagesService {
         if (role && !message.member?.roles.cache.has(role?.id)) {
           await message.member?.roles.add(role);
 
-          await message.channel.send(
+          await (message.channel as TextChannel).send(
             `<@${message.member?.id}>, you just advanced to ${role.name}! 🎉🎉🎉`
           );
         }

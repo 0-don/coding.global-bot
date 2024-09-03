@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import { prisma } from "../../prisma.js";
 import { HELPER_RANKING, HELPER_ROLES } from "../constants.js";
 
@@ -31,7 +31,7 @@ export class HelperService {
       try {
         await guildMember.roles.add(helperRole.name);
       } catch (_) {}
-      message.channel.send(
+      (message.channel as TextChannel).send(
         `Congratulations ${guildMember.toString()} you are now ${
           helperRole.name
         } 🎉`
