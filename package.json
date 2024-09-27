@@ -25,12 +25,12 @@
     "hono": "^4.6.3",
     "js-tiktoken": "^1.0.14",
     "keyv": "^5.0.3",
-    "openai": "^4.64.0",
+    "openai": "^4.65.0",
     "quick-lru": "^7.0.0",
     "tesseract.js": "5.1.1"
   },
   "devDependencies": {
-    "@types/node": "22.7.0",
+    "@types/node": "22.7.3",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
     "nodemon": "^3.1.7",
