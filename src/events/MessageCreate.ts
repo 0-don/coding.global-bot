@@ -50,7 +50,6 @@ export class MessageCreate {
           const embed = simpleEmbedExample();
           embed.description =
             "Thanks for your question :clap:, if someone gives you an answer it would be great if you thanked them with a :white_check_mark: in response. This response will earn you both points for special roles on this server.";
-          embed.footer!.text = "You can also use /ai to get help from the bot";
 
           await channel.send({
             embeds: [embed],
