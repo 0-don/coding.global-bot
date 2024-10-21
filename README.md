@@ -73,11 +73,6 @@ run `/verify-all-users` to verify all users in the server and the db.
 
   - **Description**: Verify all users in the server.
 
-- **/ai**
-  - **Description**: Talk to the AI
-  - **Options**:
-    - **text**: Ask the AI a question.
-
 ### restore db
 
 ```sh
@@ -95,4 +90,3 @@ cat coding-global-db.sql | docker exec -i coding-global-db psql -U postgres -d c
 <!-- SELECT last_value FROM public."GuildVoiceEvents_id_seq"; -->
 <!-- SELECT setval('public."GuildVoiceEvents_id_seq"', 51980, false); -->
 <!-- GIT_COMMITTER_DATE="2024-06-09T12:00:00" git commit --amend --no-edit --date "2024-06-09T12:00:00" -->
-
