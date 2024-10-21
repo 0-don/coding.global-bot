@@ -1,9 +1,6 @@
 import { Message, MessageType, TextChannel } from "discord.js";
 import type { ArgsOf, Client, SimpleCommandMessage } from "discordx";
 import { Discord, On, SimpleCommand } from "discordx";
-import { askAi } from "../chatgpt/askAi.js";
-import { getTextFromImage } from "../chatgpt/tesseract.js";
-import { GENERAL_CHANNELS, MEMBER_ROLES } from "../lib/constants.js";
 import { simpleEmbedExample } from "../lib/embeds.js";
 import { translate } from "../lib/helpers.js";
 import { MessagesService } from "../lib/messages/Messages.service.js";
@@ -165,88 +162,6 @@ export class MessageCreate {
         ),
         allowedMentions: { users: [] },
       });
-    }
-  }
-
-  @SimpleCommand({ aliases: ["ai", "gpt"], prefix: "/" })
-  async replyChatGPT(command: SimpleCommandMessage) {
-    const message = command.message;
-    if (message.type === MessageType.Reply && message.reference?.messageId) {
-      const channel = (await message.channel.fetch()) as TextChannel;
-      const replyMsg = await channel.messages.fetch(
-        message.reference?.messageId
-      );
-      const user = message.author;
-
-      const guildMember = await channel.guild.members.fetch(user.id);
-
-      const channels = await channel.guild.channels.fetch();
-      const botChannel = channels.find((channel) => channel?.name === "bot");
-
-      if (
-        GENERAL_CHANNELS.includes(channel.name) &&
-        !guildMember?.roles.cache.some((role) =>
-          MEMBER_ROLES.includes(role.name as (typeof MEMBER_ROLES)[number])
-        )
-      ) {
-        return channel.send(
-          `use this command /ai (your text) in ${botChannel?.toString()}`
-        );
-      }
-
-      const messages = await fetchMessages(channel, 500);
-      const replyMsgIndex = messages.findIndex((msg) => msg.id === replyMsg.id);
-
-      if (replyMsgIndex === -1) return await channel.send("Message not found");
-
-      //delete replyMsg
-      try {
-        await message.delete();
-      } catch (_) {}
-
-      const userMessages: Message<boolean>[] = [replyMsg];
-
-      // get before messages until we hit a message from a different user
-      for (let i = replyMsgIndex - 1; i >= 0; i--) {
-        const msg = messages[i] as Message<boolean>;
-        if (msg?.author?.id === user?.id) {
-          userMessages.push(msg);
-        } else {
-          break;
-        }
-      }
-
-      // get after messages until we hit a message from a different user
-      for (let i = replyMsgIndex + 1; i <= messages.length; i++) {
-        const msg = messages[i] as Message<boolean>;
-        if (msg?.author?.id === user?.id) {
-          userMessages.push(msg);
-        } else {
-          break;
-        }
-      }
-
-      const dateSortedMessages = userMessages.sort(
-        (a, b) => a.createdTimestamp - b.createdTimestamp
-      );
-
-      const getAllImagesFromMessages = (
-        await Promise.all(
-          dateSortedMessages
-            .map((msg) => msg.attachments.map((attachment) => attachment.url))
-            .flat()
-            .map((url) => getTextFromImage(url))
-        )
-      ).join("\n");
-
-      const messagesContentArray = dateSortedMessages.map((msg) => msg.content);
-      messagesContentArray.push(getAllImagesFromMessages);
-      const messagesContent = messagesContentArray.join("\n");
-
-      if (!messagesContent.length)
-        return await channel.send("No messages found");
-
-      await askAi({ channel, user, text: messagesContent, onReply: true });
     }
   }
 }
