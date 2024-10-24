@@ -25,7 +25,7 @@
     "hono": "^4.6.6",
     "js-tiktoken": "^1.0.15",
     "keyv": "^5.1.2",
-    "openai": "^4.68.3",
+    "openai": "^4.68.4",
     "quick-lru": "^7.0.0",
     "tesseract.js": "5.1.1"
   },
