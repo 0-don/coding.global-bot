@@ -22,7 +22,7 @@
     "deepl-node": "1.14.0",
     "discord.js": "14.16.3",
     "discordx": "^11.12.1",
-    "hono": "^4.6.6",
+    "hono": "^4.6.7",
     "js-tiktoken": "^1.0.15",
     "keyv": "^5.1.2",
     "openai": "^4.68.4",
