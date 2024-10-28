@@ -38,7 +38,11 @@ export class MessageCreate {
 
   private async checkThreadStart(message: Message) {
     const channel = message.channel;
-    if (channel.isThread()) {
+    if (
+      channel.isThread() &&
+      !channel.name.includes("jobs") &&
+      !channel.name.includes("hire")
+    ) {
       try {
         const firstMessage = await channel.fetchStarterMessage();
         const messages = await channel.messages.fetch();
