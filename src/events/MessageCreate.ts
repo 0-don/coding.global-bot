@@ -1,4 +1,4 @@
-import { Message, MessageType, TextChannel } from "discord.js";
+import { Message, MessageType, TextChannel, ThreadChannel } from "discord.js";
 import type { ArgsOf, Client, SimpleCommandMessage } from "discordx";
 import { Discord, On, SimpleCommand } from "discordx";
 import { simpleEmbedExample } from "../lib/embeds.js";
@@ -40,28 +40,40 @@ export class MessageCreate {
     const channel = message.channel;
     if (
       channel.isThread() &&
-      !channel.name.includes("jobs") &&
-      !channel.name.includes("hire")
+      channel instanceof ThreadChannel // Type guard
     ) {
-      console.log(channel.name);
-      try {
-        const firstMessage = await channel.fetchStarterMessage();
-        const messages = await channel.messages.fetch();
+      const parentChannel = message.guild?.channels.cache.get(
+        channel.parentId!
+      );
+      if (
+        parentChannel &&
+        !parentChannel.name.includes("jobs") &&
+        !parentChannel.name.includes("hire")
+      ) {
+        console.log(channel.name);
+        try {
+          const firstMessage = await channel.fetchStarterMessage();
+          const messages = await channel.messages.fetch();
 
-        if (message.author.bot || firstMessage?.author.bot || messages.size > 1)
-          return;
+          if (
+            message.author.bot ||
+            firstMessage?.author.bot ||
+            messages.size > 1
+          )
+            return;
 
-        if (firstMessage?.author.id === message.author.id) {
-          const embed = simpleEmbedExample();
-          embed.description =
-            "Thanks for your question :clap:, if someone gives you an answer it would be great if you thanked them with a :white_check_mark: in response. This response will earn you both points for special roles on this server.";
+          if (firstMessage?.author.id === message.author.id) {
+            const embed = simpleEmbedExample();
+            embed.description =
+              "Thanks for your question :clap:, if someone gives you an answer it would be great if you thanked them with a :white_check_mark: in response. This response will earn you both points for special roles on this server.";
 
-          await channel.send({
-            embeds: [embed],
-            allowedMentions: { users: [] },
-          });
-        }
-      } catch (_) {}
+            await channel.send({
+              embeds: [embed],
+              allowedMentions: { users: [] },
+            });
+          }
+        } catch (_) {}
+      }
     }
   }
 
