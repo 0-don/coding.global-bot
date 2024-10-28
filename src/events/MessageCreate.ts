@@ -43,6 +43,7 @@ export class MessageCreate {
       !channel.name.includes("jobs") &&
       !channel.name.includes("hire")
     ) {
+      console.log(channel.name);
       try {
         const firstMessage = await channel.fetchStarterMessage();
         const messages = await channel.messages.fetch();
