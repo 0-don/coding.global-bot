@@ -19,7 +19,7 @@ export class DeleteMemberDb {
       type: ApplicationCommandOptionType.User,
     })
     user: User,
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) {
     // get member from slash command input
 

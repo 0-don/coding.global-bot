@@ -27,7 +27,7 @@ export class Top {
       if (!BOT_CHANNELS.includes(channel.name))
         // if not bot channel, return
         return await interaction.editReply(
-          "Please use this command in the bot channel"
+          "Please use this command in the bot channel",
         );
     }
     const embed = await StatsService.topStatsEmbed(interaction.guildId);

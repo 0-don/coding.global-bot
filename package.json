@@ -3,18 +3,18 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "npx prisma migrate deploy && cross-env NODE_ENV=production node dist/main.js",
-    "dev": "nodemon --ignore './**/*.json' --exec node --no-warnings --loader ts-node/esm src/main.ts",
-    "prisma": "npx prisma migrate dev --name init && npx prisma generate",
-    "prettier": "prettier --ignore-path .gitignore -w ./src",
-    "postinstall": "npx prisma generate",
-    "build": "tsc"
+    "start": "prisma migrate deploy && NODE_ENV=production bun dist/main.js",
+    "dev": "bun --bun --watch src/main.ts",
+    "build": "tsc",
+    "prettier": "prettier -w .",
+    "prisma": "prisma migrate dev --name init & prisma generate",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@discordx/importer": "^1.3.1",
-    "@hono/node-server": "^1.13.3",
+    "@elysiajs/cors": "^1.1.1",
+    "@elysiajs/swagger": "^1.1.5",
     "@prisma/client": "5.21.1",
-    "canvas": "^2.11.2",
     "chart.js": "4.4.6",
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^4.1.0",
@@ -22,21 +22,13 @@
     "deepl-node": "1.14.0",
     "discord.js": "14.16.3",
     "discordx": "^11.12.1",
-    "hono": "^4.6.7",
-    "js-tiktoken": "^1.0.15",
-    "keyv": "^5.1.2",
-    "openai": "^4.68.4",
-    "quick-lru": "^7.0.0",
-    "tesseract.js": "5.1.1"
+    "elysia": "^1.1.24"
   },
   "devDependencies": {
-    "@types/node": "22.8.1",
-    "cross-env": "7.0.3",
-    "dotenv": "16.4.5",
-    "nodemon": "^3.1.7",
+    "@types/node": "22.8.5",
+    "@types/bun": "1.1.12",
     "prettier": "3.3.3",
     "prisma": "5.21.1",
-    "ts-node": "^10.9.2",
     "typescript": "5.6.3"
   }
 }

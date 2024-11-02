@@ -13,8 +13,8 @@ import path from "path";
 import { prisma } from "../../prisma.js";
 import { ChartDataset, GuildMemberCountChart } from "../../types/index.js";
 import {
-  CHARTJS_NODE_CANVAS,
-  GLOBAL_CANVAS,
+  // CHARTJS_NODE_CANVAS,
+  // GLOBAL_CANVAS,
   JOIN_EVENT_CHANNELS,
   MEMBERS_COUNT_CHANNELS,
   SHOULD_COUNT_MEMBERS,
@@ -25,7 +25,7 @@ import { chartConfig, getDaysArray } from "../helpers.js";
 export class MembersService {
   static async upsertDbMember(
     member: GuildMember | PartialGuildMember,
-    status: "join" | "leave"
+    status: "join" | "leave",
   ) {
     // dont add bots to the list
     if (member.user.bot) return;
@@ -82,12 +82,12 @@ export class MembersService {
 
   static async logJoinLeaveEvents(
     member: GuildMember,
-    event: "join" | "leave"
+    event: "join" | "leave",
   ) {
     try {
       // get voice channel by name
       const joinEventsChannel = member.guild.channels.cache.find(({ name }) =>
-        JOIN_EVENT_CHANNELS.includes(name)
+        JOIN_EVENT_CHANNELS.includes(name),
       );
 
       // check if voice channel exists and it is voice channel
@@ -124,7 +124,7 @@ export class MembersService {
     for (const channelName of MEMBERS_COUNT_CHANNELS) {
       // find member: channel
       const memberCountChannel = member.guild.channels.cache.find((channel) =>
-        channel.name.includes(channelName)
+        channel.name.includes(channelName),
       );
 
       // if no channel return
@@ -132,7 +132,7 @@ export class MembersService {
 
       // count members exc
       const memberCount = member.guild.members.cache.filter(
-        (member) => !member.user.bot
+        (member) => !member.user.bot,
       ).size;
 
       // set channel name as member count
@@ -143,7 +143,7 @@ export class MembersService {
   }
 
   static async guildMemberCountChart(
-    guild: Guild
+    guild: Guild,
   ): Promise<GuildMemberCountChart> {
     // get guild data
     const guildId = guild.id;
@@ -167,7 +167,7 @@ export class MembersService {
     // create date array from first to today for each day
     const startEndDateArray = getDaysArray(
       dates[0],
-      dayjs().add(1, "day").toDate()
+      dayjs().add(1, "day").toDate(),
     );
 
     // get member count for each day and format it for chartjs
@@ -194,20 +194,20 @@ export class MembersService {
     const config = chartConfig(
       data.slice(
         // splice only the lookback range if it fits. 2 values minium needed for chart
-        data.length - 2 < lookback ? 0 : lookback * -1
-      ) as any
+        data.length - 2 < lookback ? 0 : lookback * -1,
+      ) as any,
     );
 
     // render image from chartjs config as png
-    new Chart(
-      CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D,
-      config
-    );
+    // new Chart(
+    //   CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D,
+    //   config
+    // );
 
     // crete local img file
     const fileName = `${guildId}.png`;
     const imgPath = path.join(path.resolve(), fileName);
-    writeFileSync(fileName, GLOBAL_CANVAS.toBuffer("image/png"));
+    // writeFileSync(fileName, GLOBAL_CANVAS.toBuffer("image/png"));
 
     log(`Created guild member count ${guildName}`);
 

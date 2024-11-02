@@ -1,14 +1,9 @@
-import { log } from "console";
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { STATUS_ROLES, VERIFIED } from "../../lib/constants.js";
-import { MembersService } from "../../lib/members/Members.service.js";
 
 import { LogService } from "../../lib/logs/Log.service.js";
-import { RolesService } from "../../lib/roles/Roles.service.js";
-import { recreateMemberDbRoles } from "../../lib/roles/recreateMemberDbRoles.js";
-import { prisma } from "../../prisma.js";
+import { verifyAllUsers } from "../../lib/members/verifyAllUsers.js";
 
 @Discord()
 export class VerifyAllUsers {
@@ -24,60 +19,16 @@ export class VerifyAllUsers {
 
     await interaction.deferReply({ ephemeral: true });
 
-    const guildId = interaction.guild.id;
-    const guildName = interaction.guild.name;
+    try {
+      const members = await verifyAllUsers(interaction.guild, interaction);
 
-    await prisma.guild.upsert({
-      where: { guildId },
-      create: { guildId, guildName },
-      update: { guildName },
-    });
-
-    // create a guild role key object pair
-    let guildStatusRoles = RolesService.getGuildStatusRoles(interaction.guild);
-
-    // if one of the roles is missing, return
-    if (STATUS_ROLES.some((role) => !guildStatusRoles[role])) {
-      const content = STATUS_ROLES.map(
-        (role) => `${role}: ${new Boolean(!!guildStatusRoles[role]).toString()}`
-      ).join("\n");
-      return await interaction.editReply({ content });
+      return (interaction.channel as TextChannel)?.send({
+        content: `Verified all users (${members?.size}) in ${interaction.guild.name}`,
+      });
+    } catch (error) {
+      return interaction.editReply({
+        content: "An error occured while verifying all users",
+      });
     }
-
-    let i = 1;
-    const members = await interaction.guild.members.fetch();
-
-    await interaction.editReply({
-      content: `updating user count:${members.size}`,
-    });
-
-    // loop over all guild members
-    for (let [id, member] of members) {
-      // refetch user if some roles were reasinged
-
-      if (i % Math.floor((members.size / 100) * 10) === 0) {
-        await interaction.editReply(
-          `Members: ${i}/${members.size} ${member.user.username}`
-        );
-      }
-
-      log(`${i}/${members.size} user: ${member.user.username}`);
-      i++;
-
-      if (member.user.bot) continue;
-
-      // check if user exists in db
-      await MembersService.upsertDbMember(member, "join");
-
-      // recreate roles delete old add new
-      await recreateMemberDbRoles(member);
-
-      // verify user
-      guildStatusRoles[VERIFIED] &&
-        (await member.roles.add(guildStatusRoles[VERIFIED]!.id));
-    }
-    return (interaction.channel as TextChannel)?.send({
-      content: `Verified all users (${members.size}) in ${interaction.guild.name}`,
-    });
   }
 }

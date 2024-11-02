@@ -19,7 +19,7 @@ export class DeleteMessages {
       type: ApplicationCommandOptionType.String,
     })
     amount: number,
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) {
     LogService.logCommandHistory(interaction, "delete-messages");
     // get member from slash command input
@@ -45,7 +45,7 @@ export class DeleteMessages {
         }
         return acc;
       },
-      [[]] as Message<boolean>[][]
+      [[]] as Message<boolean>[][],
     );
 
     for (const message of messageList) {

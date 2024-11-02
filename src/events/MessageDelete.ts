@@ -7,7 +7,7 @@ export class MessageDelete {
   @On()
   async messageDelete([message]: ArgsOf<"messageDelete">, client: Client) {
     MessagesService.deleteMessageDb(message);
-    
+
     if (!message.guild) return; // Make sure this is not a DM
 
     MessagesService.saveDeletedMessageHistory(message);

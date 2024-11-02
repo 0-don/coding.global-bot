@@ -18,8 +18,8 @@ export class VoiceStateUpdate {
       newVoiceState?.member || (oldVoiceState?.member as GuildMember);
     const guild = newVoiceState?.guild || oldVoiceState?.guild;
 
-    if (!member || !guild) return; 
-    
+    if (!member || !guild) return;
+
     const memberGuild = await prisma.memberGuild.findFirst({
       where: {
         memberId: member.id,

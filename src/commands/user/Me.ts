@@ -27,7 +27,7 @@ export class Me {
       // if not bot channel, return
       if (!BOT_CHANNELS.includes(channel.name))
         return await interaction.editReply(
-          "Please use this command in the bot channel"
+          "Please use this command in the bot channel",
         );
     }
     const embed = await StatsService.userStatsEmbed(interaction);

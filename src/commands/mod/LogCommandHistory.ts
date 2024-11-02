@@ -19,7 +19,7 @@ export class LogCommandHistory {
       type: ApplicationCommandOptionType.String,
     })
     count: string,
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) {
     LogService.logCommandHistory(interaction, "log-command-history");
     const c = count ? Number(count) : 10;

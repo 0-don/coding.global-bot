@@ -110,6 +110,7 @@ model MemberRole {
   roleId   String
   guildId  String
   memberId String
+  name     String?
 
   member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
   guild  Guild  @relation(fields: [guildId], references: [guildId])
