@@ -7,7 +7,7 @@ import { RolesService } from "../roles/Roles.service.js";
 
 export const verifyAllUsers = async (
   guild: Guild,
-  interaction?: CommandInteraction,
+  interaction?: CommandInteraction
 ) => {
   const startTime = Date.now();
   try {
@@ -28,7 +28,7 @@ export const verifyAllUsers = async (
 
     if (STATUS_ROLES.some((role) => !guildStatusRoles[role])) {
       const content = STATUS_ROLES.map(
-        (role) => `${role}: ${!!guildStatusRoles[role]}`,
+        (role) => `${role}: ${!!guildStatusRoles[role]}`
       ).join("\n");
       error(`❌ ${guild.name} (${guild.id}): Missing roles:\n${content}`);
       await interaction?.editReply({ content });
@@ -36,7 +36,7 @@ export const verifyAllUsers = async (
     }
 
     const nonBotMembers = Array.from(allMembers.values()).filter(
-      (m) => !m.user.bot,
+      (m) => !m.user.bot
     );
     const totalMembers = nonBotMembers.length;
 
@@ -66,13 +66,13 @@ export const verifyAllUsers = async (
 
       const memberRoleCreates = batch.flatMap((member) =>
         member.roles.cache
-          .filter((role) => role.name !== EVERYONE && role.editable)
+          .filter((role) => role.name !== EVERYONE)
           .map((role) => ({
             roleId: role.id,
             name: role.name,
             memberId: member.id,
             guildId: guild.id,
-          })),
+          }))
       );
 
       // Execute database transaction
@@ -108,33 +108,36 @@ export const verifyAllUsers = async (
           await Promise.all(
             discordBatch.map(async (member) => {
               if (!member.roles.cache.has(verifiedRoleId)) {
+                const roleToAdd = member.guild.roles.cache.get(verifiedRoleId);
+                if (!roleToAdd || !roleToAdd.editable) return;
+
                 try {
                   return await member.roles.add(verifiedRoleId);
                 } catch (err) {
                   error(
-                    `❌ ${guild.name} (${guild.id}): Failed to add role to ${member.user.username} (${member.id})`,
+                    `❌ ${guild.name} (${guild.id}): Failed to add role to ${member.user.username} (${member.id})`
                   );
                 }
               }
               return Promise.resolve();
-            }),
+            })
           );
 
           const processedCount = i * batchSize + (j + 1) * discordBatchSize;
           const progressPercent = Math.min(
             100,
-            Math.round((processedCount / totalMembers) * 100),
+            Math.round((processedCount / totalMembers) * 100)
           );
 
           log(
-            `✅ ${guild.name} (${guild.id}): ${progressPercent}% (${processedCount}/${totalMembers})`,
+            `✅ ${guild.name} (${guild.id}): ${progressPercent}% (${processedCount}/${totalMembers})`
           );
         }
       }
 
       const processedMembers = Math.min((i + 1) * batchSize, totalMembers);
       const progressMessage = `Processed ${processedMembers}/${totalMembers} members (${Math.round(
-        (processedMembers / totalMembers) * 100,
+        (processedMembers / totalMembers) * 100
       )}%)`;
 
       await interaction?.editReply({ content: progressMessage });

@@ -50,7 +50,11 @@ export const deleteUserMessages = async ({
     });
 
     // if user still on server add mute role
-    user && guild.members.cache.get(user.id)?.roles.add(memberRole.roleId);
+    const role = guild.roles.cache.get(memberRole.roleId);
+    if (user && role) {
+      if (!role.editable) return;
+      guild.members.cache.get(user.id)?.roles.add(memberRole.roleId);
+    }
   }
 
   // create date before which messages should be deleted
