@@ -50,8 +50,8 @@ new Elysia()
   }))
   .onAfterHandle(({ startTime, clientIP, request }) =>
     log(
-      `[${new Date().toLocaleString("de")}] ${request.method} ${request.url} - Client IP: ${clientIP} - Duration: ${Date.now() - startTime}ms`,
-    ),
+      `[${new Date().toLocaleString("de")}] ${request.method} ${request.url} - Client IP: ${clientIP} - Duration: ${Date.now() - startTime}ms`
+    )
   )
   .derive(({ path }) => {
     const matches = path.match(/\/api\/(\d{17,19})/);
@@ -78,14 +78,14 @@ new Elysia()
       } catch (err) {
         console.error(err);
         throw new InternalServerError(
-          "An error occurred while verifying users",
+          "An error occurred while verifying users"
         );
       }
     },
     {
       response: t.String(),
       detail: { operationId: "verifyAllUsers" },
-    },
+    }
   )
   .derive(({ request, path }) => {
     if (request.method !== "GET") return { cacheKey: null };
@@ -118,8 +118,11 @@ new Elysia()
       const staffMembers = (await guild.members.fetch())
         .filter(
           (member) =>
-            member.permissions.has(PermissionsBitField.Flags.MuteMembers) &&
-            !member.user.bot,
+            (member.permissions.has(PermissionsBitField.Flags.MuteMembers) ||
+              member.permissions.has(
+                PermissionsBitField.Flags.ChangeNickname
+              )) &&
+            !member.user.bot
         )
         .sort((a, b) => a.joinedAt!.getTime() - b.joinedAt!.getTime());
 
@@ -131,7 +134,7 @@ new Elysia()
       const users: (typeof UserSchema.static)[] = [];
       for (const [_, member] of staffMembers) {
         const roles = memberRoles.filter(
-          (role) => role.memberId === member?.id,
+          (role) => role.memberId === member?.id
         );
         if (roles.length) {
           users.push({
@@ -156,7 +159,7 @@ new Elysia()
       response: t.Array(UserSchema),
       type: "application/json",
       detail: { operationId: "getStaff" },
-    },
+    }
   )
   .get(
     "/api/:guildId/news",
@@ -164,7 +167,7 @@ new Elysia()
       if (!guild) throw new NotFoundError("Guild not found");
 
       const newsChannel = guild.channels.cache.find((channel) =>
-        channel.name.toLowerCase().includes("news"),
+        channel.name.toLowerCase().includes("news")
       );
 
       if (!newsChannel) throw new NotFoundError("News channel not found");
@@ -218,7 +221,7 @@ new Elysia()
       response: t.Array(NewsSchema),
       type: "application/json",
       detail: { operationId: "getNews" },
-    },
+    }
   )
   .listen(3000);
 
