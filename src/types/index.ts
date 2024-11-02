@@ -62,15 +62,6 @@ export type ToptatsExampleEmbed = {
   mostActiveVoiceChannels: { channelId: string; sum: number }[];
 };
 
-export interface ChatGptError {
-  error: {
-    message: string;
-    type: string;
-    param: string;
-    code: string;
-  };
-}
-
 export interface UserState {
   count: number;
   lastMessage: Message | null;
@@ -87,8 +78,6 @@ export type Commands =
   | "log-deleted-messages-history"
   | "lookback-members"
   | "verify-all-users"
-  | "ai"
-  | "ai-reset"
   | "lookback-me"
   | "me"
   | "members"

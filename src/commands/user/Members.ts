@@ -29,7 +29,7 @@ export class Members {
       // if not bot channel, return
       if (!BOT_CHANNELS.includes(channel.name))
         return await interaction.editReply(
-          "Please use this command in the bot channel"
+          "Please use this command in the bot channel",
         );
     }
     // if somehow no guild, return
@@ -42,14 +42,14 @@ export class Members {
     // if error occured, return
     if (chart?.error) return await interaction.editReply(chart.error);
 
-    const attachment = {
-      attachment: chart.imgPath!,
-      name: chart.fileName!,
-    };
+    // const attachment = {
+    //   attachment: chart.imgPath!,
+    //   name: chart.fileName!,
+    // };
 
     const count = interaction.guild.members.cache.size;
     const memberCount = interaction.guild.members.cache.filter(
-      (member) => !member.user.bot
+      (member) => !member.user.bot,
     ).size;
     const botCount = count - memberCount;
 
@@ -89,7 +89,7 @@ export class Members {
     // return embed with chart img
     return await interaction.editReply({
       embeds: [embed],
-      files: [attachment],
+      // files: [attachment],
     });
   }
 }

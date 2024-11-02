@@ -45,14 +45,14 @@ export class RolesService {
     if (args.newRoles.length > args.oldRoles.length) {
       const jailId = args.guildRoles.find((role) => role.name === JAIL)?.id;
       const jailDbRole = args.memberDbRoles.find(
-        (dbRole) => dbRole.roleId === jailId
+        (dbRole) => dbRole.roleId === jailId,
       );
 
       if (jailDbRole) return;
 
       // add or update new role
       const newAddedRole = args.newRoles.filter(
-        (role) => !args.oldRoles.includes(role)
+        (role) => !args.oldRoles.includes(role),
       )[0];
       if (!newAddedRole) return;
 
@@ -61,6 +61,7 @@ export class RolesService {
         const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
           roleId: newAddedRole.id,
           memberId: args.newMember.id,
+          name: newAddedRole.name,
           guildId: args.newMember.guild.id,
         };
 
@@ -81,7 +82,7 @@ export class RolesService {
     } else if (args.newRoles.length < args.oldRoles.length) {
       // get the removed role
       const newRemovedRole = args.oldRoles.find(
-        (role) => !args.newRoles.includes(role)
+        (role) => !args.newRoles.includes(role),
       );
 
       // if no role was removed return
@@ -112,7 +113,7 @@ export class RolesService {
       const dbJailRole = args.memberDbRoles.find(
         (dbRole) =>
           dbRole.roleId ===
-          args.guildRoles.find((role) => role.name === JAIL)?.id
+          args.guildRoles.find((role) => role.name === JAIL)?.id,
       );
 
       if (dbJailRole) {
@@ -146,13 +147,13 @@ export class RolesService {
 
     if (newAddedRole === JAIL) {
       const jailRole = args.newMember.roles.cache.find(
-        (role) => role.name === JAIL
+        (role) => role.name === JAIL,
       );
 
       args.newMember.roles.cache.forEach(
         (role) =>
           role.name !== JAIL &&
-          args.newMember.roles.remove(role).catch(() => {})
+          args.newMember.roles.remove(role).catch(() => {}),
       );
 
       return await prisma.memberRole.deleteMany({
@@ -170,7 +171,7 @@ export class RolesService {
         (role) =>
           newAddedRole !== role.name &&
           STATUS_ROLES.includes(role.name) &&
-          args.newMember.roles.remove(role)
+          args.newMember.roles.remove(role),
       );
     }
 
@@ -186,7 +187,7 @@ export class RolesService {
         },
       });
       const role = args.newMember.guild.roles.cache.find(
-        (role) => role.name === newAddedRole
+        (role) => role.name === newAddedRole,
       );
       if (memberMessages < levelRole.count && role) {
         args.newMember.roles.remove(role);
@@ -201,14 +202,14 @@ export class RolesService {
     //check for verified roles "verified", "voiceOnly", "readOnly", "mute"
     for (let role of STATUS_ROLES)
       guildStatusRoles[role] = guild?.roles.cache.find(
-        ({ name }) => name === role
+        ({ name }) => name === role,
       );
     return guildStatusRoles;
   }
 
   static async verify(
     member: GuildMember | PartialGuildMember,
-    role: StatusRoles
+    role: StatusRoles,
   ) {
     // get icon reaction role
     const guildStatusRoles = RolesService.getGuildStatusRoles(member.guild);
@@ -219,7 +220,7 @@ export class RolesService {
 
   static async verifyReaction(
     reaction: MessageReaction | PartialMessageReaction,
-    user: User | PartialUser
+    user: User | PartialUser,
   ) {
     // check if template
     const isTemplate = reaction.message.embeds[0]?.footer?.text;
@@ -239,7 +240,7 @@ export class RolesService {
     });
 
     const guildRoles = reaction.message.guild?.roles.cache.filter((role) =>
-      memberDbRoles.some((dbRole) => dbRole.roleId === role.id)
+      memberDbRoles.some((dbRole) => dbRole.roleId === role.id),
     );
 
     // if jail role exist then exit
@@ -248,14 +249,14 @@ export class RolesService {
     // if icon reaction role on user then exit
     if (
       member?.roles.cache.some((role) =>
-        [VERIFIED, JAIL, VOICE_ONLY].includes(role.name as any)
+        [VERIFIED, JAIL, VOICE_ONLY].includes(role.name as any),
       )
     )
       return;
 
     // get icon reaction role
     const guildStatusRoles = RolesService.getGuildStatusRoles(
-      reaction.message.guild!
+      reaction.message.guild!,
     );
 
     // if icon reaction role exist exist add role to user

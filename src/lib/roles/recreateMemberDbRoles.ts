@@ -5,7 +5,7 @@ import { EVERYONE } from "../constants.js";
 
 export const recreateMemberDbRoles = async (
   member: GuildMember,
-  reload?: boolean
+  reload?: boolean,
 ) => {
   // return if member is bot
   if (member.user.bot) return;
@@ -37,6 +37,7 @@ export const recreateMemberDbRoles = async (
     // create member role input
     const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
       roleId: role.id,
+      name: role.name,
       memberId,
       guildId,
     };

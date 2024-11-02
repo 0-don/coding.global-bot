@@ -43,12 +43,12 @@ export class MessageCreate {
       channel instanceof ThreadChannel // Type guard
     ) {
       const parentChannel = message.guild?.channels.cache.get(
-        channel.parentId!
+        channel.parentId!,
       );
       if (
         parentChannel &&
-        !parentChannel.name.includes("jobs") &&
-        !parentChannel.name.includes("hire")
+        !parentChannel.name.includes("job") &&
+        !parentChannel.name.includes("dev")
       ) {
         console.log(channel.name);
         try {
@@ -84,41 +84,74 @@ export class MessageCreate {
       previousMessages.set(message.author.id, {
         count: 0,
         lastMessage: null,
+        same: false,
       });
     }
 
     const userState = previousMessages.get(message.author.id) as UserState;
 
-    if (userState.count < 5) {
-      if (userState.lastMessage) {
-        // Überprüfen, ob die vorherige Nachricht gleich der neuen Nachricht ist
-        if (userState.lastMessage.content === message.content) {
-          userState.same = true;
-        } else {
-          userState.same = false;
-        }
+    // Helper function to check if messages have the same content and attachments
+    const areMessagesIdentical = (msg1: Message, msg2: Message): boolean => {
+      // Check text content
+      const sameContent = msg1.content === msg2.content;
+
+      // If both messages have no attachments, just compare content
+      if (msg1.attachments.size === 0 && msg2.attachments.size === 0) {
+        return sameContent;
       }
 
-      if (userState.same) {
-        userState.count++;
+      // If one has attachments and other doesn't, they're different
+      if (msg1.attachments.size !== msg2.attachments.size) {
+        return false;
       }
 
-      userState.lastMessage = message;
+      // At this point, both messages have attachments
+      const attachments1 = Array.from(msg1.attachments.values());
+      const attachments2 = Array.from(msg2.attachments.values());
 
-      if (userState.count === 8) {
-        await deleteUserMessages({
-          days: 7,
-          jail: true,
-          memberId: message.author.id,
-          user: message.author,
-          guild: message.guild!,
-        });
+      // Check if all attachments are identical by comparing URLs
+      const sameAttachments = attachments1.every((att1, index) => {
+        const att2 = attachments2[index];
+        return att1.url === att2.url;
+      });
 
-        userState.count = 0;
-      }
+      // Messages are identical if both content and attachments match
+      return sameContent && sameAttachments;
+    };
+
+    // If there's a last message, check if it's identical to the current message
+    if (
+      userState.lastMessage &&
+      areMessagesIdentical(userState.lastMessage, message)
+    ) {
+      userState.count++;
+      userState.same = true;
+    } else {
+      // Reset count if message is different
+      userState.count = 1;
+      userState.same = false;
+    }
+
+    userState.lastMessage = message;
+
+    // Take action if user has sent the same message 5 times
+    if (userState.count >= 5) {
+      await deleteUserMessages({
+        days: 7,
+        jail: true,
+        memberId: message.author.id,
+        user: message.author,
+        guild: message.guild!,
+      });
+
+      // Reset the user's state after taking action
+      previousMessages.set(message.author.id, {
+        count: 0,
+        lastMessage: null,
+        same: false,
+      });
     }
   }
-
   @SimpleCommand({ aliases: [""], prefix: ["✅", ":white_check_mark:"] })
   async checkThreadHelpLike(command: SimpleCommandMessage) {
     const message = command.message;
@@ -167,14 +200,14 @@ export class MessageCreate {
       const channel = (await message.channel.fetch()) as TextChannel;
 
       const replyMsg = await channel.messages.fetch(
-        message.reference?.messageId
+        message.reference?.messageId,
       );
 
       await message.delete();
 
       channel.send({
         content: await translate(
-          Buffer.from(replyMsg.content, "utf-8").toString()
+          Buffer.from(replyMsg.content, "utf-8").toString(),
         ),
         allowedMentions: { users: [] },
       });

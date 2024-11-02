@@ -60,7 +60,7 @@ export class MessagesService {
   }
 
   static async saveDeletedMessageHistory(
-    message: Message<boolean> | PartialMessage
+    message: Message<boolean> | PartialMessage,
   ) {
     const content = message.content;
     const channelId = message.channelId;
@@ -116,7 +116,7 @@ export class MessagesService {
     if (!SHOULD_USER_LEVEL_UP || message.author.bot) return;
 
     const memberInJail = message.member?.roles.cache.some(
-      (role) => JAIL === role.name
+      (role) => JAIL === role.name,
     );
 
     if (memberInJail) return;
@@ -128,14 +128,14 @@ export class MessagesService {
     for (const item of LEVEL_LIST) {
       if (memberMessages >= item.count) {
         const role = message.guild?.roles.cache.find(
-          (role) => role.name === item.role
+          (role) => role.name === item.role,
         );
 
         if (role && !message.member?.roles.cache.has(role?.id)) {
           await message.member?.roles.add(role);
 
           await (message.channel as TextChannel).send(
-            `<@${message.member?.id}>, you just advanced to ${role.name}! 🎉🎉🎉`
+            `<@${message.member?.id}>, you just advanced to ${role.name}! 🎉🎉🎉`,
           );
         }
       }

@@ -1,4 +1,4 @@
-import type { ArgsOf, Client } from "discordx";
+import type { ArgsOf } from "discordx";
 import { Discord, On } from "discordx";
 import { EVERYONE } from "../lib/constants.js";
 import { updateNickname } from "../lib/members/saveNickname.js";
@@ -8,18 +8,12 @@ import { prisma } from "../prisma.js";
 @Discord()
 export class GuildMemberUpdate {
   @On()
-  async guildMemberUpdate(
-    [oldMember, newMember]: ArgsOf<"guildMemberUpdate">,
-    client: Client
-  ) {
+  async guildMemberUpdate([oldMember, newMember]: ArgsOf<"guildMemberUpdate">) {
     const guildRoles = newMember.guild.roles.cache;
     const memberDbRoles = await prisma.memberRole.findMany({
       where: { memberId: newMember.id, guildId: newMember.guild.id },
     });
 
-    // const jail = await oldMember.guild.fetchAuditLogs({ user: client.user?.id});
-    // console.log(jail.entries);
-    // writeFileSync("jail.json", JSON.stringify(jail.entries, null, 2));
     // get old roles as string[]
     const oldRoles = oldMember.roles.cache
       .filter(({ name }) => name !== EVERYONE)
@@ -28,25 +22,6 @@ export class GuildMemberUpdate {
     const newRoles = newMember.roles.cache
       .filter(({ name }) => name !== EVERYONE)
       .map((role) => role);
-
-    // if (process.env.NODE_ENV !== "production") {
-    //   mkdirSync("test", { recursive: true });
-    //   writeFileSync(
-    //     `test/${Date.now()}.json`,
-    //     JSON.stringify(
-    //       {
-    //         oldRoles,
-    //         newRoles,
-    //         memberDbRoles,
-    //         oldMember,
-    //         newMember,
-    //         guildRoles,
-    //       },
-    //       null,
-    //       2
-    //     )
-    //   );
-    // }
 
     // update db roles
     await RolesService.updateDbRoles({

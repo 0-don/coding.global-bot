@@ -1,8 +1,8 @@
-import { createCanvas } from "canvas";
+// import { createCanvas } from "canvas";
 import * as deepl from "deepl-node";
 
-export const GLOBAL_CANVAS = createCanvas(1200, 400);
-export const CHARTJS_NODE_CANVAS = GLOBAL_CANVAS.getContext("2d");
+// export const GLOBAL_CANVAS = createCanvas(1200, 400);
+// export const CHARTJS_NODE_CANVAS = GLOBAL_CANVAS.getContext("2d");
 export const TRANSLATOR = new deepl.Translator(process.env.DEEPL);
 
 export const HELPER_ROLES =
