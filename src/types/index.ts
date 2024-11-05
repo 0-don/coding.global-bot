@@ -66,6 +66,7 @@ export interface UserState {
   count: number;
   lastMessage: Message | null;
   same?: boolean;
+  recentLinks: Map<string, Set<string>>; 
 }
 
 export type Commands =
