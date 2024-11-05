@@ -43,7 +43,7 @@ export class MessageCreate {
       channel instanceof ThreadChannel // Type guard
     ) {
       const parentChannel = message.guild?.channels.cache.get(
-        channel.parentId!,
+        channel.parentId!
       );
       if (
         parentChannel &&
@@ -85,6 +85,7 @@ export class MessageCreate {
         count: 0,
         lastMessage: null,
         same: false,
+        recentLinks: new Map<string, Set<string>>(),
       });
     }
 
@@ -149,9 +150,73 @@ export class MessageCreate {
         count: 0,
         lastMessage: null,
         same: false,
+        recentLinks: new Map<string, Set<string>>(),
       });
     }
+
+    const linkPattern = /\[.*?\]\(https?:\/\/[^\s)]+\)|(?:https?:\/\/)[^\s]+/gi;
+    const links = message.content.match(linkPattern);
+
+    if (links) {
+      const currentTime = Date.now();
+
+      // Clean up old entries (older than 5 minutes)
+      if (userState.recentLinks) {
+        for (const [link, channels] of userState.recentLinks.entries()) {
+          if (currentTime - Number(link.split("|")[1]) > 5 * 60 * 1000) {
+            userState.recentLinks.delete(link);
+          }
+        }
+      }
+
+      for (const link of links) {
+        const linkKey = `${link}|${currentTime}`;
+
+        if (!userState.recentLinks.has(linkKey)) {
+          userState.recentLinks.set(linkKey, new Set());
+        }
+
+        const channelSet = userState.recentLinks.get(linkKey)!;
+
+        // If link was already posted in this channel, ignore it
+        if (channelSet.has(message.channel.id)) {
+          continue;
+        }
+
+        channelSet.add(message.channel.id);
+
+        // Check if the same link was posted in multiple channels
+        let linkPostCount = 0;
+        for (const [, channels] of userState.recentLinks) {
+          if (channels.size > 0) {
+            linkPostCount++;
+          }
+        }
+
+        // If the same or similar links were posted in 3 or more channels within 5 minutes
+        if (linkPostCount >= 3) {
+          await deleteUserMessages({
+            days: 7,
+            jail: true,
+            memberId: message.author.id,
+            user: message.author,
+            guild: message.guild!,
+          });
+
+          // Reset the user's state after taking action
+          previousMessages.set(message.author.id, {
+            count: 0,
+            lastMessage: null,
+            same: false,
+            recentLinks: new Map(),
+          });
+
+          return;
+        }
+      }
+    }
   }
+  
   @SimpleCommand({ aliases: [""], prefix: ["✅", ":white_check_mark:"] })
   async checkThreadHelpLike(command: SimpleCommandMessage) {
     const message = command.message;
@@ -200,14 +265,14 @@ export class MessageCreate {
       const channel = (await message.channel.fetch()) as TextChannel;
 
       const replyMsg = await channel.messages.fetch(
-        message.reference?.messageId,
+        message.reference?.messageId
       );
 
       await message.delete();
 
       channel.send({
         content: await translate(
-          Buffer.from(replyMsg.content, "utf-8").toString(),
+          Buffer.from(replyMsg.content, "utf-8").toString()
         ),
         allowedMentions: { users: [] },
       });
