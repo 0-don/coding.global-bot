@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   coding-global-db:
     container_name: coding-global-db
