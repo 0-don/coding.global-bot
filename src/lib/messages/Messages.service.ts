@@ -140,7 +140,9 @@ export class MessagesService {
           await message.member?.roles.add(role);
 
           const messages =
-            LEVEL_MESSAGES[role.name as keyof typeof LEVEL_MESSAGES];
+            LEVEL_MESSAGES[
+              role.name.toUpperCase() as keyof typeof LEVEL_MESSAGES
+            ];
           const randomMessage = messages[
             Math.floor(Math.random() * messages.length)
           ]
