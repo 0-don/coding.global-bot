@@ -94,11 +94,11 @@ export const LEVEL_MESSAGES = {
     "`make intern-graduate` ${user} has completed their internship tasks and earned ${role}!",
   ],
   [SUPER_ACTIVE]: [
-    "`code review passed` ${user} has been promoted to Mid-Level Developer ${role}! 100 contributions and counting!",
-    "`git branch -b feature/developer-promotion` ${user} leveled up to ${role} after shipping multiple features!",
-    "`SELECT experience FROM developers` ${user} has evolved to ${role} with solid coding practices!",
-    "`docker stats` ${user} showing exceptional performance metrics, promoted to ${role}!",
-    "`jenkins build SUCCESS` ${user} consistently delivering quality code, earned ${role}!",
+    "`git status` ${user} completed their first code review cycle! Promoted to Junior Developer ${role}!",
+    "`npm run test` ${user} mastered unit testing and earned ${role}!",
+    "`console.log('First Bug Fix')` ${user} is debugging like a pro! Welcome to ${role}!",
+    "`git commit -m 'first-feature'` ${user} shipped their first feature and earned ${role}!",
+    "`python debug.py` ${user} solved their first production bug! Awarded ${role}!",
   ],
   [MEGA_ACTIVE]: [
     "`kubectl scale developer=${user}` Scaling up to Senior Developer ${role} after 1000 successful deployments!",
