@@ -84,3 +84,41 @@ export const LEVEL_LIST = [
   { count: 2500, role: GIGA_ACTIVE },
   { count: 5000, role: ULTRA_ACTIVE },
 ];
+
+export const LEVEL_MESSAGES = {
+  ACTIVE: [
+    "🚀 `DEBUG: ${user} has compiled their first 10 messages!` Your code now runs with the ${role} badge!",
+    "💡 `console.log('New Developer Alert!')` ${user} has unlocked ${role} after 10 quality commits!",
+    "🔧 `try { ${user}.sendCongrats() }` Your first 10 messages earned you ${role} status!",
+    "🌱 `npm install ${user}-achievement` Successfully added ${role} package to your profile!",
+    "⚡ `Hello, World!` ${user} has completed their first programming milestone as ${role}!",
+  ],
+  SUPER_ACTIVE: [
+    "⚡ `SYSTEM.OUT.PRINTLN('${user} hit 100 messages!')` You've been promoted to ${role}!",
+    "🔥 `function levelUp() { return '${user} is now ${role}!' }` 100 messages of pure genius!",
+    "💻 `SELECT * FROM users WHERE awesome = true` Found: ${user} as new ${role}!",
+    "🚀 `git push origin ${user}-promotion` Successfully deployed to ${role} branch!",
+    "⭐ `${user}.experience += 100` Achievement unlocked: ${role}!",
+  ],
+  MEGA_ACTIVE: [
+    "💻 `while(true) { praise(${user}); }` Infinite props for reaching ${role} with 1000 messages!",
+    "🎯 `docker run congratulate ${user}` Container launched with ${role} privileges!",
+    "🔥 `chmod 777 ${user}` Full permissions granted for reaching ${role}!",
+    "⚡ `${user} instanceof ${role} === true` 1000 messages of pure coding excellence!",
+    "🚀 `sudo apt-get upgrade ${user}` Successfully upgraded to ${role}!",
+  ],
+  GIGA_ACTIVE: [
+    "🔥 `git commit -m '${user} reached 2500 messages'` Merged into ${role} branch!",
+    "💫 `async function celebrate() { return '${user} is ${role}!' }` 2500 messages await resolved!",
+    "⚡ `for(let i=0; i<2500; i++) { respect++ }` ${user} has achieved ${role} status!",
+    "🎮 `${user}.setRole('${role}')` Level 2500 achievement unlocked!",
+    "🌟 `pip install ${user}-supremacy` Successfully installed ${role} package!",
+  ],
+  ULTRA_ACTIVE: [
+    "⚔️ `sudo chmod 777 ${user}` Ultimate permissions granted! You've ascended to ${role} with 5000 messages!",
+    "🎯 `CREATE USER ${user} WITH SUPERUSER` Access granted to ${role} privileges!",
+    "🔱 `${user}.rank = Number.MAX_VALUE` Congratulations on reaching ${role}!",
+    "💫 `deployment.yaml: ${user} scaled to ${role}` 5000 messages of legendary status!",
+    "🌟 `ALTER USER ${user} WITH ROLE = '${role}'` Maximum power level achieved!",
+  ],
+};
