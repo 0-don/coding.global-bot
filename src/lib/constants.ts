@@ -88,7 +88,7 @@ export const LEVEL_LIST = [
 export const LEVEL_MESSAGES = {
   [ACTIVE]: [
     "🚀 `DEBUG: ${user} has compiled their first 10 messages!` Your code now runs with the ${role} badge!",
-    "💡 `console.log('New Developer Alert!')` ${user} has unlocked ${role} after 10 quality commits!",
+    "💡 `print('New Developer Alert!')` ${user} has unlocked ${role} after 10 quality commits!",
     "🔧 `try { ${user}.sendCongrats() }` Your first 10 messages earned you ${role} status!",
     "🌱 `npm install ${user}-achievement` Successfully added ${role} package to your profile!",
     "⚡ `Hello, World!` ${user} has completed their first programming milestone as ${role}!",

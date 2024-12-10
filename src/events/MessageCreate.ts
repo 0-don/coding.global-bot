@@ -50,7 +50,6 @@ export class MessageCreate {
         !parentChannel.name.includes("job") &&
         !parentChannel.name.includes("dev")
       ) {
-        console.log(channel.name);
         try {
           const firstMessage = await channel.fetchStarterMessage();
           const messages = await channel.messages.fetch();
