@@ -9,6 +9,7 @@ import { prisma } from "../../prisma.js";
 import {
   JAIL,
   LEVEL_LIST,
+  LEVEL_MESSAGES,
   SHOULD_USER_LEVEL_UP,
   VERIFY_CHANNELS,
 } from "../constants.js";
@@ -138,9 +139,18 @@ export class MessagesService {
         ) {
           await message.member?.roles.add(role);
 
-          await (message.channel as TextChannel).send(
-            `<@${message.member?.id}>, you just advanced to ${role.name}! 🎉🎉🎉`
-          );
+          const messages =
+            LEVEL_MESSAGES[role.name as keyof typeof LEVEL_MESSAGES];
+          const randomMessage = messages[
+            Math.floor(Math.random() * messages.length)
+          ]
+            .replace("${user}", message.member?.toString() ?? "")
+            .replace("${role}", role.toString());
+
+          await (message.channel as TextChannel).send({
+            content: randomMessage,
+            allowedMentions: { users: [] },
+          });
         }
       }
     }
