@@ -122,3 +122,6 @@ export const LEVEL_MESSAGES = {
     "`ansible-playbook promote-to-principal.yml` ${user} deployment complete as ${role}!",
   ],
 };
+
+export const DEV_BOARD_CHANNEL = '1300427846342283436';
+export const JOB_BOARD_CHANNEL = '1300427561704226867';
