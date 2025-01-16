@@ -25,7 +25,7 @@
     "elysia": "^1.2.10"
   },
   "devDependencies": {
-    "@types/node": "22.10.5",
+    "@types/node": "22.10.7",
     "@types/bun": "1.1.16",
     "prettier": "3.4.2",
     "prisma": "6.2.1",
