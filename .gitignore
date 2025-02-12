@@ -11,7 +11,7 @@ dist
 yarn-error.log
 *.traineddata
 app.js
-bun.lockb
+bun.lock*
 messages.json
 backdoor
 test
