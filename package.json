@@ -19,7 +19,7 @@
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
-    "deepl-node": "1.17.0",
+    "deepl-node": "1.17.1",
     "discord.js": "14.18.0",
     "discordx": "^11.12.2",
     "elysia": "^1.2.24"
