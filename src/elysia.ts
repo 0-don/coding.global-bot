@@ -8,48 +8,50 @@ import { bot } from "./main.js";
 import { prisma } from "./prisma.js";
 
 // Define UserSchema
-const UserSchema = t.Object({
-  id: t.String(),
-  username: t.String(),
-  globalName: t.String({ nullable: true }),
-  joinedAt: t.String(),
-  displayAvatarURL: t.String(),
-  bannerUrl: t.String({ nullable: true }),
-  displayHexColor: t.Optional(t.String()),
-  memberRoles: t.Array(t.String()),
-});
+const UserSchema = t.Object(
+  {
+    id: t.String(),
+    username: t.String(),
+    globalName: t.String({ nullable: true }),
+    joinedAt: t.String(),
+    displayAvatarURL: t.String(),
+    bannerUrl: t.String({ nullable: true }),
+    displayHexColor: t.Optional(t.String()),
+    memberRoles: t.Array(t.String()),
+  },
+  { $id: "User" }
+);
 
 // Define NewsAttachmentSchema
-const NewsAttachmentSchema = t.Object({
-  url: t.String(),
-  width: t.Number({ nullable: true }),
-  height: t.Number({ nullable: true }),
-  contentType: t.String({ nullable: true }),
-});
+const NewsAttachmentSchema = t.Object(
+  {
+    url: t.String(),
+    width: t.Number({ nullable: true }),
+    height: t.Number({ nullable: true }),
+    contentType: t.String({ nullable: true }),
+  },
+  { $id: "NewsAttachment" }
+);
 
 // Define NewsSchema
-const NewsSchema = t.Object({
-  id: t.String(),
-  content: t.String(),
-  createdAt: t.String(),
-  attachments: t.Array(NewsAttachmentSchema),
-  user: UserSchema,
-});
-
-// Define ErrorSchema
-const ErrorSchema = t.Object({
-  error: t.String(),
-  message: t.String(),
-});
+const NewsSchema = t.Object(
+  {
+    id: t.String(),
+    content: t.String(),
+    createdAt: t.String(),
+    attachments: t.Array(NewsAttachmentSchema),
+    user: UserSchema,
+  },
+  { $id: "News" }
+);
 
 // Register models for OpenAPI schema
 const models = new Elysia().model({
   user: UserSchema,
   newsAttachment: NewsAttachmentSchema,
   news: NewsSchema,
-  error: ErrorSchema,
-  users: t.Array(UserSchema),
-  newsList: t.Array(NewsSchema),
+  users: t.Array(UserSchema, { $id: "Users" }),
+  newsList: t.Array(NewsSchema, { $id: "NewsList" }),
 });
 
 const cache: Record<string, { timestamp: number; data: any }> = {};
@@ -58,17 +60,7 @@ const locks: Record<string, boolean> = {};
 const CACHE_TTL = 60 * 60 * 1000;
 
 new Elysia()
-  .use(
-    swagger({
-      documentation: {
-        info: {
-          title: "Elysia Documentation",
-          description: "Development documentation",
-          version: "0.0.0",
-        },
-      },
-    })
-  )
+  .use(swagger())
   .use(cors())
   .use(models)
   .derive(({ request }) => ({
@@ -113,9 +105,6 @@ new Elysia()
     {
       response: {
         200: t.String(),
-        404: ErrorSchema,
-        409: ErrorSchema,
-        500: ErrorSchema,
       },
       detail: {
         operationId: "verifyAllUsers",
@@ -123,18 +112,6 @@ new Elysia()
           "Initiates verification for all users in the specified guild.",
         responses: {
           200: { description: "Verification process started successfully" },
-          404: {
-            description: "Guild not found",
-            content: { "application/json": { schema: ErrorSchema } },
-          },
-          409: {
-            description: "Verification is already in progress",
-            content: { "application/json": { schema: ErrorSchema } },
-          },
-          500: {
-            description: "Internal server error",
-            content: { "application/json": { schema: ErrorSchema } },
-          },
         },
       },
     }
@@ -209,7 +186,6 @@ new Elysia()
     {
       response: {
         200: t.Array(UserSchema),
-        404: ErrorSchema,
       },
       detail: {
         operationId: "getStaff",
@@ -217,10 +193,6 @@ new Elysia()
           "Retrieves a list of staff members for the specified guild.",
         responses: {
           200: { description: "List of staff members" },
-          404: {
-            description: "Guild not found",
-            content: { "application/json": { schema: ErrorSchema } },
-          },
         },
       },
     }
@@ -293,8 +265,6 @@ new Elysia()
     {
       response: {
         200: t.Array(NewsSchema),
-        400: ErrorSchema,
-        404: ErrorSchema,
       },
       detail: {
         operationId: "getNews",
@@ -302,14 +272,6 @@ new Elysia()
           "Retrieves a list of news messages from the guild’s news channel.",
         responses: {
           200: { description: "List of news messages" },
-          400: {
-            description: "News channel must be a text or announcement channel",
-            content: { "application/json": { schema: ErrorSchema } },
-          },
-          404: {
-            description: "Guild or news channel not found",
-            content: { "application/json": { schema: ErrorSchema } },
-          },
         },
       },
     }
