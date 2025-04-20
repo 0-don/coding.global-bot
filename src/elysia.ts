@@ -2,57 +2,45 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
-import { Elysia, InternalServerError, NotFoundError, error, t } from "elysia";
+import { Elysia, error, t } from "elysia";
 import { verifyAllUsers } from "./lib/members/verifyAllUsers.js";
 import { bot } from "./main.js";
 import { prisma } from "./prisma.js";
 
-// Define UserSchema with $id for OpenAPI
-const UserSchema = t.Object(
-  {
-    id: t.String(),
-    username: t.String(),
-    globalName: t.Nullable(t.String()),
-    joinedAt: t.String(),
-    displayAvatarURL: t.String(),
-    bannerUrl: t.Nullable(t.String()),
-    displayHexColor: t.Optional(t.String()),
-    memberRoles: t.Array(t.String()),
-  },
-  { $id: "#/components/schemas/User" }
-);
+// Define UserSchema
+const UserSchema = t.Object({
+  id: t.String(),
+  username: t.String(),
+  globalName: t.String({ nullable: true }),
+  joinedAt: t.String(),
+  displayAvatarURL: t.String(),
+  bannerUrl: t.String({ nullable: true }),
+  displayHexColor: t.Optional(t.String()),
+  memberRoles: t.Array(t.String()),
+});
 
-// Define NewsAttachmentSchema with $id
-const NewsAttachmentSchema = t.Object(
-  {
-    url: t.String(),
-    width: t.Nullable(t.Number()),
-    height: t.Nullable(t.Number()),
-    contentType: t.Nullable(t.String()),
-  },
-  { $id: "#/components/schemas/NewsAttachment" }
-);
+// Define NewsAttachmentSchema
+const NewsAttachmentSchema = t.Object({
+  url: t.String(),
+  width: t.Number({ nullable: true }),
+  height: t.Number({ nullable: true }),
+  contentType: t.String({ nullable: true }),
+});
 
-// Define NewsSchema with $id
-const NewsSchema = t.Object(
-  {
-    id: t.String(),
-    content: t.String(),
-    createdAt: t.String(),
-    attachments: t.Array(NewsAttachmentSchema),
-    user: UserSchema,
-  },
-  { $id: "#/components/schemas/News" }
-);
+// Define NewsSchema
+const NewsSchema = t.Object({
+  id: t.String(),
+  content: t.String(),
+  createdAt: t.String(),
+  attachments: t.Array(NewsAttachmentSchema),
+  user: UserSchema,
+});
 
-// Define ErrorSchema for structured error responses
-const ErrorSchema = t.Object(
-  {
-    error: t.String(),
-    message: t.String(),
-  },
-  { $id: "#/components/schemas/Error" }
-);
+// Define ErrorSchema
+const ErrorSchema = t.Object({
+  error: t.String(),
+  message: t.String(),
+});
 
 // Register models for OpenAPI schema
 const models = new Elysia().model({
@@ -109,12 +97,9 @@ new Elysia()
   .get(
     "/api/:guildId/verify-all-users",
     ({ guild }) => {
-      if (!guild) throw new NotFoundError("Guild not found");
+      if (!guild) throw error(404, "Guild not found");
       if (locks[guild.id])
-        throw error(409, {
-          error: "Conflict",
-          message: "Verification is already in progress",
-        });
+        throw error(409, "Verification is already in progress");
 
       try {
         locks[guild.id] = true;
@@ -122,9 +107,7 @@ new Elysia()
         return "Verification started";
       } catch (err) {
         console.error(err);
-        throw new InternalServerError(
-          "An error occurred while verifying users"
-        );
+        throw error(500, "An error occurred while verifying users");
       }
     },
     {
@@ -140,16 +123,25 @@ new Elysia()
           "Initiates verification for all users in the specified guild.",
         responses: {
           200: { description: "Verification process started successfully" },
-          404: { description: "Guild not found" },
-          409: { description: "Verification is already in progress" },
-          500: { description: "Internal server error" },
+          404: {
+            description: "Guild not found",
+            content: { "application/json": { schema: ErrorSchema } },
+          },
+          409: {
+            description: "Verification is already in progress",
+            content: { "application/json": { schema: ErrorSchema } },
+          },
+          500: {
+            description: "Internal server error",
+            content: { "application/json": { schema: ErrorSchema } },
+          },
         },
       },
     }
   )
   .derive(({ request, path }) => {
     if (request.method !== "GET") return { cacheKey: null };
-    return { cacheKey: path }; // Use full path to avoid conflicts
+    return { cacheKey: path };
   })
   .onBeforeHandle(({ cacheKey }) => {
     if (!cacheKey) return;
@@ -172,7 +164,7 @@ new Elysia()
   .get(
     "/api/:guildId/staff",
     async ({ guild }) => {
-      if (!guild) throw new NotFoundError("Guild not found");
+      if (!guild) throw error(404, "Guild not found");
 
       const staffMembers = (await guild.members.fetch())
         .filter(
@@ -199,14 +191,13 @@ new Elysia()
           users.push({
             id: member?.id,
             username: member.user.username,
-            globalName: member.user.globalName,
+            globalName: member.user.globalName!,
             joinedAt: member.joinedAt!.toISOString(),
             displayAvatarURL: member.user.displayAvatarURL({
               size: 512,
               extension: "webp",
             }),
-            bannerUrl:
-              member.user.bannerURL({ size: 512, extension: "webp" }) || null,
+            bannerUrl: member.user.bannerURL({ size: 512, extension: "webp" })!,
             displayHexColor: member.displayHexColor || null,
             memberRoles: roles.map((role) => role.name || ""),
           });
@@ -226,7 +217,10 @@ new Elysia()
           "Retrieves a list of staff members for the specified guild.",
         responses: {
           200: { description: "List of staff members" },
-          404: { description: "Guild not found" },
+          404: {
+            description: "Guild not found",
+            content: { "application/json": { schema: ErrorSchema } },
+          },
         },
       },
     }
@@ -234,32 +228,34 @@ new Elysia()
   .get(
     "/api/:guildId/news",
     async ({ guild }) => {
-      if (!guild) throw new NotFoundError("Guild not found");
+      if (!guild) throw error(404, "Guild not found");
 
       const newsChannel = guild.channels.cache.find((channel) =>
         channel.name.toLowerCase().includes("news")
       );
 
-      if (!newsChannel) throw new NotFoundError("News channel not found");
+      if (!newsChannel) throw error(404, "News channel not found");
 
       if (
         newsChannel.type !== ChannelType.GuildText &&
         newsChannel.type !== ChannelType.GuildAnnouncement
       ) {
-        throw error(400, {
-          error: "BadRequest",
-          message: "News channel must be a text or announcement channel",
-        });
+        throw error(400, "News channel must be a text or announcement channel");
       }
 
       const messages = await newsChannel.messages.fetch({ limit: 100 });
 
       const memberRoles = await prisma.memberRole.findMany({
-        where: { memberId: { in: messages.map((m) => m.author?.id) } },
+        where: {
+          memberId: {
+            in: messages
+              .map((m) => m.author?.id)
+              .filter((id): id is string => !!id),
+          },
+        },
         select: { memberId: true, name: true },
       });
 
-      // @ts-ignore
       const news: (typeof NewsSchema.static)[] = messages.map((message) => ({
         id: message?.id,
         content: message.content,
@@ -268,25 +264,27 @@ new Elysia()
           .filter((attachment) => attachment.contentType?.startsWith("image/"))
           .map((attachment) => ({
             url: attachment.url,
-            width: attachment.width,
-            height: attachment.height,
-            contentType: attachment.contentType,
+            width: attachment.width!,
+            height: attachment.height!,
+            contentType: attachment.contentType!,
           })),
         user: {
           id: message.author?.id,
           username: message.author.username,
-          globalName: message.author.globalName,
+          globalName: message.author.globalName!,
           joinedAt: message.author.createdAt.toISOString(),
           displayAvatarURL: message.author.displayAvatarURL({
             size: 512,
             extension: "webp",
           }),
-          bannerUrl:
-            message.author.bannerURL({ size: 512, extension: "webp" }) || null,
+          bannerUrl: message.author.bannerURL({
+            size: 512,
+            extension: "webp",
+          })!,
           memberRoles: memberRoles
             .filter((role) => role.memberId === message.author?.id)
             .map((role) => role.name || ""),
-          displayHexColor: message.member?.displayHexColor || null,
+          displayHexColor: message.member?.displayHexColor!,
         },
       }));
 
@@ -306,8 +304,12 @@ new Elysia()
           200: { description: "List of news messages" },
           400: {
             description: "News channel must be a text or announcement channel",
+            content: { "application/json": { schema: ErrorSchema } },
           },
-          404: { description: "Guild or news channel not found" },
+          404: {
+            description: "Guild or news channel not found",
+            content: { "application/json": { schema: ErrorSchema } },
+          },
         },
       },
     }
