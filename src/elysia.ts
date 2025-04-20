@@ -157,7 +157,7 @@ new Elysia()
     },
     {
       response: t.Array(UserSchema),
-
+      parse: "application/json",
       detail: { operationId: "getStaff" },
     }
   )
@@ -219,6 +219,7 @@ new Elysia()
     },
     {
       response: t.Array(NewsSchema),
+      parse: "application/json",
       detail: { operationId: "getNews" },
     }
   )
