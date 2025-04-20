@@ -84,7 +84,10 @@ new Elysia()
     },
     {
       response: t.String(),
-      detail: { operationId: "verifyAllUsers" },
+      detail: {
+        operationId: "verifyAllUsers",
+        description: "Verify all users",
+      },
     }
   )
   .derive(({ request, path }) => {
@@ -158,7 +161,7 @@ new Elysia()
     {
       response: t.Array(UserSchema),
       parse: "application/json",
-      detail: { operationId: "getStaff" },
+      detail: { operationId: "getStaff", description: "Get staff members" },
     }
   )
   .get(
@@ -207,7 +210,8 @@ new Elysia()
             size: 512,
             extension: "webp",
           }),
-          bannerUrl: message.author.bannerURL({ size: 512, extension: "webp" }) || null,
+          bannerUrl:
+            message.author.bannerURL({ size: 512, extension: "webp" }) || null,
           memberRoles: memberRoles
             .filter((role) => role.memberId === message.author?.id)
             .map((role) => role.name!),
@@ -220,7 +224,7 @@ new Elysia()
     {
       response: t.Array(NewsSchema),
       parse: "application/json",
-      detail: { operationId: "getNews" },
+      detail: { operationId: "getNews", description: "Get news messages" },
     }
   )
   .listen(3000);
