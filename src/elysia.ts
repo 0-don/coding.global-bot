@@ -22,7 +22,7 @@ const NewsAttachmentSchema = t.Object({
   url: t.String(),
   width: t.Union([t.Number(), t.Null()]),
   height: t.Union([t.Number(), t.Null()]),
-  contentType: t.Union([t.String(), t.Null()]),
+  contentType: t.Nullable(t.String()),
 });
 
 const NewsSchema = t.Object({
