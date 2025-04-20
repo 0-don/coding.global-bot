@@ -20,8 +20,8 @@ const UserSchema = t.Object({
 
 const NewsAttachmentSchema = t.Object({
   url: t.String(),
-  width: t.Union([t.Number(), t.Null()]),
-  height: t.Union([t.Number(), t.Null()]),
+  width: t.Nullable(t.Number()),
+  height: t.Nullable(t.Number()),
   contentType: t.Nullable(t.String()),
 });
 
