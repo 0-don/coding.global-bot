@@ -83,6 +83,9 @@ export const deleteUserMessages = async ({
       )
         continue;
 
+      // Skip channels that don't have messages property
+      if (!("messages" in channel)) continue;
+
       //cache needs to be cleared
       channel.messages.cache.clear();
       await channel.messages.fetch({ limit: 100 });
