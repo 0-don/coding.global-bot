@@ -7,30 +7,61 @@ import { verifyAllUsers } from "./lib/members/verifyAllUsers.js";
 import { bot } from "./main.js";
 import { prisma } from "./prisma.js";
 
-const UserSchema = t.Object({
-  id: t.String(),
-  username: t.String(),
-  globalName: t.Nullable(t.String()),
-  joinedAt: t.String(),
-  displayAvatarURL: t.String(),
-  bannerUrl: t.Nullable(t.String()),
-  displayHexColor: t.Optional(t.String()),
-  memberRoles: t.Array(t.String()),
-});
+// Define UserSchema with $id for OpenAPI
+const UserSchema = t.Object(
+  {
+    id: t.String(),
+    username: t.String(),
+    globalName: t.Nullable(t.String()),
+    joinedAt: t.String(),
+    displayAvatarURL: t.String(),
+    bannerUrl: t.Nullable(t.String()),
+    displayHexColor: t.Optional(t.String()),
+    memberRoles: t.Array(t.String()),
+  },
+  { $id: "#/components/schemas/User" }
+);
 
-const NewsAttachmentSchema = t.Object({
-  url: t.String(),
-  width: t.Nullable(t.Number()),
-  height: t.Nullable(t.Number()),
-  contentType: t.Nullable(t.String()),
-});
+// Define NewsAttachmentSchema with $id
+const NewsAttachmentSchema = t.Object(
+  {
+    url: t.String(),
+    width: t.Nullable(t.Number()),
+    height: t.Nullable(t.Number()),
+    contentType: t.Nullable(t.String()),
+  },
+  { $id: "#/components/schemas/NewsAttachment" }
+);
 
-const NewsSchema = t.Object({
-  id: t.String(),
-  content: t.String(),
-  createdAt: t.String(),
-  attachments: t.Array(NewsAttachmentSchema),
+// Define NewsSchema with $id
+const NewsSchema = t.Object(
+  {
+    id: t.String(),
+    content: t.String(),
+    createdAt: t.String(),
+    attachments: t.Array(NewsAttachmentSchema),
+    user: UserSchema,
+  },
+  { $id: "#/components/schemas/News" }
+);
+
+// Define ErrorSchema for structured error responses
+const ErrorSchema = t.Object(
+  {
+    error: t.String(),
+    message: t.String(),
+  },
+  { $id: "#/components/schemas/Error" }
+);
+
+// Register models for OpenAPI schema
+const models = new Elysia().model({
   user: UserSchema,
+  newsAttachment: NewsAttachmentSchema,
+  news: NewsSchema,
+  error: ErrorSchema,
+  users: t.Array(UserSchema),
+  newsList: t.Array(NewsSchema),
 });
 
 const cache: Record<string, { timestamp: number; data: any }> = {};
@@ -39,8 +70,19 @@ const locks: Record<string, boolean> = {};
 const CACHE_TTL = 60 * 60 * 1000;
 
 new Elysia()
-  .use(swagger())
+  .use(
+    swagger({
+      documentation: {
+        info: {
+          title: "Elysia Documentation",
+          description: "Development documentation",
+          version: "0.0.0",
+        },
+      },
+    })
+  )
   .use(cors())
+  .use(models)
   .derive(({ request }) => ({
     startTime: Date.now(),
     clientIP:
@@ -69,7 +111,10 @@ new Elysia()
     ({ guild }) => {
       if (!guild) throw new NotFoundError("Guild not found");
       if (locks[guild.id])
-        throw error(409, "Verification is already in progress");
+        throw error(409, {
+          error: "Conflict",
+          message: "Verification is already in progress",
+        });
 
       try {
         locks[guild.id] = true;
@@ -83,16 +128,28 @@ new Elysia()
       }
     },
     {
-      response: t.String(),
+      response: {
+        200: t.String(),
+        404: ErrorSchema,
+        409: ErrorSchema,
+        500: ErrorSchema,
+      },
       detail: {
         operationId: "verifyAllUsers",
-        description: "Verify all users",
+        description:
+          "Initiates verification for all users in the specified guild.",
+        responses: {
+          200: { description: "Verification process started successfully" },
+          404: { description: "Guild not found" },
+          409: { description: "Verification is already in progress" },
+          500: { description: "Internal server error" },
+        },
       },
     }
   )
   .derive(({ request, path }) => {
     if (request.method !== "GET") return { cacheKey: null };
-    return { cacheKey: path.split("/").pop() || null };
+    return { cacheKey: path }; // Use full path to avoid conflicts
   })
   .onBeforeHandle(({ cacheKey }) => {
     if (!cacheKey) return;
@@ -102,7 +159,6 @@ new Elysia()
       return cachedData.data;
     }
 
-    // Remove expired cache entry
     if (cachedData) delete cache[cacheKey];
   })
   .onAfterHandle(({ cacheKey, response }) => {
@@ -149,9 +205,10 @@ new Elysia()
               size: 512,
               extension: "webp",
             }),
-            bannerUrl: member.user.bannerURL({ size: 512, extension: "webp" })!,
-            displayHexColor: member.displayHexColor,
-            memberRoles: roles.map((role) => role.name!),
+            bannerUrl:
+              member.user.bannerURL({ size: 512, extension: "webp" }) || null,
+            displayHexColor: member.displayHexColor || null,
+            memberRoles: roles.map((role) => role.name || ""),
           });
         }
       }
@@ -159,9 +216,19 @@ new Elysia()
       return users;
     },
     {
-      response: t.Array(UserSchema),
-      parse: "application/json",
-      detail: { operationId: "getStaff", description: "Get staff members" },
+      response: {
+        200: t.Array(UserSchema),
+        404: ErrorSchema,
+      },
+      detail: {
+        operationId: "getStaff",
+        description:
+          "Retrieves a list of staff members for the specified guild.",
+        responses: {
+          200: { description: "List of staff members" },
+          404: { description: "Guild not found" },
+        },
+      },
     }
   )
   .get(
@@ -179,7 +246,10 @@ new Elysia()
         newsChannel.type !== ChannelType.GuildText &&
         newsChannel.type !== ChannelType.GuildAnnouncement
       ) {
-        throw error(400, "News channel must be a text or announcement channel");
+        throw error(400, {
+          error: "BadRequest",
+          message: "News channel must be a text or announcement channel",
+        });
       }
 
       const messages = await newsChannel.messages.fetch({ limit: 100 });
@@ -189,7 +259,8 @@ new Elysia()
         select: { memberId: true, name: true },
       });
 
-      const news = messages.map((message) => ({
+      // @ts-ignore
+      const news: (typeof NewsSchema.static)[] = messages.map((message) => ({
         id: message?.id,
         content: message.content,
         createdAt: message.createdAt.toISOString(),
@@ -214,17 +285,31 @@ new Elysia()
             message.author.bannerURL({ size: 512, extension: "webp" }) || null,
           memberRoles: memberRoles
             .filter((role) => role.memberId === message.author?.id)
-            .map((role) => role.name!),
-          displayHexColor: message.member?.displayHexColor,
+            .map((role) => role.name || ""),
+          displayHexColor: message.member?.displayHexColor || null,
         },
       }));
 
       return news;
     },
     {
-      response: t.Array(NewsSchema),
-      parse: "application/json",
-      detail: { operationId: "getNews", description: "Get news messages" },
+      response: {
+        200: t.Array(NewsSchema),
+        400: ErrorSchema,
+        404: ErrorSchema,
+      },
+      detail: {
+        operationId: "getNews",
+        description:
+          "Retrieves a list of news messages from the guild’s news channel.",
+        responses: {
+          200: { description: "List of news messages" },
+          400: {
+            description: "News channel must be a text or announcement channel",
+          },
+          404: { description: "Guild or news channel not found" },
+        },
+      },
     }
   )
   .listen(3000);
