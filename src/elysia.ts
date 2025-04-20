@@ -13,7 +13,7 @@ const UserSchema = t.Object({
   globalName: t.Nullable(t.String()),
   joinedAt: t.String(),
   displayAvatarURL: t.String(),
-  bannerUrl: t.Union([t.String(), t.Null(), t.Undefined()]),
+  bannerUrl: t.Nullable(t.String()),
   displayHexColor: t.Optional(t.String()),
   memberRoles: t.Array(t.String()),
 });
@@ -146,7 +146,7 @@ new Elysia()
               size: 512,
               extension: "webp",
             }),
-            bannerUrl: member.user.bannerURL({ size: 512, extension: "webp" }),
+            bannerUrl: member.user.bannerURL({ size: 512, extension: "webp" })!,
             displayHexColor: member.displayHexColor,
             memberRoles: roles.map((role) => role.name!),
           });
@@ -207,7 +207,7 @@ new Elysia()
             size: 512,
             extension: "webp",
           }),
-          bannerUrl: message.author.bannerURL({ size: 512, extension: "webp" }),
+          bannerUrl: message.author.bannerURL({ size: 512, extension: "webp" }) || null,
           memberRoles: memberRoles
             .filter((role) => role.memberId === message.author?.id)
             .map((role) => role.name!),
