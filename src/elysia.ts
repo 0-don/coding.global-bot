@@ -8,50 +8,41 @@ import { bot } from "./main.js";
 import { prisma } from "./prisma.js";
 
 // Define UserSchema
-const UserSchema = t.Object(
-  {
-    id: t.String(),
-    username: t.String(),
-    globalName: t.String({ nullable: true }),
-    joinedAt: t.String(),
-    displayAvatarURL: t.String(),
-    bannerUrl: t.String({ nullable: true }),
-    displayHexColor: t.Optional(t.String()),
-    memberRoles: t.Array(t.String()),
-  },
-  { $id: "User" }
-);
+const UserSchema = t.Object({
+  id: t.String(),
+  username: t.String(),
+  globalName: t.String({ nullable: true }),
+  joinedAt: t.String(),
+  displayAvatarURL: t.String(),
+  bannerUrl: t.String({ nullable: true }),
+  displayHexColor: t.Optional(t.String()),
+  memberRoles: t.Array(t.String()),
+});
 
 // Define NewsAttachmentSchema
-const NewsAttachmentSchema = t.Object(
-  {
-    url: t.String(),
-    width: t.Number({ nullable: true }),
-    height: t.Number({ nullable: true }),
-    contentType: t.String({ nullable: true }),
-  },
-  { $id: "NewsAttachment" }
-);
+const NewsAttachmentSchema = t.Object({
+  url: t.String(),
+  width: t.Number({ nullable: true }),
+  height: t.Number({ nullable: true }),
+  contentType: t.String({ nullable: true }),
+});
 
 // Define NewsSchema
-const NewsSchema = t.Object(
-  {
-    id: t.String(),
-    content: t.String(),
-    createdAt: t.String(),
-    attachments: t.Array(NewsAttachmentSchema),
-    user: UserSchema,
-  },
-  { $id: "News" }
-);
+const NewsSchema = t.Object({
+  id: t.String(),
+  content: t.String(),
+  createdAt: t.String(),
+  attachments: t.Array(NewsAttachmentSchema),
+  user: UserSchema,
+});
 
 // Register models for OpenAPI schema
 const models = new Elysia().model({
   user: UserSchema,
   newsAttachment: NewsAttachmentSchema,
   news: NewsSchema,
-  users: t.Array(UserSchema, { $id: "Users" }),
-  newsList: t.Array(NewsSchema, { $id: "NewsList" }),
+  users: t.Array(UserSchema),
+  newsList: t.Array(NewsSchema),
 });
 
 const cache: Record<string, { timestamp: number; data: any }> = {};
