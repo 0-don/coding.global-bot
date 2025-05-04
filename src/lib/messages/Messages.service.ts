@@ -12,6 +12,7 @@ import {
   LEVEL_MESSAGES,
   SHOULD_USER_LEVEL_UP,
   VERIFY_CHANNELS,
+  VOICE_ONLY,
 } from "../constants.js";
 
 export class MessagesService {
@@ -117,7 +118,9 @@ export class MessagesService {
     if (!SHOULD_USER_LEVEL_UP || message.author.bot) return;
 
     const memberInJail = message.member?.roles.cache.some(
-      (role) => JAIL === role.name
+      (role) =>
+        JAIL === role.name.toLowerCase() ||
+        VOICE_ONLY === role.name.toLowerCase()
     );
 
     if (memberInJail) return;
