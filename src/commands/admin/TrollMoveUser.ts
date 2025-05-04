@@ -46,19 +46,19 @@ export class TrollMoveUser {
       type: ApplicationCommandOptionType.Integer,
     })
     timeout: number = 0,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
     await interaction.deferReply({ ephemeral: true });
 
     LogService.logCommandHistory(interaction, "troll-move-user");
 
     if (
-      user.id === "275231727943942147" &&
-      interaction.user.id !== "275231727943942147"
+      user.id === "1302775229923332119" &&
+      interaction.user.id !== "1302775229923332119"
     )
       return interaction.editReply(`You can't troll me`);
 
-    if (interaction.user.id === user.id && user.id !== "275231727943942147")
+    if (interaction.user.id === user.id && user.id !== "1302775229923332119")
       return interaction.editReply(`You can't troll yourself`);
 
     await prisma.memberGuild.update({
@@ -72,7 +72,7 @@ export class TrollMoveUser {
     });
 
     const allVoiceChannels = (await interaction.guild!.channels.fetch()).filter(
-      (c) => c?.type === ChannelType.GuildVoice,
+      (c) => c?.type === ChannelType.GuildVoice
     );
 
     for (const [id, channel] of allVoiceChannels) {
@@ -83,7 +83,7 @@ export class TrollMoveUser {
     }
 
     const guildMember = (await interaction.guild?.members.fetch(
-      user.id,
+      user.id
     )) as GuildMember;
 
     if (count > 0) moveMemberToChannel(guildMember);
