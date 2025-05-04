@@ -33,7 +33,7 @@ export type UpdateDbRolesArgs = {
 
 export class RolesService {
   static async updateDbRoles(args: UpdateDbRolesArgs) {
-    // check if new role was aded
+    // check if new role was added
     if (
       (args.oldMember.flags.bitfield === 9 &&
         args.newMember.flags.bitfield === 11) ||
@@ -43,12 +43,21 @@ export class RolesService {
       return;
 
     if (args.newRoles.length > args.oldRoles.length) {
+      // Check for restricted roles (JAIL or VOICE_ONLY)
       const jailId = args.guildRoles.find((role) => role.name === JAIL)?.id;
+      const voiceOnlyId = args.guildRoles.find(
+        (role) => role.name === VOICE_ONLY
+      )?.id;
+
       const jailDbRole = args.memberDbRoles.find(
         (dbRole) => dbRole.roleId === jailId
       );
+      const voiceOnlyDbRole = args.memberDbRoles.find(
+        (dbRole) => dbRole.roleId === voiceOnlyId
+      );
 
-      if (jailDbRole) return;
+      // If user has JAIL or VOICE_ONLY role, don't add new roles
+      if (jailDbRole || voiceOnlyDbRole) return;
 
       // add or update new role
       const newAddedRole = args.newRoles.filter(
