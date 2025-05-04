@@ -147,8 +147,8 @@ export class MessagesService {
           const randomMessage = messages[
             Math.floor(Math.random() * messages.length)
           ]
-            .replace("${user}", message.member?.toString() ?? "")
-            .replace("${role}", role.toString());
+            .replaceAll("${user}", message.member?.toString() ?? "")
+            .replaceAll("${role}", role.toString());
 
           await (message.channel as TextChannel).send({
             content: randomMessage,
