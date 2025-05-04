@@ -107,49 +107,65 @@ export class RolesService {
       args.oldMember.pending ||
       args.newMember.pending
     ) {
-      const dbJailRole = args.memberDbRoles.find(
+      // Find restricted roles (JAIL or VOICE_ONLY)
+      const restrictedRoleNames = [JAIL, VOICE_ONLY];
+      const dbRestrictedRole = args.memberDbRoles.find(
         (dbRole) =>
           dbRole.roleId ===
-          args.guildRoles.find((role) => role.name === JAIL)?.id
+          args.guildRoles.find((role) =>
+            restrictedRoleNames.includes(role.name)
+          )?.id
       );
 
-      if (dbJailRole) {
-        //remove all roles
+      if (dbRestrictedRole) {
+        const restrictedRoleName = args.guildRoles.find(
+          (role) => role.id === dbRestrictedRole.roleId
+        )?.name;
+
+        // Remove all roles except the restricted one
         for (const role of args.newMember.roles.cache.values()) {
-          if (role.name === JAIL) continue;
+          if (role.name === restrictedRoleName) continue;
           await args.newMember.roles.remove(role).catch(() => {});
         }
 
-        //add only if not on user
-        if (!args.newMember.roles.cache.some((role) => role.name === JAIL))
-          args.newMember.roles.add(dbJailRole.roleId).catch(() => {});
+        // Add restricted role if not on user
+        if (
+          !args.newMember.roles.cache.some(
+            (role) => role.name === restrictedRoleName
+          )
+        )
+          args.newMember.roles.add(dbRestrictedRole.roleId).catch(() => {});
 
         prisma.memberRole.deleteMany({
           where: {
             memberId: args.newMember.id,
             guildId: args.newMember.guild.id,
-            roleId: { not: dbJailRole?.roleId },
+            roleId: { not: dbRestrictedRole?.roleId },
           },
         });
+
+        return;
       }
 
       return;
     }
-    // only run if user has a new role
+
+    // Only run if user has a new role
     if (args.oldRoles.length >= args.newRoles.length) return;
 
     const newRoles = args.newRoles.map((role) => role.name);
     const oldRoles = args.oldRoles.map((role) => role.name);
     const newAddedRole = newRoles.find((role) => !oldRoles.includes(role))!;
 
-    if (newAddedRole === JAIL) {
-      const jailRole = args.newMember.roles.cache.find(
-        (role) => role.name === JAIL
+    // Handle JAIL or VOICE_ONLY role addition
+    if (newAddedRole === JAIL || newAddedRole === VOICE_ONLY) {
+      const restrictedRole = args.newMember.roles.cache.find(
+        (role) => role.name === newAddedRole
       );
 
       args.newMember.roles.cache.forEach(
         (role) =>
-          role.name !== JAIL &&
+          role.name !== newAddedRole &&
           args.newMember.roles.remove(role).catch(() => {})
       );
 
@@ -157,12 +173,12 @@ export class RolesService {
         where: {
           memberId: args.newMember.id,
           guildId: args.newMember.guild.id,
-          roleId: { not: jailRole?.id },
+          roleId: { not: restrictedRole?.id },
         },
       });
     }
 
-    // check if role is a status role if yes then remove the unused status role
+    // Check if role is a status role; if yes, remove unused status roles
     if (STATUS_ROLES.includes(newAddedRole)) {
       args.newMember.roles.cache.forEach(
         (role) =>
@@ -172,7 +188,7 @@ export class RolesService {
       );
     }
 
-    // check if level roles are added
+    // Check if level roles are added
     if (LEVEL_ROLES.includes(newAddedRole)) {
       const levelRole = LEVEL_LIST.find((role) => role.role === newAddedRole);
       if (!levelRole) return;
