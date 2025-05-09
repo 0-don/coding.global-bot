@@ -16,15 +16,18 @@ const previousMessages = new Map<string, UserState>();
 @Discord()
 export class MessageCreate {
   @On({ event: "messageCreate" })
-  async messageCreate([message]: ArgsOf<"messageCreate">, client: Client) {
+  async messageCreate(
+    [message]: ArgsOf<"messageCreate">,
+    client: Client
+  ): Promise<void> {
     // remove regular messages in verify channel
     MessagesService.cleanUpVerifyChannel(message);
 
     // check for thread start
-    this.checkThreadStart(message);
+    MessageCreate.checkThreadStart(message);
 
     // check for spam
-    this.checkSpam(message);
+    MessageCreate.checkSpam(message);
 
     //delete messages with links
     await checkWarnings(message);
@@ -36,7 +39,7 @@ export class MessageCreate {
     await MessagesService.levelUpMessage(message);
   }
 
-  private async checkThreadStart(message: Message) {
+  static async checkThreadStart(message: Message) {
     const channel = message.channel;
     if (
       channel.isThread() &&
@@ -77,7 +80,7 @@ export class MessageCreate {
     }
   }
 
-  private async checkSpam(message: Message) {
+  static async checkSpam(message: Message) {
     if (message.author.bot) return;
 
     if (!previousMessages.has(message.author.id)) {
