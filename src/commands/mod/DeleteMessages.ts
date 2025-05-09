@@ -1,5 +1,9 @@
 import type { CommandInteraction, Message, TextChannel } from "discord.js";
-import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  MessageFlags,
+  PermissionFlagsBits,
+} from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { LogService } from "../../lib/logs/Log.service.js";
 import { fetchMessages } from "../../lib/messages/fetchMessages.js";
@@ -19,7 +23,7 @@ export class DeleteMessages {
       type: ApplicationCommandOptionType.String,
     })
     amount: number,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
     LogService.logCommandHistory(interaction, "delete-messages");
     // get member from slash command input
@@ -29,7 +33,7 @@ export class DeleteMessages {
     if (!guildId || !channel) return;
 
     // deferReply if it takes longer then usual
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
     // loop over all channels
     const messages = await fetchMessages(channel, amount);
@@ -45,7 +49,7 @@ export class DeleteMessages {
         }
         return acc;
       },
-      [[]] as Message<boolean>[][],
+      [[]] as Message<boolean>[][]
     );
 
     for (const message of messageList) {

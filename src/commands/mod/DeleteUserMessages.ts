@@ -1,5 +1,9 @@
 import type { CommandInteraction, User } from "discord.js";
-import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  MessageFlags,
+  PermissionFlagsBits,
+} from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { LogService } from "../../lib/logs/Log.service.js";
 import { deleteUserMessages } from "../../lib/messages/deleteUserMessages.js";
@@ -30,7 +34,7 @@ export class DeleteMessages {
       type: ApplicationCommandOptionType.Boolean,
     })
     jail: boolean = false,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
     LogService.logCommandHistory(interaction, "delete-user-messages");
     const memberId = user?.id ?? userId;
@@ -38,7 +42,7 @@ export class DeleteMessages {
 
     if (!memberId || !guildId) return;
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
     await deleteUserMessages({
       days: 7,
