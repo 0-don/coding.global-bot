@@ -2,7 +2,7 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
-import { Elysia, error, t } from "elysia";
+import { Elysia, status, t } from "elysia";
 import { verifyAllUsers } from "./lib/members/verifyAllUsers.js";
 import { bot } from "./main.js";
 import { prisma } from "./prisma.js";
@@ -80,9 +80,9 @@ new Elysia()
   .get(
     "/api/:guildId/verify-all-users",
     ({ guild }) => {
-      if (!guild) throw error(404, "Guild not found");
+      if (!guild) throw status(404, "Guild not found");
       if (locks[guild.id])
-        throw error(409, "Verification is already in progress");
+        throw status(409, "Verification is already in progress");
 
       try {
         locks[guild.id] = true;
@@ -90,7 +90,7 @@ new Elysia()
         return "Verification started";
       } catch (err) {
         console.error(err);
-        throw error(500, "An error occurred while verifying users");
+        throw status(500, "An error occurred while verifying users");
       }
     },
     {
@@ -132,7 +132,7 @@ new Elysia()
   .get(
     "/api/:guildId/staff",
     async ({ guild }) => {
-      if (!guild) throw error(404, "Guild not found");
+      if (!guild) throw status(404, "Guild not found");
 
       const staffMembers = (await guild.members.fetch())
         .filter(
@@ -191,19 +191,22 @@ new Elysia()
   .get(
     "/api/:guildId/news",
     async ({ guild }) => {
-      if (!guild) throw error(404, "Guild not found");
+      if (!guild) throw status(404, "Guild not found");
 
       const newsChannel = guild.channels.cache.find((channel) =>
         channel.name.toLowerCase().includes("news")
       );
 
-      if (!newsChannel) throw error(404, "News channel not found");
+      if (!newsChannel) throw status(404, "News channel not found");
 
       if (
         newsChannel.type !== ChannelType.GuildText &&
         newsChannel.type !== ChannelType.GuildAnnouncement
       ) {
-        throw error(400, "News channel must be a text or announcement channel");
+        throw status(
+          400,
+          "News channel must be a text or announcement channel"
+        );
       }
 
       const messages = await newsChannel.messages.fetch({ limit: 100 });

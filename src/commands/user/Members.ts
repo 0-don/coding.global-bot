@@ -42,10 +42,10 @@ export class Members {
     // if error occured, return
     if (chart?.error) return await interaction.editReply(chart.error);
 
-    // const attachment = {
-    //   attachment: chart.imgPath!,
-    //   name: chart.fileName!,
-    // };
+    const attachment = {
+      attachment: chart.imgPath!,
+      name: chart.fileName!,
+    };
 
     const count = interaction.guild.members.cache.size;
     const memberCount = interaction.guild.members.cache.filter(
@@ -89,7 +89,7 @@ export class Members {
     // return embed with chart img
     return await interaction.editReply({
       embeds: [embed],
-      // files: [attachment],
+      files: [attachment],
     });
   }
 }
