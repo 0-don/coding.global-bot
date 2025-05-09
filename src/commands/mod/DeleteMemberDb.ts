@@ -1,5 +1,9 @@
 import type { CommandInteraction, User } from "discord.js";
-import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  MessageFlags,
+  PermissionFlagsBits,
+} from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { LogService } from "../../lib/logs/Log.service.js";
 import { prisma } from "../../prisma.js";
@@ -19,7 +23,7 @@ export class DeleteMemberDb {
       type: ApplicationCommandOptionType.User,
     })
     user: User,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
     // get member from slash command input
 
@@ -34,7 +38,7 @@ export class DeleteMemberDb {
 
     // confirm deletion
     return await interaction.reply({
-      ephemeral: true,
+      flags: [MessageFlags.Ephemeral],
       content: "user data deleted",
     });
   }

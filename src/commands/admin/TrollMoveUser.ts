@@ -2,6 +2,7 @@ import {
   ApplicationCommandOptionType,
   ChannelType,
   GuildMember,
+  MessageFlags,
   PermissionFlagsBits,
   User,
   VoiceChannel,
@@ -48,7 +49,7 @@ export class TrollMoveUser {
     timeout: number = 0,
     interaction: CommandInteraction
   ) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
     LogService.logCommandHistory(interaction, "troll-move-user");
 

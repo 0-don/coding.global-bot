@@ -1,5 +1,5 @@
 import type { CommandInteraction, TextChannel } from "discord.js";
-import { PermissionFlagsBits } from "discord.js";
+import { MessageFlags, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
 
 import { LogService } from "../../lib/logs/Log.service.js";
@@ -17,7 +17,7 @@ export class VerifyAllUsers {
 
     if (!interaction.guild) return;
 
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
     try {
       const members = await verifyAllUsers(interaction.guild, interaction);
