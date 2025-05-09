@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { Chart } from "chart.js";
 import { log } from "console";
 import dayjs from "dayjs";
 import {
@@ -7,12 +8,13 @@ import {
   PartialGuildMember,
   TextChannel,
 } from "discord.js";
+import { writeFileSync } from "fs";
 import path from "path";
 import { prisma } from "../../prisma.js";
 import { ChartDataset, GuildMemberCountChart } from "../../types/index.js";
 import {
-  // CHARTJS_NODE_CANVAS,
-  // GLOBAL_CANVAS,
+  CHARTJS_NODE_CANVAS,
+  GLOBAL_CANVAS,
   JOIN_EVENT_CHANNELS,
   MEMBERS_COUNT_CHANNELS,
   SHOULD_COUNT_MEMBERS,
@@ -192,8 +194,6 @@ export class MembersService {
     if (data.length > 3)
       oneDayCount = data[data.length - 1]!.y - data[data.length - 2]!.y;
 
-    // const link = await megaUpload(JSON.stringify(data, null, 1), 'chart.json');
-
     // create chartjs config
     const config = chartConfig(
       data.slice(
@@ -203,21 +203,21 @@ export class MembersService {
     );
 
     // render image from chartjs config as png
-    // new Chart(
-    //   CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D,
-    //   config
-    // );
+    new Chart(
+      CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D,
+      config
+    );
 
     // crete local img file
     const fileName = `${guildId}.png`;
     const imgPath = path.join(path.resolve(), fileName);
-    // writeFileSync(fileName, GLOBAL_CANVAS.toBuffer("image/png"));
+    writeFileSync(fileName, GLOBAL_CANVAS.toBuffer("image/png"));
 
     log(`Created guild member count ${guildName}`);
 
     // return chart data
     return {
-      // link,
+
       fileName,
       imgPath,
       thirtyDaysCount,
