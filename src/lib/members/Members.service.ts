@@ -14,6 +14,7 @@ import { prisma } from "../../prisma.js";
 import { ChartDataset, GuildMemberCountChart } from "../../types/index.js";
 import {
   CHARTJS_NODE_CANVAS,
+  ChartManager,
   GLOBAL_CANVAS,
   JOIN_EVENT_CHANNELS,
   MEMBERS_COUNT_CHANNELS,
@@ -202,11 +203,12 @@ export class MembersService {
       ) as any
     );
 
-    // render image from chartjs config as png
-    new Chart(
+    ChartManager.destroyChart();
+    const chart = new Chart(
       CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D,
       config
     );
+    ChartManager.setChart(chart);
 
     // crete local img file
     const fileName = `${guildId}.png`;
@@ -217,7 +219,6 @@ export class MembersService {
 
     // return chart data
     return {
-
       fileName,
       imgPath,
       thirtyDaysCount,
