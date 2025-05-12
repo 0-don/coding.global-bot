@@ -1,10 +1,28 @@
 import { createCanvas } from "canvas";
+import { Chart } from "chart.js";
 import * as deepl from "deepl-node";
 
 export const GLOBAL_CANVAS = createCanvas(1200, 400);
 export const CHARTJS_NODE_CANVAS = GLOBAL_CANVAS.getContext("2d");
 export const TRANSLATOR = new deepl.Translator(process.env.DEEPL);
 
+let _GLOBAL_CHART: Chart | null = null;
+
+export const ChartManager = {
+  getChart: () => _GLOBAL_CHART,
+  setChart: (chart: Chart<any, any> | null) => {
+    if (_GLOBAL_CHART) {
+      _GLOBAL_CHART.destroy();
+    }
+    _GLOBAL_CHART = chart;
+  },
+  destroyChart: () => {
+    if (_GLOBAL_CHART) {
+      _GLOBAL_CHART.destroy();
+      _GLOBAL_CHART = null;
+    }
+  },
+};
 export const HELPER_ROLES =
   process.env.HELPER_ROLES?.split(",").map((s) => s.trim()) || [];
 export const STATUS_ROLES =
