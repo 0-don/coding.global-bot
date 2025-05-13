@@ -148,7 +148,7 @@ export const topStatsExampleEmbed = (args: ToptatsExampleEmbed): APIEmbed => {
     title: `⭐ Top Stats Overview`,
 
     description: `
-Top users and channels in the past __9,999 Days__.
+Top users and channels in the past __${args.lookback} Days__.
 
 **Help | Top ${args.mostHelpfulUsers?.length ?? 0} - Helpers**
 Top Helper Sum: ${mostHelpfulUsersCount}

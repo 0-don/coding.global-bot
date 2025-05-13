@@ -6,65 +6,64 @@ import { topStatsExampleEmbed, userStatsExampleEmbed } from "../embeds.js";
 import { getDaysArray } from "../helpers.js";
 
 export class StatsService {
-  static async topStatsEmbed(guildId: string) {
+  static async topStatsEmbed(guildId: string, lastDaysCount: number = 9999) {
     const limit = 10;
 
     const mostActiveMessageUsers = (await prisma.$queryRaw`
-      SELECT "MemberMessages"."memberId", "Member"."username", count("MemberMessages"."memberId") 
-      FROM "MemberMessages"
-      LEFT JOIN "Member" ON "Member"."memberId" = "MemberMessages"."memberId" 
-      WHERE "MemberMessages"."guildId" = ${guildId}
-      GROUP BY "MemberMessages"."memberId", "Member"."username" 
-      ORDER BY count(*) DESC 
-      LIMIT ${limit}`) as [
-      { memberId: string; count: number; username: string },
-    ];
+    SELECT "MemberMessages"."memberId", "Member"."username", count("MemberMessages"."memberId") 
+    FROM "MemberMessages"
+    LEFT JOIN "Member" ON "Member"."memberId" = "MemberMessages"."memberId" 
+    WHERE "MemberMessages"."guildId" = ${guildId}
+    AND "MemberMessages"."createdAt" > (NOW() - ${`${lastDaysCount} days`}::interval)
+    GROUP BY "MemberMessages"."memberId", "Member"."username" 
+    ORDER BY count(*) DESC 
+    LIMIT ${limit}`) as [{ memberId: string; count: number; username: string }];
 
     const mostHelpfulUsers = (await prisma.$queryRaw`
-      SELECT "MemberHelper"."memberId", "Member"."username", count(*)
-      FROM "MemberHelper"
-      LEFT JOIN "Member" ON "Member"."memberId" = "MemberHelper"."memberId" 
-      WHERE "MemberHelper"."guildId" = ${guildId}
-      GROUP BY "MemberHelper"."memberId", "Member"."username"
-      ORDER BY count(*) DESC
-      LIMIT ${limit}`) as [
-      { memberId: string; count: number; username: string },
-    ];
+    SELECT "MemberHelper"."memberId", "Member"."username", count(*)
+    FROM "MemberHelper"
+    LEFT JOIN "Member" ON "Member"."memberId" = "MemberHelper"."memberId" 
+    WHERE "MemberHelper"."guildId" = ${guildId}
+    AND "MemberHelper"."createdAt" > (NOW() - ${`${lastDaysCount} days`}::interval)
+    GROUP BY "MemberHelper"."memberId", "Member"."username"
+    ORDER BY count(*) DESC
+    LIMIT ${limit}`) as [{ memberId: string; count: number; username: string }];
 
     const mostActiveMessageChannels = (await prisma.$queryRaw`
-      SELECT "channelId", count(*) 
-      FROM "MemberMessages" 
-      WHERE "guildId" = ${guildId} 
-      GROUP BY "channelId" 
-      ORDER BY count(*) DESC 
-      LIMIT ${limit}`) as [{ channelId: string; count: number }];
+    SELECT "channelId", count(*) 
+    FROM "MemberMessages" 
+    WHERE "guildId" = ${guildId}
+    AND "createdAt" > (NOW() - ${`${lastDaysCount} days`}::interval)
+    GROUP BY "channelId" 
+    ORDER BY count(*) DESC 
+    LIMIT ${limit}`) as [{ channelId: string; count: number }];
 
     const mostActiveVoiceUsers = (await prisma.$queryRaw`
-      SELECT t."memberId", "Member"."username", SUM(difference) AS sum
-      FROM (
-          SELECT
-          "memberId",
-          EXTRACT(EPOCH FROM (COALESCE("leave", CURRENT_TIMESTAMP) - "join")) AS difference
-          FROM "GuildVoiceEvents"
-          WHERE "guildId" = ${guildId}) AS t
-      JOIN "Member" ON "Member"."memberId" = t."memberId"
-      GROUP BY t."memberId", "Member"."username"
-      ORDER BY "sum" DESC
-      LIMIT ${limit};`) as [
-      { memberId: string; username: string; sum: number },
-    ];
+    SELECT t."memberId", "Member"."username", SUM(difference) AS sum
+    FROM (
+        SELECT
+        "memberId",
+        EXTRACT(EPOCH FROM (COALESCE("leave", CURRENT_TIMESTAMP) - "join")) AS difference
+        FROM "GuildVoiceEvents"
+        WHERE "guildId" = ${guildId}
+        AND "join" > (NOW() - ${`${lastDaysCount} days`}::interval)) AS t
+    JOIN "Member" ON "Member"."memberId" = t."memberId"
+    GROUP BY t."memberId", "Member"."username"
+    ORDER BY "sum" DESC
+    LIMIT ${limit};`) as [{ memberId: string; username: string; sum: number }];
 
     const mostActiveVoiceChannels = (await prisma.$queryRaw`
-      SELECT "channelId", SUM(difference) AS sum
-      FROM (
-          SELECT
-          "channelId",
-          EXTRACT(EPOCH FROM (COALESCE("leave", CURRENT_TIMESTAMP) - "join")) AS difference
-          FROM "GuildVoiceEvents"
-          WHERE "guildId" = ${guildId}) AS t
-      GROUP BY "channelId"
-      ORDER BY "sum" DESC
-      LIMIT ${limit}`) as [{ channelId: string; sum: number }];
+    SELECT "channelId", SUM(difference) AS sum
+    FROM (
+        SELECT
+        "channelId",
+        EXTRACT(EPOCH FROM (COALESCE("leave", CURRENT_TIMESTAMP) - "join")) AS difference
+        FROM "GuildVoiceEvents"
+        WHERE "guildId" = ${guildId}
+        AND "join" > (NOW() - ${`${lastDaysCount} days`}::interval)) AS t
+    GROUP BY "channelId"
+    ORDER BY "sum" DESC
+    LIMIT ${limit}`) as [{ channelId: string; sum: number }];
 
     return topStatsExampleEmbed({
       mostActiveMessageUsers,
@@ -78,12 +77,13 @@ export class StatsService {
         ...channel,
         sum: Number((channel.sum / 60 / 60).toFixed(2)),
       })),
+      lookback: lastDaysCount,
     });
   }
 
   static async userStatsEmbed(
     interaction: CommandInteraction<CacheType>,
-    user?: User | null,
+    user?: User | null
   ) {
     const memberId = user?.id ?? interaction.member?.user.id;
     const guildId = interaction.guild?.id;
@@ -132,7 +132,7 @@ export class StatsService {
     } = await StatsService.messagesStats(
       memberId,
       guildId,
-      memberGuild.lookback,
+      memberGuild.lookback
     );
 
     const {
@@ -219,28 +219,28 @@ export class StatsService {
         voiceStatsLookback.reduce((acc, curr) => acc + Number(curr.sum), 0) /
         60 /
         60
-      ).toFixed(2),
+      ).toFixed(2)
     );
 
     const sevenDayVoiceSum = Number(
       (
         voiceStatsSevenDays.reduce(
           (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)),
-          0,
+          0
         ) /
         60 /
         60
-      ).toFixed(2),
+      ).toFixed(2)
     );
     const oneDayVoiceSum = Number(
       (
         voiceStatsOneDay.reduce(
           (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)),
-          0,
+          0
         ) /
         60 /
         60
-      ).toFixed(2),
+      ).toFixed(2)
     );
 
     return {
@@ -254,7 +254,7 @@ export class StatsService {
   static async messagesStats(
     memberId: string,
     guildId: string,
-    lookback: number,
+    lookback: number
   ) {
     const memberMessagesByDate = (await prisma.memberMessages.findMany({
       where: { memberId, guildId },
@@ -271,19 +271,19 @@ export class StatsService {
 
     const mostActiveTextChannelId = mostActiveTextChannel?.[0]?.channelId;
     const mostActiveTextChannelMessageCount = Number(
-      mostActiveTextChannel?.[0]?.count ?? 0,
+      mostActiveTextChannel?.[0]?.count ?? 0
     );
 
     // create date array from first to today for each day
     const startEndDateArray = getDaysArray(
       memberMessagesByDate[0]?.createdAt!,
-      dayjs().add(1, "day").toDate(),
+      dayjs().add(1, "day").toDate()
     );
 
     const messages: ChartDataset[] = startEndDateArray.map((date) => ({
       x: dayjs(date).toDate(),
       y: memberMessagesByDate.filter(
-        ({ createdAt }) => dayjs(createdAt) <= dayjs(date),
+        ({ createdAt }) => dayjs(createdAt) <= dayjs(date)
       ).length,
     }));
 
