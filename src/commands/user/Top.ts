@@ -1,5 +1,9 @@
-import type { CommandInteraction, TextChannel } from "discord.js";
-import { Discord, Slash } from "discordx";
+import {
+  ApplicationCommandOptionType,
+  type CommandInteraction,
+  type TextChannel,
+} from "discord.js";
+import { Discord, Slash, SlashOption } from "discordx";
 import {
   BOT_CHANNELS,
   IS_CONSTRAINED_TO_BOT_CHANNEL,
@@ -13,7 +17,18 @@ export class Top {
     name: "top",
     description: "Get top user stats",
   })
-  async top(interaction: CommandInteraction) {
+  async top(
+    @SlashOption({
+      name: "lookback",
+      description: "Number of days to look back",
+      required: false,
+      type: ApplicationCommandOptionType.Integer,
+      minValue: 1,
+      maxValue: 9999,
+    })
+    lookback: number = 9999,
+    interaction: CommandInteraction
+  ) {
     // get text channel
     LogService.logCommandHistory(interaction, "top");
     const channel = (await interaction.channel?.fetch()) as TextChannel;
@@ -27,10 +42,13 @@ export class Top {
       if (!BOT_CHANNELS.includes(channel.name))
         // if not bot channel, return
         return await interaction.editReply(
-          "Please use this command in the bot channel",
+          "Please use this command in the bot channel"
         );
     }
-    const embed = await StatsService.topStatsEmbed(interaction.guildId);
+    const embed = await StatsService.topStatsEmbed(
+      interaction.guildId,
+      lookback
+    );
 
     if (typeof embed === "string") return await interaction.editReply(embed);
 

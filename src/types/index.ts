@@ -60,6 +60,7 @@ export type ToptatsExampleEmbed = {
   ];
   mostActiveVoiceUsers: { memberId: string; username: string; sum: number }[];
   mostActiveVoiceChannels: { channelId: string; sum: number }[];
+  lookback: number;
 };
 
 export interface UserState {
