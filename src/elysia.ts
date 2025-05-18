@@ -33,7 +33,7 @@ const NewsSchema = t.Object({
   user: UserSchema,
 });
 
-const cache: Record<string, { timestamp: number; data: any }> = {};
+const cache: Record<string, { timestamp: number; data: unknown }> = {};
 const locks: Record<string, boolean> = {};
 
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
