@@ -7,7 +7,6 @@ import { verifyAllUsers } from "./lib/members/verifyAllUsers.js";
 import { bot } from "./main.js";
 import { prisma } from "./prisma.js";
 
-// Define UserSchema
 const UserSchema = t.Object({
   id: t.String(),
   username: t.String(),
@@ -19,7 +18,6 @@ const UserSchema = t.Object({
   memberRoles: t.Array(t.String()),
 });
 
-// Define NewsAttachmentSchema
 const NewsAttachmentSchema = t.Object({
   url: t.String(),
   width: t.Number({ nullable: true }),
@@ -27,22 +25,12 @@ const NewsAttachmentSchema = t.Object({
   contentType: t.String({ nullable: true }),
 });
 
-// Define NewsSchema
 const NewsSchema = t.Object({
   id: t.String(),
   content: t.String(),
   createdAt: t.String(),
   attachments: t.Array(NewsAttachmentSchema),
   user: UserSchema,
-});
-
-// Register models for OpenAPI schema
-const models = new Elysia().model({
-  user: UserSchema,
-  newsAttachment: NewsAttachmentSchema,
-  news: NewsSchema,
-  users: t.Array(UserSchema),
-  newsList: t.Array(NewsSchema),
 });
 
 const cache: Record<string, { timestamp: number; data: any }> = {};
