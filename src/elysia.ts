@@ -36,7 +36,7 @@ const NewsSchema = t.Object({
 const cache: Record<string, { timestamp: number; data: any }> = {};
 const locks: Record<string, boolean> = {};
 
-const CACHE_TTL = 60 * 60 * 1000;
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
 new Elysia()
   .use(swagger())
