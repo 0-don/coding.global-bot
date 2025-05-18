@@ -77,36 +77,20 @@ new Elysia()
 
     return { guild };
   })
-  .get(
-    "/api/:guildId/verify-all-users",
-    ({ guild }) => {
-      if (!guild) throw status(404, "Guild not found");
-      if (locks[guild.id])
-        throw status(409, "Verification is already in progress");
+  .get("/api/:guildId/verify-all-users", ({ guild }) => {
+    if (!guild) throw status(404, "Guild not found");
+    if (locks[guild.id])
+      throw status(409, "Verification is already in progress");
 
-      try {
-        locks[guild.id] = true;
-        verifyAllUsers(guild).finally(() => (locks[guild.id] = false));
-        return "Verification started";
-      } catch (err) {
-        console.error(err);
-        throw status(500, "An error occurred while verifying users");
-      }
-    },
-    {
-      response: {
-        200: t.String(),
-      },
-      detail: {
-        operationId: "verifyAllUsers",
-        description:
-          "Initiates verification for all users in the specified guild.",
-        responses: {
-          200: { description: "Verification process started successfully" },
-        },
-      },
+    try {
+      locks[guild.id] = true;
+      verifyAllUsers(guild).finally(() => (locks[guild.id] = false));
+      return "Verification started";
+    } catch (err) {
+      console.error(err);
+      throw status(500, "An error occurred while verifying users");
     }
-  )
+  })
   .derive(({ request, path }) => {
     if (request.method !== "GET") return { cacheKey: null };
     return { cacheKey: path };
@@ -129,147 +113,108 @@ new Elysia()
       data: response,
     };
   })
-  .get(
-    "/api/:guildId/staff",
-    async ({ guild }) => {
-      if (!guild) throw status(404, "Guild not found");
+  .get("/api/:guildId/staff", async ({ guild }) => {
+    if (!guild) throw status(404, "Guild not found");
 
-      const staffMembers = (await guild.members.fetch())
-        .filter(
-          (member) =>
-            (member.permissions.has(PermissionsBitField.Flags.MuteMembers) ||
-              member.permissions.has(
-                PermissionsBitField.Flags.ChangeNickname
-              )) &&
-            !member.user.bot
-        )
-        .sort((a, b) => a.joinedAt!.getTime() - b.joinedAt!.getTime());
+    const staffMembers = (await guild.members.fetch())
+      .filter(
+        (member) =>
+          (member.permissions.has(PermissionsBitField.Flags.MuteMembers) ||
+            member.permissions.has(PermissionsBitField.Flags.ChangeNickname)) &&
+          !member.user.bot
+      )
+      .sort((a, b) => a.joinedAt!.getTime() - b.joinedAt!.getTime());
 
-      const memberRoles = await prisma.memberRole.findMany({
-        where: { memberId: { in: Array.from(staffMembers.keys()) } },
-        select: { memberId: true, name: true },
-      });
+    const memberRoles = await prisma.memberRole.findMany({
+      where: { memberId: { in: Array.from(staffMembers.keys()) } },
+      select: { memberId: true, name: true },
+    });
 
-      const users: (typeof UserSchema.static)[] = [];
-      for (const [_, member] of staffMembers) {
-        const roles = memberRoles.filter(
-          (role) => role.memberId === member?.id
-        );
-        if (roles.length) {
-          users.push({
-            id: member?.id,
-            username: member.user.username,
-            globalName: member.user.globalName!,
-            joinedAt: member.joinedAt!.toISOString(),
-            displayAvatarURL: member.user.displayAvatarURL({
-              size: 512,
-              extension: "webp",
-            }),
-            bannerUrl: member.user.bannerURL({ size: 512, extension: "webp" })!,
-            displayHexColor: member.displayHexColor || null,
-            memberRoles: roles.map((role) => role.name || ""),
-          });
-        }
-      }
-
-      return users;
-    },
-    {
-      response: {
-        200: t.Array(UserSchema),
-      },
-      detail: {
-        operationId: "getStaff",
-        description:
-          "Retrieves a list of staff members for the specified guild.",
-        responses: {
-          200: { description: "List of staff members" },
-        },
-      },
-    }
-  )
-  .get(
-    "/api/:guildId/news",
-    async ({ guild }) => {
-      if (!guild) throw status(404, "Guild not found");
-
-      const newsChannel = guild.channels.cache.find((channel) =>
-        channel.name.toLowerCase().includes("news")
-      );
-
-      if (!newsChannel) throw status(404, "News channel not found");
-
-      if (
-        newsChannel.type !== ChannelType.GuildText &&
-        newsChannel.type !== ChannelType.GuildAnnouncement
-      ) {
-        throw status(
-          400,
-          "News channel must be a text or announcement channel"
-        );
-      }
-
-      const messages = await newsChannel.messages.fetch({ limit: 100 });
-
-      const memberRoles = await prisma.memberRole.findMany({
-        where: {
-          memberId: {
-            in: messages
-              .map((m) => m.author?.id)
-              .filter((id): id is string => !!id),
-          },
-        },
-        select: { memberId: true, name: true },
-      });
-
-      const news: (typeof NewsSchema.static)[] = messages.map((message) => ({
-        id: message?.id,
-        content: message.content,
-        createdAt: message.createdAt.toISOString(),
-        attachments: Array.from(message.attachments.values())
-          .filter((attachment) => attachment.contentType?.startsWith("image/"))
-          .map((attachment) => ({
-            url: attachment.url,
-            width: attachment.width!,
-            height: attachment.height!,
-            contentType: attachment.contentType!,
-          })),
-        user: {
-          id: message.author?.id,
-          username: message.author.username,
-          globalName: message.author.globalName!,
-          joinedAt: message.author.createdAt.toISOString(),
-          displayAvatarURL: message.author.displayAvatarURL({
+    const users: (typeof UserSchema.static)[] = [];
+    for (const [_, member] of staffMembers) {
+      const roles = memberRoles.filter((role) => role.memberId === member?.id);
+      if (roles.length) {
+        users.push({
+          id: member?.id,
+          username: member.user.username,
+          globalName: member.user.globalName!,
+          joinedAt: member.joinedAt!.toISOString(),
+          displayAvatarURL: member.user.displayAvatarURL({
             size: 512,
             extension: "webp",
           }),
-          bannerUrl: message.author.bannerURL({
-            size: 512,
-            extension: "webp",
-          })!,
-          memberRoles: memberRoles
-            .filter((role) => role.memberId === message.author?.id)
-            .map((role) => role.name || ""),
-          displayHexColor: message.member?.displayHexColor!,
-        },
-      }));
-
-      return news;
-    },
-    {
-      response: {
-        200: t.Array(NewsSchema),
-      },
-      detail: {
-        operationId: "getNews",
-        description:
-          "Retrieves a list of news messages from the guild’s news channel.",
-        responses: {
-          200: { description: "List of news messages" },
-        },
-      },
+          bannerUrl: member.user.bannerURL({ size: 512, extension: "webp" })!,
+          displayHexColor: member.displayHexColor || null,
+          memberRoles: roles.map((role) => role.name || ""),
+        });
+      }
     }
-  )
+
+    return users;
+  })
+  .get("/api/:guildId/news", async ({ guild }) => {
+    if (!guild) throw status(404, "Guild not found");
+
+    const newsChannel = guild.channels.cache.find((channel) =>
+      channel.name.toLowerCase().includes("news")
+    );
+
+    if (!newsChannel) throw status(404, "News channel not found");
+
+    if (
+      newsChannel.type !== ChannelType.GuildText &&
+      newsChannel.type !== ChannelType.GuildAnnouncement
+    ) {
+      throw status(400, "News channel must be a text or announcement channel");
+    }
+
+    const messages = await newsChannel.messages.fetch({ limit: 100 });
+
+    const memberRoles = await prisma.memberRole.findMany({
+      where: {
+        memberId: {
+          in: messages
+            .map((m) => m.author?.id)
+            .filter((id): id is string => !!id),
+        },
+      },
+      select: { memberId: true, name: true },
+    });
+
+    const news: (typeof NewsSchema.static)[] = messages.map((message) => ({
+      id: message?.id,
+      content: message.content,
+      createdAt: message.createdAt.toISOString(),
+      attachments: Array.from(message.attachments.values())
+        .filter((attachment) => attachment.contentType?.startsWith("image/"))
+        .map((attachment) => ({
+          url: attachment.url,
+          width: attachment.width!,
+          height: attachment.height!,
+          contentType: attachment.contentType!,
+        })),
+      user: {
+        id: message.author?.id,
+        username: message.author.username,
+        globalName: message.author.globalName!,
+        joinedAt: message.author.createdAt.toISOString(),
+        displayAvatarURL: message.author.displayAvatarURL({
+          size: 512,
+          extension: "webp",
+        }),
+        bannerUrl: message.author.bannerURL({
+          size: 512,
+          extension: "webp",
+        })!,
+        memberRoles: memberRoles
+          .filter((role) => role.memberId === message.author?.id)
+          .map((role) => role.name || ""),
+        displayHexColor: message.member?.displayHexColor!,
+      },
+    }));
+
+    return news;
+  })
   .listen(3000);
 
 log("Server started on port 3000");
