@@ -53,7 +53,6 @@ const CACHE_TTL = 60 * 60 * 1000;
 new Elysia()
   .use(swagger())
   .use(cors())
-  .use(models)
   .derive(({ request }) => ({
     startTime: Date.now(),
     clientIP:
