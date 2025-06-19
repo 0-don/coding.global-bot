@@ -10,6 +10,7 @@ import { fetchMessages } from "../lib/messages/fetchMessages.js";
 import { HelperService } from "../lib/roles/Helper.service.js";
 import { prisma } from "../prisma.js";
 import { UserState } from "../types/index.js";
+import { SpamDetectionService } from "../lib/spam/SpamDetection.service.js";
 
 const previousMessages = new Map<string, UserState>();
 
@@ -21,7 +22,13 @@ export class MessageCreate {
     client: Client
   ): Promise<void> {
     // remove regular messages in verify channel
-    MessagesService.cleanUpVerifyChannel(message);
+    // MessagesService.cleanUpVerifyChannel(message);
+
+    const isSpam = await SpamDetectionService.detectSpam(message);
+    if (isSpam) {
+      await SpamDetectionService.handleSpam(message);
+      return;
+    }
 
     // check for thread start
     MessageCreate.checkThreadStart(message);
