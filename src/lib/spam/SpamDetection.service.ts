@@ -64,7 +64,7 @@ Respond with only "yes" if the message is spam, "no" if legitimate.`;
 Message: "${message.content}"`;
 
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-flash-lite-preview-06-17",
         contents: [context],
         config: {
           systemInstruction: this.SYSTEM_PROMPT,
