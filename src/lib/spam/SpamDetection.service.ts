@@ -62,7 +62,6 @@ Respond with only "yes" if spam, "no" if legitimate.`;
     if (!isFirst) return false;
 
     try {
-      // Use Discord.js built-in createdAt property
       const accountAge = dayjs().diff(message.author.createdAt, "days");
 
       const context = `User info:
