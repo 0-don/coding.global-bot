@@ -50,16 +50,16 @@ export class MessagesService {
     } catch (_) {}
   }
 
-  static async cleanUpVerifyChannel(message: Message<boolean>) {
-    const channel = (await message.channel?.fetch()) as TextChannel;
-    // remove non command messages in verify channel
-    if (
-      VERIFY_CHANNELS.includes(channel.name) &&
-      message.type !== MessageType.ChatInputCommand
-    ) {
-      message.delete();
-    }
-  }
+  // static async cleanUpVerifyChannel(message: Message<boolean>) {
+  //   const channel = (await message.channel?.fetch()) as TextChannel;
+  //   // remove non command messages in verify channel
+  //   if (
+  //     VERIFY_CHANNELS.includes(channel.name) &&
+  //     message.type !== MessageType.ChatInputCommand
+  //   ) {
+  //     message.delete();
+  //   }
+  // }
 
   static async saveDeletedMessageHistory(
     message: Message<boolean> | PartialMessage
