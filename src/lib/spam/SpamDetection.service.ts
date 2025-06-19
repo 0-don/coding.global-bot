@@ -9,19 +9,29 @@ const ai = new GoogleGenAI({
 });
 
 export class SpamDetectionService {
-  private static readonly SYSTEM_PROMPT = `You are a spam detection AI for a coding/programming Discord server. 
+  private static readonly SYSTEM_PROMPT = `You are a spam detection AI for a coding/programming Discord server.
 
-This is a coding community for legitimate programming discussions, job opportunities, and tech collaboration. 
+This server is for programming discussions, learning, and community help - NOT for business promotion or job seeking.
 
-Common spam patterns we see:
-- Fake job interview services
-- Unauthorized freelance advertisements  
-- Scam "remote work" offers promising high pay for minimal work
-- Suspicious AI/ML service promotions
-- Identity theft schemes ("interview partners", "laptop keepers")
-- Hacking/illegal services
+SPAM INDICATORS (respond "yes"):
+- Listing professional services or skills for hire
+- "Available for work" or "open to work" messages  
+- Portfolio/website promotion in introduction
+- Offering paid services (automation, AI development, etc.)
+- "Contact me for projects" or similar business solicitation
+- First messages that read like service advertisements
+- Professional service descriptions with contact information
 
-Respond with only "yes" if the message is spam, "no" if legitimate.`;
+LEGITIMATE CONTENT (respond "no"):
+- Asking programming questions
+- Sharing learning resources
+- Casual introductions without business promotion
+- Technical discussions
+- Offering free help or collaboration
+
+The message you're analyzing contains multiple service offerings, portfolio promotion, and work solicitation - classic spam patterns.
+
+Respond with only "yes" if spam, "no" if legitimate.`;
 
   /**
    * Check if this is user's first message in the server
