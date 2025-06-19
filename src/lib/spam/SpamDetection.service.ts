@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import dayjs from "dayjs";
-import { Message } from "discord.js";
+import { Message, ThreadChannel } from "discord.js";
 import { prisma } from "../../prisma.js";
 import { deleteUserMessages } from "../messages/deleteUserMessages.js";
 
@@ -52,6 +52,14 @@ Respond with only "yes" if spam, "no" if legitimate.`;
   public static async detectSpam(message: Message): Promise<boolean> {
     if (!message.member || message.author.bot || !message.guildId) {
       return false;
+    }
+
+    const channel = message.channel;
+    if (
+      channel.isThread() &&
+      channel instanceof ThreadChannel // Type guard
+    ) {
+      return false; // Skip threads
     }
 
     // Only check first messages
