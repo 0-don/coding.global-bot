@@ -22,6 +22,7 @@ export const deleteUserMessages = async ({
     //get status roles
     const guildStatusRoles = RolesService.getGuildStatusRoles(guild);
 
+
     // delete all roles
     await prisma.memberRole.deleteMany({
       where: {
