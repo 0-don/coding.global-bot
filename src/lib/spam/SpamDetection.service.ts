@@ -90,7 +90,9 @@ Message: "${message.content}"`;
         },
       });
 
-      console.log(`Spam detection response: ${response.text?.trim()}`);
+      console.log(
+        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.member.nickname || ""}) - Response: ${response.text?.trim()}`
+      );
 
       return response.text?.trim().toLowerCase() === "yes";
     } catch (error) {
@@ -111,8 +113,6 @@ Message: "${message.content}"`;
         user: message.author,
         guild: message.guild!,
       });
-
-      console.log(`Spam detected and handled: ${message.author.username}`);
     } catch (error) {
       console.error("Error handling spam:", error);
     }
