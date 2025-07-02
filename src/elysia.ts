@@ -48,11 +48,11 @@ new Elysia()
       request.headers.get("x-forwarded-for") ||
       "Unknown IP",
   }))
-  .onAfterHandle(({ startTime, clientIP, request }) =>
-    log(
-      `[${new Date().toLocaleString("de")}] ${request.method} ${request.url} - Client IP: ${clientIP} - Duration: ${Date.now() - startTime}ms`
-    )
-  )
+  // .onAfterHandle(({ startTime, clientIP, request }) =>
+  //   log(
+  //     `[${new Date().toLocaleString("de")}] ${request.method} ${request.url} - Client IP: ${clientIP} - Duration: ${Date.now() - startTime}ms`
+  //   )
+  // )
   .derive(({ path }) => {
     const matches = path.match(/\/api\/(\d{17,19})/);
     const guildId = matches ? matches[1] : null;
