@@ -85,4 +85,5 @@ export type Commands =
   | "members"
   | "top"
   | "translate"
-  | "user";
+  | "user"
+  | "ask";
