@@ -1,89 +1,84 @@
-import {
-  ApplicationCommandOptionType,
-  TextChannel,
-  type CommandInteraction,
-} from "discord.js";
-import { Discord, Slash, SlashOption } from "discordx";
+import { Message, TextChannel } from "discord.js";
 import {
   BOT_CHANNELS,
   IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../../lib/constants.js";
+import { bot } from "../../../main.js";
 import { Ai_prompt } from "./prompt.js";
 
+bot.on("messageCreate", async (message: Message) => {
+  if (message.author.bot || !message.content.startsWith("-ask")) return;
 
-@Discord()
-export class AskToAI {
-  @Slash({
-    name: "ask",
-    description: "I have ai brain, ask me something!",
-  })
-  async ask(
-    @SlashOption({
-      name: "prompt",
-      description: 'Type your question or personalized prompt',
-      required: true,
-      type: ApplicationCommandOptionType.String,
-    })
-    prompt: string,
-    interaction: CommandInteraction,
-  ) {
-    const channel = (await interaction.channel?.fetch()) as TextChannel;
-    await interaction.deferReply();
+  if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
+    const channel = (await message.channel.fetch()) as TextChannel;
+    if (!BOT_CHANNELS.includes(channel.name)) {
+      return message.reply(
+        "Please go to bots channel, lets keep the things simple and organized"
+      );
+    }
+  }
 
+  const prompt = message.content.slice("-ask".length).trim();
+  if (!prompt) {
+    return message.reply("Please provide a question or text after `-ask`.");
+  }
 
-    if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
-      if (!BOT_CHANNELS.includes(channel.name))
-        return await interaction.editReply(
-          "Please go to bots channel, lets keep the things simple and organized",
-        );
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error("API KEY missing");
+    return message.reply("Error: API key is missing.");
+  }
+
+  try {
+    const body = JSON.stringify({
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text:
+                Ai_prompt.promptText + " Knowing that, please reply: " + prompt,
+            },
+          ],
+        },
+      ],
+    });
+
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash :generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      }
+    );
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`Gemini error: ${res.status} ${errorText}`);
+      return message.reply("Sorry I can't reply right now.");
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.error('API KEY missing');
-      return await interaction.editReply('Error:  API key is missing.');
-        }
+    const data = await res.json();
+    const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
-        try {
-      const body = JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: Ai_prompt.promptText + 'knowing that, please reply: ' + prompt }] }],
-      });
-
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body,
-        }
-      );
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error(`Gemini error: ${res.status} ${errorText}`);
-        return await interaction.editReply('Sorry i cant reply rn.');
-      }
-
-      const data = await res.json();
-      const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      return await interaction.editReply(responseText || 'Could not generate a response.');
-        } catch (error) {
-      console.error('Error calling Gemini:', error);
-      return await interaction.editReply('An error occurred while processing your message.');
-        }
+    return message.reply(responseText || "Could not generate a response.");
+  } catch (error) {
+    console.error("Error calling Gemini:", error);
+    console.log('[❌] Not responding but theres a error: ', error)
   }
-}
+});
 
-// ,---,---,---,---,---,---,---,---,---,---,---,---,---,-------,
-// |1/2| 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 0 | + | ' | <-    |
-// |---'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-----|
-// | ->| | Q | W | E | R | T | Y | U | I | O | P | ] | ^ |     |
-// |-----',--',--',--',--',--',--',--',--',--',--',--',--'|    |
-// | Caps | A | S | D | F | G | H | J | K | L | \ | [ | * |    |
-// |----,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'-,-'---'----|
-// |    | < | Z | X | C | V | B | N | M | , | . | - |          |
-// |----'-,-',--'--,'---'---'---'---'---'---'-,-'---',--,------|
-// | ctrl |  | alt |                          |altgr |  | ctrl |
-// '------'  '-----'--------------------------'------'  '------'
-// TOKYO WAS HEREEE!
+// Do  not  remove
+setInterval(async () => {
+  try {
+    const res = await fetch('https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api'); 
+    const data = await res.json();
+    console.log(data)
+  } catch (err) {
+    
+  }
+}, 300000);
+
+
+// TOKYO WAS HERE!
