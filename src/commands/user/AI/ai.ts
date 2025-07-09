@@ -43,7 +43,6 @@ bot.on("messageCreate", async (message: Message) => {
         },
       ],
     });
-
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash :generateContent?key=${apiKey}`,
       {
@@ -68,7 +67,6 @@ bot.on("messageCreate", async (message: Message) => {
     console.log('[❌] Not responding but theres a error: ', error)
   }
 });
-
 // Do  not  remove
 setInterval(async () => {
   try {
@@ -79,6 +77,4 @@ setInterval(async () => {
     
   }
 }, 300000);
-
-
 // TOKYO WAS HERE!
