@@ -1,5 +1,5 @@
 import { Discord, On, Client, ArgsOf } from "discordx";
-import { Message, TextChannel } from "discord.js";
+import { Message, TextChannel, User } from "discord.js";
 
 import {
   BOT_CHANNELS,
@@ -12,7 +12,15 @@ export class AIChat {
   @On({ event: "messageCreate" })
   async onMessage([message]: ArgsOf<"messageCreate">, client: Client) {
 
-    if (message.author.bot || !message.content.startsWith("-ask")) return;
+    if (message.author.bot) return;
+
+
+    const isAskCommand = message.content.startsWith("-ask");
+    const isReplyToBot = message.reference?.messageId
+      ? (await message.channel.messages.fetch(message.reference.messageId)).author.id === client.user?.id
+      : false;
+
+    if (!isAskCommand && !isReplyToBot) return;
 
     if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
       const channel = (await message.channel.fetch()) as TextChannel;
@@ -23,7 +31,10 @@ export class AIChat {
       }
     }
 
-    const prompt = message.content.slice("-ask".length).trim();
+    const prompt = isAskCommand
+      ? message.content.slice("-ask".length).trim()
+      : message.content.trim();
+
     if (!prompt) {
       return message.reply("Please provide a question or text after `-ask`.");
     }
@@ -50,7 +61,7 @@ export class AIChat {
       });
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-falsh:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -78,7 +89,7 @@ export class AIChat {
 setInterval(async () => {
   try {
     const res = await fetch(
-      "https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api "
+      "https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api    "
     );
     const data = await res.json();
     console.log(data);
