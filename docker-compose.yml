@@ -60,6 +60,7 @@ services:
       - "traefik.http.routers.coding-global-bot.entrypoints=websecure"
       - "traefik.http.routers.coding-global-bot.tls.certresolver=letsencrypt"
       - "traefik.http.services.coding-global-bot.loadbalancer.server.port=3000"
+      - "dozzle.access=tokyo"
 
 networks:
   proxy:
