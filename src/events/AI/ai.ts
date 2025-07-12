@@ -92,7 +92,7 @@ export class AIChat {
 
         
         if (chatHistory[userId].length > 400000000) {
-          chatHistory[userId] = chatHistory[userId].slice(-400000000); // the bot will remember everything wtffff
+          chatHistory[userId] = chatHistory[userId].slice(-400000000); // the bot will remember everything wtfffff
         }
 
         await message.reply(responseText);
