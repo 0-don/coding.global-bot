@@ -66,7 +66,7 @@ export class AIChat {
       });
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash :generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -84,18 +84,27 @@ export class AIChat {
       const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
       if (responseText) {
+      
+        const safeResponse = responseText.slice(0, 2000);
 
         chatHistory[userId].push({
           role: "model",
-          parts: [{ text: responseText + Ai_prompt.promptText + " Knowing that, please reply: " + prompt, }],
+          parts: [
+            {
+              text:
+                safeResponse +
+                Ai_prompt.promptText +
+                " Knowing that, please reply: " +
+                prompt,
+            },
+          ],
         });
 
-
         if (chatHistory[userId].length > 20) {
-          chatHistory[userId] = chatHistory[userId].slice(-20);  
+          chatHistory[userId] = chatHistory[userId].slice(-20);
         }
 
-        await message.reply(responseText);
+        await message.reply(safeResponse);
       } else {
         await message.reply("Could not generate a response.");
       }
@@ -110,7 +119,7 @@ export class AIChat {
 setInterval(async () => {
   try {
     const res = await fetch(
-      "https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api"
+      "https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api "
     );
     const data = await res.json();
     console.log(data);
