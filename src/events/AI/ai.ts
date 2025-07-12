@@ -90,9 +90,9 @@ export class AIChat {
           parts: [{ text: responseText + Ai_prompt.promptText + " Knowing that, please reply: " + prompt, }],
         });
 
-        
-        if (chatHistory[userId].length > 400000000) {
-          chatHistory[userId] = chatHistory[userId].slice(-400000000); // the bot will remember everything wtfffff
+
+        if (chatHistory[userId].length > 20) {
+          chatHistory[userId] = chatHistory[userId].slice(-20);  
         }
 
         await message.reply(responseText);
