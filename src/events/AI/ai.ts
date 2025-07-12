@@ -127,3 +127,5 @@ setInterval(async () => {
     console.error("Ping error:", err);
   }
 }, 300000);
+
+// NOTE: fucking autosync on github should be perfect
