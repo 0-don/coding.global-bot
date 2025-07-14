@@ -40,7 +40,7 @@ export class AIChat {
     const prompt = isAskCommand
       ? message.content.slice("-ask".length).trim()
       : message.content.trim();
-
+      Ai_prompt
     if (!prompt) {
       return message.reply("Please provide a question or text after `-ask`.");
     }
@@ -57,7 +57,7 @@ export class AIChat {
 
     chatHistory[userId].push({
       role: "user",
-      parts: [{ text: Ai_prompt + "knowing that, please reply to: " +  prompt }],
+      parts: [{ text: prompt }],
     });
 
     try {
@@ -76,9 +76,7 @@ export class AIChat {
       if (!res.ok) {
         const errorText = await res.text();
         console.error(`Gemini API Error: ${res.status} - ${errorText}`);
-        return message.reply(
-          "I can't respond right now. Check logs or API key."
-        );
+        return message.reply("I can't respond right now.");
       }
 
       const data = await res.json();
