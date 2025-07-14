@@ -77,7 +77,7 @@ export class AIChat {
         const errorText = await res.text();
         console.error(`Gemini API Error: ${res.status} - ${errorText}`);
         return message.reply(
-          "I can't respond right now.  "
+          "I can't respond right now."
         );
       }
 
