@@ -1,13 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
-import { TextChannel } from "discord.js";
-import { ArgsOf, Client, Discord, On } from "discordx";
+import type { ArgsOf, Client } from "discordx";
+import { Discord, On } from "discordx";
+
+import { Message, TextChannel } from "discord.js";
 import {
   BOT_CHANNELS,
   IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../lib/constants.js";
 import { Ai_prompt } from "./prompt.js";
-
-import { bot } from "../../main.js";
 
 type Role = "user" | "model";
 interface ChatMessage {
@@ -27,18 +27,6 @@ class ChatHistoryManager {
   }
 }
 
-async function getMemberCount(guildId: string): Promise<string> {
-  try {
-    const guild = await bot.guilds.fetch(guildId);
-    if (!guild) return "Server not found.";
-    const memberCount = guild.memberCount;
-    return `${memberCount}`;
-  } catch (error) {
-    console.error("Error fetching member count:", error);
-    return "I couldn't fetch the member count, u can check your self at the top of the channels list";
-  }
-}
-
 const channelHistory = new Map<string, ChatHistoryManager>();
 
 function formatHistory(history: ChatMessage[]): string {
@@ -54,14 +42,35 @@ const apiKey = process.env.API_KEY;
 @Discord()
 export class aiChat {
   @On()
-  async messageCreate([message]: ArgsOf<"messageCreate">, client: Client) {
+  async messageCreate(
+    [message]: ArgsOf<"messageCreate">,
+    client: Client
+  ): Promise<void> {
     if (message.author.bot) return;
-
+        if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
+      const channel = (await message.channel.fetch()) as TextChannel;
+      if (!BOT_CHANNELS.includes(channel.name)) {
+        message.reply(
+          "Please go to bots channel, lets keep the things simple and organized"
+        );
+      }
+    }
     const mentionRegex = new RegExp(`^<@!?${client.user?.id}>`);
     const isMentioned = mentionRegex.test(message.content);
 
+    let isReplyToBot = false;
+    if (message.reference && message.reference.messageId) {
+      const repliedMessage = await message.channel.messages
+        .fetch(message.reference.messageId)
+        .catch(() => null);
+      if (repliedMessage && repliedMessage.author.id === client.user?.id) {
+        isReplyToBot = true;
+      }
+    }
+ 
     if (
       !isMentioned &&
+      !isReplyToBot &&
       !message.content.toLowerCase().startsWith("coding global")
     ) {
       return;
@@ -74,7 +83,7 @@ export class aiChat {
       .trim();
 
     if (!userMessage) {
-      await message.reply("You said... nothing? How profound.");
+      await message.reply("if u are pinning me u should say something :/");
       return;
     }
 
@@ -82,14 +91,6 @@ export class aiChat {
 
     if (!channelHistory.has(channelId)) {
       channelHistory.set(channelId, new ChatHistoryManager());
-    }
-    if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
-      const channel = (await message.channel.fetch()) as TextChannel;
-      if (!BOT_CHANNELS.includes(channel.name)) {
-        return message.reply(
-          "Please go to bots channel, lets keep the things simple and organized"
-        );
-      }
     }
 
     const historyManager = channelHistory.get(channelId)!;
@@ -130,7 +131,6 @@ export class aiChat {
     }
   }
 }
-
 setInterval(async () => {
   try {
     const res = await fetch(
