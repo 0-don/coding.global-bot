@@ -55,8 +55,8 @@ export const translate = async (text: string) => {
   if (length < 4) {
     return "Please add more words";
   }
-  const translated = await TRANSLATOR.translateText(text, null, "en-GB");
-  return translated.text;
+  const translated = await TRANSLATOR?.translateText(text, null, "en-GB");
+  return translated?.text;
 };
 
 export const chartConfig = (data: ChartDataset[]) => {
