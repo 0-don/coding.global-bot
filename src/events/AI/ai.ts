@@ -5,29 +5,78 @@ import {
   IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../lib/constants.js";
 import { Ai_prompt } from "./prompt.js";
+import { GoogleGenAI } from "@google/genai";
+ 
+import { bot } from "../../main.js";
 
-export const chatHistory: Record<
-  string,
-  Array<{
-    role: "user" | "model";
-    parts: { text: string }[];
-  }>
-> = {};
+type Role = "user" | "model";
+interface ChatMessage {
+  role: Role;
+  parts: { text: string }[];
+}
+
+class ChatHistoryManager {
+  private history: ChatMessage[] = [];
+
+  addMessage(role: Role, text: string): void {
+    this.history.push({ role, parts: [{ text }] });
+  }
+
+  getHistory(): ChatMessage[] {
+    return [...this.history];
+  }
+}
+
+async function getMemberCount(guildId: string): Promise<string> {
+  try {
+    const guild = await bot.guilds.fetch(guildId);
+    if (!guild) return "Server not found.";
+    const memberCount = guild.memberCount;
+    return `${memberCount}`;
+  } catch (error) {
+    console.error("Error fetching member count:", error);
+    return "I couldn't fetch the member count, u can check your self at the top of the channels list";
+  }
+}
+
+const channelHistory = new Map<string, ChatHistoryManager>();
+
+function formatHistory(history: ChatMessage[]): string {
+  return history.map(msg => `${msg.role === "user" ? "User" : "Bot"}: ${msg.parts[0].text}`).join("\n");
+}
+
+const apiKey = process.env.API_KEY;
 
 @Discord()
-export class AIChat {
-  @On({ event: "messageCreate" })
-  async onMessage([message]: ArgsOf<"messageCreate">, client: Client) {
+export class aiChat {
+  @On()
+  async messageCreate([message]: ArgsOf<"messageCreate">, client: Client): Promise<void> {
     if (message.author.bot) return;
 
-    const isAskCommand = message.content.startsWith("-ask");
-    const isReplyToBot = message.reference?.messageId
-      ? (await message.channel.messages.fetch(message.reference.messageId)).author.id === client.user?.id
-      : false;
+    const mentionRegex = new RegExp(`^<@!?${client.user?.id}>`);
+    const isMentioned = mentionRegex.test(message.content);
 
-    if (!isAskCommand && !isReplyToBot) return;
+    if (!isMentioned && !message.content.toLowerCase().startsWith("coding global")) {
+      return;
+    }
 
-    if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
+    const userMessage = message.content
+      .replace(mentionRegex, "")
+      .trim()
+      .replace(/^coding global/i, "")
+      .trim();
+
+    if (!userMessage) {
+      await message.reply("You said... nothing? How profound.");
+      return;
+    }
+
+    const channelId = message.channel.id;
+
+    if (!channelHistory.has(channelId)) {
+      channelHistory.set(channelId, new ChatHistoryManager());
+    }
+        if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
       const channel = (await message.channel.fetch()) as TextChannel;
       if (!BOT_CHANNELS.includes(channel.name)) {
         return message.reply(
@@ -36,75 +85,37 @@ export class AIChat {
       }
     }
 
-    const userId = message.author.id;
-    const prompt = isAskCommand
-      ? message.content.slice("-ask".length).trim()
-      : message.content.trim();
+    const historyManager = channelHistory.get(channelId)!;
 
-    if (!prompt) {
-      return message.reply("Please provide a question or text after `-ask`.");
-    }
+    historyManager.addMessage("user", userMessage);
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      console.error("API KEY missing");
-      return message.reply("Error: API key is missing.");
-    }
-
-    if (!chatHistory[userId]) {
-      chatHistory[userId] = [];
-    }
-
-    chatHistory[userId].push({
-      role: "user",
-      parts: [{ text: Ai_prompt + "knowing that, please reply to: " +  prompt }],
-    });
+    const ai = new GoogleGenAI({ apiKey: apiKey! });
 
     try {
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash :generateContent?key=${apiKey}`;
-
-      const res = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: chatHistory[userId],
-        }),
+      const result = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: `${Ai_prompt.promptText}\n\nPrevious conversation:\n${formatHistory(
+                  historyManager.getHistory()
+                )}\n\nNow reply to:\n"${userMessage}"`,
+              },
+            ],
+          },
+        ],
       });
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error(`Gemini API Error: ${res.status} - ${errorText}`);
-        return message.reply(
-          "I can't respond right now. Check logs or API key."
-        );
-      }
+      const responseText = result.candidates?.[0]?.content?.parts?.[0]?.text ?? "Hmm... I'm not sure how to respond to that.";
 
-      const data = await res.json();
+      historyManager.addMessage("model", responseText);
 
-      const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (!responseText) {
-        console.error("No response text from Gemini:", JSON.stringify(data));
-        return message.reply("Could not generate a response.");
-      }
-
-      const safeResponse = responseText.slice(0, 2000);
-
-      chatHistory[userId].push({
-        role: "model",
-        parts: [{ text: safeResponse }],
-      });
-
-      if (chatHistory[userId].length > 20) {
-        chatHistory[userId] = chatHistory[userId].slice(-20);
-      }
-
-      await message.reply(safeResponse);
+      await message.reply(responseText);
     } catch (error) {
-      console.error("Error calling Gemini:", error);
-      message.reply("An unexpected error occurred while processing your request.");
+      console.error("Error generating AI response:", error);
+      await message.reply("Something went wrong while trying to think. Try again later!");
     }
   }
 }
