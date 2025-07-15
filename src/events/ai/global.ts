@@ -1,5 +1,5 @@
-import { bot } from "../../main.js";
- 
+import { bot } from "../../main";
+
 export const getMemberCount = async (guildId: string): Promise<string> => {
   try {
     const guild = await bot.guilds.fetch(guildId);
@@ -11,7 +11,3 @@ export const getMemberCount = async (guildId: string): Promise<string> => {
     return "I couldn't fetch the member count. You can check it yourself at the top of the channels list.";
   }
 };
-
-
- 
- 

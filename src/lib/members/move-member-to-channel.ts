@@ -1,8 +1,8 @@
 import { ChannelType, GuildMember, VoiceChannel } from "discord.js";
-import { prisma } from "../../prisma.js";
+import { prisma } from "../../prisma";
 
 export const moveMemberToChannel = async (
-  member: GuildMember,
+  member: GuildMember
 ): Promise<void> => {
   let guildMemberDb = await prisma.memberGuild.findFirst({
     where: {
@@ -17,15 +17,15 @@ export const moveMemberToChannel = async (
 
   let guildMember = await member.guild.members.fetch(member.id);
   const allVoiceChannels = (await member.guild.channels.fetch()).filter(
-    (c) => c?.type === ChannelType.GuildVoice,
+    (c) => c?.type === ChannelType.GuildVoice
   );
 
   const voiceChannelsWithUsers = allVoiceChannels.filter(
-    (c) => c && c?.members.size > 0,
+    (c) => c && c?.members.size > 0
   );
 
   const voiceChannelsWithoutUsers = allVoiceChannels.filter(
-    (c) => c && c?.members.size === 0,
+    (c) => c && c?.members.size === 0
   );
 
   for (const [id, channel] of voiceChannelsWithoutUsers) {
@@ -37,7 +37,7 @@ export const moveMemberToChannel = async (
 
   const voiceChannels = allVoiceChannels.filter(
     (c) =>
-      c && c?.members.size === 0 && guildMember.permissionsIn(c).has("Connect"),
+      c && c?.members.size === 0 && guildMember.permissionsIn(c).has("Connect")
   );
 
   for (const [id, channel] of voiceChannelsWithUsers) {
@@ -89,7 +89,7 @@ export const moveMemberToChannel = async (
           } catch (_) {}
         }
       },
-      (guildMemberDb?.moveTimeout || 0) * 1000,
+      (guildMemberDb?.moveTimeout || 0) * 1000
     );
   }
 };

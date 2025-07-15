@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "outDir": "dist",
     "rootDir": "src",
+
     "strict": true,
-    "moduleResolution": "NodeNext",
     "allowSyntheticDefaultImports": true,
 
     "experimentalDecorators": true,

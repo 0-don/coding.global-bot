@@ -1,11 +1,11 @@
 import { GuildMember } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { SHOULD_LOG_VOICE_EVENTS } from "../lib/constants.js";
-import { joinSettings } from "../lib/members/join-nickname.js";
-import { moveMemberToChannel } from "../lib/members/move-member-to-channel.js";
-import { VoiceService } from "../lib/voice/voice.service.js";
-import { prisma } from "../prisma.js";
+import { SHOULD_LOG_VOICE_EVENTS } from "../lib/constants";
+import { joinSettings } from "../lib/members/join-nickname";
+import { moveMemberToChannel } from "../lib/members/move-member-to-channel";
+import { VoiceService } from "../lib/voice/voice.service";
+import { prisma } from "../prisma";
 
 @Discord()
 export class VoiceStateUpdate {

@@ -1,9 +1,9 @@
 import { error, log } from "console";
 import { CommandInteraction, Guild } from "discord.js";
-import { prisma } from "../../prisma.js";
-import { EVERYONE, STATUS_ROLES, VERIFIED } from "../constants.js";
-import { chunk } from "../helpers.js";
-import { RolesService } from "../roles/roles.service.js";
+import { prisma } from "../../prisma";
+import { EVERYONE, STATUS_ROLES, VERIFIED } from "../constants";
+import { chunk } from "../helpers";
+import { RolesService } from "../roles/roles.service";
 
 export const verifyAllUsers = async (
   guild: Guild,

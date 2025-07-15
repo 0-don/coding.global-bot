@@ -9,9 +9,9 @@ import {
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { LogService } from "../../lib/logs/log.service.js";
-import { moveMemberToChannel } from "../../lib/members/move-member-to-channel.js";
-import { prisma } from "../../prisma.js";
+import { LogService } from "../../lib/logs/log.service";
+import { moveMemberToChannel } from "../../lib/members/move-member-to-channel";
+import { prisma } from "../../prisma";
 
 @Discord()
 export class TrollMoveUser {

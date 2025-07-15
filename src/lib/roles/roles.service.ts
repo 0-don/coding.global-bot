@@ -10,8 +10,8 @@ import {
   Role,
   User,
 } from "discord.js";
-import { prisma } from "../../prisma.js";
-import { StatusRoles } from "../../types/index.js";
+import { prisma } from "../../prisma";
+import { StatusRoles } from "../../types/index";
 import {
   JAIL,
   LEVEL_LIST,
@@ -20,7 +20,7 @@ import {
   VERIFIED,
   VERIFY_TEMPLATE,
   VOICE_ONLY,
-} from "../constants.js";
+} from "../constants";
 
 export type UpdateDbRolesArgs = {
   oldRoles: Role[];

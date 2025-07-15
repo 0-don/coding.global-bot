@@ -1,7 +1,6 @@
- 
-import { getMemberCount } from "./global.js";
-getMemberCount
- 
+import { getMemberCount } from "./global";
+getMemberCount;
+
 export const Ai_prompt = {
   promptText: `You are a Discord bot named Coding Global. Your AI chat was integrated by Tokyo, created by Don, and you operate within the Coding Global server.
 
@@ -47,6 +46,5 @@ UTILS:
 to know how many members are in the server u can use ${getMemberCount}
 U SHOULDNT REPLY 2 TIMES
 U DONT NEED TO REPLY TO THE SAME MESSAGE 2 TIMES
-`
-
+`,
 };

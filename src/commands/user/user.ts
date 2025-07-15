@@ -8,9 +8,9 @@ import { Discord, Slash, SlashOption } from "discordx";
 import {
   BOT_CHANNELS,
   IS_CONSTRAINED_TO_BOT_CHANNEL,
-} from "../../lib/constants.js";
-import { LogService } from "../../lib/logs/log.service.js";
-import { StatsService } from "../../lib/stats/stats.service.js";
+} from "../../lib/constants";
+import { LogService } from "../../lib/logs/log.service";
+import { StatsService } from "../../lib/stats/stats.service";
 
 @Discord()
 export class UserCommand {

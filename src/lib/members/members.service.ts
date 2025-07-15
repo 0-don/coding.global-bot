@@ -10,8 +10,8 @@ import {
 } from "discord.js";
 import { writeFileSync } from "fs";
 import path from "path";
-import { prisma } from "../../prisma.js";
-import { ChartDataset, GuildMemberCountChart } from "../../types/index.js";
+import { prisma } from "../../prisma";
+import { ChartDataset, GuildMemberCountChart } from "../../types/index";
 import {
   CHARTJS_NODE_CANVAS,
   ChartManager,
@@ -19,9 +19,9 @@ import {
   JOIN_EVENT_CHANNELS,
   MEMBERS_COUNT_CHANNELS,
   SHOULD_COUNT_MEMBERS,
-} from "../constants.js";
-import { simpleEmbedExample } from "../embeds.js";
-import { chartConfig, getDaysArray } from "../helpers.js";
+} from "../constants";
+import { simpleEmbedExample } from "../embeds";
+import { chartConfig, getDaysArray } from "../helpers";
 
 export class MembersService {
   static async upsertDbMember(

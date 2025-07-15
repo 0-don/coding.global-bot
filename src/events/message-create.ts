@@ -1,16 +1,16 @@
 import { Message, MessageType, TextChannel, ThreadChannel } from "discord.js";
 import type { ArgsOf, Client, SimpleCommandMessage } from "discordx";
 import { Discord, On, SimpleCommand } from "discordx";
-import { simpleEmbedExample } from "../lib/embeds.js";
-import { translate } from "../lib/helpers.js";
-import { checkWarnings } from "../lib/messages/check-warnings.js";
-import { deleteUserMessages } from "../lib/messages/delete-user-messages.js";
-import { fetchMessages } from "../lib/messages/fetch-messages.js";
-import { MessagesService } from "../lib/messages/messages.service.js";
-import { HelperService } from "../lib/roles/helper.service.js";
-import { SpamDetectionService } from "../lib/spam/spam-detection.service.js";
-import { prisma } from "../prisma.js";
-import { UserState } from "../types/index.js";
+import { simpleEmbedExample } from "../lib/embeds";
+import { translate } from "../lib/helpers";
+import { checkWarnings } from "../lib/messages/check-warnings";
+import { deleteUserMessages } from "../lib/messages/delete-user-messages";
+import { fetchMessages } from "../lib/messages/fetch-messages";
+import { MessagesService } from "../lib/messages/messages.service";
+import { HelperService } from "../lib/roles/helper.service";
+import { SpamDetectionService } from "../lib/spam/spam-detection.service";
+import { prisma } from "../prisma";
+import { UserState } from "../types/index";
 
 const previousMessages = new Map<string, UserState>();
 

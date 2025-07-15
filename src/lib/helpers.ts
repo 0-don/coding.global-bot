@@ -1,8 +1,9 @@
 import { ChartConfiguration, ChartDataset } from "chart.js";
 import { enUS } from "date-fns/locale";
-import { TRANSLATOR } from "./constants.js";
+import { TRANSLATOR } from "./constants";
 
-export const JOB_POST_REGEX = /Project Title:[\s\S]*?(?=Project Description:|$)Project Description:[\s\S]*?(?=Required Skills:|$)Required Skills:[\s\S]*?(?=Budget Range:|$)Budget Range:[\s\S]*?(?=Timeline:|$)Timeline:[\s\S]*?(?=Contact Method:|$)Contact Method:[\s\S]*?(?=Additional Details:|$)Additional Details:[\s\S]*$/;
+export const JOB_POST_REGEX =
+  /Project Title:[\s\S]*?(?=Project Description:|$)Project Description:[\s\S]*?(?=Required Skills:|$)Required Skills:[\s\S]*?(?=Budget Range:|$)Budget Range:[\s\S]*?(?=Timeline:|$)Timeline:[\s\S]*?(?=Contact Method:|$)Contact Method:[\s\S]*?(?=Additional Details:|$)Additional Details:[\s\S]*$/;
 
 export function placementSuffix(i: number) {
   var j = i % 10,

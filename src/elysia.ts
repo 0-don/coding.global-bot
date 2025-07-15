@@ -3,9 +3,9 @@ import { swagger } from "@elysiajs/swagger";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
-import { verifyAllUsers } from "./lib/members/verify-all-users.js";
-import { bot } from "./main.js";
-import { prisma } from "./prisma.js";
+import { verifyAllUsers } from "./lib/members/verify-all-users";
+import { bot } from "./main";
+import { prisma } from "./prisma";
 
 const UserSchema = t.Object({
   id: t.String(),

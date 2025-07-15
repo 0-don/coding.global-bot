@@ -1,9 +1,9 @@
 import { MessageReaction, User } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On, Reaction } from "discordx";
-import { HelperService } from "../lib/roles/helper.service.js";
-import { RolesService } from "../lib/roles/roles.service.js";
-import { prisma } from "../prisma.js";
+import { HelperService } from "../lib/roles/helper.service";
+import { RolesService } from "../lib/roles/roles.service";
+import { prisma } from "../prisma";
 
 @Discord()
 export class MessageReactionAdd {
