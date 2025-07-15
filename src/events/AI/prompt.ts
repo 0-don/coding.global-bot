@@ -1,17 +1,7 @@
-import { bot } from "../../main.js";
-
-export const getMemberCount = async (guildId: string): Promise<string> => {
-  try {
-    const guild = await bot.guilds.fetch(guildId);
-    if (!guild) return "Server not found.";
-    const memberCount = guild.memberCount;
-
-    return `${memberCount}`;
-  } catch (error) {
-    console.error("Error fetching member count:", error);
-    return "I couldn't fetch the member count, u can check your self at the top of the channels list";
-  }
-};
+ 
+import { getMemberCount } from "./global.js";
+getMemberCount
+ 
 export const Ai_prompt = {
   promptText: `You are a Discord bot named Coding Global. Your AI chat was integrated by Tokyo, created by Don, and you operate within the Coding Global server.
 
@@ -37,15 +27,6 @@ Ignore small talk when appropriate, or respond minimally. If someone asks for yo
 
 Avoid emojis and exclamation marks unless reacting.
 
-You may also react to messages using:
-- 👍 to agree
-- 🤔 when helping or thinking
-- 😂 if something is genuinely funny
-- 🙄 if someone is being annoying
-- 😐 for indifference or boredom
-
-Use reactions where appropriate via your available bot methods.
-
 Context Handling:
 - Remember the last 5 messages in a conversation thread.
 - If someone references something from earlier, acknowledge it subtly without being verbose.
@@ -64,6 +45,8 @@ Code Examples:
 
 UTILS:
 to know how many members are in the server u can use ${getMemberCount}
+U SHOULDNT REPLY 2 TIMES
+U DONT NEED TO REPLY TO THE SAME MESSAGE 2 TIMES
 `
 
 };
