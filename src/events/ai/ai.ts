@@ -1,10 +1,10 @@
-import { GoogleGenAI } from "@google/genai";
 import { TextChannel } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
+import { GOOGLE_GEN_AI } from "../../gemini";
+import { ConfigValidator } from "../../lib/config-validator";
 import { BOT_CHANNELS } from "../../lib/constants";
 import { Ai_prompt } from "./prompt";
-import { ConfigValidator } from "../../lib/config-validator";
 
 interface ChatMessage {
   role: "user" | "model";
@@ -32,7 +32,6 @@ class ChatHistoryManager {
 }
 
 const channelHistory = new Map<string, ChatHistoryManager>();
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 @Discord()
 export class AiChat {
@@ -89,7 +88,7 @@ export class AiChat {
     historyManager.addMessage("user", userMessage);
 
     try {
-      const result = await ai.models.generateContent({
+      const result = await GOOGLE_GEN_AI?.models.generateContent({
         model: "gemini-2.5-flash",
         contents: [
           {
@@ -104,7 +103,7 @@ export class AiChat {
       });
 
       const responseText =
-        result.candidates?.[0]?.content?.parts?.[0]?.text ??
+        result?.candidates?.[0]?.content?.parts?.[0]?.text ??
         "Hmm... I'm not sure how to respond to that.";
 
       historyManager.addMessage("model", responseText);

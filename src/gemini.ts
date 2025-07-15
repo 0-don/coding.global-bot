@@ -100,8 +100,16 @@ export interface ChatMessage {
   parentMessageId?: string;
 }
 
-export const genai = ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")
+export const GOOGLE_GEN_AI_API = ConfigValidator.isFeatureEnabled(
+  "GEMINI_API_KEY"
+)
   ? new GoogleGenAIAPI({
       apiKey: process.env.GEMINI_API_KEY!,
+    })
+  : null;
+
+export const GOOGLE_GEN_AI = ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")
+  ? new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
     })
   : null;

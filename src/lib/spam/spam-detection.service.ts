@@ -1,13 +1,9 @@
-import { GoogleGenAI } from "@google/genai";
 import dayjs from "dayjs";
 import { Message, ThreadChannel } from "discord.js";
+import { GOOGLE_GEN_AI } from "../../gemini";
 import { prisma } from "../../prisma";
-import { deleteUserMessages } from "../messages/delete-user-messages";
 import { ConfigValidator } from "../config-validator";
-
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-});
+import { deleteUserMessages } from "../messages/delete-user-messages";
 
 export class SpamDetectionService {
   private static _spamDetectionWarningLogged = false;
@@ -94,7 +90,7 @@ Respond with only "yes" if spam, "no" if legitimate.`;
 
 Message: "${message.content}"`;
 
-      const response = await ai.models.generateContent({
+      const response = await GOOGLE_GEN_AI?.models.generateContent({
         model: "gemini-2.5-flash-lite-preview-06-17",
         contents: [context],
         config: {
@@ -105,10 +101,10 @@ Message: "${message.content}"`;
       });
 
       console.log(
-        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.member.nickname || ""}) - Response: ${response.text?.trim()}`
+        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.member.nickname || ""}) - Response: ${response?.text?.trim()}`
       );
 
-      return response.text?.trim().toLowerCase() === "yes";
+      return response?.text?.trim().toLowerCase() === "yes";
     } catch (error) {
       console.error("Spam detection error:", error);
       return false;
