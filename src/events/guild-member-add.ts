@@ -1,7 +1,7 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { joinSettings } from "../lib/members/join-nickname.js";
-import { MembersService } from "../lib/members/members.service.js";
+import { joinSettings } from "../lib/members/join-nickname";
+import { MembersService } from "../lib/members/members.service";
 
 @Discord()
 export class GuildMemberAdd {

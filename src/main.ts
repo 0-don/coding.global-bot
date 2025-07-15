@@ -13,7 +13,7 @@ import "chartjs-adapter-date-fns";
 import { log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
-import "./elysia.js";
+import "./elysia";
 
 Chart.register(
   LineController,
@@ -22,7 +22,7 @@ Chart.register(
   CategoryScale,
   PointElement,
   TimeSeriesScale,
-  Filler,
+  Filler
 );
 
 const token = process.env.TOKEN;
@@ -60,14 +60,14 @@ bot.once("ready", async () => {
 
 bot.on(
   "interactionCreate",
-  (interaction) => void bot.executeInteraction(interaction),
+  (interaction) => void bot.executeInteraction(interaction)
 );
 
 bot.on("messageCreate", (message) => void bot.executeCommand(message));
 
 bot.on(
   "messageReactionAdd",
-  (reaction, user) => void bot.executeReaction(reaction, user),
+  (reaction, user) => void bot.executeReaction(reaction, user)
 );
 
 const main = async () => {

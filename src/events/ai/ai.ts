@@ -2,8 +2,8 @@ import { GoogleGenAI } from "@google/genai";
 import { TextChannel } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { BOT_CHANNELS } from "../../lib/constants.js";
-import { Ai_prompt } from "./prompt.js";
+import { BOT_CHANNELS } from "../../lib/constants";
+import { Ai_prompt } from "./prompt";
 
 interface ChatMessage {
   role: "user" | "model";

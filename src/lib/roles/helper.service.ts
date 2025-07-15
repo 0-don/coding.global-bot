@@ -1,6 +1,6 @@
 import { Message, TextChannel } from "discord.js";
-import { prisma } from "../../prisma.js";
-import { HELPER_RANKING, HELPER_ROLES } from "../constants.js";
+import { prisma } from "../../prisma";
+import { HELPER_RANKING, HELPER_ROLES } from "../constants";
 
 export class HelperService {
   static async helperRoleChecker(message: Message<boolean>) {

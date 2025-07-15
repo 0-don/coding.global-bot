@@ -1,6 +1,6 @@
 import type { Message } from "discord.js";
-import { prisma } from "../../prisma.js";
-import { deleteUserMessages } from "./delete-user-messages.js";
+import { prisma } from "../../prisma";
+import { deleteUserMessages } from "./delete-user-messages";
 
 export const checkWarnings = async (message: Message<boolean>) => {
   const content = message.content;

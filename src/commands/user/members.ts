@@ -6,10 +6,10 @@ import {
   IS_CONSTRAINED_TO_BOT_CHANNEL,
   MEMBERS_TEMPLATE,
   RED_COLOR,
-} from "../../lib/constants.js";
-import { codeString } from "../../lib/helpers.js";
-import { LogService } from "../../lib/logs/log.service.js";
-import { MembersService } from "../../lib/members/members.service.js";
+} from "../../lib/constants";
+import { codeString } from "../../lib/helpers";
+import { LogService } from "../../lib/logs/log.service";
+import { MembersService } from "../../lib/members/members.service";
 
 @Discord()
 export class Members {

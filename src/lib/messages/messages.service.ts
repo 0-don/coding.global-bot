@@ -1,19 +1,17 @@
 import {
   AuditLogEvent,
   Message,
-  MessageType,
   PartialMessage,
   TextChannel,
 } from "discord.js";
-import { prisma } from "../../prisma.js";
+import { prisma } from "../../prisma";
 import {
   JAIL,
   LEVEL_LIST,
   LEVEL_MESSAGES,
   SHOULD_USER_LEVEL_UP,
-  VERIFY_CHANNELS,
   VOICE_ONLY,
-} from "../constants.js";
+} from "../constants";
 
 export class MessagesService {
   static async addMessageDb(message: Message<boolean>) {

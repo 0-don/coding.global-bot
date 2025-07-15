@@ -1,11 +1,11 @@
 import { CommandInteraction } from "discord.js";
-import { prisma } from "../../prisma.js";
-import { Commands } from "../../types/index.js";
+import { prisma } from "../../prisma";
+import { Commands } from "../../types/index";
 
 export class LogService {
   public static async logCommandHistory(
     interaction: CommandInteraction,
-    command: Commands,
+    command: Commands
   ): Promise<void> {
     const memberId = interaction.member?.user.id;
     const channelId = interaction.channelId;

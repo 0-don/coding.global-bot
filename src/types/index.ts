@@ -1,7 +1,7 @@
 import type { GuildVoiceEvents, MemberMessages } from "@prisma/client";
 import { Message } from "discord.js";
-import type { STATUS_ROLES } from "../lib/constants.js";
-import "./enviroment.js";
+import type { STATUS_ROLES } from "../lib/constants";
+import "./enviroment";
 
 export type StatusRoles = (typeof STATUS_ROLES)[number];
 
@@ -67,7 +67,7 @@ export interface UserState {
   count: number;
   lastMessage: Message | null;
   same?: boolean;
-  recentLinks: Map<string, Set<string>>; 
+  recentLinks: Map<string, Set<string>>;
 }
 
 export type Commands =

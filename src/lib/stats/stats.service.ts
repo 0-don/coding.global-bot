@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
 import { CacheType, CommandInteraction, GuildMember, User } from "discord.js";
-import { prisma } from "../../prisma.js";
-import { ChartDataset } from "../../types/index.js";
-import { topStatsExampleEmbed, userStatsExampleEmbed } from "../embeds.js";
-import { getDaysArray } from "../helpers.js";
+import { prisma } from "../../prisma";
+import { ChartDataset } from "../../types/index";
+import { topStatsExampleEmbed, userStatsExampleEmbed } from "../embeds";
+import { getDaysArray } from "../helpers";
 
 export class StatsService {
   static async topStatsEmbed(guildId: string, lastDaysCount: number = 9999) {

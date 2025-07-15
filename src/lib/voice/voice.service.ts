@@ -1,11 +1,11 @@
 import { GuildVoiceEvents } from "@prisma/client";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc.js";
+import utc from "dayjs/plugin/utc";
 import { TextChannel, VoiceState } from "discord.js";
-import { prisma } from "../../prisma.js";
-import { VOICE_EVENT_CHANNELS } from "../constants.js";
-import { simpleEmbedExample } from "../embeds.js";
-import { getDaysArray } from "../helpers.js";
+import { prisma } from "../../prisma";
+import { VOICE_EVENT_CHANNELS } from "../constants";
+import { simpleEmbedExample } from "../embeds";
+import { getDaysArray } from "../helpers";
 
 dayjs.extend(utc);
 
@@ -28,7 +28,7 @@ export class VoiceService {
 
   static async logVoiceEvents(
     oldVoiceState: VoiceState,
-    newVoiceState: VoiceState,
+    newVoiceState: VoiceState
   ) {
     try {
       // if mute, deafen, stream etc. => exit
@@ -36,7 +36,7 @@ export class VoiceService {
 
       // get voice channel by name
       const voiceEventsChannel = oldVoiceState.guild.channels.cache.find(
-        ({ name }) => VOICE_EVENT_CHANNELS.includes(name),
+        ({ name }) => VOICE_EVENT_CHANNELS.includes(name)
       );
 
       // check if voice channel exists and it is voice channel
@@ -69,7 +69,7 @@ export class VoiceService {
 
   static async logVoiceEventsDb(
     oldVoiceState: VoiceState,
-    newVoiceState: VoiceState,
+    newVoiceState: VoiceState
   ) {
     const memberId = newVoiceState.member?.id ?? oldVoiceState.member?.id;
     const guildId = newVoiceState.guild.id ?? oldVoiceState.guild.id;

@@ -1,9 +1,9 @@
 import type { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { ChannelType, Guild, User } from "discord.js";
-import { prisma } from "../../prisma.js";
-import { JAIL } from "../constants.js";
-import { RolesService } from "../roles/roles.service.js";
+import { prisma } from "../../prisma";
+import { JAIL } from "../constants";
+import { RolesService } from "../roles/roles.service";
 
 export const deleteUserMessages = async ({
   guild,

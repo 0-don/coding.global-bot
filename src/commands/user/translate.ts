@@ -3,8 +3,8 @@ import {
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { translate } from "../../lib/helpers.js";
-import { LogService } from "../../lib/logs/log.service.js";
+import { translate } from "../../lib/helpers";
+import { LogService } from "../../lib/logs/log.service";
 
 @Discord()
 export class Translate {
