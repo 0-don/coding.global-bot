@@ -11,6 +11,7 @@ import { HelperService } from "../lib/roles/helper.service";
 import { SpamDetectionService } from "../lib/spam/spam-detection.service";
 import { prisma } from "../prisma";
 import { UserState } from "../types/index";
+import { ConfigValidator } from "../lib/config-validator";
 
 const previousMessages = new Map<string, UserState>();
 
@@ -270,6 +271,11 @@ export class MessageCreate {
 
   @SimpleCommand({ aliases: ["translate", "explain", "slate"], prefix: "/" })
   async translateReply(command: SimpleCommandMessage) {
+    if (!ConfigValidator.isFeatureEnabled("DEEPL")) {
+      ConfigValidator.logFeatureDisabled("Translation", "DEEPL");
+      return;
+    }
+    
     const message = command.message;
     if (message.type === MessageType.Reply && message.reference?.messageId) {
       const channel = (await message.channel.fetch()) as TextChannel;

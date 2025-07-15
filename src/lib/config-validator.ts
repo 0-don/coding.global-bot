@@ -58,6 +58,31 @@ export class ConfigValidator {
       required: false,
       feature: "Member Count Display",
     },
+    {
+      key: "SHOULD_USER_LEVEL_UP",
+      required: false,
+      feature: "Level Up System",
+    },
+    {
+      key: "SHOULD_LOG_VOICE_EVENTS",
+      required: false,
+      feature: "Voice Event Logging",
+    },
+    {
+      key: "SHOULD_COUNT_MEMBERS",
+      required: false,
+      feature: "Member Count Updates",
+    },
+    {
+      key: "IS_CONSTRAINED_TO_BOT_CHANNEL",
+      required: false,
+      feature: "Bot Channel Restrictions",
+    },
+    {
+      key: "BOT_ICON",
+      required: false,
+      feature: "Custom Bot Icon",
+    },
   ];
 
   public static validateConfig(): void {
