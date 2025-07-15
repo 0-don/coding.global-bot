@@ -10,6 +10,7 @@ import {
 } from "../../lib/constants";
 import { LogService } from "../../lib/logs/log.service";
 import { StatsService } from "../../lib/stats/stats.service";
+import { ConfigValidator } from "../../lib/config-validator";
 
 @Discord()
 export class Top {
@@ -37,6 +38,25 @@ export class Top {
     await interaction.deferReply();
 
     if (!interaction.guildId) return await interaction.editReply("No Guild");
+
+    if (!ConfigValidator.isFeatureEnabled("IS_CONSTRAINED_TO_BOT_CHANNEL")) {
+      // Bot channel restrictions disabled, allow command anywhere
+    } else if (!ConfigValidator.isFeatureEnabled("BOT_CHANNELS")) {
+      ConfigValidator.logFeatureDisabled(
+        "Bot Channel Restrictions",
+        "BOT_CHANNELS"
+      );
+      return await interaction.editReply(
+        "Bot channel restrictions are enabled but no bot channels are configured."
+      );
+    } else {
+      const channel = (await interaction.channel?.fetch()) as TextChannel;
+      if (!BOT_CHANNELS.includes(channel.name)) {
+        return await interaction.editReply(
+          "Please use this command in the bot channel"
+        );
+      }
+    }
 
     if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
       if (!BOT_CHANNELS.includes(channel.name))

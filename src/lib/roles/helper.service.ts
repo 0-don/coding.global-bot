@@ -1,9 +1,23 @@
 import { Message, TextChannel } from "discord.js";
 import { prisma } from "../../prisma";
 import { HELPER_RANKING, HELPER_ROLES } from "../constants";
+import { ConfigValidator } from "../config-validator";
 
 export class HelperService {
+  private static _helperSystemWarningLogged = false;
+
   static async helperRoleChecker(message: Message<boolean>) {
+    if (!ConfigValidator.isFeatureEnabled("HELPER_ROLES")) {
+      if (!this._helperSystemWarningLogged) {
+        ConfigValidator.logFeatureDisabled(
+          "Helper Role System",
+          "HELPER_ROLES"
+        );
+        this._helperSystemWarningLogged = true;
+      }
+      return;
+    }
+
     const guildMember = await message.member!.fetch();
     const memberRoles = guildMember.roles.cache;
     const helpCount = await prisma.memberHelper.count({

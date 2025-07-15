@@ -1,5 +1,6 @@
 import { ChartConfiguration, ChartDataset } from "chart.js";
 import { enUS } from "date-fns/locale";
+import { ConfigValidator } from "./config-validator";
 import { TRANSLATOR } from "./constants";
 
 export const JOB_POST_REGEX =
@@ -45,6 +46,11 @@ export const sleep = (ms: number) =>
 export const codeString = (text: string | number) => "`" + text + "`";
 
 export const translate = async (text: string) => {
+  if (!ConfigValidator.isFeatureEnabled("DEEPL")) {
+    ConfigValidator.logFeatureDisabled("Translation", "DEEPL");
+    return;
+  }
+
   const length = text.split(" ").length;
   if (length < 4) {
     return "Please add more words";

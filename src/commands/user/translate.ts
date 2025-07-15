@@ -5,6 +5,7 @@ import {
 import { Discord, Slash, SlashOption } from "discordx";
 import { translate } from "../../lib/helpers";
 import { LogService } from "../../lib/logs/log.service";
+import { ConfigValidator } from "../../lib/config-validator";
 
 @Discord()
 export class Translate {
@@ -25,6 +26,15 @@ export class Translate {
     // Defer reply if it takes longer than usual
     await interaction.deferReply();
     LogService.logCommandHistory(interaction, "translate");
+
+    if (!ConfigValidator.isFeatureEnabled("DEEPL")) {
+      ConfigValidator.logFeatureDisabled("Translation", "DEEPL");
+      return await interaction.editReply({
+        content:
+          "Translation feature is not configured. Please contact an administrator.",
+        allowedMentions: { users: [] },
+      });
+    }
 
     // Get lookback days from input
     const text = Buffer.from(txt, "utf-8").toString();

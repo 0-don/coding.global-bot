@@ -5,15 +5,12 @@ import {
   TextChannel,
 } from "discord.js";
 import { prisma } from "../../prisma";
-import {
-  JAIL,
-  LEVEL_LIST,
-  LEVEL_MESSAGES,
-  SHOULD_USER_LEVEL_UP,
-  VOICE_ONLY,
-} from "../constants";
+import { JAIL, LEVEL_LIST, LEVEL_MESSAGES, VOICE_ONLY } from "../constants";
+import { ConfigValidator } from "../config-validator";
 
 export class MessagesService {
+  private static _levelSystemWarningLogged = false;
+
   static async addMessageDb(message: Message<boolean>) {
     // get info
     const content = message.content;
@@ -113,7 +110,26 @@ export class MessagesService {
   }
 
   static async levelUpMessage(message: Message<boolean>) {
-    if (!SHOULD_USER_LEVEL_UP || message.author.bot) return;
+    if (message.author.bot) return;
+
+    if (!ConfigValidator.isFeatureEnabled("SHOULD_USER_LEVEL_UP")) {
+      if (!this._levelSystemWarningLogged) {
+        ConfigValidator.logFeatureDisabled(
+          "Level Up System",
+          "SHOULD_USER_LEVEL_UP"
+        );
+        this._levelSystemWarningLogged = true;
+      }
+      return;
+    }
+
+    if (!ConfigValidator.isFeatureEnabled("LEVEL_ROLES")) {
+      if (!this._levelSystemWarningLogged) {
+        ConfigValidator.logFeatureDisabled("Level Up System", "LEVEL_ROLES");
+        this._levelSystemWarningLogged = true;
+      }
+      return;
+    }
 
     const memberInJail = message.member?.roles.cache.some(
       (role) =>

@@ -12,6 +12,7 @@ import { writeFileSync } from "fs";
 import path from "path";
 import { prisma } from "../../prisma";
 import { ChartDataset, GuildMemberCountChart } from "../../types/index";
+import { ConfigValidator } from "../config-validator";
 import {
   CHARTJS_NODE_CANVAS,
   ChartManager,
@@ -24,12 +25,36 @@ import { simpleEmbedExample } from "../embeds";
 import { chartConfig, getDaysArray } from "../helpers";
 
 export class MembersService {
+  private static _memberCountWarningLogged = false;
+
   static async upsertDbMember(
     member: GuildMember | PartialGuildMember,
     status: "join" | "leave"
   ) {
     // dont add bots to the list
     if (member.user.bot) return;
+
+    if (!ConfigValidator.isFeatureEnabled("SHOULD_COUNT_MEMBERS")) {
+      if (!this._memberCountWarningLogged) {
+        ConfigValidator.logFeatureDisabled(
+          "Member Count Display",
+          "SHOULD_COUNT_MEMBERS"
+        );
+        this._memberCountWarningLogged = true;
+      }
+      return;
+    }
+
+    if (!ConfigValidator.isFeatureEnabled("MEMBERS_COUNT_CHANNELS")) {
+      if (!this._memberCountWarningLogged) {
+        ConfigValidator.logFeatureDisabled(
+          "Member Count Display",
+          "MEMBERS_COUNT_CHANNELS"
+        );
+        this._memberCountWarningLogged = true;
+      }
+      return;
+    }
 
     // get member info
     const memberId = member.id;
@@ -92,6 +117,10 @@ export class MembersService {
     event: "join" | "leave"
   ) {
     try {
+      if (!ConfigValidator.isFeatureEnabled("JOIN_EVENT_CHANNELS")) {
+        return;
+      }
+
       // get voice channel by name
       const joinEventsChannel = member.guild.channels.cache.find(({ name }) =>
         JOIN_EVENT_CHANNELS.includes(name)
