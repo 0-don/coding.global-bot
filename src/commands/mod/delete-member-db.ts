@@ -5,7 +5,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { LogService } from "../../lib/logs/Log.service.js";
+import { LogService } from "../../lib/logs/log.service.js";
 import { prisma } from "../../prisma.js";
 
 @Discord()

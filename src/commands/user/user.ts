@@ -9,8 +9,8 @@ import {
   BOT_CHANNELS,
   IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../lib/constants.js";
-import { LogService } from "../../lib/logs/Log.service.js";
-import { StatsService } from "../../lib/stats/Stats.service.js";
+import { LogService } from "../../lib/logs/log.service.js";
+import { StatsService } from "../../lib/stats/stats.service.js";
 
 @Discord()
 export class UserCommand {
@@ -26,7 +26,7 @@ export class UserCommand {
       type: ApplicationCommandOptionType.User,
     })
     user: User,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
     // get text channel
     const channel = (await interaction.channel?.fetch()) as TextChannel;
@@ -40,7 +40,7 @@ export class UserCommand {
       // if not bot channel, return
       if (!BOT_CHANNELS.includes(channel.name))
         return await interaction.editReply(
-          "Please use this command in the bot channel",
+          "Please use this command in the bot channel"
         );
     }
 

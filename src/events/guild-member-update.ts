@@ -1,8 +1,8 @@
 import type { ArgsOf } from "discordx";
 import { Discord, On } from "discordx";
 import { EVERYONE } from "../lib/constants.js";
-import { updateNickname } from "../lib/members/saveNickname.js";
-import { RolesService } from "../lib/roles/Roles.service.js";
+import { updateNickname } from "../lib/members/save-nickname.js";
+import { RolesService } from "../lib/roles/roles.service.js";
 import { prisma } from "../prisma.js";
 
 @Discord()

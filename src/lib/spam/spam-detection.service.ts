@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import dayjs from "dayjs";
 import { Message, ThreadChannel } from "discord.js";
 import { prisma } from "../../prisma.js";
-import { deleteUserMessages } from "../messages/deleteUserMessages.js";
+import { deleteUserMessages } from "../messages/delete-user-messages.js";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,

@@ -5,8 +5,8 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { LogService } from "../../lib/logs/Log.service.js";
-import { fetchMessages } from "../../lib/messages/fetchMessages.js";
+import { LogService } from "../../lib/logs/log.service.js";
+import { fetchMessages } from "../../lib/messages/fetch-messages.js";
 
 @Discord()
 export class DeleteMessages {

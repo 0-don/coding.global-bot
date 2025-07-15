@@ -3,7 +3,7 @@ import { swagger } from "@elysiajs/swagger";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
-import { verifyAllUsers } from "./lib/members/verifyAllUsers.js";
+import { verifyAllUsers } from "./lib/members/verify-all-users.js";
 import { bot } from "./main.js";
 import { prisma } from "./prisma.js";
 

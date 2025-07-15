@@ -1,6 +1,6 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { MessagesService } from "../lib/messages/Messages.service.js";
+import { MessagesService } from "../lib/messages/messages.service.js";
 
 @Discord()
 export class MessageDelete {

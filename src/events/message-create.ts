@@ -3,14 +3,14 @@ import type { ArgsOf, Client, SimpleCommandMessage } from "discordx";
 import { Discord, On, SimpleCommand } from "discordx";
 import { simpleEmbedExample } from "../lib/embeds.js";
 import { translate } from "../lib/helpers.js";
-import { MessagesService } from "../lib/messages/Messages.service.js";
-import { checkWarnings } from "../lib/messages/checkWarnings.js";
-import { deleteUserMessages } from "../lib/messages/deleteUserMessages.js";
-import { fetchMessages } from "../lib/messages/fetchMessages.js";
-import { HelperService } from "../lib/roles/Helper.service.js";
+import { checkWarnings } from "../lib/messages/check-warnings.js";
+import { deleteUserMessages } from "../lib/messages/delete-user-messages.js";
+import { fetchMessages } from "../lib/messages/fetch-messages.js";
+import { MessagesService } from "../lib/messages/messages.service.js";
+import { HelperService } from "../lib/roles/helper.service.js";
+import { SpamDetectionService } from "../lib/spam/spam-detection.service.js";
 import { prisma } from "../prisma.js";
 import { UserState } from "../types/index.js";
-import { SpamDetectionService } from "../lib/spam/SpamDetection.service.js";
 
 const previousMessages = new Map<string, UserState>();
 
