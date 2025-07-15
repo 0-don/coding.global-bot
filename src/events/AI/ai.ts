@@ -5,7 +5,6 @@ import { Discord, On } from "discordx";
 import { Message, TextChannel } from "discord.js";
 import {
   BOT_CHANNELS,
-  IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../lib/constants.js";
 import { Ai_prompt } from "./prompt.js";
 
@@ -46,90 +45,88 @@ export class aiChat {
     [message]: ArgsOf<"messageCreate">,
     client: Client
   ): Promise<void> {
-    
-    // if (message.author.bot) return;
-    //     if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
-    //   const channel = (await message.channel.fetch()) as TextChannel;
-    //   if (!BOT_CHANNELS.includes(channel.name)) {
-    //     message.reply(
-    //       "Please go to bots channel, lets keep the things simple and organized"
-    //     );
-    //   }
-    // }
-    // const mentionRegex = new RegExp(`^<@!?${client.user?.id}>`);
-    // const isMentioned = mentionRegex.test(message.content);
-
-    // let isReplyToBot = false;
-    // if (message.reference && message.reference.messageId) {
-    //   const repliedMessage = await message.channel.messages
-    //     .fetch(message.reference.messageId)
-    //     .catch(() => null);
-    //   if (repliedMessage && repliedMessage.author.id === client.user?.id) {
-    //     isReplyToBot = true;
-    //   }
-    // }
+    if (message.author.bot) return;
+        if (true) {
+      const channel = (await message.channel.fetch()) as TextChannel;
+      if (!BOT_CHANNELS.includes(channel.name)) {
  
-    // if (
-    //   !isMentioned &&
-    //   !isReplyToBot &&
-    //   !message.content.toLowerCase().startsWith("coding global")
-    // ) {
-    //   return;
-    // }
+        return
+      }
+    }
+    const mentionRegex = new RegExp(`^<@!?${client.user?.id}>`);
+    const isMentioned = mentionRegex.test(message.content);
 
-    // const userMessage = message.content
-    //   .replace(mentionRegex, "")
-    //   .trim()
-    //   .replace(/^coding global/i, "")
-    //   .trim();
+    let isReplyToBot = false;
+    if (message.reference && message.reference.messageId) {
+      const repliedMessage = await message.channel.messages
+        .fetch(message.reference.messageId)
+        .catch(() => null);
+      if (repliedMessage && repliedMessage.author.id === client.user?.id) {
+        isReplyToBot = true;
+      }
+    }
+ 
+    if (
+      !isMentioned &&
+      !isReplyToBot &&
+      !message.content.toLowerCase().startsWith("coding global")
+    ) {
+      return;
+    }
 
-    // if (!userMessage) {
-    //   await message.reply("if u are pinning me u should say something :/");
-    //   return;
-    // }
+    const userMessage = message.content
+      .replace(mentionRegex, "")
+      .trim()
+      .replace(/^coding global/i, "")
+      .trim();
 
-    // const channelId = message.channel.id;
+    if (!userMessage) {
+      await message.reply("if u are pinning me u should say something :/");
+      return;
+    }
 
-    // if (!channelHistory.has(channelId)) {
-    //   channelHistory.set(channelId, new ChatHistoryManager());
-    // }
+    const channelId = message.channel.id;
 
-    // const historyManager = channelHistory.get(channelId)!;
+    if (!channelHistory.has(channelId)) {
+      channelHistory.set(channelId, new ChatHistoryManager());
+    }
 
-    // historyManager.addMessage("user", userMessage);
+    const historyManager = channelHistory.get(channelId)!;
 
-    // const ai = new GoogleGenAI({ apiKey: apiKey! });
+    historyManager.addMessage("user", userMessage);
 
-    // try {
-    //   const result = await ai.models.generateContent({
-    //     model: "gemini-2.5-flash",
-    //     contents: [
-    //       {
-    //         role: "user",
-    //         parts: [
-    //           {
-    //             text: `${Ai_prompt.promptText}\n\nPrevious conversation:\n${formatHistory(
-    //               historyManager.getHistory()
-    //             )}\n\nNow reply to:\n"${userMessage}"`,
-    //           },
-    //         ],
-    //       },
-    //     ],
-    //   });
+    const ai = new GoogleGenAI({ apiKey: apiKey! });
 
-    //   const responseText =
-    //     result.candidates?.[0]?.content?.parts?.[0]?.text ??
-    //     "Hmm... I'm not sure how to respond to that.";
+    try {
+      const result = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: `${Ai_prompt.promptText}\n\nPrevious conversation:\n${formatHistory(
+                  historyManager.getHistory()
+                )}\n\nNow reply to:\n"${userMessage}"`,
+              },
+            ],
+          },
+        ],
+      });
 
-    //   historyManager.addMessage("model", responseText);
+      const responseText =
+        result.candidates?.[0]?.content?.parts?.[0]?.text ??
+        "Hmm... I'm not sure how to respond to that.";
 
-    //   await message.reply(responseText);
-    // } catch (error) {
-    //   console.error("Error generating AI response:", error);
-    //   await message.reply(
-    //     "Something went wrong while trying to think. Try again later!"
-    //   );
-    // }
+      historyManager.addMessage("model", responseText);
+
+      await message.reply(responseText);
+    } catch (error) {
+      console.error("Error generating AI response:", error);
+      await message.reply(
+        "Something went wrong while trying to think. Try again later!"
+      );
+    }
   }
 }
 setInterval(async () => {
