@@ -1,8 +1,8 @@
 import { MessageReaction, User } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On, Reaction } from "discordx";
-import { HelperService } from "../lib/roles/Helper.service.js";
-import { RolesService } from "../lib/roles/Roles.service.js";
+import { HelperService } from "../lib/roles/helper.service.js";
+import { RolesService } from "../lib/roles/roles.service.js";
 import { prisma } from "../prisma.js";
 
 @Discord()
@@ -10,7 +10,7 @@ export class MessageReactionAdd {
   @On()
   async messageReactionAdd(
     [reaction, user]: ArgsOf<"messageReactionAdd">,
-    client: Client,
+    client: Client
   ) {
     // fetch reaction status and roles
     await reaction.fetch();

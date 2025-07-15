@@ -3,7 +3,7 @@ import { CommandInteraction, Guild } from "discord.js";
 import { prisma } from "../../prisma.js";
 import { EVERYONE, STATUS_ROLES, VERIFIED } from "../constants.js";
 import { chunk } from "../helpers.js";
-import { RolesService } from "../roles/Roles.service.js";
+import { RolesService } from "../roles/roles.service.js";
 
 export const verifyAllUsers = async (
   guild: Guild,

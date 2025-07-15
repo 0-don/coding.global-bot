@@ -2,9 +2,9 @@ import { GuildMember } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { SHOULD_LOG_VOICE_EVENTS } from "../lib/constants.js";
-import { joinSettings } from "../lib/members/joinNickname.js";
-import { moveMemberToChannel } from "../lib/members/moveMemberToChannel.js";
-import { VoiceService } from "../lib/voice/Voice.service.js";
+import { joinSettings } from "../lib/members/join-nickname.js";
+import { moveMemberToChannel } from "../lib/members/move-member-to-channel.js";
+import { VoiceService } from "../lib/voice/voice.service.js";
 import { prisma } from "../prisma.js";
 
 @Discord()
@@ -12,7 +12,7 @@ export class VoiceStateUpdate {
   @On()
   async voiceStateUpdate(
     [oldVoiceState, newVoiceState]: ArgsOf<"voiceStateUpdate">,
-    client: Client,
+    client: Client
   ) {
     const member =
       newVoiceState?.member || (oldVoiceState?.member as GuildMember);

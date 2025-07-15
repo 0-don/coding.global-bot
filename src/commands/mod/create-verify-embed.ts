@@ -2,7 +2,7 @@ import type { APIEmbed, CommandInteraction, Message } from "discord.js";
 import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { BOT_ICON, RED_COLOR, VERIFY_TEMPLATE } from "../../lib/constants.js";
-import { LogService } from "../../lib/logs/Log.service.js";
+import { LogService } from "../../lib/logs/log.service.js";
 
 @Discord()
 export class CreateVerifyEmbed {

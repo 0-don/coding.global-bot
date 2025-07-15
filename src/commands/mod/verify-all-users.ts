@@ -2,8 +2,8 @@ import type { CommandInteraction, TextChannel } from "discord.js";
 import { MessageFlags, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
 
-import { LogService } from "../../lib/logs/Log.service.js";
-import { verifyAllUsers } from "../../lib/members/verifyAllUsers.js";
+import { LogService } from "../../lib/logs/log.service.js";
+import { verifyAllUsers } from "../../lib/members/verify-all-users.js";
 
 @Discord()
 export class VerifyAllUsers {

@@ -5,8 +5,8 @@ import {
   BOT_CHANNELS,
   IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../lib/constants.js";
-import { LogService } from "../../lib/logs/Log.service.js";
-import { StatsService } from "../../lib/stats/Stats.service.js";
+import { LogService } from "../../lib/logs/log.service.js";
+import { StatsService } from "../../lib/stats/stats.service.js";
 
 @Discord()
 export class Me {
@@ -27,7 +27,7 @@ export class Me {
       // if not bot channel, return
       if (!BOT_CHANNELS.includes(channel.name))
         return await interaction.editReply(
-          "Please use this command in the bot channel",
+          "Please use this command in the bot channel"
         );
     }
     const embed = await StatsService.userStatsEmbed(interaction);

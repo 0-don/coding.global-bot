@@ -1,71 +1,58 @@
 import { GoogleGenAI } from "@google/genai";
+import { TextChannel } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-
-import { Message, TextChannel } from "discord.js";
-import {
-  BOT_CHANNELS,
-} from "../../lib/constants.js";
+import { BOT_CHANNELS } from "../../lib/constants.js";
 import { Ai_prompt } from "./prompt.js";
 
-type Role = "user" | "model";
 interface ChatMessage {
-  role: Role;
+  role: "user" | "model";
   parts: { text: string }[];
 }
 
 class ChatHistoryManager {
   private history: ChatMessage[] = [];
 
-  addMessage(role: Role, text: string): void {
+  addMessage(role: "user" | "model", text: string) {
     this.history.push({ role, parts: [{ text }] });
   }
 
-  getHistory(): ChatMessage[] {
+  getHistory() {
     return [...this.history];
+  }
+
+  formatHistory() {
+    return this.history
+      .map(
+        (msg) => `${msg.role === "user" ? "User" : "Bot"}: ${msg.parts[0].text}`
+      )
+      .join("\n");
   }
 }
 
 const channelHistory = new Map<string, ChatHistoryManager>();
-
-function formatHistory(history: ChatMessage[]): string {
-  return history
-    .map(
-      (msg) => `${msg.role === "user" ? "User" : "Bot"}: ${msg.parts[0].text}`
-    )
-    .join("\n");
-}
-
-const apiKey = process.env.API_KEY;
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 @Discord()
 export class aiChat {
   @On()
-  async messageCreate(
-    [message]: ArgsOf<"messageCreate">,
-    client: Client
-  ): Promise<void> {
+  async messageCreate([message]: ArgsOf<"messageCreate">, client: Client) {
     if (message.author.bot) return;
-        if (true) {
-      const channel = (await message.channel.fetch()) as TextChannel;
-      if (!BOT_CHANNELS.includes(channel.name)) {
- 
-        return
-      }
-    }
+
+    const channel = (await message.channel.fetch()) as TextChannel;
+    if (!BOT_CHANNELS.includes(channel.name)) return;
+
     const mentionRegex = new RegExp(`^<@!?${client.user?.id}>`);
     const isMentioned = mentionRegex.test(message.content);
 
-    let isReplyToBot = false;
-    if (message.reference && message.reference.messageId) {
-      const repliedMessage = await message.channel.messages
-        .fetch(message.reference.messageId)
-        .catch(() => null);
-      if (repliedMessage && repliedMessage.author.id === client.user?.id) {
-        isReplyToBot = true;
-      }
-    }
- 
+    const isReplyToBot =
+      message.reference &&
+      (
+        await message.channel.messages
+          .fetch(message.reference.messageId!)
+          .catch(() => null)
+      )?.author.id === client.user?.id;
+
     if (
       !isMentioned &&
       !isReplyToBot &&
@@ -76,7 +63,6 @@ export class aiChat {
 
     const userMessage = message.content
       .replace(mentionRegex, "")
-      .trim()
       .replace(/^coding global/i, "")
       .trim();
 
@@ -85,17 +71,13 @@ export class aiChat {
       return;
     }
 
-    const channelId = message.channel.id;
-
-    if (!channelHistory.has(channelId)) {
-      channelHistory.set(channelId, new ChatHistoryManager());
-    }
-
-    const historyManager = channelHistory.get(channelId)!;
+    const historyManager =
+      channelHistory.get(message.channel.id) ??
+      channelHistory
+        .set(message.channel.id, new ChatHistoryManager())
+        .get(message.channel.id)!;
 
     historyManager.addMessage("user", userMessage);
-
-    const ai = new GoogleGenAI({ apiKey: apiKey! });
 
     try {
       const result = await ai.models.generateContent({
@@ -105,9 +87,7 @@ export class aiChat {
             role: "user",
             parts: [
               {
-                text: `${Ai_prompt.promptText}\n\nPrevious conversation:\n${formatHistory(
-                  historyManager.getHistory()
-                )}\n\nNow reply to:\n"${userMessage}"`,
+                text: `${Ai_prompt.promptText}\n\nPrevious conversation:\n${historyManager.formatHistory()}\n\nNow reply to:\n"${userMessage}"`,
               },
             ],
           },
@@ -119,7 +99,6 @@ export class aiChat {
         "Hmm... I'm not sure how to respond to that.";
 
       historyManager.addMessage("model", responseText);
-
       await message.reply(responseText);
     } catch (error) {
       console.error("Error generating AI response:", error);
@@ -129,12 +108,12 @@ export class aiChat {
     }
   }
 }
+
 setInterval(async () => {
   try {
-    const res = await fetch(
-      "https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api "
-    );
-    const data = await res.json();
+    const data = await fetch(
+      "https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api"
+    ).then((res) => res.json());
     console.log(data);
   } catch (err) {
     console.error("Ping error:", err);

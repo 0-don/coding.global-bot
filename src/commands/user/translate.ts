@@ -4,7 +4,7 @@ import {
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { translate } from "../../lib/helpers.js";
-import { LogService } from "../../lib/logs/Log.service.js";
+import { LogService } from "../../lib/logs/log.service.js";
 
 @Discord()
 export class Translate {
@@ -20,7 +20,7 @@ export class Translate {
       type: ApplicationCommandOptionType.String,
     })
     txt: string,
-    interaction: CommandInteraction,
+    interaction: CommandInteraction
   ) {
     // Defer reply if it takes longer than usual
     await interaction.deferReply();
