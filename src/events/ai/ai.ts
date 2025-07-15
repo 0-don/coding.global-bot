@@ -4,6 +4,7 @@ import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { BOT_CHANNELS } from "../../lib/constants";
 import { Ai_prompt } from "./prompt";
+import { ConfigValidator } from "../../lib/config-validator";
 
 interface ChatMessage {
   role: "user" | "model";
@@ -34,10 +35,18 @@ const channelHistory = new Map<string, ChatHistoryManager>();
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 @Discord()
-export class aiChat {
+export class AiChat {
   @On()
   async messageCreate([message]: ArgsOf<"messageCreate">, client: Client) {
     if (message.author.bot) return;
+
+    if (!ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")) {
+      return;
+    }
+
+    if (!ConfigValidator.isFeatureEnabled("BOT_CHANNELS")) {
+      return;
+    }
 
     const channel = (await message.channel.fetch()) as TextChannel;
     if (!BOT_CHANNELS.includes(channel.name)) return;

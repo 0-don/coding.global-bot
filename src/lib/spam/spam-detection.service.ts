@@ -3,12 +3,15 @@ import dayjs from "dayjs";
 import { Message, ThreadChannel } from "discord.js";
 import { prisma } from "../../prisma";
 import { deleteUserMessages } from "../messages/delete-user-messages";
+import { ConfigValidator } from "../config-validator";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
 export class SpamDetectionService {
+  private static _spamDetectionWarningLogged = false;
+
   private static readonly SYSTEM_PROMPT = `You are a spam detection AI for a coding/programming Discord server.
 
 This server is for programming discussions, learning, and community help - NOT for business promotion or job seeking.
@@ -51,6 +54,17 @@ Respond with only "yes" if spam, "no" if legitimate.`;
    */
   public static async detectSpam(message: Message): Promise<boolean> {
     if (!message.member || message.author.bot || !message.guildId) {
+      return false;
+    }
+
+    if (!ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")) {
+      if (!this._spamDetectionWarningLogged) {
+        ConfigValidator.logFeatureDisabled(
+          "AI Spam Detection",
+          "GEMINI_API_KEY"
+        );
+        this._spamDetectionWarningLogged = true;
+      }
       return false;
     }
 

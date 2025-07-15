@@ -6,10 +6,13 @@ import { prisma } from "../../prisma";
 import { VOICE_EVENT_CHANNELS } from "../constants";
 import { simpleEmbedExample } from "../embeds";
 import { getDaysArray } from "../helpers";
+import { ConfigValidator } from "../config-validator";
 
 dayjs.extend(utc);
 
 export class VoiceService {
+  private static _voiceLoggingWarningLogged = false;
+
   static async closeDeadVoiceEvents() {
     // roll dice with if statemen 1/10 chance to run
     if (Math.floor(Math.random() * 10) === 0) return;
@@ -30,6 +33,28 @@ export class VoiceService {
     oldVoiceState: VoiceState,
     newVoiceState: VoiceState
   ) {
+    if (!ConfigValidator.isFeatureEnabled("SHOULD_LOG_VOICE_EVENTS")) {
+      if (!this._voiceLoggingWarningLogged) {
+        ConfigValidator.logFeatureDisabled(
+          "Voice Event Logging",
+          "SHOULD_LOG_VOICE_EVENTS"
+        );
+        this._voiceLoggingWarningLogged = true;
+      }
+      return;
+    }
+
+    if (!ConfigValidator.isFeatureEnabled("VOICE_EVENT_CHANNELS")) {
+      if (!this._voiceLoggingWarningLogged) {
+        ConfigValidator.logFeatureDisabled(
+          "Voice Event Logging",
+          "VOICE_EVENT_CHANNELS"
+        );
+        this._voiceLoggingWarningLogged = true;
+      }
+      return;
+    }
+
     try {
       // if mute, deafen, stream etc. => exit
       if (oldVoiceState.channelId === newVoiceState.channelId) return;
