@@ -5,7 +5,6 @@ import { Discord, On } from "discordx";
 import { Message, TextChannel } from "discord.js";
 import {
   BOT_CHANNELS,
-  IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../lib/constants.js";
 import { Ai_prompt } from "./prompt.js";
 
@@ -47,12 +46,11 @@ export class aiChat {
     client: Client
   ): Promise<void> {
     if (message.author.bot) return;
-        if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
+        if (true) {
       const channel = (await message.channel.fetch()) as TextChannel;
       if (!BOT_CHANNELS.includes(channel.name)) {
-        message.reply(
-          "Please go to bots channel, lets keep the things simple and organized"
-        );
+ 
+        return
       }
     }
     const mentionRegex = new RegExp(`^<@!?${client.user?.id}>`);
