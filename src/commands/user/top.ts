@@ -4,13 +4,13 @@ import {
   type TextChannel,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
+import { ConfigValidator } from "../../lib/config-validator";
 import {
   BOT_CHANNELS,
   IS_CONSTRAINED_TO_BOT_CHANNEL,
 } from "../../lib/constants";
 import { LogService } from "../../lib/logs/log.service";
 import { StatsService } from "../../lib/stats/stats.service";
-import { ConfigValidator } from "../../lib/config-validator";
 
 @Discord()
 export class Top {

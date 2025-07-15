@@ -40,22 +40,23 @@ export const HELPER_RANKING = HELPER_ROLES.map((role, i) => ({
 }));
 
 export const IS_CONSTRAINED_TO_BOT_CHANNEL =
-  process.env.IS_CONSTRAINED_TO_BOT_CHANNEL.trim() === "true";
+  process.env.IS_CONSTRAINED_TO_BOT_CHANNEL?.trim() === "true";
 export const SHOULD_LOG_VOICE_EVENTS =
-  process.env.SHOULD_LOG_VOICE_EVENTS.trim() === "true";
+  process.env.SHOULD_LOG_VOICE_EVENTS?.trim() === "true";
 export const SHOULD_COUNT_MEMBERS =
-  process.env.SHOULD_COUNT_MEMBERS.trim() === "true";
+  process.env.SHOULD_COUNT_MEMBERS?.trim() === "true";
 export const SHOULD_USER_LEVEL_UP =
-  process.env.SHOULD_USER_LEVEL_UP.trim() === "true";
+  process.env.SHOULD_USER_LEVEL_UP?.trim() === "true";
 
 export const EVERYONE = "@everyone";
 export const VERIFIED =
-  STATUS_ROLES.find((r) => r.toLowerCase() === "verified") || STATUS_ROLES?.[0];
+  STATUS_ROLES.find((r) => r?.toLowerCase() === "verified") ||
+  STATUS_ROLES?.[0];
 export const VOICE_ONLY =
-  STATUS_ROLES.find((r) => r.toLowerCase() === "voiceonly") ||
+  STATUS_ROLES.find((r) => r?.toLowerCase() === "voiceonly") ||
   STATUS_ROLES?.[1];
 export const JAIL =
-  STATUS_ROLES.find((r) => r.toLowerCase() === "jail") || STATUS_ROLES?.[2];
+  STATUS_ROLES.find((r) => r?.toLowerCase() === "jail") || STATUS_ROLES?.[2];
 
 export const ACTIVE =
   LEVEL_ROLES.find((r) => r.toLowerCase() === "active!") || LEVEL_ROLES?.[0];
@@ -73,17 +74,17 @@ export const ULTRA_ACTIVE =
   LEVEL_ROLES?.[4];
 
 export const GENERAL_CHANNELS =
-  process.env.GENERAL_CHANNELS.split(",").map((s) => s.trim()) || [];
+  process.env.GENERAL_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
 export const VERIFY_CHANNELS =
-  process.env.VERIFY_CHANNELS?.split(",").map((s) => s.trim()) || [];
+  process.env.VERIFY_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
 export const BOT_CHANNELS =
-  process.env.BOT_CHANNELS.split(",").map((s) => s.trim()) || [];
+  process.env.BOT_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
 export const VOICE_EVENT_CHANNELS =
-  process.env.VOICE_EVENT_CHANNELS.split(",").map((s) => s.trim()) || [];
+  process.env.VOICE_EVENT_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
 export const JOIN_EVENT_CHANNELS =
-  process.env.JOIN_EVENT_CHANNELS.split(",").map((s) => s.trim()) || [];
+  process.env.JOIN_EVENT_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
 export const MEMBERS_COUNT_CHANNELS =
-  process.env.MEMBERS_COUNT_CHANNELS.split(",").map((s) => s.trim()) || [];
+  process.env.MEMBERS_COUNT_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
 
 export const MEMBERS_TEMPLATE = "members count";
 export const STATS_TEMPLATE = "user stats";
@@ -93,7 +94,8 @@ export const DELETED_MESSAGES_HISTORY_TEMPLATE = "deleted messages history";
 export const VERIFY_TEMPLATE = "verify yourself";
 
 export const RED_COLOR = parseInt("#FF0000") as number | undefined;
-export const BOT_ICON = process.env.BOT_ICON.trim();
+export const BOT_ICON =
+  process.env.BOT_ICON?.trim() || "https://via.placeholder.com/32";
 
 export const LEVEL_LIST = [
   { count: 10, role: ACTIVE },

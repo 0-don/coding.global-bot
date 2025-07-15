@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import crypto from "crypto";
 import Keyv from "keyv";
 import QuickLRU from "quick-lru";
+import { ConfigValidator } from "./lib/config-validator";
 
 class GoogleGenAIAPI {
   private model = "gemini-2.5-flash";
@@ -99,6 +100,8 @@ export interface ChatMessage {
   parentMessageId?: string;
 }
 
-export const genai = new GoogleGenAIAPI({
-  apiKey: process.env.GOOGLE_GENAI_API_KEY!,
-});
+export const genai = ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")
+  ? new GoogleGenAIAPI({
+      apiKey: process.env.GEMINI_API_KEY!,
+    })
+  : null;
