@@ -1,7 +1,7 @@
 import { log, warn } from "console";
 
 interface ConfigCheck {
-  key: keyof BotEnviroment;
+  key: keyof FeatureBotEnvironment;
   required: boolean;
   feature: string;
 }
@@ -116,14 +116,14 @@ export class ConfigValidator {
     );
   }
 
-  public static isFeatureEnabled(envKey: keyof BotEnviroment): boolean {
+  public static isFeatureEnabled(envKey: keyof FeatureBotEnvironment): boolean {
     const value = process.env[envKey];
     return !!(value && value.trim() !== "");
   }
 
   public static logFeatureDisabled(
     feature: string,
-    envKey: keyof BotEnviroment
+    envKey: keyof FeatureBotEnvironment
   ): void {
     warn(`⚠️  ${feature} disabled: ${envKey} not configured`);
   }
