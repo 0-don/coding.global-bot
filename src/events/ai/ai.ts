@@ -1,3 +1,4 @@
+import { error } from "console";
 import { TextChannel } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
@@ -108,8 +109,8 @@ export class AiChat {
 
       historyManager.addMessage("model", responseText);
       await message.reply(responseText);
-    } catch (error) {
-      console.error("Error generating AI response:", error);
+    } catch (err) {
+      error("Error generating AI response:", err);
       await message.reply(
         "Something went wrong while trying to think. Try again later!"
       );
@@ -121,9 +122,9 @@ setInterval(async () => {
   try {
     const data = await fetch(
       "https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api"
-    ).then((res) => res.json());
-    console.log(data);
+    );
+    await data.json();
   } catch (err) {
-    console.error("Ping error:", err);
+    error("Ping error:", err);
   }
 }, 300000);
