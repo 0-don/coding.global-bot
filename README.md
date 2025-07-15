@@ -22,7 +22,7 @@
 ### Prerequisites
 
 1. **Discord Bot Token** - Follow this [YouTube tutorial](https://www.youtube.com/watch?v=aI4OmIbkJH8) to create a Discord bot and get your token
-2. **Database** - Set up a PostgreSQL database using Neon (recommended) or your preferred provider
+2. **Database** - Set up a PostgreSQL database using [Neon.tech](https://neon.tech) (recommended) or your preferred provider
 
 ### Database Setup with Neon
 
