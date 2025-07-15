@@ -1,5 +1,4 @@
 import { bot } from "../../main.js";
-import { Message } from "discord.js";
  
 export const getMemberCount = async (guildId: string): Promise<string> => {
   try {
