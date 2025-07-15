@@ -39,16 +39,19 @@
    Create a `.env` file from the `.env.example` template and fill in the required variables:
 
 4. **Install Dependencies & Run Prisma**
-    ```sh
-    npm install
-    npm run prisma
-    npm run dev
-    ```
-    run `/verify-all-users` to verify all users in the server and the db.
+   ```sh
+   npm install
+   npm run prisma
+   npm run dev
+   ```
+   run `/verify-all-users` to verify all users in the server and the db.
 
 ### Slash Commands
 
 ---
+
+- **/verify-all-users**
+  - **Description**: Important for the first run, this command verifies all users in the server.
 
 - **/delete-messages**
   - **Description**: Deletes messages from a channel.
@@ -78,9 +81,6 @@
   - **Description**: Get stats from a specific user.
   - **Options**:
     - **user**: Select the user whose stats should be shown.
-
-- **/verify-all-users**
-  - **Description**: Verify all users in the server.
 
 ### restore db
 
