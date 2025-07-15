@@ -46,6 +46,7 @@ Code Examples:
 UTILS:
 to know how many members are in the server u can use ${getMemberCount}
 U SHOULDNT REPLY 2 TIMES
+U DONT NEED TO REPLY TO THE SAME MESSAGE 2 TIMES
 `
 
 };
