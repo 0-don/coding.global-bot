@@ -1,4 +1,5 @@
 import { cors } from "@elysiajs/cors";
+import { node } from "@elysiajs/node";
 import { swagger } from "@elysiajs/swagger";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
@@ -38,7 +39,7 @@ const locks: Record<string, boolean> = {};
 
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
-new Elysia()
+new Elysia({ adapter: node() })
   .use(swagger())
   .use(cors())
   .derive(({ request }) => ({
