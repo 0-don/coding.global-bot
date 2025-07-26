@@ -3,7 +3,7 @@ import { node } from "@elysiajs/node";
 import { swagger } from "@elysiajs/swagger";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
-import { Elysia, status, t } from "elysia";
+import { Elysia, ElysiaAdapter, status, t } from "elysia";
 import { verifyAllUsers } from "./lib/members/verify-all-users";
 import { bot } from "./main";
 import { prisma } from "./prisma";
@@ -39,7 +39,7 @@ const locks: Record<string, boolean> = {};
 
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
-new Elysia({ adapter: node() })
+new Elysia({ adapter: node() as ElysiaAdapter })
   .use(swagger())
   .use(cors())
   .derive(({ request }) => ({
