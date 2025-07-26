@@ -23,36 +23,40 @@ export class MessageReactionAdd {
 
   @Reaction({ emoji: "✅" })
   async helperEmojiAdd(reaction: MessageReaction, user: User): Promise<void> {
-    const message = await reaction.message.fetch();
-    const channel = message.channel;
+    try {
+      const message = await reaction.message.fetch();
+      const channel = message.channel;
 
-    if (channel.isThread()) {
-      const thread = await channel.fetch();
-      const members = await message.guild?.members.fetch();
-      const threadOwner = members?.get(thread.ownerId!);
+      if (channel.isThread()) {
+        const thread = await channel.fetch();
+        const members = await message.guild?.members.fetch();
+        const threadOwner = members?.get(thread.ownerId!);
 
-      if (threadOwner?.id !== user?.id || threadOwner?.user.bot) {
-        return;
+        if (threadOwner?.id !== user?.id || threadOwner?.user.bot) {
+          return;
+        }
+
+        if (threadOwner?.id === message.author?.id) return;
+
+        const isHelpedThread = await prisma.memberHelper.findFirst({
+          where: { threadId: thread.id, threadOwnerId: thread.ownerId },
+        });
+
+        if (isHelpedThread) return;
+
+        await prisma.memberHelper.create({
+          data: {
+            memberId: message.author!.id,
+            guildId: message.guildId!,
+            threadId: thread.id,
+            threadOwnerId: thread.ownerId,
+          },
+        });
+
+        HelperService.helperRoleChecker(message);
       }
-
-      if (threadOwner?.id === message.author?.id) return;
-
-      const isHelpedThread = await prisma.memberHelper.findFirst({
-        where: { threadId: thread.id, threadOwnerId: thread.ownerId },
-      });
-
-      if (isHelpedThread) return;
-
-      await prisma.memberHelper.create({
-        data: {
-          memberId: message.author!.id,
-          guildId: message.guildId!,
-          threadId: thread.id,
-          threadOwnerId: thread.ownerId,
-        },
-      });
-
-      HelperService.helperRoleChecker(message);
+    } catch (error) {
+      console.error("Error in helperEmojiAdd:", error);
     }
   }
 }
