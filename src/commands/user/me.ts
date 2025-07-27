@@ -1,5 +1,4 @@
 import type { CommandInteraction, TextChannel } from "discord.js";
-import { PermissionFlagsBits } from "discord.js";
 import { Discord, Slash } from "discordx";
 import {
   BOT_CHANNELS,
@@ -13,7 +12,6 @@ export class Me {
   @Slash({
     name: "me",
     description: "Get your stats",
-    defaultMemberPermissions: PermissionFlagsBits.DeafenMembers,
   })
   async me(interaction: CommandInteraction) {
     // get text channel
