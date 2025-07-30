@@ -61,20 +61,29 @@ export const VOICE_ONLY =
 export const JAIL =
   STATUS_ROLES.find((r) => r?.toLowerCase() === "jail") || STATUS_ROLES?.[2];
 
-export const ACTIVE =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "active!") || LEVEL_ROLES?.[0];
-export const SUPER_ACTIVE =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "super active!") ||
-  LEVEL_ROLES?.[1];
-export const MEGA_ACTIVE =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "mega active!") ||
+export const JUNIOR_DEV =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "junior dev!") ||
+  LEVEL_ROLES?.[0];
+export const MID_DEV =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "mid dev!") || LEVEL_ROLES?.[1];
+export const SENIOR_DEV =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "senior dev!") ||
   LEVEL_ROLES?.[2];
-export const GIGA_ACTIVE =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "giga active!") ||
-  LEVEL_ROLES?.[3];
-export const ULTRA_ACTIVE =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "ultra active!") ||
+export const LEAD_DEV =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "lead dev!") || LEVEL_ROLES?.[3];
+export const PRINCIPAL_DEV =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "principal dev!") ||
   LEVEL_ROLES?.[4];
+export const STAFF_ENGINEER =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "staff engineer!") ||
+  LEVEL_ROLES?.[5];
+export const TECH_LEAD =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "tech lead!") || LEVEL_ROLES?.[6];
+export const ENGINEERING_MANAGER =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "engineering manager!") ||
+  LEVEL_ROLES?.[7];
+export const CTO =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "cto!") || LEVEL_ROLES?.[8];
 
 export const GENERAL_CHANNELS =
   process.env.GENERAL_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
@@ -101,50 +110,79 @@ export const BOT_ICON =
   process.env.BOT_ICON?.trim() || "https://via.placeholder.com/32";
 
 export const LEVEL_LIST = [
-  { count: 10, role: ACTIVE },
-  { count: 100, role: SUPER_ACTIVE },
-  { count: 1000, role: MEGA_ACTIVE },
-  { count: 2500, role: GIGA_ACTIVE },
-  { count: 5000, role: ULTRA_ACTIVE },
+  { count: 10, role: JUNIOR_DEV },
+  { count: 100, role: MID_DEV },
+  { count: 500, role: SENIOR_DEV },
+  { count: 1500, role: LEAD_DEV },
+  { count: 3500, role: PRINCIPAL_DEV },
+  { count: 7500, role: STAFF_ENGINEER },
+  { count: 15000, role: TECH_LEAD },
+  { count: 25000, role: ENGINEERING_MANAGER },
+  { count: 40000, role: CTO },
 ];
 
 export const LEVEL_MESSAGES = {
-  [ACTIVE]: [
-    "sys.log('New Intern Alert:'): ${user} has joined the development team as ${role}! First 10 commits merged successfully.",
-    "console.debug('Onboarding Complete!'): ${user} has completed their initial training and earned ${role}!",
-    "git log --author=${user}: First 10 contributions detected! Welcome to the team, ${role}!",
-    "npm run first-promotion: ${user} has been promoted to Junior Developer ${role}!",
-    "make intern-graduate: ${user} has completed their internship tasks and earned ${role}!",
+  [JUNIOR_DEV]: [
+    "git init career; // ${user} started their journey as ${role}!",
+    "console.log('Hello World, I am ${user}!'); // First steps as ${role}!",
+    "npm install confidence; // ${user} building skills as ${role}!",
+    "if (dedication === true) { promote('${user}', '${role}'); }",
+    "// TODO: Learn everything - ${user} (${role})",
   ],
-  [SUPER_ACTIVE]: [
-    "git status: ${user} completed their first code review cycle! Promoted to Junior Developer ${role}!",
-    "npm run test: ${user} mastered unit testing and earned ${role}!",
-    "console.log('First Bug Fix'): ${user} is debugging like a pro! Welcome to ${role}!",
-    "git commit -m 'first-feature': ${user} shipped their first feature and earned ${role}!",
-    "python debug.py: ${user} solved their first production bug! Awarded ${role}!",
+  [MID_DEV]: [
+    "git commit -m 'Fixed my first major bug' --author='${user} (${role})'",
+    "const experience = await learn(); // ${user} leveled up to ${role}!",
+    "docker run confidence:latest ${user} // ${role} container ready!",
+    "while(learning) { ${user}.grow(); } // Continuous improvement as ${role}!",
+    "merge pull-request #${user} into main // ${role} contributing quality code!",
   ],
-  [MEGA_ACTIVE]: [
-    "kubectl scale developer=${user}: Scaling up to Senior Developer ${role} after 1000 successful deployments!",
-    "git shortlog -sn: ${user} is now a top contributor! Promoted to ${role}!",
-    "aws promote-developer: ${user} architecting robust solutions as ${role}!",
-    "terraform apply: ${user} infrastructure expertise recognized with ${role}!",
-    "systemctl status ${user}: Senior level expertise confirmed, ${role} badge earned!",
+  [SENIOR_DEV]: [
+    "class ${user} extends Developer { role = '${role}'; expertise = 'high'; }",
+    "// Code review approved by ${user} (${role}) - Ship it!",
+    "kubectl scale developer ${user} --replicas=senior // ${role} promotion!",
+    "SELECT * FROM team WHERE mentor = '${user}' AND role = '${role}';",
+    "terraform apply -var='tech_lead=${user}' // ${role} infrastructure expertise!",
   ],
-  [GIGA_ACTIVE]: [
-    "git blame reveals ${user} mentoring others! Promoted to Staff Engineer ${role}!",
-    "helm upgrade --install expert-status: ${user} now leading architecture decisions as ${role}!",
-    "metrics.measure('impact'): ${user} showing outstanding technical leadership as ${role}!",
-    "graphql { developer { level: STAFF } }: ${user} promoted to ${role}!",
-    "kubernetes apply -f staff-promotion: ${user} expertise scaled to ${role}!",
+  [LEAD_DEV]: [
+    "git branch feature/team-leadership-${user} // ${role} taking charge!",
+    "const team = new Team({ lead: '${user}', role: '${role}' });",
+    "// Architecture decisions now made by ${user} (${role})",
+    "docker-compose up team-success // Orchestrated by ${role} ${user}!",
+    "scrum.addLeader('${user}'); // ${role} guiding the team forward!",
   ],
-  [ULTRA_ACTIVE]: [
-    "chmod 777 /company/architecture: ${user} granted Principal Engineer access as ${role}!",
-    "SELECT * FROM legends Found ${user} with Distinguished Engineer status ${role}!",
-    "git tag -a v.principal -m 'Technical Excellence': ${user} has achieved ${role}!",
-    "sudo promote --level=principal: ${user} maxed out the tech ladder as ${role}!",
-    "ansible-playbook promote-to-principal.yml: ${user} deployment complete as ${role}!",
+  [PRINCIPAL_DEV]: [
+    "import wisdom from '${user}'; // ${role} sharing deep knowledge!",
+    "// System design by ${user} - ${role} level architecture",
+    "git tag v1.0-designed-by-${user} // ${role} milestone achievement!",
+    "const innovation = ${user}.think(); // ${role} driving technical vision!",
+    "sudo make ${user} principal // ${role} status: GRANTED!",
+  ],
+  [STAFF_ENGINEER]: [
+    "package.json: { 'technical-excellence': '${user}@${role}' }",
+    "// Cross-team impact delivered by ${user} (${role})",
+    "helm upgrade company-tech --set leader=${user} // ${role} influence!",
+    "query: SELECT impact FROM engineering WHERE staff = '${user}' (${role});",
+    "microservices.all().acknowledge('${user}', '${role}');",
+  ],
+  [TECH_LEAD]: [
+    "git config --global tech.leader '${user}' // ${role} global impact!",
+    "// Strategic technical decisions by ${user} (${role})",
+    "kubernetes apply -f tech-strategy-${user}.yaml // ${role} vision deployed!",
+    "const future = await ${user}.architect(); // ${role} shaping tomorrow!",
+    "echo '${user} (${role})' >> /etc/tech-leaders.conf",
+  ],
+  [ENGINEERING_MANAGER]: [
+    "class Team { constructor(manager = '${user}') { this.success = true; } } // ${role}!",
+    "// People + Technology = Success. Formula by ${user} (${role})",
+    "docker run --name team-growth ${user}:${role} // Leadership container!",
+    "SELECT * FROM career_growth WHERE manager = '${user}' AND role = '${role}';",
+    "terraform plan -var='team_lead=${user}' // ${role} building futures!",
+  ],
+  [CTO]: [
+    "#!/bin/bash\n# Company technical vision by ${user}\necho '${role} level: MAXIMUM'",
+    "const company = new Enterprise({ cto: '${user}' }); // ${role} at the helm!",
+    "git commit -m 'Transformed entire tech stack' --author='${user} (${role})'",
+    "SELECT innovation FROM company WHERE cto = '${user}' AND role = '${role}';",
+    "sudo systemctl enable future.service // ${role} ${user} driving innovation!",
   ],
 };
-
-export const DEV_BOARD_CHANNEL = "1300427846342283436";
-export const JOB_BOARD_CHANNEL = "1300427561704226867";

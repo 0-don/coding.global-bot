@@ -1,13 +1,11 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { DEV_BOARD_CHANNEL } from "../lib/constants";
 import { JOB_POST_REGEX } from "../lib/helpers";
 
 @Discord()
 export class MessageCreate {
   @On({ event: "messageCreate" })
   async onMessage([message]: ArgsOf<"messageCreate">, client: Client) {
-    if (message.channelId !== DEV_BOARD_CHANNEL) return;
     if (message.author.bot) return;
 
     if (!JOB_POST_REGEX.test(message.content)) {
