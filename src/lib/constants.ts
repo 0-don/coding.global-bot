@@ -61,29 +61,29 @@ export const VOICE_ONLY =
 export const JAIL =
   STATUS_ROLES.find((r) => r?.toLowerCase() === "jail") || STATUS_ROLES?.[2];
 
+export const COPY_PASTER =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "copy paster!") ||
+  LEVEL_ROLES?.[0];
+export const SCRIPT_KIDDIE =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "script kiddie!") ||
+  LEVEL_ROLES?.[1];
+export const VIBE_CODER =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "vibe coder!") ||
+  LEVEL_ROLES?.[2];
 export const INTERN =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "intern!") || LEVEL_ROLES?.[0];
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "intern!") || LEVEL_ROLES?.[3];
 export const JUNIOR_DEV =
   LEVEL_ROLES.find((r) => r.toLowerCase() === "junior dev!") ||
-  LEVEL_ROLES?.[1];
+  LEVEL_ROLES?.[4];
 export const MID_DEV =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "mid dev!") || LEVEL_ROLES?.[2];
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "mid dev!") || LEVEL_ROLES?.[5];
 export const SENIOR_DEV =
   LEVEL_ROLES.find((r) => r.toLowerCase() === "senior dev!") ||
-  LEVEL_ROLES?.[3];
-export const LEAD_DEV =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "lead dev!") || LEVEL_ROLES?.[4];
-export const PRINCIPAL_DEV =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "principal dev!") ||
-  LEVEL_ROLES?.[5];
-export const STAFF_ENGINEER =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "staff engineer!") ||
   LEVEL_ROLES?.[6];
+export const LEAD_DEV =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "lead dev!") || LEVEL_ROLES?.[7];
 export const TECH_LEAD =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "tech lead!") || LEVEL_ROLES?.[7];
-export const ENGINEERING_MANAGER =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "engineering manager!") ||
-  LEVEL_ROLES?.[8];
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "tech lead!") || LEVEL_ROLES?.[8];
 
 export const GENERAL_CHANNELS =
   process.env.GENERAL_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
@@ -110,18 +110,39 @@ export const BOT_ICON =
   process.env.BOT_ICON?.trim() || "https://via.placeholder.com/32";
 
 export const LEVEL_LIST = [
-  { count: 10, role: INTERN },
-  { count: 100, role: JUNIOR_DEV },
-  { count: 500, role: MID_DEV },
-  { count: 1500, role: SENIOR_DEV },
-  { count: 3500, role: LEAD_DEV },
-  { count: 7500, role: PRINCIPAL_DEV },
-  { count: 15000, role: STAFF_ENGINEER },
-  { count: 25000, role: TECH_LEAD },
-  { count: 40000, role: ENGINEERING_MANAGER },
+  { count: 10, role: COPY_PASTER },
+  { count: 100, role: SCRIPT_KIDDIE },
+  { count: 500, role: VIBE_CODER },
+  { count: 1000, role: INTERN },
+  { count: 2500, role: JUNIOR_DEV },
+  { count: 5000, role: MID_DEV },
+  { count: 10000, role: SENIOR_DEV },
+  { count: 25000, role: LEAD_DEV },
+  { count: 50000, role: TECH_LEAD },
 ];
 
 export const LEVEL_MESSAGES = {
+  [COPY_PASTER]: [
+    "// Copied from Stack Overflow by ${user} (${role})",
+    "Ctrl+C, Ctrl+V; // ${user} mastering the basics as ${role}!",
+    "const code = copyPaste('stackoverflow'); // ${user} learning as ${role}!",
+    "// It works! Don't ask me how - ${user} (${role})",
+    "git commit -m 'Added code (not sure what it does)' --author='${user} (${role})'",
+  ],
+  [SCRIPT_KIDDIE]: [
+    "./run.sh; // ${user} executing scripts as ${role}!",
+    "python script.py --help; // ${user} exploring tools as ${role}!",
+    "// Found this cool script online - ${user} (${role})",
+    "chmod +x everything.sh; ${user} // ${role} getting dangerous!",
+    "curl -sSL install.sh | bash; // ${user} living on the edge as ${role}!",
+  ],
+  [VIBE_CODER]: [
+    "console.log('Just vibing and coding!'); // ${user} joined as ${role}! ✨",
+    "const vibe = 'immaculate'; // ${user} bringing the energy as ${role}!",
+    "// Just here for the good vibes and code - ${user} (${role})",
+    "npm install good-vibes; // ${user} setting the mood as ${role}!",
+    "git commit -m 'Adding some vibe to the codebase' --author='${user} (${role})'",
+  ],
   [INTERN]: [
     "git init career; // ${user} started their internship as ${role}!",
     "console.log('Hello World, I am ${user} the ${role}!'); // First day excitement!",
@@ -157,33 +178,12 @@ export const LEVEL_MESSAGES = {
     "docker-compose up team-success // Orchestrated by ${role} ${user}!",
     "scrum.addLeader('${user}'); // ${role} guiding the team forward!",
   ],
-  [PRINCIPAL_DEV]: [
-    "import wisdom from '${user}'; // ${role} sharing deep knowledge!",
-    "// System design by ${user} - ${role} level architecture",
-    "git tag v1.0-designed-by-${user} // ${role} milestone achievement!",
-    "const innovation = ${user}.think(); // ${role} driving technical vision!",
-    "sudo make ${user} principal // ${role} status: GRANTED!",
-  ],
-  [STAFF_ENGINEER]: [
-    "package.json: { 'technical-excellence': '${user}@${role}' }",
-    "// Cross-team impact delivered by ${user} (${role})",
-    "helm upgrade company-tech --set leader=${user} // ${role} influence!",
-    "query: SELECT impact FROM engineering WHERE staff = '${user}' (${role});",
-    "microservices.all().acknowledge('${user}', '${role}');",
-  ],
   [TECH_LEAD]: [
     "git config --global tech.leader '${user}' // ${role} global impact!",
     "// Strategic technical decisions by ${user} (${role})",
     "kubernetes apply -f tech-strategy-${user}.yaml // ${role} vision deployed!",
     "const future = await ${user}.architect(); // ${role} shaping tomorrow!",
     "echo '${user} (${role})' >> /etc/tech-leaders.conf",
-  ],
-  [ENGINEERING_MANAGER]: [
-    "class Team { constructor(manager = '${user}') { this.success = true; } } // ${role}!",
-    "// People + Technology = Success. Formula by ${user} (${role})",
-    "docker run --name team-growth ${user}:${role} // Leadership container!",
-    "SELECT * FROM career_growth WHERE manager = '${user}' AND role = '${role}';",
-    "terraform plan -var='team_lead=${user}' // ${role} building futures!",
   ],
 };
 
