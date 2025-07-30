@@ -61,29 +61,29 @@ export const VOICE_ONLY =
 export const JAIL =
   STATUS_ROLES.find((r) => r?.toLowerCase() === "jail") || STATUS_ROLES?.[2];
 
+export const INTERN =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "intern!") || LEVEL_ROLES?.[0];
 export const JUNIOR_DEV =
   LEVEL_ROLES.find((r) => r.toLowerCase() === "junior dev!") ||
-  LEVEL_ROLES?.[0];
+  LEVEL_ROLES?.[1];
 export const MID_DEV =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "mid dev!") || LEVEL_ROLES?.[1];
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "mid dev!") || LEVEL_ROLES?.[2];
 export const SENIOR_DEV =
   LEVEL_ROLES.find((r) => r.toLowerCase() === "senior dev!") ||
-  LEVEL_ROLES?.[2];
+  LEVEL_ROLES?.[3];
 export const LEAD_DEV =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "lead dev!") || LEVEL_ROLES?.[3];
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "lead dev!") || LEVEL_ROLES?.[4];
 export const PRINCIPAL_DEV =
   LEVEL_ROLES.find((r) => r.toLowerCase() === "principal dev!") ||
-  LEVEL_ROLES?.[4];
+  LEVEL_ROLES?.[5];
 export const STAFF_ENGINEER =
   LEVEL_ROLES.find((r) => r.toLowerCase() === "staff engineer!") ||
-  LEVEL_ROLES?.[5];
+  LEVEL_ROLES?.[6];
 export const TECH_LEAD =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "tech lead!") || LEVEL_ROLES?.[6];
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "tech lead!") || LEVEL_ROLES?.[7];
 export const ENGINEERING_MANAGER =
   LEVEL_ROLES.find((r) => r.toLowerCase() === "engineering manager!") ||
-  LEVEL_ROLES?.[7];
-export const CTO =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "cto!") || LEVEL_ROLES?.[8];
+  LEVEL_ROLES?.[8];
 
 export const GENERAL_CHANNELS =
   process.env.GENERAL_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
@@ -110,38 +110,45 @@ export const BOT_ICON =
   process.env.BOT_ICON?.trim() || "https://via.placeholder.com/32";
 
 export const LEVEL_LIST = [
-  { count: 10, role: JUNIOR_DEV },
-  { count: 100, role: MID_DEV },
-  { count: 500, role: SENIOR_DEV },
-  { count: 1500, role: LEAD_DEV },
-  { count: 3500, role: PRINCIPAL_DEV },
-  { count: 7500, role: STAFF_ENGINEER },
-  { count: 15000, role: TECH_LEAD },
-  { count: 25000, role: ENGINEERING_MANAGER },
-  { count: 40000, role: CTO },
+  { count: 10, role: INTERN },
+  { count: 100, role: JUNIOR_DEV },
+  { count: 500, role: MID_DEV },
+  { count: 1500, role: SENIOR_DEV },
+  { count: 3500, role: LEAD_DEV },
+  { count: 7500, role: PRINCIPAL_DEV },
+  { count: 15000, role: STAFF_ENGINEER },
+  { count: 25000, role: TECH_LEAD },
+  { count: 40000, role: ENGINEERING_MANAGER },
 ];
 
 export const LEVEL_MESSAGES = {
+  [INTERN]: [
+    "git init career; // ${user} started their internship as ${role}!",
+    "console.log('Hello World, I am ${user} the ${role}!'); // First day excitement!",
+    "npm install --save enthusiasm; // ${user} joining as ${role}!",
+    "// Day 1: Everything is awesome! - ${user} (${role})",
+    "const firstDay = new Experience('${user}', '${role}'); // Journey begins!",
+  ],
   [JUNIOR_DEV]: [
-    "git init career; // ${user} started their journey as ${role}!",
-    "console.log('Hello World, I am ${user}!'); // First steps as ${role}!",
-    "npm install confidence; // ${user} building skills as ${role}!",
-    "if (dedication === true) { promote('${user}', '${role}'); }",
-    "// TODO: Learn everything - ${user} (${role})",
+    "git commit -m 'Graduated from internship' --author='${user} (${role})'",
+    "const confidence = await learn(); // ${user} growing as ${role}!",
+    "if (hardWork === true) { promote('${user}', '${role}'); }",
+    "// TODO: Master the fundamentals - ${user} (${role})",
+    "docker run learning:latest ${user} // ${role} development environment!",
   ],
   [MID_DEV]: [
     "git commit -m 'Fixed my first major bug' --author='${user} (${role})'",
-    "const experience = await learn(); // ${user} leveled up to ${role}!",
-    "docker run confidence:latest ${user} // ${role} container ready!",
-    "while(learning) { ${user}.grow(); } // Continuous improvement as ${role}!",
+    "const experience = await practice(); // ${user} leveled up to ${role}!",
+    "while(coding) { ${user}.improve(); } // Continuous growth as ${role}!",
     "merge pull-request #${user} into main // ${role} contributing quality code!",
+    "// Code review skills unlocked by ${user} (${role})",
   ],
   [SENIOR_DEV]: [
     "class ${user} extends Developer { role = '${role}'; expertise = 'high'; }",
     "// Code review approved by ${user} (${role}) - Ship it!",
     "kubectl scale developer ${user} --replicas=senior // ${role} promotion!",
     "SELECT * FROM team WHERE mentor = '${user}' AND role = '${role}';",
-    "terraform apply -var='tech_lead=${user}' // ${role} infrastructure expertise!",
+    "terraform apply -var='senior_dev=${user}' // ${role} infrastructure expertise!",
   ],
   [LEAD_DEV]: [
     "git branch feature/team-leadership-${user} // ${role} taking charge!",
@@ -177,13 +184,6 @@ export const LEVEL_MESSAGES = {
     "docker run --name team-growth ${user}:${role} // Leadership container!",
     "SELECT * FROM career_growth WHERE manager = '${user}' AND role = '${role}';",
     "terraform plan -var='team_lead=${user}' // ${role} building futures!",
-  ],
-  [CTO]: [
-    "#!/bin/bash\n# Company technical vision by ${user}\necho '${role} level: MAXIMUM'",
-    "const company = new Enterprise({ cto: '${user}' }); // ${role} at the helm!",
-    "git commit -m 'Transformed entire tech stack' --author='${user} (${role})'",
-    "SELECT innovation FROM company WHERE cto = '${user}' AND role = '${role}';",
-    "sudo systemctl enable future.service // ${role} ${user} driving innovation!",
   ],
 };
 
