@@ -1,6 +1,7 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { JOB_POST_REGEX } from "../lib/helpers";
+import { DEV_BOARD_CHANNEL } from "../lib/constants";
 
 @Discord()
 export class MessageCreate {
