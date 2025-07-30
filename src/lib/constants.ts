@@ -186,3 +186,6 @@ export const LEVEL_MESSAGES = {
     "sudo systemctl enable future.service // ${role} ${user} driving innovation!",
   ],
 };
+
+export const DEV_BOARD_CHANNEL = "1300427846342283436";
+export const JOB_BOARD_CHANNEL = "1300427561704226867";

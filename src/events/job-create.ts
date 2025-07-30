@@ -6,6 +6,7 @@ import { JOB_POST_REGEX } from "../lib/helpers";
 export class MessageCreate {
   @On({ event: "messageCreate" })
   async onMessage([message]: ArgsOf<"messageCreate">, client: Client) {
+    if (message.channelId !== DEV_BOARD_CHANNEL) return;
     if (message.author.bot) return;
 
     if (!JOB_POST_REGEX.test(message.content)) {
