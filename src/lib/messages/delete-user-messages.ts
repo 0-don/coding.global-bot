@@ -19,59 +19,78 @@ export const deleteUserMessages = async ({
   jail: string | number | boolean;
 }) => {
   if (jail) {
-    //get status roles
+    // Get status roles
     const guildStatusRoles = RolesService.getGuildStatusRoles(guild);
 
-    // delete all roles
-    await prisma.memberRole.deleteMany({
-      where: {
+    // Use transaction to ensure consistency
+    await prisma.$transaction(async (tx) => {
+      // Ensure member exists in database first
+      await tx.member.upsert({
+        where: { memberId },
+        create: {
+          memberId,
+          username: user?.username || "Unknown User",
+        },
+        update: {},
+      });
+
+      // Delete all existing roles for this member
+      await tx.memberRole.deleteMany({
+        where: {
+          memberId,
+          guildId: guild.id,
+        },
+      });
+
+      // Create jail role entry
+      const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
+        roleId: guildStatusRoles[JAIL]!.id,
         memberId,
         guildId: guild.id,
-      },
-    });
+        name: JAIL,
+      };
 
-    // role input
-    const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
-      roleId: guildStatusRoles[JAIL]!.id,
-      memberId,
-      guildId: guild.id,
-    };
-
-    // create mute role
-    await prisma.memberRole.upsert({
-      where: {
-        member_role: {
-          memberId: memberRole.memberId,
-          roleId: memberRole.roleId,
+      // Create the jail role in database
+      await tx.memberRole.upsert({
+        where: {
+          member_role: {
+            memberId: memberRole.memberId,
+            roleId: memberRole.roleId,
+          },
         },
-      },
-      create: memberRole,
-      update: memberRole,
+        create: memberRole,
+        update: memberRole,
+      });
     });
 
-    // if user still on server add mute role
-    const role = guild.roles.cache.get(memberRole.roleId);
+    // If user is still on server, add jail role to Discord
+    const role = guild.roles.cache.get(guildStatusRoles[JAIL]!.id);
     if (user && role) {
       if (!role.editable) return;
-      guild.members.cache.get(user.id)?.roles.add(memberRole.roleId);
+      const member = guild.members.cache.get(user.id);
+      if (member) {
+        try {
+          await member.roles.add(guildStatusRoles[JAIL]!.id); // Fixed: use the role ID directly
+        } catch (error) {
+          console.error(`Failed to add jail role to ${user.username}:`, error);
+        }
+      }
     }
   }
 
-  // create date before which messages should be deleted
+  // Create date before which messages should be deleted
   const daysTimestamp = dayjs().subtract(Number(days), "day");
 
-  // get all channels
+  // Get all channels
   const channels = guild?.channels.cache;
 
-  // if no channels exist, return
+  // If no channels exist, return
   if (!channels) return;
 
-  // deferReply if it takes longer then usual
-
-  // loop over all channels
+  // Loop over all channels
   for (let channel of channels.values()) {
     try {
-      // if channel is not a text channel, continue
+      // If channel is not a text channel, continue
       if (
         channel.type !== ChannelType.PublicThread &&
         channel.type !== ChannelType.PrivateThread &&
@@ -86,21 +105,29 @@ export const deleteUserMessages = async ({
       // Skip channels that don't have messages property
       if (!("messages" in channel)) continue;
 
-      //cache needs to be cleared
+      // Cache needs to be cleared
       channel.messages.cache.clear();
       await channel.messages.fetch({ limit: 100 });
-      // create message array
+
+      // Create message array
       const messages = channel.messages.cache.values();
 
-      // loop over all messages
+      // Loop over all messages
       for (let message of messages) {
-        // check if message was sent by user and if it was sent before daysTimestamp
+        // Check if message was sent by user and if it was sent after daysTimestamp
         if (
           message.author.id === memberId &&
-          0 < dayjs(message.createdAt).diff(daysTimestamp, "minutes")
-        )
-          await message.delete();
+          dayjs(message.createdAt).isAfter(daysTimestamp)
+        ) {
+          try {
+            await message.delete();
+          } catch (error) {
+            console.error(`Failed to delete message ${message.id}:`, error);
+          }
+        }
       }
-    } catch (_) {}
+    } catch (error) {
+      console.error(`Error processing channel ${channel.id}:`, error);
+    }
   }
 };
