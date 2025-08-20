@@ -87,12 +87,23 @@ Respond with only "yes" if spam, "no" if legitimate.`;
       const accountAge = dayjs().diff(message.author.createdAt, "days");
       const channelName = "name" in channel ? channel.name : "Unknown Channel";
 
+      // Extract metadata checks
+      const hasCustomAvatar =
+        message.author.displayAvatarURL() !== message.author.defaultAvatarURL;
+      const hasLinks = /https?:\/\//.test(message.content);
+      const hasMentions =
+        message.mentions.users.size > 0 || message.mentions.roles.size > 0;
+
       const context = `User info:
 - Account age: ${accountAge} days
 - Channel: ${channelName}
 - Username: ${message.author.username}
 - Nickname: ${message.member.nickname || "none"}
 - First message in server: yes
+- Avatar: ${hasCustomAvatar ? "custom" : "default"}
+- Message length: ${message.content.length} characters
+- Has links: ${hasLinks}
+- Has mentions: ${hasMentions}
 
 Message: "${message.content}"`;
 
