@@ -85,9 +85,11 @@ Respond with only "yes" if spam, "no" if legitimate.`;
 
     try {
       const accountAge = dayjs().diff(message.author.createdAt, "days");
+      const channelName = "name" in channel ? channel.name : "Unknown Channel";
 
       const context = `User info:
 - Account age: ${accountAge} days
+- Channel: ${channelName}
 - Username: ${message.author.username}
 - Nickname: ${message.member.nickname || "none"}
 - First message in server: yes
