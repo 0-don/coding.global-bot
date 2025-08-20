@@ -79,6 +79,10 @@ Respond with only "yes" if spam, "no" if legitimate.`;
     );
     if (!isFirst) return false;
 
+    if (!message.content.trim()) {
+      return false;
+    }
+
     try {
       const accountAge = dayjs().diff(message.author.createdAt, "days");
 
