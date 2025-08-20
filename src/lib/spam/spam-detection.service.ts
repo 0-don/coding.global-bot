@@ -98,7 +98,7 @@ Respond with only "yes" if spam, "no" if legitimate.`;
 - Account age: ${accountAge} days
 - Channel: ${channelName}
 - Username: ${message.author.username}
-- Nickname: ${message.member.nickname || "none"}
+- Nickname: ${message.member.displayName}
 - First message in server: yes
 - Avatar: ${hasCustomAvatar ? "custom" : "default"}
 - Message length: ${message.content.length} characters
