@@ -105,7 +105,7 @@ export class aiChat {
             role: "user",
             parts: [
               {
-                text: `${Ai_prompt.promptText}\n\nPrevious conversation:\n${formatHistory(
+                text: `${Ai_prompt}\n\nPrevious conversation:\n${formatHistory(
                   historyManager.getHistory()
                 )}\n\nNow reply to:\n"${userMessage}"`,
               },
