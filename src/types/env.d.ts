@@ -12,6 +12,7 @@ interface CoreBotEnvironment {
 // Feature-specific environment variables
 interface FeatureBotEnvironment {
   // AI Features
+  TENOR_API_KEY: string;
   GEMINI_API_KEY: string;
   DEEPL: string;
 
