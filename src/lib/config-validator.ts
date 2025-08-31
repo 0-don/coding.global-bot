@@ -19,6 +19,11 @@ export class ConfigValidator {
       feature: "AI Chat & Spam Detection",
     },
     {
+      key: "TENOR_API_KEY",
+      required: false,
+      feature: "GIF Search",
+    },
+    {
       key: "HELPER_ROLES",
       required: false,
       feature: "Helper Role System",
