@@ -1,12 +1,20 @@
-import { FunctionDeclaration, GoogleGenAI } from "@google/genai";
+import {
+  FunctionCallingConfigMode,
+  FunctionDeclaration,
+  GoogleGenAI,
+  Part,
+  createPartFromUri,
+  createUserContent,
+} from "@google/genai";
 import { error } from "console";
-import { TextChannel } from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { ConfigValidator } from "../../lib/config-validator";
-import { BOT_CHANNELS } from "../../lib/constants";
 import { GifService } from "../../lib/gif/gif.service";
-import { Ai_prompt } from "./prompt";
+import { Ai_prompt, GIF_OFF_INSTRUCTION, GIF_ON_INSTRUCTION } from "./prompt";
+
+const GIF_PROBABILITY = 0.2;
 
 interface ChatMessage {
   role: "user" | "model";
@@ -15,35 +23,54 @@ interface ChatMessage {
 
 class ChatHistoryManager {
   private history: ChatMessage[] = [];
+  private maxMessages = 20;
 
   addMessage(role: "user" | "model", text: string) {
     this.history.push({ role, parts: [{ text }] });
+    if (this.history.length > this.maxMessages) {
+      this.history.shift();
+    }
   }
 
   formatHistory() {
     return this.history
-      .map(
-        (msg) => `${msg.role === "user" ? "User" : "Bot"}: ${msg.parts[0].text}`
-      )
+      .map((m) => `${m.role === "user" ? "User" : "Bot"}: ${m.parts[0].text}`)
       .join("\n");
   }
 }
 
 const channelHistory = new Map<string, ChatHistoryManager>();
-
 const GOOGLE_GEN_AI = ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")
   ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
   : null;
 
-// Helper function to check file size
-async function getFileSize(url: string): Promise<number> {
-  try {
-    const response = await fetch(url, { method: "HEAD" });
-    const contentLength = response.headers.get("content-length");
-    return contentLength ? parseInt(contentLength, 10) : 0;
-  } catch {
-    return 0;
+// (selectModel and makeImageParts functions remain the same)
+function selectModel(msg: Message) {
+  for (const att of msg.attachments.values()) {
+    if (att.contentType?.includes("gif") || att.url.endsWith(".gif"))
+      return "gemini-1.5-flash";
   }
+  return "gemini-2.5-flash";
+}
+
+async function makeImageParts(message: Message): Promise<Part[]> {
+  const parts: Part[] = [];
+  for (const att of message.attachments.values()) {
+    if (!att.contentType?.startsWith("image/")) continue;
+
+    try {
+      const uploaded = await GOOGLE_GEN_AI!.files.upload({
+        file: att.url,
+        config: { mimeType: att.contentType },
+      });
+      parts.push(createPartFromUri(uploaded.uri!, uploaded.mimeType!));
+    } catch {
+      const r = await fetch(att.url);
+      const base64 = Buffer.from(await r.arrayBuffer()).toString("base64");
+      parts.push({ inlineData: { mimeType: att.contentType, data: base64 } });
+    }
+  }
+  return parts;
 }
 
 @Discord()
@@ -51,15 +78,18 @@ export class AiChat {
   @On()
   async messageCreate([message]: ArgsOf<"messageCreate">, client: Client) {
     if (message.author.bot) return;
-    if (!ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")) return;
-    if (!ConfigValidator.isFeatureEnabled("BOT_CHANNELS")) return;
+    if (
+      !ConfigValidator.isFeatureEnabled("GEMINI_API_KEY") ||
+      !ConfigValidator.isFeatureEnabled("BOT_CHANNELS")
+    )
+      return;
 
     const channel = (await message.channel.fetch()) as TextChannel;
-    if (!BOT_CHANNELS.includes(channel.name)) return;
+    // if (!BOT_CHANNELS.includes(channel.name)) return;
 
-    const mentionRegex = new RegExp(`^<@!?${client.user?.id}>`);
-    const isMentioned = mentionRegex.test(message.content);
-    const isReplyToBot =
+    const mention = new RegExp(`^<@!?${client.user?.id}>`);
+    const isMention = mention.test(message.content);
+    const isReply =
       message.reference &&
       (
         await message.channel.messages
@@ -68,160 +98,132 @@ export class AiChat {
       )?.author.id === client.user?.id;
 
     if (
-      !isMentioned &&
-      !isReplyToBot &&
+      !isMention &&
+      !isReply &&
       !message.content.toLowerCase().startsWith("coding global")
     )
       return;
 
-    const userMessage = message.content
-      .replace(mentionRegex, "")
+    const userMsg = message.content
+      .replace(mention, "")
       .replace(/^coding global/i, "")
       .trim();
-    if (!userMessage) {
-      await message.reply("if u are pinging me u should say something :/");
-      return;
-    }
+    if (!userMsg && message.attachments.size === 0)
+      return message.reply("if u are pinging me u should say something :/");
 
-    const historyManager =
-      channelHistory.get(message.channel.id) ??
-      channelHistory
-        .set(message.channel.id, new ChatHistoryManager())
-        .get(message.channel.id)!;
-
-    historyManager.addMessage("user", userMessage);
+    const history =
+      channelHistory.get(message.channel.id) ?? new ChatHistoryManager();
+    channelHistory.set(message.channel.id, history);
+    history.addMessage("user", userMsg);
 
     try {
+      // *** NEW LOGIC: Determine the instruction before building the prompt ***
+      const shouldConsiderGif = Math.random() < GIF_PROBABILITY;
+      const gifInstructionText = shouldConsiderGif
+        ? GIF_ON_INSTRUCTION
+        : GIF_OFF_INSTRUCTION;
+
+      // Inject the dynamic instruction into the main prompt template
+      const finalPromptText = Ai_prompt.promptText.replace(
+        "#gifInstruction#",
+        gifInstructionText
+      );
+
+      const imgParts = await makeImageParts(message);
+      const userParts = [
+        {
+          text: `${finalPromptText}\n\nHistory:\n${history.formatHistory()}\n\nNow reply:\n"${userMsg}"`,
+        },
+        ...imgParts,
+      ];
+
       const searchMemeGifs: FunctionDeclaration = {
         name: "search_meme_gifs",
         description:
-          "Search for meme GIFs when user asks for memes or when a reaction GIF would enhance response.",
+          "Search for and send a meme GIF to enhance your response with visual humor.",
         parametersJsonSchema: {
           type: "object",
-          properties: {
-            query: { type: "string", description: "GIF search query" },
-          },
+          properties: { query: { type: "string" } },
           required: ["query"],
         },
       };
 
+      const model = selectModel(message);
       const result = await GOOGLE_GEN_AI?.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: [
-          {
-            role: "user",
-            parts: [
-              {
-                text: `${Ai_prompt.promptText}\n\nPrevious conversation:\n${historyManager.formatHistory()}\n\nNow reply to:\n"${userMessage}"`,
-              },
-            ],
+        model,
+        contents: createUserContent(userParts),
+        config: {
+          tools: [{ functionDeclarations: [searchMemeGifs] }],
+          toolConfig: {
+            functionCallingConfig: {
+              mode: FunctionCallingConfigMode.AUTO,
+            },
           },
-        ],
-        config: { tools: [{ functionDeclarations: [searchMemeGifs] }] },
+        },
       });
 
-      const functionCall = result?.functionCalls?.[0];
-      if (functionCall?.name === "search_meme_gifs") {
-        const { query } = functionCall.args as { query: string };
-        let gifUrl: string | null = null;
-        let gifStatus = "No GIF found";
+      const fnCall = result?.functionCalls?.[0];
 
-        if (ConfigValidator.isFeatureEnabled("TENOR_API_KEY")) {
-          const gifs = await GifService.searchGifs(query, 10); // Get more options
-
-          // Try to find a GIF under Discord's file size limit (8MB)
-          for (const gif of gifs) {
-            const fileSize = await getFileSize(gif);
-            if (fileSize > 0 && fileSize < 8 * 1024 * 1024) {
-              // 8MB limit
-              gifUrl = gif;
-              gifStatus = "GIF attached";
-              break;
-            }
+      if (fnCall?.name === "search_meme_gifs") {
+        const { query } = fnCall.args as { query: string };
+        const gifs = ConfigValidator.isFeatureEnabled("TENOR_API_KEY")
+          ? await GifService.searchGifs(query, 10)
+          : [];
+        const gifUrl = await (async () => {
+          for (const g of gifs) {
+            const size = parseInt(
+              (await fetch(g, { method: "HEAD" })).headers.get(
+                "content-length"
+              ) ?? "0"
+            );
+            if (size && size < 8 * 1024 * 1024) return g;
           }
+          return null;
+        })();
+        const gifStatus = gifUrl ? "GIF attached" : "GIF not available";
 
-          if (!gifUrl && gifs.length > 0) {
-            gifStatus = "GIF found but too large for Discord";
-          }
-        } else {
-          gifStatus = "GIF search not configured";
-        }
-
-        const followUpResult = await GOOGLE_GEN_AI?.models.generateContent({
-          model: "gemini-2.5-flash",
-          contents: [
+        const followUp = await GOOGLE_GEN_AI?.models.generateContent({
+          model,
+          contents: createUserContent([
+            ...userParts,
+            { functionCall: { name: fnCall.name, args: fnCall.args } },
             {
-              role: "user",
-              parts: [
-                {
-                  text: `${Ai_prompt.promptText}\n\nPrevious conversation:\n${historyManager.formatHistory()}\n\nNow reply to:\n"${userMessage}"`,
-                },
-              ],
+              functionResponse: {
+                name: fnCall.name,
+                response: { result: gifStatus },
+              },
             },
-            {
-              role: "model",
-              parts: [
-                {
-                  functionCall: {
-                    name: functionCall.name,
-                    args: functionCall.args,
-                  },
-                },
-              ],
-            },
-            {
-              role: "user",
-              parts: [
-                {
-                  functionResponse: {
-                    name: functionCall.name,
-                    response: { result: gifStatus },
-                  },
-                },
-              ],
-            },
-          ],
+          ]),
         });
 
-        const responseText = followUpResult?.text || "Something went wrong...";
-
-        try {
-          await message.reply({
-            content: responseText,
-            files: gifUrl
-              ? [{ attachment: gifUrl, name: "reaction.gif" }]
-              : undefined,
-          });
-        } catch (discordError: any) {
-          // If Discord upload fails, just send the text response
-          await message.reply(responseText);
-          error("Discord file upload error:", discordError.message);
-        }
-
-        historyManager.addMessage(
-          "model",
-          responseText + (gifUrl ? " [sent GIF]" : "")
-        );
+        const reply = followUp?.text ?? "Something went wrong...";
+        await message.reply({
+          content: reply,
+          files: gifUrl
+            ? [{ attachment: gifUrl, name: "reaction.gif" }]
+            : undefined,
+        });
+        history.addMessage("model", reply);
         return;
       }
 
-      const responseText =
-        result?.text || "Hmm... I'm not sure how to respond to that.";
-      historyManager.addMessage("model", responseText);
-      await message.reply(responseText);
+      const reply =
+        result?.text ?? "Hmm... I'm not sure how to respond to that.";
+      history.addMessage("model", reply);
+      await message.reply(reply);
     } catch (err) {
-      error("Error generating AI response:", err);
+      error("AI error:", err);
       await message.reply(
-        "Something went wrong while trying to think. Try again later!"
+        "Something went wrong while thinking. Try again later!"
       );
     }
   }
 }
 
-setInterval(async () => {
-  try {
-    await fetch("https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api");
-  } catch (err) {
-    error("Ping error:", err);
-  }
-}, 300000);
+setInterval(
+  () =>
+    fetch("https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api").catch(
+      (e) => error("Ping error:", e)
+    ),
+  300000
+);
