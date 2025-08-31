@@ -14,7 +14,7 @@ import { ConfigValidator } from "../../lib/config-validator";
 import { GifService } from "../../lib/gif/gif.service";
 import { Ai_prompt, GIF_OFF_INSTRUCTION, GIF_ON_INSTRUCTION } from "./prompt";
 
-const GIF_PROBABILITY = 0.2;
+const GIF_PROBABILITY = 0.33;
 
 interface ChatMessage {
   role: "user" | "model";
