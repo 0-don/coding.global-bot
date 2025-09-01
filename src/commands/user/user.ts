@@ -17,6 +17,7 @@ export class UserCommand {
   @Slash({
     name: "user",
     description: "Get stats from specific user",
+    dmPermission: false,
   })
   async user(
     @SlashOption({

@@ -12,6 +12,7 @@ export class Me {
   @Slash({
     name: "me",
     description: "Get your stats",
+    dmPermission: false,
   })
   async me(interaction: CommandInteraction) {
     // get text channel

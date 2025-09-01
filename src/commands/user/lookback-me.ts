@@ -9,6 +9,7 @@ export class LookbackMe {
   @Slash({
     name: "lookback-me",
     description: "Change lookback date range for yourself",
+    dmPermission: false,
   })
   async lookbackMe(
     @SlashOption({
