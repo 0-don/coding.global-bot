@@ -1,4 +1,3 @@
-// src/events/ai/ai.ts
 import {
   FunctionCallingConfigMode,
   FunctionDeclaration,
@@ -201,9 +200,12 @@ export class AiChat {
       );
 
       const imgParts = await makeImageParts(message);
+
+      const historyText = history.formatHistory();
+
       const userParts: Part[] = [
         {
-          text: `${finalPromptText}\n\nHistory:\n${history.formatHistory()}\n\nNow reply:\n"${userMsg}${replyContext}"`,
+          text: `${finalPromptText}\n\nHistory:\n${historyText}\n\nNow reply:\n"${userMsg}${replyContext}"`,
         },
         ...imgParts,
         ...repliedImgParts,
