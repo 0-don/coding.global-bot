@@ -99,7 +99,6 @@ Respond with only "yes" if spam, "no" if legitimate.`;
 - Channel: ${channelName}
 - Username: ${message.author.username}
 - Nickname: ${message.author.globalName}
-- First message in server: yes
 - Avatar: ${hasCustomAvatar ? "custom" : "default"}
 - Message length: ${message.content.length} characters
 - Has links: ${hasLinks}
