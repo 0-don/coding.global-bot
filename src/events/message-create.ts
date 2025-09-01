@@ -1,6 +1,7 @@
 import { Message, MessageType, TextChannel, ThreadChannel } from "discord.js";
 import type { ArgsOf, Client, SimpleCommandMessage } from "discordx";
 import { Discord, On, SimpleCommand } from "discordx";
+import { ConfigValidator } from "../lib/config-validator";
 import { simpleEmbedExample } from "../lib/embeds";
 import { translate } from "../lib/helpers";
 import { checkWarnings } from "../lib/messages/check-warnings";
@@ -11,7 +12,6 @@ import { HelperService } from "../lib/roles/helper.service";
 import { SpamDetectionService } from "../lib/spam/spam-detection.service";
 import { prisma } from "../prisma";
 import { UserState } from "../types/index";
-import { ConfigValidator } from "../lib/config-validator";
 
 const previousMessages = new Map<string, UserState>();
 
@@ -24,6 +24,8 @@ export class MessageCreate {
   ): Promise<void> {
     // remove regular messages in verify channel
     // MessagesService.cleanUpVerifyChannel(message);
+
+
 
     const isSpam = await SpamDetectionService.detectSpam(message);
     if (isSpam) {
@@ -275,7 +277,7 @@ export class MessageCreate {
       ConfigValidator.logFeatureDisabled("Translation", "DEEPL");
       return;
     }
-    
+
     const message = command.message;
     if (message.type === MessageType.Reply && message.reference?.messageId) {
       const channel = (await message.channel.fetch()) as TextChannel;
