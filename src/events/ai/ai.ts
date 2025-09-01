@@ -66,6 +66,7 @@ export class AiChat {
 
           replyContext = `\n\nUser is asking about this message from ${repliedUser.username} (${repliedUser.globalName || repliedUser.username}):\n"${repliedMessage.content}"`;
 
+          // Handle attachments
           if (repliedMessage.attachments.size > 0) {
             const imageCount = Array.from(
               repliedMessage.attachments.values()
@@ -76,13 +77,26 @@ export class AiChat {
               repliedImgParts = await makeImageParts(repliedMessage);
             }
           }
+
+          // Handle stickers
+          if (repliedMessage.stickers.size > 0) {
+            const stickerNames = Array.from(repliedMessage.stickers.values())
+              .map((sticker) => sticker.name)
+              .join(", ");
+            replyContext += `\n[The replied message also contained ${repliedMessage.stickers.size} sticker(s): ${stickerNames}]`;
+          }
         }
       } catch (error) {
         console.error("Error fetching replied message:", error);
       }
     }
 
-    if (!userMsg && message.attachments.size === 0 && !replyContext)
+    if (
+      !userMsg &&
+      message.attachments.size === 0 &&
+      message.stickers.size === 0 &&
+      !replyContext
+    )
       return message.reply("if u are pinging me u should say something :/");
 
     const history =
@@ -90,7 +104,21 @@ export class AiChat {
     channelHistory.set(message.channel.id, history);
 
     const authorName = message.author.globalName || message.author.username;
-    history.addMessage("user", userMsg + replyContext, authorName);
+
+    // Add current message sticker info to context if present
+    let currentStickerContext = "";
+    if (message.stickers.size > 0) {
+      const stickerNames = Array.from(message.stickers.values())
+        .map((sticker) => sticker.name)
+        .join(", ");
+      currentStickerContext = `\n[User also sent ${message.stickers.size} sticker(s): ${stickerNames}]`;
+    }
+
+    history.addMessage(
+      "user",
+      userMsg + replyContext + currentStickerContext,
+      authorName
+    );
 
     try {
       const shouldConsiderGif = Math.random() < GIF_PROBABILITY;
@@ -106,7 +134,7 @@ export class AiChat {
       const imgParts = await makeImageParts(message);
       const userParts = [
         {
-          text: `${finalPromptText}\n\nHistory:\n${history.formatHistory()}\n\nNow reply:\n"${userMsg}${replyContext}"`,
+          text: `${finalPromptText}\n\nHistory:\n${history.formatHistory()}\n\nNow reply:\n"${userMsg}${replyContext}${currentStickerContext}"`,
         },
         ...imgParts,
         ...repliedImgParts,
