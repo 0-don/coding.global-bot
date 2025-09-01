@@ -10,7 +10,7 @@ import {
   TimeSeriesScale,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
-import { log } from "console";
+import { error, log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
 import "dotenv/config";
@@ -89,5 +89,13 @@ const main = async () => {
     activities: [{ name: ".gg/coding", type: ActivityType.Watching }],
   });
 };
+
+setInterval(
+  () =>
+    fetch("https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api").catch(
+      (e) => error("Ping error:", e)
+    ),
+  300000
+);
 
 main();

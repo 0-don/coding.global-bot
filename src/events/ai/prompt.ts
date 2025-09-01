@@ -1,5 +1,3 @@
-import { getMemberCount } from "./global";
-
 export const GIF_ON_INSTRUCTION =
   "You have a tool called 'search_meme_gifs'. For this specific response, your directive is to **actively look for an opportunity to use it**. If your reply is sarcastic or witty, you should call this function.";
 export const GIF_OFF_INSTRUCTION =
@@ -33,9 +31,5 @@ Code Examples:
 - Use proper syntax highlighting (e.g., \`\`\`js for JavaScript)
 - Keep explanations short and relevant
 - Add a sarcastic note only if appropriate, like "// this actually works... somehow"
-UTILS:
-to know how many members are in the server u can use ${getMemberCount}
-U SHOULDNT REPLY 2 TIMES
-U DONT NEED TO REPLY TO THE SAME MESSAGE 2 TIMES
 `,
 };
