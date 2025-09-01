@@ -14,6 +14,7 @@ export class DeleteMessages {
     name: "delete-messages",
     description: "Deletes messages from a channel",
     defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
+    dmPermission: false,
   })
   async deleteMessages(
     @SlashOption({

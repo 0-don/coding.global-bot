@@ -19,6 +19,7 @@ export class TrollMoveUser {
     name: "troll-move-user",
     description: "troll move user around empty voice channels",
     defaultMemberPermissions: PermissionFlagsBits.BanMembers,
+    dmPermission: false,
   })
   async trollMoveUser(
     @SlashOption({

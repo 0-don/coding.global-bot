@@ -16,6 +16,7 @@ export class Members {
   @Slash({
     name: "members",
     description: "Memberflow and count of the past",
+    dmPermission: false,
   })
   async members(interaction: CommandInteraction) {
     // get text channel

@@ -3,15 +3,16 @@ import {
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
+import { ConfigValidator } from "../../lib/config-validator";
 import { translate } from "../../lib/helpers";
 import { LogService } from "../../lib/logs/log.service";
-import { ConfigValidator } from "../../lib/config-validator";
 
 @Discord()
 export class Translate {
   @Slash({
     name: "translate",
     description: "Translate text to English",
+    dmPermission: false,
   })
   async translate(
     @SlashOption({

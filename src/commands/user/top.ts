@@ -17,6 +17,7 @@ export class Top {
   @Slash({
     name: "top",
     description: "Get top user stats",
+    dmPermission: false,
   })
   async top(
     @SlashOption({

@@ -10,6 +10,7 @@ export class CreateVerifyEmbed {
     name: "create-verify-embed",
     description: "create a verify embed for users to react to",
     defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
+    dmPermission: false,
   })
   async createVerifyEmbed(interaction: CommandInteraction) {
     // create verify embed
