@@ -1,7 +1,7 @@
 import { Part, createPartFromUri } from "@google/genai";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Message } from "discord.js";
+import { Message, StickerFormatType } from "discord.js";
 import { GOOGLE_GEN_AI } from "../../gemini";
 
 dayjs.extend(relativeTime);
@@ -73,19 +73,18 @@ export async function makeImageParts(message: Message): Promise<Part[]> {
   }
 
   for (const sticker of message.stickers.values()) {
-    // Skip Lottie format stickers (animated JSON format - can't be processed as images)
-    if (sticker.format === 3) continue; // StickerFormatType.Lottie
-
+    if (sticker.format === StickerFormatType.Lottie) continue;
+    
     try {
       const stickerUrl = sticker.url;
       let mimeType: string;
 
-      if (sticker.format === 1) {
-        mimeType = "image/png"; // StickerFormatType.PNG
-      } else if (sticker.format === 2) {
-        mimeType = "image/png"; // StickerFormatType.APNG
-      } else if (sticker.format === 4) {
-        mimeType = "image/gif"; // StickerFormatType.GIF
+      if (sticker.format === StickerFormatType.PNG) {
+        mimeType = "image/png";
+      } else if (sticker.format === StickerFormatType.APNG) {
+        mimeType = "image/png";
+      } else if (sticker.format === StickerFormatType.GIF) {
+        mimeType = "image/gif";
       } else {
         mimeType = "image/png"; // fallback
       }
