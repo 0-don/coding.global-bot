@@ -19,7 +19,11 @@ import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { ConfigValidator } from "../../lib/config-validator";
 import { GifService } from "../../lib/gif/gif.service";
-import { Ai_prompt, GIF_OFF_INSTRUCTION, GIF_ON_INSTRUCTION } from "./prompt";
+import {
+  AI_SYSTEM_PROMPT,
+  GIF_OFF_INSTRUCTION,
+  GIF_ON_INSTRUCTION,
+} from "./prompt";
 import { ChatHistoryManager, makeImageParts, selectModel } from "./utils";
 
 const GIF_PROBABILITY = 0.2;
@@ -272,7 +276,7 @@ export class AiChat {
         ? GIF_ON_INSTRUCTION
         : GIF_OFF_INSTRUCTION;
 
-      const finalPromptText: string = Ai_prompt.promptText.replace(
+      const finalPromptText: string = AI_SYSTEM_PROMPT.replace(
         "#gifInstruction#",
         gifInstructionText
       );
