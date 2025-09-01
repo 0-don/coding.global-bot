@@ -27,7 +27,6 @@ import {
 import { ChatHistoryManager, makeImageParts, selectModel } from "./utils";
 
 const GIF_PROBABILITY = 0.2;
-
 const channelHistory = new Map<string, ChatHistoryManager>();
 
 const GOOGLE_GEN_AI = ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")
@@ -41,114 +40,56 @@ interface MessageContext {
   imageParts: Part[];
 }
 
-// New function to gather contextual messages with full TypeScript typing
 async function gatherMessageContext(
   repliedMessage: Message<boolean>,
   channel: MessageChannel
 ): Promise<MessageContext> {
-  const userId: string = repliedMessage.author.id;
+  const userId = repliedMessage.author.id;
   const imageParts: Part[] = [];
 
   try {
-    // Fetch recent messages before the replied message
-    const recentMessages: Collection<
-      string,
-      Message<boolean>
-    > = await channel.messages.fetch({
-      limit: 50,
-      before: repliedMessage.id,
-    });
+    const [recentMessages, afterMessages] = await Promise.all([
+      channel.messages.fetch({ limit: 50, before: repliedMessage.id }),
+      channel.messages.fetch({ limit: 50, after: repliedMessage.id }),
+    ]);
 
-    // Fetch recent messages after the replied message
-    const afterMessages: Collection<
-      string,
-      Message<boolean>
-    > = await channel.messages.fetch({
-      limit: 50,
-      after: repliedMessage.id,
-    });
+    const filterAndSort = (messages: Collection<string, Message<boolean>>) =>
+      Array.from(messages.values())
+        .filter((msg) => msg.author.id === userId && !msg.author.bot)
+        .sort((a, b) => a.createdTimestamp - b.createdTimestamp);
 
-    // Convert to arrays and filter for same user, non-bot messages
-    const beforeArray: Message<boolean>[] = Array.from(recentMessages.values())
-      .filter(
-        (msg: Message<boolean>): boolean =>
-          msg.author.id === userId && !msg.author.bot
-      )
-      .sort(
-        (a: Message<boolean>, b: Message<boolean>): number =>
-          a.createdTimestamp - b.createdTimestamp
-      );
+    const beforeArray = filterAndSort(recentMessages);
+    const afterArray = filterAndSort(afterMessages);
 
-    const afterArray: Message<boolean>[] = Array.from(afterMessages.values())
-      .filter(
-        (msg: Message<boolean>): boolean =>
-          msg.author.id === userId && !msg.author.bot
-      )
-      .sort(
-        (a: Message<boolean>, b: Message<boolean>): number =>
-          a.createdTimestamp - b.createdTimestamp
-      );
-
-    // Find consecutive messages before the replied message
+    // Find consecutive messages before/after
     const messagesBefore: Message<boolean>[] = [];
     for (let i = beforeArray.length - 1; i >= 0; i--) {
-      const msg: Message<boolean> = beforeArray[i]!;
+      const msg = beforeArray[i]!;
       if (msg.author.id === userId) {
-        messagesBefore.unshift(msg); // Add to beginning to maintain order
-      } else {
-        break; // Stop when we hit a different user
-      }
+        messagesBefore.unshift(msg);
+      } else break;
     }
 
-    // Find consecutive messages after the replied message
     const messagesAfter: Message<boolean>[] = [];
     for (const msg of afterArray) {
       if (msg.author.id === userId) {
         messagesAfter.push(msg);
-      } else {
-        break; // Stop when we hit a different user
-      }
+      } else break;
     }
 
-    // Combine all messages in chronological order
-    const allMessages: Message<boolean>[] = [
-      ...messagesBefore,
-      repliedMessage,
-      ...messagesAfter,
-    ];
-
-    // Build context string and collect images
+    const allMessages = [...messagesBefore, repliedMessage, ...messagesAfter];
     const contextParts: string[] = [];
 
     for (const msg of allMessages) {
-      let msgContent: string = msg.content || "";
+      let msgContent = msg.content || "";
 
-      // Handle attachments
-      if (msg.attachments.size > 0) {
-        const imageAttachments = Array.from(msg.attachments.values()).filter(
-          (att) => att.contentType?.startsWith("image/")
-        );
-
-        const imageCount: number = imageAttachments.length;
-
-        if (imageCount > 0) {
-          msgContent += ` [${imageCount} image(s) attached]`;
-          // Collect image parts for AI processing
-          try {
-            const msgImageParts: Part[] = await makeImageParts(msg);
-            imageParts.push(...msgImageParts);
-          } catch (imgError) {
-            console.error("Error processing images:", imgError);
-          }
+      if (msg.attachments.size > 0 || msg.stickers.size > 0) {
+        try {
+          const msgImageParts = await makeImageParts(msg);
+          imageParts.push(...msgImageParts);
+        } catch (imgError) {
+          console.error("Error processing images:", imgError);
         }
-      }
-
-      // Handle stickers
-      if (msg.stickers.size > 0) {
-        const stickerNames: string = Array.from(msg.stickers.values())
-          .map((sticker) => sticker.name)
-          .join(", ");
-        msgContent += ` [Sticker(s): ${stickerNames}]`;
       }
 
       if (msgContent.trim()) {
@@ -156,9 +97,8 @@ async function gatherMessageContext(
       }
     }
 
-    const context: string =
+    const context =
       contextParts.length > 1 ? contextParts.join("\n") : contextParts[0] || "";
-
     return { context, imageParts };
   } catch (fetchError) {
     console.error("Error fetching message context:", fetchError);
@@ -173,19 +113,21 @@ export class AiChat {
     [message]: ArgsOf<"messageCreate">,
     client: Client
   ): Promise<void> {
-    if (message.author.bot) return;
-    if (!ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")) return;
+    if (
+      message.author.bot ||
+      !ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")
+    )
+      return;
 
-    const mention: RegExp = new RegExp(`^<@!?${client.user?.id}>`);
-    const isMention: boolean = mention.test(message.content);
+    const mention = new RegExp(`^<@!?${client.user?.id}>`);
+    const isMention = mention.test(message.content);
 
-    let isReply: boolean = false;
+    let isReply = false;
     if (message.reference) {
       try {
-        const referencedMessage: Message<boolean> | null =
-          await message.channel.messages
-            .fetch(message.reference.messageId!)
-            .catch((): null => null);
+        const referencedMessage = await message.channel.messages
+          .fetch(message.reference.messageId!)
+          .catch(() => null);
         isReply = referencedMessage?.author.id === client.user?.id;
       } catch {
         isReply = false;
@@ -199,39 +141,32 @@ export class AiChat {
     )
       return;
 
-    let userMsg: string = message.content
+    let userMsg = message.content
       .replace(mention, "")
       .replace(/^coding global/i, "")
       .trim();
 
-    // Gather reply context with extended message collection
-    let replyContext: string = "";
+    let replyContext = "";
     let repliedImgParts: Part[] = [];
 
     if (message.reference) {
       try {
-        const repliedMessage: Message<boolean> | null =
-          await message.channel.messages.fetch(message.reference.messageId!);
+        const repliedMessage = await message.channel.messages.fetch(
+          message.reference.messageId!
+        );
 
-        // Only process human messages, not bots
         if (repliedMessage && !repliedMessage.author.bot) {
           const repliedUser = repliedMessage.author;
-
-          // Get extended context for the user's messages
-          const messageContext: MessageContext = await gatherMessageContext(
+          const messageContext = await gatherMessageContext(
             repliedMessage,
             message.channel as MessageChannel
           );
 
           repliedImgParts = messageContext.imageParts;
-
-          if (messageContext.context.includes("\n")) {
-            // Multiple messages - show as conversation
-            replyContext = `\n\nUser is asking about this conversation from ${repliedUser.username} (${repliedUser.globalName || repliedUser.username}):\n"${messageContext.context}"`;
-          } else {
-            // Single message - use original format
-            replyContext = `\n\nUser is asking about this message from ${repliedUser.username} (${repliedUser.globalName || repliedUser.username}):\n"${messageContext.context}"`;
-          }
+          const contextType = messageContext.context.includes("\n")
+            ? "conversation"
+            : "message";
+          replyContext = `\n\nUser is asking about this ${contextType} from ${repliedUser.username} (${repliedUser.globalName || repliedUser.username}):\n"${messageContext.context}"`;
         }
       } catch (replyError) {
         console.error("Error fetching replied message context:", replyError);
@@ -248,43 +183,27 @@ export class AiChat {
       return;
     }
 
-    const history: ChatHistoryManager =
+    const history =
       channelHistory.get(message.channel.id) ?? new ChatHistoryManager();
     channelHistory.set(message.channel.id, history);
 
-    const authorName: string =
-      message.author.globalName || message.author.username;
-
-    // Add current message sticker info to context if present
-    let currentStickerContext: string = "";
-    if (message.stickers.size > 0) {
-      const stickerNames: string = Array.from(message.stickers.values())
-        .map((sticker) => sticker.name)
-        .join(", ");
-      currentStickerContext = `\n[User also sent ${message.stickers.size} sticker(s): ${stickerNames}]`;
-    }
-
-    history.addMessage(
-      "user",
-      userMsg + replyContext + currentStickerContext,
-      authorName
-    );
+    const authorName = message.author.globalName || message.author.username;
+    history.addMessage("user", userMsg + replyContext, authorName);
 
     try {
-      const shouldConsiderGif: boolean = Math.random() < GIF_PROBABILITY;
-      const gifInstructionText: string = shouldConsiderGif
+      const shouldConsiderGif = Math.random() < GIF_PROBABILITY;
+      const gifInstructionText = shouldConsiderGif
         ? GIF_ON_INSTRUCTION
         : GIF_OFF_INSTRUCTION;
-
-      const finalPromptText: string = AI_SYSTEM_PROMPT.replace(
+      const finalPromptText = AI_SYSTEM_PROMPT.replace(
         "#gifInstruction#",
         gifInstructionText
       );
 
-      const imgParts: Part[] = await makeImageParts(message);
+      const imgParts = await makeImageParts(message);
       const userParts: Part[] = [
         {
-          text: `${finalPromptText}\n\nHistory:\n${history.formatHistory()}\n\nNow reply:\n"${userMsg}${replyContext}${currentStickerContext}"`,
+          text: `${finalPromptText}\n\nHistory:\n${history.formatHistory()}\n\nNow reply:\n"${userMsg}${replyContext}"`,
         },
         ...imgParts,
         ...repliedImgParts,
@@ -301,16 +220,14 @@ export class AiChat {
         },
       };
 
-      const model: string = selectModel(message);
+      const model = selectModel(message);
       const result = await GOOGLE_GEN_AI?.models.generateContent({
         model,
         contents: createUserContent(userParts),
         config: {
           tools: [{ functionDeclarations: [searchMemeGifs] }],
           toolConfig: {
-            functionCallingConfig: {
-              mode: FunctionCallingConfigMode.AUTO,
-            },
+            functionCallingConfig: { mode: FunctionCallingConfigMode.AUTO },
           },
         },
       });
@@ -318,26 +235,23 @@ export class AiChat {
       const fnCall = result?.functionCalls?.[0];
 
       if (fnCall?.name === "search_meme_gifs") {
-        const { query }: { query: string } = fnCall.args as { query: string };
-        const gifs: string[] = ConfigValidator.isFeatureEnabled("TENOR_API_KEY")
+        const { query } = fnCall.args as { query: string };
+        const gifs = ConfigValidator.isFeatureEnabled("TENOR_API_KEY")
           ? await GifService.searchGifs(query, 10)
           : [];
 
-        const gifUrl: string | null = await (async (): Promise<
-          string | null
-        > => {
-          for (const g of gifs) {
-            const response: Response = await fetch(g, { method: "HEAD" });
-            const contentLength: string | null =
-              response.headers.get("content-length");
-            const size: number = parseInt(contentLength ?? "0");
-            if (size && size < 8 * 1024 * 1024) return g;
+        let gifUrl: string | null = null;
+        for (const g of gifs) {
+          const response = await fetch(g, { method: "HEAD" });
+          const contentLength = response.headers.get("content-length");
+          const size = parseInt(contentLength ?? "0");
+          if (size && size < 8 * 1024 * 1024) {
+            gifUrl = g;
+            break;
           }
-          return null;
-        })();
+        }
 
-        const gifStatus: string = gifUrl ? "GIF attached" : "GIF not available";
-
+        const gifStatus = gifUrl ? "GIF attached" : "GIF not available";
         const followUp = await GOOGLE_GEN_AI?.models.generateContent({
           model,
           contents: createUserContent([
@@ -352,7 +266,7 @@ export class AiChat {
           ]),
         });
 
-        const reply: string = followUp?.text ?? "Something went wrong...";
+        const reply = followUp?.text ?? "Something went wrong...";
         await message.reply({
           content: reply,
           files: gifUrl
@@ -363,7 +277,7 @@ export class AiChat {
         return;
       }
 
-      const reply: string =
+      const reply =
         result?.text ?? "Hmm... I'm not sure how to respond to that.";
       history.addMessage("model", reply);
       await message.reply(reply);
