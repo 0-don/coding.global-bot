@@ -10,7 +10,7 @@ export class LogDeletedMessagesHistory {
   @Slash({
     name: "log-deleted-messages-history",
     description: "Show deleted messages",
-    defaultMemberPermissions: PermissionFlagsBits.DeafenMembers,
+    defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
   })
   async logDeletedMessages(
     @SlashOption({

@@ -13,7 +13,7 @@ export class DeleteMemberDb {
   @Slash({
     name: "delete-member-db",
     description: "delete specific member from database",
-    defaultMemberPermissions: PermissionFlagsBits.DeafenMembers,
+    defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
   })
   async deleteMemberDb(
     @SlashOption({

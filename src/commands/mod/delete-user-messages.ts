@@ -13,7 +13,7 @@ export class DeleteMessages {
   @Slash({
     name: "delete-user-messages",
     description: "Deletes messages from a channel",
-    defaultMemberPermissions: PermissionFlagsBits.DeafenMembers,
+    defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
   })
   async deleteMessages(
     @SlashOption({
