@@ -5,15 +5,7 @@ import {
   Part,
   createUserContent,
 } from "@google/genai";
-import { error } from "console";
-import {
-  Collection,
-  DMChannel,
-  Message,
-  NewsChannel,
-  TextChannel,
-  ThreadChannel,
-} from "discord.js";
+import console, { error } from "console";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { ConfigValidator } from "../../lib/config-validator";
@@ -23,87 +15,20 @@ import {
   GIF_OFF_INSTRUCTION,
   GIF_ON_INSTRUCTION,
 } from "./prompt";
-import { ChatHistoryManager, makeImageParts, selectModel } from "./utils";
+import {
+  ChatHistoryManager,
+  gatherMessageContext,
+  makeImageParts,
+  selectModel,
+} from "./utils";
 
 const GIF_PROBABILITY = 0.2;
+
 const channelHistory = new Map<string, ChatHistoryManager>();
 
 const GOOGLE_GEN_AI = ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")
   ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
   : null;
-
-type MessageChannel = TextChannel | DMChannel | NewsChannel | ThreadChannel;
-
-interface MessageContext {
-  context: string;
-  imageParts: Part[];
-}
-
-async function gatherMessageContext(
-  repliedMessage: Message<boolean>,
-  channel: MessageChannel
-): Promise<MessageContext> {
-  const userId = repliedMessage.author.id;
-  const imageParts: Part[] = [];
-
-  try {
-    const [recentMessages, afterMessages] = await Promise.all([
-      channel.messages.fetch({ limit: 50, before: repliedMessage.id }),
-      channel.messages.fetch({ limit: 50, after: repliedMessage.id }),
-    ]);
-
-    const filterAndSort = (messages: Collection<string, Message<boolean>>) =>
-      Array.from(messages.values())
-        .filter((msg) => msg.author.id === userId && !msg.author.bot)
-        .sort((a, b) => a.createdTimestamp - b.createdTimestamp);
-
-    const beforeArray = filterAndSort(recentMessages);
-    const afterArray = filterAndSort(afterMessages);
-
-    // Find consecutive messages before/after
-    const messagesBefore: Message<boolean>[] = [];
-    for (let i = beforeArray.length - 1; i >= 0; i--) {
-      const msg = beforeArray[i]!;
-      if (msg.author.id === userId) {
-        messagesBefore.unshift(msg);
-      } else break;
-    }
-
-    const messagesAfter: Message<boolean>[] = [];
-    for (const msg of afterArray) {
-      if (msg.author.id === userId) {
-        messagesAfter.push(msg);
-      } else break;
-    }
-
-    const allMessages = [...messagesBefore, repliedMessage, ...messagesAfter];
-    const contextParts: string[] = [];
-
-    for (const msg of allMessages) {
-      let msgContent = msg.content || "";
-
-      if (msg.attachments.size > 0 || msg.stickers.size > 0) {
-        try {
-          const msgImageParts = await makeImageParts(msg);
-          imageParts.push(...msgImageParts);
-        } catch (imgError) {
-          console.error("Error processing images:", imgError);
-        }
-      }
-
-      if (msgContent.trim()) {
-        contextParts.push(msgContent);
-      }
-    }
-
-    const context =
-      contextParts.length > 1 ? contextParts.join("\n") : contextParts[0] || "";
-    return { context, imageParts };
-  } catch (fetchError) {
-    console.error("Error fetching message context:", fetchError);
-    return { context: repliedMessage.content || "", imageParts: [] };
-  }
-}
 
 @Discord()
 export class AiChat {
@@ -156,10 +81,7 @@ export class AiChat {
 
         if (repliedMessage && !repliedMessage.author.bot) {
           const repliedUser = repliedMessage.author;
-          const messageContext = await gatherMessageContext(
-            repliedMessage,
-            message.channel as MessageChannel
-          );
+          const messageContext = await gatherMessageContext(repliedMessage);
 
           repliedImgParts = messageContext.imageParts;
           const contextType = messageContext.context.includes("\n")
