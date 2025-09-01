@@ -72,6 +72,17 @@ export const deleteUserMessages = async ({
     const messageChannel = channel as MessageChannel;
 
     try {
+      // Check if this is a thread and user is the owner
+      if (channel.isThread()) {
+        const thread = channel as ThreadChannel;
+        if (thread.ownerId === memberId) {
+          // Delete the entire thread if user is the owner
+          await thread.delete().catch(console.error);
+          continue; // Skip message deletion since thread is deleted
+        }
+      }
+
+      // Delete individual messages
       const messages = await messageChannel.messages.fetch({ limit: 100 });
       const userMessages = messages.filter(
         (m: Message) =>
