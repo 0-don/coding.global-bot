@@ -2,6 +2,7 @@ import {
   FunctionCallingConfigMode,
   FunctionDeclaration,
   GoogleGenAI,
+  Part,
   createUserContent,
 } from "@google/genai";
 import { error } from "console";
@@ -44,11 +45,44 @@ export class AiChat {
     )
       return;
 
-    const userMsg = message.content
+    let userMsg = message.content
       .replace(mention, "")
       .replace(/^coding global/i, "")
       .trim();
-    if (!userMsg && message.attachments.size === 0)
+
+    // Gather reply context only if replying to a human user
+    let replyContext = "";
+    let repliedImgParts: Part[] = [];
+
+    if (message.reference) {
+      try {
+        const repliedMessage = await message.channel.messages.fetch(
+          message.reference.messageId!
+        );
+
+        // Only process human messages, not bots
+        if (!repliedMessage.author.bot) {
+          const repliedUser = repliedMessage.author;
+
+          replyContext = `\n\nUser is asking about this message from ${repliedUser.username} (${repliedUser.globalName || repliedUser.username}):\n"${repliedMessage.content}"`;
+
+          if (repliedMessage.attachments.size > 0) {
+            const imageCount = Array.from(
+              repliedMessage.attachments.values()
+            ).filter((att) => att.contentType?.startsWith("image/")).length;
+
+            if (imageCount > 0) {
+              replyContext += `\n[The replied message also contained ${imageCount} image(s)]`;
+              repliedImgParts = await makeImageParts(repliedMessage);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching replied message:", error);
+      }
+    }
+
+    if (!userMsg && message.attachments.size === 0 && !replyContext)
       return message.reply("if u are pinging me u should say something :/");
 
     const history =
@@ -56,7 +90,7 @@ export class AiChat {
     channelHistory.set(message.channel.id, history);
 
     const authorName = message.author.globalName || message.author.username;
-    history.addMessage("user", userMsg, authorName);
+    history.addMessage("user", userMsg + replyContext, authorName);
 
     try {
       const shouldConsiderGif = Math.random() < GIF_PROBABILITY;
@@ -64,7 +98,6 @@ export class AiChat {
         ? GIF_ON_INSTRUCTION
         : GIF_OFF_INSTRUCTION;
 
-      // Inject the dynamic instruction into the main prompt template
       const finalPromptText = Ai_prompt.promptText.replace(
         "#gifInstruction#",
         gifInstructionText
@@ -73,9 +106,10 @@ export class AiChat {
       const imgParts = await makeImageParts(message);
       const userParts = [
         {
-          text: `${finalPromptText}\n\nHistory:\n${history.formatHistory()}\n\nNow reply:\n"${userMsg}"`,
+          text: `${finalPromptText}\n\nHistory:\n${history.formatHistory()}\n\nNow reply:\n"${userMsg}${replyContext}"`,
         },
         ...imgParts,
+        ...repliedImgParts,
       ];
 
       const searchMemeGifs: FunctionDeclaration = {
