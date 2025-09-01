@@ -117,7 +117,7 @@ Message: "${message.content}"`;
       });
 
       console.log(
-        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.member.nickname || ""}) - Response: ${response?.text?.trim()}`
+        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Response: ${response?.text?.trim()}`
       );
 
       return response?.text?.trim().toLowerCase() === "yes";
