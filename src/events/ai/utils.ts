@@ -1,11 +1,16 @@
 import { Part, createPartFromUri } from "@google/genai";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { Message } from "discord.js";
 import { GOOGLE_GEN_AI } from "../../gemini";
+
+dayjs.extend(relativeTime);
 
 export interface ChatMessage {
   role: "user" | "model";
   parts: { text: string }[];
   author?: string;
+  timestamp: Date;
 }
 
 export class ChatHistoryManager {
@@ -17,6 +22,7 @@ export class ChatHistoryManager {
       role,
       parts: [{ text }],
       author,
+      timestamp: new Date(),
     });
     if (this.history.length > this.maxMessages) {
       this.history.shift();
@@ -26,10 +32,12 @@ export class ChatHistoryManager {
   formatHistory() {
     return this.history
       .map((m) => {
+        const timeAgo = dayjs(m.timestamp).fromNow();
+
         if (m.role === "user" && m.author) {
-          return `${m.author}: ${m.parts[0].text}`;
+          return `[${timeAgo}] ${m.author}: ${m.parts[0].text}`;
         }
-        return `Bot: ${m.parts[0].text}`;
+        return `[${timeAgo}] Bot: ${m.parts[0].text}`;
       })
       .join("\n");
   }
@@ -45,6 +53,7 @@ export function selectModel(parts: Part[]): string {
 
   return "gemini-2.5-flash";
 }
+
 export async function makeImageParts(message: Message): Promise<Part[]> {
   const parts: Part[] = [];
   for (const att of message.attachments.values()) {
