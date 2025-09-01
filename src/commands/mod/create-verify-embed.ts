@@ -9,7 +9,7 @@ export class CreateVerifyEmbed {
   @Slash({
     name: "create-verify-embed",
     description: "create a verify embed for users to react to",
-    defaultMemberPermissions: PermissionFlagsBits.DeafenMembers,
+    defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
   })
   async createVerifyEmbed(interaction: CommandInteraction) {
     // create verify embed

@@ -10,7 +10,7 @@ export class LogCommandHistory {
   @Slash({
     name: "log-command-history",
     description: "Show command history",
-    defaultMemberPermissions: PermissionFlagsBits.DeafenMembers,
+    defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
   })
   async logDeletedMessages(
     @SlashOption({

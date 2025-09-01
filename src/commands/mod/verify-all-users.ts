@@ -10,7 +10,7 @@ export class VerifyAllUsers {
   @Slash({
     name: "verify-all-users",
     description: "verify all users in the server",
-    defaultMemberPermissions: PermissionFlagsBits.DeafenMembers,
+    defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
   })
   async verifyAllUsers(interaction: CommandInteraction) {
     LogService.logCommandHistory(interaction, "verify-all-users");
