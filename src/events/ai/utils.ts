@@ -1,7 +1,15 @@
 import { Part, createPartFromUri } from "@google/genai";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { Message, StickerFormatType } from "discord.js";
+import {
+  Collection,
+  DMChannel,
+  Message,
+  NewsChannel,
+  StickerFormatType,
+  TextChannel,
+  ThreadChannel,
+} from "discord.js";
 import { GOOGLE_GEN_AI } from "../../gemini";
 
 dayjs.extend(relativeTime);
@@ -43,6 +51,74 @@ export class ChatHistoryManager {
   }
 }
 
+export async function gatherMessageContext(repliedMessage: Message<boolean>) {
+  const userId = repliedMessage.author.id;
+  const channel = repliedMessage.channel as
+    | TextChannel
+    | DMChannel
+    | NewsChannel
+    | ThreadChannel;
+  const imageParts: Part[] = [];
+
+  try {
+    const [recentMessages, afterMessages] = await Promise.all([
+      channel.messages.fetch({ limit: 50, before: repliedMessage.id }),
+      channel.messages.fetch({ limit: 50, after: repliedMessage.id }),
+    ]);
+
+    const filterAndSort = (messages: Collection<string, Message<boolean>>) =>
+      Array.from(messages.values())
+        .filter((msg) => msg.author.id === userId && !msg.author.bot)
+        .sort((a, b) => a.createdTimestamp - b.createdTimestamp);
+
+    const beforeArray = filterAndSort(recentMessages);
+    const afterArray = filterAndSort(afterMessages);
+
+    // Find consecutive messages before/after
+    const messagesBefore: Message<boolean>[] = [];
+    for (let i = beforeArray.length - 1; i >= 0; i--) {
+      const msg = beforeArray[i]!;
+      if (msg.author.id === userId) {
+        messagesBefore.unshift(msg);
+      } else break;
+    }
+
+    const messagesAfter: Message<boolean>[] = [];
+    for (const msg of afterArray) {
+      if (msg.author.id === userId) {
+        messagesAfter.push(msg);
+      } else break;
+    }
+
+    const allMessages = [...messagesBefore, repliedMessage, ...messagesAfter];
+    const contextParts: string[] = [];
+
+    for (const msg of allMessages) {
+      let msgContent = msg.content || "";
+
+      if (msg.attachments.size > 0 || msg.stickers.size > 0) {
+        try {
+          const msgImageParts = await makeImageParts(msg);
+          imageParts.push(...msgImageParts);
+        } catch (imgError) {
+          console.error("Error processing images:", imgError);
+        }
+      }
+
+      if (msgContent.trim()) {
+        contextParts.push(msgContent);
+      }
+    }
+
+    const context =
+      contextParts.length > 1 ? contextParts.join("\n") : contextParts[0] || "";
+    return { context, imageParts };
+  } catch (fetchError) {
+    console.error("Error fetching message context:", fetchError);
+    return { context: repliedMessage.content || "", imageParts: [] };
+  }
+}
+
 export function selectModel(parts: Part[]): string {
   // Check for any GIF content in the parts
   for (const part of parts) {
@@ -74,7 +150,7 @@ export async function makeImageParts(message: Message): Promise<Part[]> {
 
   for (const sticker of message.stickers.values()) {
     if (sticker.format === StickerFormatType.Lottie) continue;
-    
+
     try {
       const stickerUrl = sticker.url;
       let mimeType: string;
