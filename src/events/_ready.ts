@@ -3,9 +3,9 @@ import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 
 @Discord()
-export class Ready {
+export class ClientReady {
   @On()
-  async ready([_]: ArgsOf<"ready">, client: Client) {
+  async clientReady([_]: ArgsOf<"clientReady">, client: Client) {
     log(`Ready! Logged in as ${client.user?.tag}`);
   }
 }
