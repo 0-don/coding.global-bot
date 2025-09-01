@@ -220,7 +220,7 @@ export class AiChat {
         },
       };
 
-      const model = selectModel(message);
+      const model = selectModel(userParts);
       const result = await GOOGLE_GEN_AI?.models.generateContent({
         model,
         contents: createUserContent(userParts),

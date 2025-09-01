@@ -35,14 +35,16 @@ export class ChatHistoryManager {
   }
 }
 
-export function selectModel(msg: Message) {
-  for (const att of msg.attachments.values()) {
-    if (att.contentType?.includes("gif") || att.url.endsWith(".gif"))
+export function selectModel(parts: Part[]): string {
+  // Check for any GIF content in the parts
+  for (const part of parts) {
+    if (part.inlineData?.mimeType === "image/gif") {
       return "gemini-1.5-flash";
+    }
   }
+
   return "gemini-2.5-flash";
 }
-
 export async function makeImageParts(message: Message): Promise<Part[]> {
   const parts: Part[] = [];
   for (const att of message.attachments.values()) {
