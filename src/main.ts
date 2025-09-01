@@ -57,7 +57,7 @@ export const bot = new Client({
   },
 });
 
-bot.once("ready", async () => {
+bot.once("clientReady", async () => {
   await bot.initApplicationCommands();
   log("Bot started");
 });

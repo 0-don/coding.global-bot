@@ -44,7 +44,6 @@ const GOOGLE_GEN_AI = ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")
   ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
   : null;
 
-// (selectModel and makeImageParts functions remain the same)
 function selectModel(msg: Message) {
   for (const att of msg.attachments.values()) {
     if (att.contentType?.includes("gif") || att.url.endsWith(".gif"))
