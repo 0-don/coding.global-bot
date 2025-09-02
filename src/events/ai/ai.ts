@@ -192,7 +192,7 @@ export class AiChat {
 
         const reply = followUp?.text ?? "Something went wrong...";
         await message.reply({
-          content: reply,
+          content: reply.replaceAll("GIF attached", "").trim(),
           files: gifUrl
             ? [{ attachment: gifUrl, name: "reaction.gif" }]
             : undefined,
