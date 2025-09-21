@@ -47,6 +47,35 @@ Respond with only "yes" if spam, "no" if legitimate.`;
   }
 
   /**
+   * Get available user profile information
+   */
+  private static async getUserProfile(message: Message) {
+    try {
+      // Fetch full user profile to get additional properties
+      const userProfile = await message.author.fetch();
+
+      return {
+        banner: userProfile.bannerURL() || null,
+        accentColor: userProfile.accentColor || null,
+        hexAccentColor: userProfile.hexAccentColor || null,
+        flags: userProfile.flags?.toArray() || [],
+        system: userProfile.system,
+        collectibles: userProfile.collectibles || null,
+      };
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      return {
+        banner: null,
+        accentColor: null,
+        hexAccentColor: null,
+        flags: [],
+        system: false,
+        collectibles: null,
+      };
+    }
+  }
+
+  /**
    * Main spam detection - only for first messages
    */
   public static async detectSpam(message: Message): Promise<boolean> {
@@ -66,11 +95,8 @@ Respond with only "yes" if spam, "no" if legitimate.`;
     }
 
     const channel = message.channel;
-    if (
-      channel.isThread() &&
-      channel instanceof ThreadChannel // Type guard
-    ) {
-      return false; // Skip threads
+    if (channel.isThread() && channel instanceof ThreadChannel) {
+      return false;
     }
 
     // Only check first messages
@@ -88,6 +114,9 @@ Respond with only "yes" if spam, "no" if legitimate.`;
       const accountAge = dayjs().diff(message.author.createdAt, "days");
       const channelName = "name" in channel ? channel.name : "Unknown Channel";
 
+      // Get available profile info
+      const userProfile = await this.getUserProfile(message);
+
       // Extract metadata checks
       const hasCustomAvatar =
         message.author.displayAvatarURL() !== message.author.defaultAvatarURL;
@@ -95,12 +124,24 @@ Respond with only "yes" if spam, "no" if legitimate.`;
       const hasMentions =
         message.mentions.users.size > 0 || message.mentions.roles.size > 0;
 
+      // Check member-specific info
+      const joinedAt = message.member.joinedAt;
+      const memberAge = joinedAt ? dayjs().diff(joinedAt, "days") : null;
+      const roles = message.member.roles.cache
+        .map((role) => role.name)
+        .filter((name) => name !== "@everyone");
+
       const context = `User info:
 - Account age: ${accountAge} days
+- Server member for: ${memberAge !== null ? `${memberAge} days` : "unknown"}
 - Channel: ${channelName}
 - Username: ${message.author.username}
-- Nickname: ${message.author.globalName}
+- Display name: ${message.author.globalName || message.member.displayName}
 - Avatar: ${hasCustomAvatar ? "custom" : "default"}
+- Banner: ${userProfile.banner ? "has banner" : "no banner"}
+- User flags: ${userProfile.flags.length > 0 ? userProfile.flags.join(", ") : "none"}
+- System account: ${userProfile.system}
+- Roles: ${roles.length > 0 ? roles.join(", ") : "none"}
 - Message length: ${message.content.length} characters
 - Has links: ${hasLinks}
 - Has mentions: ${hasMentions}
