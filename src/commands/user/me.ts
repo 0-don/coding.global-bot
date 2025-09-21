@@ -29,13 +29,14 @@ export class Me {
           "Please use this command in the bot channel"
         );
     }
-    const embed = await StatsService.userStatsEmbed(interaction);
+    const userStats = await StatsService.userStatsEmbed(interaction);
 
-    if (typeof embed === "string") return await interaction.editReply(embed);
+    if (typeof userStats?.embed === "string")
+      return await interaction.editReply(userStats?.embed);
 
     // return embed with chart img
     return await interaction.editReply({
-      embeds: [embed],
+      embeds: [userStats!.embed],
       allowedMentions: { users: [] },
     });
   }
