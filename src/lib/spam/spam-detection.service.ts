@@ -53,11 +53,11 @@ Respond with only "yes" if spam, "no" if legitimate.`;
       return false;
     }
 
-    if (!ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")) {
+    if (!ConfigValidator.isFeatureEnabled("GOOGLE_GENERATIVE_AI_API_KEY")) {
       if (!this._spamDetectionWarningLogged) {
         ConfigValidator.logFeatureDisabled(
           "AI Spam Detection",
-          "GEMINI_API_KEY"
+          "GOOGLE_GENERATIVE_AI_API_KEY"
         );
         this._spamDetectionWarningLogged = true;
       }

@@ -101,15 +101,17 @@ export interface ChatMessage {
 }
 
 export const GOOGLE_GEN_AI_API = ConfigValidator.isFeatureEnabled(
-  "GEMINI_API_KEY"
+  "GOOGLE_GENERATIVE_AI_API_KEY"
 )
   ? new GoogleGenAIAPI({
-      apiKey: process.env.GEMINI_API_KEY!,
+      apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY!,
     })
   : null;
 
-export const GOOGLE_GEN_AI = ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")
+export const GOOGLE_GEN_AI = ConfigValidator.isFeatureEnabled(
+  "GOOGLE_GENERATIVE_AI_API_KEY"
+)
   ? new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY,
+      apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     })
   : null;
