@@ -5,6 +5,7 @@ import { Message, OmitPartialGroupDMChannel } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { ConfigValidator } from "../../lib/config-validator";
+import { StatsService } from "../../lib/stats/stats.service";
 import { AI_SYSTEM_PROMPT } from "./prompt";
 import {
   channelMessages,
@@ -57,13 +58,19 @@ export class AiChat {
     }
 
     const messages = channelMessages.get(message.channel.id) || [];
-    const fullMessage = userMsg + replyContext;
+
+    // Get user context
+    const userContext = await this.getUserContext(
+      message.author.id,
+      message.guildId!
+    );
+    const fullMessage = `${userMsg}${replyContext}${userContext}`;
 
     try {
       const messageImages = await makeImageParts(message);
       const allImages = [...messageImages, ...repliedImages];
 
-      // Create user message
+      // Create user message with context
       const userMessage: ModelMessage =
         allImages.length > 0
           ? {
@@ -115,6 +122,32 @@ export class AiChat {
     }
   }
 
+  private async getUserContext(
+    memberId: string,
+    guildId: string
+  ): Promise<string> {
+    try {
+      const userStats = await StatsService.getUserStatsEmbed(memberId, guildId);
+
+      if (!userStats) {
+        return "\n\n[User Context: New member, no stats available]";
+      }
+
+      const { embed, roles } = userStats;
+
+      // Simple JSON stringify approach
+      const contextData = {
+        embed,
+        roles: roles?.filter(Boolean) || [],
+      };
+
+      return `\n\n[User Context: ${JSON.stringify(contextData, null, 2)}]`;
+    } catch (error) {
+      console.error("Error getting user context:", error);
+      return "\n\n[User Context: Unable to retrieve stats]";
+    }
+  }
+
   private async checkIfReplyToBot(
     message: OmitPartialGroupDMChannel<Message<boolean>>,
     client: Client
@@ -150,14 +183,20 @@ export class AiChat {
           ? "conversation"
           : "message";
 
+        // Get context for the replied user too
+        const repliedUserContext = await this.getUserContext(
+          repliedUser.id,
+          message.guildId!
+        );
+
         return {
-          replyContext: `\n\nUser is asking about this ${contextType} from ${repliedUser.username} (${repliedUser.globalName || repliedUser.username}):\n"${messageContext.context}"`,
+          replyContext: `\n\nReplying to ${contextType}:\n"${messageContext.context}"${repliedUserContext}`,
           repliedImages: messageContext.images,
         };
       }
 
       // Handle bot replies with length limiting
-      const MAX_BOT_CONTEXT_LENGTH = 500; // Adjust as needed
+      const MAX_BOT_CONTEXT_LENGTH = 500;
       let botContent = repliedMessage.content;
 
       if (botContent.length > MAX_BOT_CONTEXT_LENGTH) {
