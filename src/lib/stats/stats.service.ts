@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
-import { CacheType, CommandInteraction, GuildMember, User } from "discord.js";
+import { CacheType, CommandInteraction, User } from "discord.js";
+import { bot } from "../../main";
 import { prisma } from "../../prisma";
 import { ChartDataset } from "../../types/index";
 import { topStatsExampleEmbed, userStatsExampleEmbed } from "../embeds";
@@ -103,15 +104,35 @@ export class StatsService {
     const memberId = user?.id ?? interaction.member?.user.id;
     const guildId = interaction.guild?.id;
 
+    if (!memberId || !guildId) return "Something went wrong";
+
+    const embed = await StatsService.getUserStatsEmbed(memberId, guildId);
+
+    if (!embed) return "Something went wrong";
+
+    return embed;
+  }
+
+  static async getUserStatsEmbed(memberId: string, guildId: string) {
     const memberGuild = await prisma.memberGuild.findFirst({
       where: { guildId, memberId },
       include: { member: true },
     });
 
-    if (!memberId || !guildId || !memberGuild) return "Something went wrong";
+    if (!memberGuild) return null;
+
+    // Fetch Discord user and guild member data
+    const [user, guild] = await Promise.all([
+      bot.users.fetch(memberId).catch(() => null),
+      bot.guilds.fetch(guildId).catch(() => null),
+    ]);
+
+    const member = guild
+      ? await guild.members.fetch(memberId).catch(() => null)
+      : null;
 
     // Execute all initial queries in parallel
-    const [lastVoice, lastMessage, helpCount, helpReceivedCount, member] =
+    const [lastVoice, lastMessage, helpCount, helpReceivedCount] =
       await Promise.all([
         prisma.guildVoiceEvents.findMany({
           where: { guildId, memberId },
@@ -129,15 +150,7 @@ export class StatsService {
         prisma.memberHelper.count({
           where: { guildId, threadOwnerId: memberId },
         }),
-        user?.id
-          ? interaction.guild?.members.fetch(user.id)
-          : Promise.resolve(interaction.member as GuildMember),
       ]);
-
-    const userServerName =
-      user?.toString() ?? interaction.member?.user.toString();
-
-    if (!userServerName) return "Something went wrong";
 
     // Execute stats queries in parallel
     const [messagesStats, voiceStats] = await Promise.all([
@@ -165,10 +178,11 @@ export class StatsService {
       helpCount,
       helpReceivedCount,
       userGlobalName: memberGuild.member.username,
-      userServerName,
+      userServerName:
+        member?.toString() ?? user?.toString() ?? memberGuild.member.username,
       lookback: memberGuild.lookback,
-      createdAt: member.user.createdAt,
-      joinedAt: member.joinedAt,
+      createdAt: user!.createdAt,
+      joinedAt: member!.joinedAt,
       lookbackDaysCount,
       oneDayCount,
       sevenDaysCount,
