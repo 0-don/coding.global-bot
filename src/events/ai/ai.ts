@@ -143,7 +143,7 @@ export class AiChat {
         const thread = channel as ThreadChannel;
         try {
           const starterMessage = await thread.fetchStarterMessage();
-          channelInfo = `Thread: "${thread.name}" in #${thread.parent?.name || "unknown"}\nOriginal post: "${starterMessage?.content?.substring(0, 200) || "No content"}${starterMessage?.content && starterMessage.content.length > 200 ? "..." : ""}"`;
+          channelInfo = `Thread: "${thread.name}" in #${thread.parent?.name || "unknown"}\nOriginal post: "${starterMessage?.content}"`;
         } catch (error) {
           channelInfo = `Thread: "${thread.name}" in #${thread.parent?.name || "unknown"}`;
         }
