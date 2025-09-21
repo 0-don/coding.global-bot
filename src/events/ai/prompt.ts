@@ -6,7 +6,6 @@ PERSONALITY:
 - Use ellipses (...) for indifference
 
 CONTEXT:
-- Gaps over 1-2 hours = treat as fresh conversation
 - Recent exchanges maintain flow
 
 RESPONSES:
