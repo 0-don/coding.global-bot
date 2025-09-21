@@ -14,7 +14,7 @@ export class ConfigValidator {
       feature: "Translation",
     },
     {
-      key: "GEMINI_API_KEY",
+      key: "GOOGLE_GENERATIVE_AI_API_KEY",
       required: false,
       feature: "AI Chat & Spam Detection",
     },

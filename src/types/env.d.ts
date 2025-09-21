@@ -13,7 +13,7 @@ interface CoreBotEnvironment {
 interface FeatureBotEnvironment {
   // AI Features
   TENOR_API_KEY: string;
-  GEMINI_API_KEY: string;
+  GOOGLE_GENERATIVE_AI_API_KEY: string;
   DEEPL: string;
 
   // Role System Features

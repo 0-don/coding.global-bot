@@ -1,34 +1,19 @@
-import {
-  FunctionCallingConfigMode,
-  FunctionDeclaration,
-  GoogleGenAI,
-  Part,
-  createUserContent,
-} from "@google/genai";
+import { google } from "@ai-sdk/google";
+import { generateText, ModelMessage, StepResult } from "ai";
 import console, { error } from "console";
+import { Message, OmitPartialGroupDMChannel } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { ConfigValidator } from "../../lib/config-validator";
-import { GifService } from "../../lib/gif/gif.service";
+import { AI_SYSTEM_PROMPT } from "./prompt";
 import {
-  AI_SYSTEM_PROMPT,
-  GIF_OFF_INSTRUCTION,
-  GIF_ON_INSTRUCTION,
-} from "./prompt";
-import {
-  ChatHistoryManager,
+  channelMessages,
+  CODING_GLOBAL_PATTERN,
   gatherMessageContext,
   makeImageParts,
-  selectModel,
+  MAX_MESSAGES_PER_CHANNEL,
+  TOOLS,
 } from "./utils";
-
-const GIF_PROBABILITY = 0.2;
-
-const channelHistory = new Map<string, ChatHistoryManager>();
-
-const GOOGLE_GEN_AI = ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")
-  ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
-  : null;
 
 @Discord()
 export class AiChat {
@@ -39,60 +24,27 @@ export class AiChat {
   ): Promise<void> {
     if (
       message.author.bot ||
-      !ConfigValidator.isFeatureEnabled("GEMINI_API_KEY")
+      !ConfigValidator.isFeatureEnabled("GOOGLE_GENERATIVE_AI_API_KEY")
     )
       return;
 
     const mention = new RegExp(`^<@!?${client.user?.id}>`);
     const isMention = mention.test(message.content);
-
-    let isReply = false;
-    if (message.reference) {
-      try {
-        const referencedMessage = await message.channel.messages
-          .fetch(message.reference.messageId!)
-          .catch(() => null);
-        isReply = referencedMessage?.author.id === client.user?.id;
-      } catch {
-        isReply = false;
-      }
-    }
+    const isReply = await this.checkIfReplyToBot(message, client);
 
     if (
       !isMention &&
       !isReply &&
-      !message.content.toLowerCase().startsWith("coding global")
+      !CODING_GLOBAL_PATTERN.test(message.content.toLowerCase())
     )
       return;
 
-    let userMsg = message.content
+    const userMsg = message.content
       .replace(mention, "")
-      .replace(/^coding global/i, "")
+      .replace(CODING_GLOBAL_PATTERN, "")
       .trim();
 
-    let replyContext = "";
-    let repliedImgParts: Part[] = [];
-
-    if (message.reference) {
-      try {
-        const repliedMessage = await message.channel.messages.fetch(
-          message.reference.messageId!
-        );
-
-        if (repliedMessage && !repliedMessage.author.bot) {
-          const repliedUser = repliedMessage.author;
-          const messageContext = await gatherMessageContext(repliedMessage);
-
-          repliedImgParts = messageContext.imageParts;
-          const contextType = messageContext.context.includes("\n")
-            ? "conversation"
-            : "message";
-          replyContext = `\n\nUser is asking about this ${contextType} from ${repliedUser.username} (${repliedUser.globalName || repliedUser.username}):\n"${messageContext.context}"`;
-        }
-      } catch (replyError) {
-        console.error("Error fetching replied message context:", replyError);
-      }
-    }
+    const { replyContext, repliedImages } = await this.getReplyContext(message);
 
     if (
       !userMsg &&
@@ -104,112 +56,136 @@ export class AiChat {
       return;
     }
 
-    const history =
-      channelHistory.get(message.channel.id) ?? new ChatHistoryManager();
-    channelHistory.set(message.channel.id, history);
-
-    const authorName = message.author.globalName || message.author.username;
-    history.addMessage("user", userMsg + replyContext, authorName);
+    const messages = channelMessages.get(message.channel.id) || [];
+    const fullMessage = userMsg + replyContext;
 
     try {
-      const shouldConsiderGif = Math.random() < GIF_PROBABILITY;
-      const gifInstructionText = shouldConsiderGif
-        ? GIF_ON_INSTRUCTION
-        : GIF_OFF_INSTRUCTION;
-      const finalPromptText = AI_SYSTEM_PROMPT.replace(
-        "#gifInstruction#",
-        gifInstructionText
-      );
+      const messageImages = await makeImageParts(message);
+      const allImages = [...messageImages, ...repliedImages];
 
-      const imgParts = await makeImageParts(message);
+      // Create user message
+      const userMessage: ModelMessage =
+        allImages.length > 0
+          ? {
+              role: "user",
+              content: [
+                { type: "text", text: fullMessage },
+                ...allImages.map((url) => ({
+                  type: "image" as const,
+                  image: url,
+                })),
+              ],
+            }
+          : {
+              role: "user",
+              content: fullMessage,
+            };
 
-      const historyText = history.formatHistory();
+      // Add user message to history
+      messages.push(userMessage);
 
-      const userParts: Part[] = [
-        {
-          text: `${finalPromptText}\n\nHistory:\n${historyText}\n\nNow reply:\n"${userMsg}${replyContext}"`,
-        },
-        ...imgParts,
-        ...repliedImgParts,
-      ];
-
-      const searchMemeGifs: FunctionDeclaration = {
-        name: "search_meme_gifs",
-        description:
-          "Search for and send a meme GIF to enhance your response with visual humor.",
-        parametersJsonSchema: {
-          type: "object",
-          properties: { query: { type: "string" } },
-          required: ["query"],
-        },
-      };
-
-      const model = selectModel(userParts);
-      const result = await GOOGLE_GEN_AI?.models.generateContent({
-        model,
-        contents: createUserContent(userParts),
-        config: {
-          tools: [{ functionDeclarations: [searchMemeGifs] }],
-          toolConfig: {
-            functionCallingConfig: { mode: FunctionCallingConfigMode.AUTO },
-          },
-        },
+      const { text, steps } = await generateText({
+        model: google("gemini-2.5-flash"),
+        system: AI_SYSTEM_PROMPT,
+        messages: [...messages],
+        tools: TOOLS,
       });
 
-      const fnCall = result?.functionCalls?.[0];
+      const reply = text || "Hmm... I'm not sure how to respond to that.";
 
-      if (fnCall?.name === "search_meme_gifs") {
-        const { query } = fnCall.args as { query: string };
-        const gifs = ConfigValidator.isFeatureEnabled("TENOR_API_KEY")
-          ? await GifService.searchGifs(query, 10)
-          : [];
+      // Add assistant message to history
+      messages.push({
+        role: "assistant",
+        content: reply,
+      });
 
-        let gifUrl: string | null = null;
-        for (const g of gifs) {
-          const response = await fetch(g, { method: "HEAD" });
-          const contentLength = response.headers.get("content-length");
-          const size = parseInt(contentLength ?? "0");
-          if (size && size < 8 * 1024 * 1024) {
-            gifUrl = g;
-            break;
-          }
-        }
-
-        const gifStatus = gifUrl ? "GIF attached" : "GIF not available";
-        const followUp = await GOOGLE_GEN_AI?.models.generateContent({
-          model,
-          contents: createUserContent([
-            ...userParts,
-            { functionCall: { name: fnCall.name, args: fnCall.args } },
-            {
-              functionResponse: {
-                name: fnCall.name,
-                response: { result: gifStatus },
-              },
-            },
-          ]),
-        });
-
-        const reply = followUp?.text ?? "Something went wrong...";
-        await message.reply({
-          content: reply.replaceAll("GIF attached", "").trim(),
-          files: gifUrl
-            ? [{ attachment: gifUrl, name: "reaction.gif" }]
-            : undefined,
-        });
-        history.addMessage("model", reply);
-        return;
+      // Trim history if too long
+      if (messages.length > MAX_MESSAGES_PER_CHANNEL) {
+        messages.splice(0, messages.length - MAX_MESSAGES_PER_CHANNEL);
       }
 
-      const reply =
-        result?.text ?? "Hmm... I'm not sure how to respond to that.";
-      history.addMessage("model", reply);
-      await message.reply(reply);
+      // Update channel history
+      channelMessages.set(message.channel.id, messages);
+
+      const gifUrl = this.extractGifFromSteps(steps);
+
+      await message.reply({
+        content: reply,
+        files: gifUrl
+          ? [{ attachment: gifUrl, name: "reaction.gif" }]
+          : undefined,
+      });
     } catch (err) {
       error("AI error:", err);
       await message.reply(
         "Something went wrong while thinking. Try again later!"
       );
     }
+  }
+
+  private async checkIfReplyToBot(
+    message: OmitPartialGroupDMChannel<Message<boolean>>,
+    client: Client
+  ): Promise<boolean> {
+    if (!message.reference) return false;
+
+    try {
+      const referencedMessage = await message.channel.messages.fetch(
+        message.reference.messageId!
+      );
+      return referencedMessage?.author.id === client.user?.id;
+    } catch {
+      return false;
+    }
+  }
+
+  private async getReplyContext(
+    message: OmitPartialGroupDMChannel<Message<boolean>>
+  ): Promise<{ replyContext: string; repliedImages: string[] }> {
+    if (!message.reference) return { replyContext: "", repliedImages: [] };
+
+    try {
+      const repliedMessage = await message.channel.messages.fetch(
+        message.reference.messageId!
+      );
+      if (!repliedMessage || repliedMessage.author.bot)
+        return { replyContext: "", repliedImages: [] };
+
+      const repliedUser = repliedMessage.author;
+      const messageContext = await gatherMessageContext(repliedMessage);
+      const contextType = messageContext.context.includes("\n")
+        ? "conversation"
+        : "message";
+
+      return {
+        replyContext: `\n\nUser is asking about this ${contextType} from ${repliedUser.username} (${repliedUser.globalName || repliedUser.username}):\n"${messageContext.context}"`,
+        repliedImages: messageContext.images,
+      };
+    } catch (replyError) {
+      console.error("Error fetching replied message context:", replyError);
+      return { replyContext: "", repliedImages: [] };
+    }
+  }
+
+  private extractGifFromSteps(
+    steps: StepResult<typeof TOOLS>[]
+  ): string | null {
+    if (!steps?.length) return null;
+
+    for (const step of steps) {
+      const gifResult = step.toolResults?.find(
+        (result) => result.toolName === "searchMemeGifs"
+      );
+
+      if (gifResult?.output) {
+        const output = gifResult.output as
+          | { success: true; gifUrl: string }
+          | { success: false; error: string };
+        if (output.success && "gifUrl" in output) {
+          return output.gifUrl;
+        }
+      }
+    }
+    return null;
   }
 }
