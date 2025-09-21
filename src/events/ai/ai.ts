@@ -1,7 +1,7 @@
 import { google } from "@ai-sdk/google";
 import { generateText, ModelMessage, StepResult } from "ai";
 import console, { error } from "console";
-import { Message, OmitPartialGroupDMChannel } from "discord.js";
+import { Message, OmitPartialGroupDMChannel, ThreadChannel } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { ConfigValidator } from "../../lib/config-validator";
@@ -60,10 +60,7 @@ export class AiChat {
     const messages = channelMessages.get(message.channel.id) || [];
 
     // Get user context
-    const userContext = await this.getUserContext(
-      message.author.id,
-      message.guildId!
-    );
+    const userContext = await this.getUserContext(message.author.id, message);
     const fullMessage = `${userMsg}${replyContext}${userContext}`;
 
     try {
@@ -124,10 +121,13 @@ export class AiChat {
 
   private async getUserContext(
     memberId: string,
-    guildId: string
+    message: Message
   ): Promise<string> {
     try {
-      const userStats = await StatsService.getUserStatsEmbed(memberId, guildId);
+      const userStats = await StatsService.getUserStatsEmbed(
+        memberId,
+        message.guildId!
+      );
 
       if (!userStats) {
         return "\n\n[User Context: New member, no stats available]";
@@ -135,10 +135,28 @@ export class AiChat {
 
       const { embed, roles } = userStats;
 
-      // Simple JSON stringify approach
+      // Get channel information
+      let channelInfo = "";
+      const channel = message.channel;
+
+      if (channel.isThread()) {
+        const thread = channel as ThreadChannel;
+        try {
+          const starterMessage = await thread.fetchStarterMessage();
+          channelInfo = `Thread: "${thread.name}" in #${thread.parent?.name || "unknown"}\nOriginal post: "${starterMessage?.content?.substring(0, 200) || "No content"}${starterMessage?.content && starterMessage.content.length > 200 ? "..." : ""}"`;
+        } catch (error) {
+          channelInfo = `Thread: "${thread.name}" in #${thread.parent?.name || "unknown"}`;
+        }
+      } else if ("name" in channel) {
+        channelInfo = `Channel: #${channel.name}`;
+      } else {
+        channelInfo = "Channel: DM or unknown";
+      }
+
       const contextData = {
         embed,
         roles: roles?.filter(Boolean) || [],
+        location: channelInfo,
       };
 
       return `\n\n[User Context: ${JSON.stringify(contextData, null, 2)}]`;
@@ -186,7 +204,8 @@ export class AiChat {
         // Get context for the replied user too
         const repliedUserContext = await this.getUserContext(
           repliedUser.id,
-          message.guildId!
+
+          message
         );
 
         return {
