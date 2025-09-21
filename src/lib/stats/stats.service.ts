@@ -104,11 +104,11 @@ export class StatsService {
     const memberId = user?.id ?? interaction.member?.user.id;
     const guildId = interaction.guild?.id;
 
-    if (!memberId || !guildId) return "Something went wrong";
+    if (!memberId || !guildId) return null;
 
     const embed = await StatsService.getUserStatsEmbed(memberId, guildId);
 
-    if (!embed) return "Something went wrong";
+    if (!embed) return null;
 
     return embed;
   }
@@ -132,7 +132,7 @@ export class StatsService {
       : null;
 
     // Execute all initial queries in parallel
-    const [lastVoice, lastMessage, helpCount, helpReceivedCount] =
+    const [lastVoice, lastMessage, helpCount, helpReceivedCount, userRoles] =
       await Promise.all([
         prisma.guildVoiceEvents.findMany({
           where: { guildId, memberId },
@@ -149,6 +149,10 @@ export class StatsService {
         }),
         prisma.memberHelper.count({
           where: { guildId, threadOwnerId: memberId },
+        }),
+        prisma.memberRole.findMany({
+          where: { memberId, guildId },
+          select: { name: true, roleId: true },
         }),
       ]);
 
@@ -196,7 +200,7 @@ export class StatsService {
       oneDayVoiceSum,
     });
 
-    return embed;
+    return { embed, roles: userRoles.map((role) => role.name) };
   }
 
   static async voiceStats(memberId: string, guildId: string, lookback: number) {

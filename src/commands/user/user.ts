@@ -45,13 +45,14 @@ export class UserCommand {
         );
     }
 
-    const embed = await StatsService.userStatsEmbed(interaction, user);
+    const userStats = await StatsService.userStatsEmbed(interaction, user);
 
-    if (typeof embed === "string") return await interaction.editReply(embed);
+    if (typeof userStats?.embed === "string")
+      return await interaction.editReply(userStats?.embed);
 
     // return embed
     return await interaction.editReply({
-      embeds: [embed],
+      embeds: [userStats!.embed],
       allowedMentions: { users: [] },
     });
   }
