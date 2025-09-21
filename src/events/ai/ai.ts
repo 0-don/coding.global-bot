@@ -91,27 +91,18 @@ export class AiChat {
         tools: TOOLS,
       });
 
-      const gifUrl = this.extractGifFromSteps(steps);
-
-      // Improved response handling
-      let reply = text?.trim();
-
-      // Add assistant message to history
-      messages.push({
-        role: "assistant",
-        content: reply,
-      });
+      messages.push({ role: "assistant", content: text?.trim() });
 
       // Trim history if too long
       if (messages.length > MAX_MESSAGES_PER_CHANNEL) {
         messages.splice(0, messages.length - MAX_MESSAGES_PER_CHANNEL);
       }
 
-      // Update channel history
       channelMessages.set(message.channel.id, messages);
 
+      const gifUrl = this.extractGifFromSteps(steps);
       await message.reply({
-        content: reply,
+        content: text?.trim(),
         files: gifUrl
           ? [{ attachment: gifUrl, name: "reaction.gif" }]
           : undefined,
@@ -149,18 +140,35 @@ export class AiChat {
       const repliedMessage = await message.channel.messages.fetch(
         message.reference.messageId!
       );
-      if (!repliedMessage || repliedMessage.author.bot)
-        return { replyContext: "", repliedImages: [] };
+      if (!repliedMessage) return { replyContext: "", repliedImages: [] };
 
-      const repliedUser = repliedMessage.author;
-      const messageContext = await gatherMessageContext(repliedMessage);
-      const contextType = messageContext.context.includes("\n")
-        ? "conversation"
-        : "message";
+      // Skip if replying to a non-bot user message
+      if (!repliedMessage.author.bot) {
+        const repliedUser = repliedMessage.author;
+        const messageContext = await gatherMessageContext(repliedMessage);
+        const contextType = messageContext.context.includes("\n")
+          ? "conversation"
+          : "message";
+
+        return {
+          replyContext: `\n\nUser is asking about this ${contextType} from ${repliedUser.username} (${repliedUser.globalName || repliedUser.username}):\n"${messageContext.context}"`,
+          repliedImages: messageContext.images,
+        };
+      }
+
+      // Handle bot replies with length limiting
+      const MAX_BOT_CONTEXT_LENGTH = 500; // Adjust as needed
+      let botContent = repliedMessage.content;
+
+      if (botContent.length > MAX_BOT_CONTEXT_LENGTH) {
+        botContent = botContent.substring(0, MAX_BOT_CONTEXT_LENGTH) + "...";
+      }
+
+      const repliedImages = await makeImageParts(repliedMessage);
 
       return {
-        replyContext: `\n\nUser is asking about this ${contextType} from ${repliedUser.username} (${repliedUser.globalName || repliedUser.username}):\n"${messageContext.context}"`,
-        repliedImages: messageContext.images,
+        replyContext: `\n\nUser is asking about this bot message:\n"${botContent}"`,
+        repliedImages,
       };
     } catch (replyError) {
       console.error("Error fetching replied message context:", replyError);
