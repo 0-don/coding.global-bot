@@ -91,7 +91,17 @@ export class AiChat {
         tools: TOOLS,
       });
 
-      const reply = text || "Hmm... I'm not sure how to respond to that.";
+      const gifUrl = this.extractGifFromSteps(steps);
+
+      // Improved response handling
+      let reply = text?.trim();
+
+      // If we have a GIF but no text, provide a default response
+      if (!reply && gifUrl) {
+        reply = "*sends GIF*";
+      } else if (!reply) {
+        reply = "Hmm... I'm not sure how to respond to that.";
+      }
 
       // Add assistant message to history
       messages.push({
@@ -106,8 +116,6 @@ export class AiChat {
 
       // Update channel history
       channelMessages.set(message.channel.id, messages);
-
-      const gifUrl = this.extractGifFromSteps(steps);
 
       await message.reply({
         content: reply,
