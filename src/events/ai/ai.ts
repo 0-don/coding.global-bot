@@ -96,13 +96,6 @@ export class AiChat {
       // Improved response handling
       let reply = text?.trim();
 
-      // If we have a GIF but no text, provide a default response
-      if (!reply && gifUrl) {
-        reply = "*sends GIF*";
-      } else if (!reply) {
-        reply = "Hmm... I'm not sure how to respond to that.";
-      }
-
       // Add assistant message to history
       messages.push({
         role: "assistant",
