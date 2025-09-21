@@ -186,6 +186,3 @@ export const LEVEL_MESSAGES = {
     "echo '${user} (${role})' >> /etc/tech-leaders.conf",
   ],
 };
-
-export const DEV_BOARD_CHANNEL = "1300427846342283436";
-export const JOB_BOARD_CHANNEL = "1300427561704226867";
