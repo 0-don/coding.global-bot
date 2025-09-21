@@ -25,7 +25,7 @@ jobs:
           echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
 
           echo TENOR_API_KEY=${{ secrets.TENOR_API_KEY }} >> .env
-          echo GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} >> .env
+          echo GOOGLE_GENERATIVE_AI_API_KEY=${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }} >> .env
           echo DEEPL=${{ secrets.DEEPL }} >> .env
 
           echo HELPER_ROLES=${{ secrets.HELPER_ROLES }} >> .env
