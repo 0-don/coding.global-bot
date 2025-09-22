@@ -18,6 +18,9 @@ import {
 
 @Discord()
 export class AiChat {
+  private static readonly MAX_RETRIES = 5;
+  private static readonly BASE_DELAY = 1000; // 1 second
+
   @On()
   async messageCreate(
     [message]: ArgsOf<"messageCreate">,
@@ -63,60 +66,82 @@ export class AiChat {
     const userContext = await this.getUserContext(message.author.id, message);
     const fullMessage = `${userMsg}${replyContext}${userContext}`;
 
-    try {
-      const messageImages = await makeImageParts(message);
-      const allImages = [...messageImages, ...repliedImages];
+    // Retry logic with exponential backoff
+    let lastError: Error | null = null;
 
-      // Create user message with context
-      const userMessage: ModelMessage =
-        allImages.length > 0
-          ? {
-              role: "user",
-              content: [
-                { type: "text", text: fullMessage },
-                ...allImages.map((url) => ({
-                  type: "image" as const,
-                  image: url,
-                })),
-              ],
-            }
-          : {
-              role: "user",
-              content: fullMessage,
-            };
+    for (let attempt = 0; attempt < AiChat.MAX_RETRIES; attempt++) {
+      try {
+        const messageImages = await makeImageParts(message);
+        const allImages = [...messageImages, ...repliedImages];
 
-      // Add user message to history
-      messages.push(userMessage);
+        // Create user message with context
+        const userMessage: ModelMessage =
+          allImages.length > 0
+            ? {
+                role: "user",
+                content: [
+                  { type: "text", text: fullMessage },
+                  ...allImages.map((url) => ({
+                    type: "image" as const,
+                    image: url,
+                  })),
+                ],
+              }
+            : {
+                role: "user",
+                content: fullMessage,
+              };
 
-      const { text, steps } = await generateText({
-        model: google("gemini-2.5-flash"),
-        system: AI_SYSTEM_PROMPT,
-        messages: [...messages],
-        tools: TOOLS,
-      });
+        // Add user message to history
+        messages.push(userMessage);
 
-      messages.push({ role: "assistant", content: text?.trim() });
+        const { text, steps } = await generateText({
+          model: google("gemini-2.5-flash"),
+          system: AI_SYSTEM_PROMPT,
+          messages: [...messages],
+          tools: TOOLS,
+        });
 
-      // Trim history if too long
-      if (messages.length > MAX_MESSAGES_PER_CHANNEL) {
-        messages.splice(0, messages.length - MAX_MESSAGES_PER_CHANNEL);
+        messages.push({ role: "assistant", content: text?.trim() });
+
+        // Trim history if too long
+        if (messages.length > MAX_MESSAGES_PER_CHANNEL) {
+          messages.splice(0, messages.length - MAX_MESSAGES_PER_CHANNEL);
+        }
+
+        channelMessages.set(message.channel.id, messages);
+
+        const gifUrl = this.extractGifFromSteps(steps);
+        await message.reply({
+          content: text?.trim(),
+          files: gifUrl
+            ? [{ attachment: gifUrl, name: "reaction.gif" }]
+            : undefined,
+        });
+
+        // Success - exit retry loop
+        return;
+      } catch (err) {
+        lastError = err as Error;
+        error(`AI error (attempt ${attempt + 1}/${AiChat.MAX_RETRIES}):`, err);
+
+        // Don't wait after the last attempt
+        if (attempt < AiChat.MAX_RETRIES - 1) {
+          const delay = AiChat.BASE_DELAY * Math.pow(2, attempt);
+          console.log(`Retrying in ${delay}ms...`);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        }
       }
-
-      channelMessages.set(message.channel.id, messages);
-
-      const gifUrl = this.extractGifFromSteps(steps);
-      await message.reply({
-        content: text?.trim(),
-        files: gifUrl
-          ? [{ attachment: gifUrl, name: "reaction.gif" }]
-          : undefined,
-      });
-    } catch (err) {
-      error("AI error:", err);
-      await message.reply(
-        "Something went wrong while thinking. Try again later!"
-      );
     }
+
+    // All retries failed
+    error(
+      `All ${AiChat.MAX_RETRIES} AI attempts failed. Last error:`,
+      lastError
+    );
+    await message.reply(
+      "Something went wrong while thinking. Try again later!"
+    );
   }
 
   private async getUserContext(
