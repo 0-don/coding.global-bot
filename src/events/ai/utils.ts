@@ -76,13 +76,26 @@ export async function makeImageParts(message: Message): Promise<string[]> {
 
   for (const attachment of message.attachments.values()) {
     if (attachment.contentType?.startsWith("image/")) {
+      // Filter out GIFs - Google Gemini doesn't support them
+      if (attachment.contentType === "image/gif") {
+        console.log(`Skipping GIF attachment: ${attachment.url}`);
+        continue;
+      }
       images.push(attachment.url);
     }
   }
 
   for (const sticker of message.stickers.values()) {
     if (sticker.format !== StickerFormatType.Lottie) {
-      images.push(sticker.url);
+      // Only include non-GIF stickers (PNG/APNG format stickers)
+      if (
+        sticker.format === StickerFormatType.PNG ||
+        sticker.format === StickerFormatType.APNG
+      ) {
+        images.push(sticker.url);
+      } else {
+        console.log(`Skipping GIF sticker: ${sticker.url}`);
+      }
     }
   }
 
