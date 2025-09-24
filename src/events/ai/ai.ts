@@ -14,6 +14,7 @@ import {
   makeImageParts,
   MAX_MESSAGES_PER_CHANNEL,
   TOOLS,
+  extractCodeFromAttachments,
 } from "./utils";
 
 @Discord()
@@ -50,6 +51,15 @@ export class AiChat {
 
     const { replyContext, repliedImages } = await this.getReplyContext(message);
 
+    // Extract code from current message attachments
+    let attachmentContext = "";
+    if (message.attachments.size > 0) {
+      const codeContent = await extractCodeFromAttachments(message);
+      if (codeContent) {
+        attachmentContext = `\n\n[Code from attachment]:\n${codeContent}`;
+      }
+    }
+
     if (
       !userMsg &&
       message.attachments.size === 0 &&
@@ -64,7 +74,7 @@ export class AiChat {
 
     // Get user context
     const userContext = await this.getUserContext(message.author.id, message);
-    const fullMessage = `${userMsg}${replyContext}${userContext}`;
+    const fullMessage = `${userMsg}${attachmentContext}${replyContext}${userContext}`;
 
     // Retry logic with exponential backoff
     let lastError: Error | null = null;
@@ -229,7 +239,6 @@ export class AiChat {
         // Get context for the replied user too
         const repliedUserContext = await this.getUserContext(
           repliedUser.id,
-
           message
         );
 
