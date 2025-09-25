@@ -10,11 +10,11 @@ import { AI_SYSTEM_PROMPT } from "./prompt";
 import {
   channelMessages,
   CODING_GLOBAL_PATTERN,
+  extractCodeFromAttachments,
   gatherMessageContext,
   makeImageParts,
   MAX_MESSAGES_PER_CHANNEL,
   TOOLS,
-  extractCodeFromAttachments,
 } from "./utils";
 
 @Discord()
@@ -192,6 +192,8 @@ export class AiChat {
         embed,
         roles: roles?.filter(Boolean) || [],
         location: channelInfo,
+        channelId: message.channel.id,
+        guildId: message.guildId,
       };
 
       return `\n\n[User Context: ${JSON.stringify(contextData, null, 2)}]`;

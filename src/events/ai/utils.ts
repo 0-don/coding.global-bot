@@ -2,14 +2,14 @@ import { ModelMessage } from "ai";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Collection, Message, StickerFormatType } from "discord.js";
-import { searchMemeGifs } from "./tools";
+import { gatherChannelContext, searchMemeGifs } from "./tools";
 
 dayjs.extend(relativeTime);
 
 export const channelMessages = new Map<string, ModelMessage[]>();
 export const MAX_MESSAGES_PER_CHANNEL = 20;
 export const CODING_GLOBAL_PATTERN = /^coding\s?global/i;
-export const TOOLS = { searchMemeGifs };
+export const TOOLS = { searchMemeGifs, gatherChannelContext };
 
 export async function gatherMessageContext(
   repliedMessage: Message<boolean>
