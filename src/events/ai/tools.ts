@@ -22,6 +22,9 @@ export const gatherChannelContext = tool({
   }),
   execute: async ({ channelId, guildId, messageCount }) => {
     try {
+      console.log(
+        `Gathering AI context from channel ${channelId} in guild ${guildId}...`
+      );
       const guild = await bot.guilds.fetch(guildId).catch(() => null);
       if (!guild) {
         return { success: false, error: "Guild not found" };
