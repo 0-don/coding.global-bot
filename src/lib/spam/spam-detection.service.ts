@@ -153,7 +153,7 @@ Message: "${message.content}"`;
         system: this.SYSTEM_PROMPT,
         prompt: context,
         temperature: 0.1,
-        maxOutputTokens: 100,
+        maxOutputTokens: 200,
       });
 
       console.log(
