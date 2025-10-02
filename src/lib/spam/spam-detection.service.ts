@@ -1,7 +1,8 @@
 import { google } from "@ai-sdk/google";
-import { generateText } from "ai";
+import { generateObject } from "ai";
 import dayjs from "dayjs";
 import { Message, ThreadChannel } from "discord.js";
+import { z } from "zod";
 import { prisma } from "../../prisma";
 import { ConfigValidator } from "../config-validator";
 import { deleteUserMessages } from "../messages/delete-user-messages";
@@ -9,33 +10,29 @@ import { deleteUserMessages } from "../messages/delete-user-messages";
 export class SpamDetectionService {
   private static _spamDetectionWarningLogged = false;
 
-  private static readonly SYSTEM_PROMPT = `You are a spam detection AI for a coding/programming Discord server.
+  private static readonly SYSTEM_PROMPT = `You are a spam detector for a programming Discord server.
 
-This server is for programming discussions, learning, and community help - NOT for business promotion or job seeking.
+Analyze if the message is spam based on these criteria:
 
-SPAM INDICATORS (respond "yes"):
-- Listing professional services or skills for hire
-- "Available for work" or "open to work" messages  
-- Portfolio/website promotion in introduction
-- Offering paid services (automation, AI development, etc.)
-- "Contact me for projects" or similar business solicitation
-- First messages that read like service advertisements
-- Professional service descriptions with contact information
+SPAM INDICATORS:
+- Job seeking: "available for work", "open to opportunities", "looking for projects"
+- Service promotion: offering paid services, listing skills for hire
+- Portfolio spam: promoting personal website/portfolio in first message
+- Business solicitation: "contact me for", "DM for services"
+- Generic intro + services: "I'm a developer who does X, Y, Z [contact info]"
 
-LEGITIMATE CONTENT (respond "no"):
+LEGITIMATE CONTENT:
 - Asking programming questions
-- Sharing learning resources
-- Casual introductions without business promotion
-- Technical discussions
-- Offering free help or collaboration
+- Casual introduction without business promotion
+- Sharing code/resources
+- Technical discussion
+- Offering help (not services)
 
-The message you're analyzing contains multiple service offerings, portfolio promotion, and work solicitation - classic spam patterns.
+Provide your confidence level:
+- high: clearly spam or clearly legitimate
+- medium: some indicators present but ambiguous
+- low: uncertain, edge case`;
 
-Respond with only "yes" if spam, "no" if legitimate.`;
-
-  /**
-   * Check if this is user's first message in the server
-   */
   private static async isFirstMessage(
     memberId: string,
     guildId: string
@@ -46,12 +43,8 @@ Respond with only "yes" if spam, "no" if legitimate.`;
     return messageCount === 0;
   }
 
-  /**
-   * Get available user profile information
-   */
   private static async getUserProfile(message: Message) {
     try {
-      // Fetch full user profile to get additional properties
       const userProfile = await message.author.fetch();
 
       return {
@@ -75,9 +68,6 @@ Respond with only "yes" if spam, "no" if legitimate.`;
     }
   }
 
-  /**
-   * Main spam detection - only for first messages
-   */
   public static async detectSpam(message: Message): Promise<boolean> {
     if (!message.member || message.author.bot || !message.guildId) {
       return false;
@@ -99,7 +89,6 @@ Respond with only "yes" if spam, "no" if legitimate.`;
       return false;
     }
 
-    // Only check first messages
     const isFirst = await this.isFirstMessage(
       message.author.id,
       message.guildId
@@ -114,17 +103,14 @@ Respond with only "yes" if spam, "no" if legitimate.`;
       const accountAge = dayjs().diff(message.author.createdAt, "days");
       const channelName = "name" in channel ? channel.name : "Unknown Channel";
 
-      // Get available profile info
       const userProfile = await this.getUserProfile(message);
 
-      // Extract metadata checks
       const hasCustomAvatar =
         message.author.displayAvatarURL() !== message.author.defaultAvatarURL;
       const hasLinks = /https?:\/\//.test(message.content);
       const hasMentions =
         message.mentions.users.size > 0 || message.mentions.roles.size > 0;
 
-      // Check member-specific info
       const joinedAt = message.member.joinedAt;
       const memberAge = joinedAt ? dayjs().diff(joinedAt, "days") : null;
       const roles = message.member.roles.cache
@@ -148,28 +134,28 @@ Respond with only "yes" if spam, "no" if legitimate.`;
 
 Message: "${message.content}"`;
 
-      const { text } = await generateText({
+      const { object } = await generateObject({
         model: google("gemini-2.5-flash"),
         system: this.SYSTEM_PROMPT,
         prompt: context,
+        schema: z.object({
+          isSpam: z.boolean(),
+          confidence: z.enum(["high", "medium", "low"]),
+        }),
         temperature: 0.1,
-        maxOutputTokens: 200,
       });
 
       console.log(
-        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Response: ${text.trim()}`
+        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Spam: ${object.isSpam} - Confidence: ${object.confidence}`
       );
 
-      return text.trim().toLowerCase() === "yes";
+      return object.isSpam && object.confidence !== "low";
     } catch (error) {
       console.error("Spam detection error:", error);
       return false;
     }
   }
 
-  /**
-   * Handle detected spam
-   */
   public static async handleSpam(message: Message): Promise<void> {
     try {
       await deleteUserMessages({
