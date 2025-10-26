@@ -44,6 +44,9 @@ export class AiChat {
     )
       return;
 
+    // Start typing indicator immediately after validation
+    await message.channel.sendTyping();
+
     const userMsg = message.content
       .replace(mention, "")
       .replace(CODING_GLOBAL_PATTERN, "")
