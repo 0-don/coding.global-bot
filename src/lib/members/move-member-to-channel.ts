@@ -47,6 +47,24 @@ export const moveMemberToChannel = async (
 
   while (true) {
     guildMember = await member.guild.members.fetch(member.id);
+
+    // Check if user left voice channel
+    if (!guildMember.voice.channelId) {
+      await exit();
+
+      // Unlock channels with users after 1 minute
+      setTimeout(async () => {
+        for (const [id, channel] of voiceChannelsWithUsers) {
+          const voiceChannel = channel as VoiceChannel;
+          try {
+            await voiceChannel.permissionOverwrites.delete(member.id);
+          } catch (_) {}
+        }
+      }, 60000); // 1 minute
+
+      break;
+    }
+
     const randomChannel = voiceChannels.random() as VoiceChannel;
     await randomChannel?.fetch();
 
@@ -80,9 +98,11 @@ export const moveMemberToChannel = async (
       where: { id: guildMemberDb?.id },
       data: { moving: false },
     });
+
+    // Only unlock empty channels immediately
     setTimeout(
       async () => {
-        for (const [id, channel] of allVoiceChannels) {
+        for (const [id, channel] of voiceChannelsWithoutUsers) {
           const voiceChannel = channel as VoiceChannel;
           try {
             await voiceChannel.permissionOverwrites.delete(member.id);
