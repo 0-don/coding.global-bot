@@ -146,7 +146,7 @@ export class MembersService {
       // send embed event to voice channel
       (joinEventsChannel as TextChannel).send({
         embeds: [joinEmbed],
-        allowedMentions: { users: [] },
+        allowedMentions: { users: [], roles: [] },
       });
     } catch (_) {}
   }

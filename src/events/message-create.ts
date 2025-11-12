@@ -25,8 +25,6 @@ export class MessageCreate {
     // remove regular messages in verify channel
     // MessagesService.cleanUpVerifyChannel(message);
 
-
-
     const isSpam = await SpamDetectionService.detectSpam(message);
     if (isSpam) {
       await SpamDetectionService.handleSpam(message);
@@ -82,7 +80,7 @@ export class MessageCreate {
 
             await channel.send({
               embeds: [embed],
-              allowedMentions: { users: [] },
+              allowedMentions: { users: [], roles: [] },
             });
           }
         } catch (_) {}
@@ -292,7 +290,7 @@ export class MessageCreate {
         content: await translate(
           Buffer.from(replyMsg.content, "utf-8").toString()
         ),
-        allowedMentions: { users: [] },
+        allowedMentions: { users: [], roles: [] },
       });
     }
   }

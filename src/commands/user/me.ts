@@ -37,7 +37,7 @@ export class Me {
     // return embed with chart img
     return await interaction.editReply({
       embeds: [userStats!.embed],
-      allowedMentions: { users: [] },
+      allowedMentions: { users: [], roles: [] },
     });
   }
 }

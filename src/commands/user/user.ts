@@ -53,7 +53,7 @@ export class UserCommand {
     // return embed
     return await interaction.editReply({
       embeds: [userStats!.embed],
-      allowedMentions: { users: [] },
+      allowedMentions: { users: [], roles: [] },
     });
   }
 }

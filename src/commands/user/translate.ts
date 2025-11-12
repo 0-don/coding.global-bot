@@ -33,7 +33,7 @@ export class Translate {
       return await interaction.editReply({
         content:
           "Translation feature is not configured. Please contact an administrator.",
-        allowedMentions: { users: [] },
+        allowedMentions: { users: [], roles: [] },
       });
     }
 
@@ -45,7 +45,7 @@ export class Translate {
     // Send success message
     return await interaction.editReply({
       content: translatedText,
-      allowedMentions: { users: [] },
+      allowedMentions: { users: [], roles: [] },
     });
   }
 }

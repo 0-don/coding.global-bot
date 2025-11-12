@@ -76,7 +76,7 @@ export class Top {
     // return embed with chart img
     return await interaction.editReply({
       embeds: [embed],
-      allowedMentions: { users: [] },
+      allowedMentions: { users: [], roles: [] },
     });
   }
 }
