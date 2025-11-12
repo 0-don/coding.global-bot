@@ -6,6 +6,7 @@ import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { ConfigValidator } from "../../lib/config-validator";
 import { StatsService } from "../../lib/stats/stats.service";
+import { prisma } from "../../prisma"; 
 import { AI_SYSTEM_PROMPT } from "./prompt";
 import {
   channelMessages,
@@ -26,7 +27,18 @@ export class AiChat {
   async messageCreate(
     [message]: ArgsOf<"messageCreate">,
     client: Client
-  ): Promise<void> {
+  ): Promise<void> { 
+    const isBlacklisted = await prisma.backList.findFirst({
+      where: {
+        userID: message.author.id,
+      },
+    });
+
+    if (isBlacklisted) {
+      // Si está en la blacklist, ignorar el mensaje y salir
+      return;
+    }
+
     if (
       message.author.bot ||
       !ConfigValidator.isFeatureEnabled("GOOGLE_GENERATIVE_AI_API_KEY")

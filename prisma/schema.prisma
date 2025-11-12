@@ -10,6 +10,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+model backList {
+  userID String @id @unique
+  AddedBy String
+  AddedAt String
+}
+
 model Guild {
   guildId   String @id @unique
   guildName String

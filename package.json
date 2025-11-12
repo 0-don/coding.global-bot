@@ -24,7 +24,7 @@
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.18",
     "deepl-node": "1.20.0",
-    "discord.js": "14.24.0",
+    "discord.js": "^14.24.0",
     "discordx": "^11.13.2",
     "elysia": "^1.4.13"
   },
