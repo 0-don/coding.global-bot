@@ -3,10 +3,10 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { TextChannel, VoiceState } from "discord.js";
 import { prisma } from "../../prisma";
+import { ConfigValidator } from "../config-validator";
 import { VOICE_EVENT_CHANNELS } from "../constants";
 import { simpleEmbedExample } from "../embeds";
 import { getDaysArray } from "../helpers";
-import { ConfigValidator } from "../config-validator";
 
 dayjs.extend(utc);
 
@@ -87,7 +87,7 @@ export class VoiceService {
       // send embed event to voice channel
       (voiceEventsChannel as TextChannel).send({
         embeds: [voiceEmbed],
-        allowedMentions: { users: [] },
+        allowedMentions: { users: [], roles: [] },
       });
     } catch (_) {}
   }

@@ -38,7 +38,7 @@ export class LogCommandHistory {
 
     return await interaction.editReply({
       embeds: [embed],
-      allowedMentions: { users: [] },
+      allowedMentions: { users: [], roles: [] },
     });
   }
 }

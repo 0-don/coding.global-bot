@@ -130,6 +130,7 @@ export class AiChat {
           files: gifUrl
             ? [{ attachment: gifUrl, name: "reaction.gif" }]
             : undefined,
+          allowedMentions: { users: [], roles: [] },
         });
 
         // Success - exit retry loop

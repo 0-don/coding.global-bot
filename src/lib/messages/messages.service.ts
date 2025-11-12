@@ -5,8 +5,8 @@ import {
   TextChannel,
 } from "discord.js";
 import { prisma } from "../../prisma";
-import { JAIL, LEVEL_LIST, LEVEL_MESSAGES, VOICE_ONLY } from "../constants";
 import { ConfigValidator } from "../config-validator";
+import { JAIL, LEVEL_LIST, LEVEL_MESSAGES, VOICE_ONLY } from "../constants";
 
 export class MessagesService {
   private static _levelSystemWarningLogged = false;
@@ -166,7 +166,7 @@ export class MessagesService {
 
           await (message.channel as TextChannel).send({
             content: randomMessage,
-            allowedMentions: { users: [] },
+            allowedMentions: { users: [], roles: [] },
           });
         }
       }
