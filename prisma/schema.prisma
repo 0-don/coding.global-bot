@@ -14,7 +14,6 @@ datasource db {
 model backList {
   userID String @id @unique
   AddedBy String
-  AddedAt String
 }
 
 model Guild {

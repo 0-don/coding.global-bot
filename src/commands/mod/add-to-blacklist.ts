@@ -44,8 +44,8 @@ export class AddToBlacklist {
     await prisma.backList.create({
       data: {
         userID: userId,
-        // AddedBy: interaction.user.id, 
-        // AddedAt: new Date(),           
+       AddedBy: interaction.user.id,
+        AddedAt: ''
       },
     });
 
