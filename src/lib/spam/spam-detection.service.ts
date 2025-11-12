@@ -1,10 +1,10 @@
-import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import dayjs from "dayjs";
 import { Message, ThreadChannel } from "discord.js";
 import { z } from "zod";
 import { prisma } from "../../prisma";
 import { ConfigValidator } from "../config-validator";
+import { googleClient } from "../google-client";
 import { deleteUserMessages } from "../messages/delete-user-messages";
 
 export class SpamDetectionService {
@@ -134,15 +134,17 @@ Provide your confidence level:
 
 Message: "${message.content}"`;
 
-      const { object } = await generateObject({
-        model: google("gemini-2.5-flash"),
-        system: this.SYSTEM_PROMPT,
-        prompt: context,
-        schema: z.object({
-          isSpam: z.boolean(),
-          confidence: z.enum(["high", "medium", "low"]),
-        }),
-        temperature: 0.1,
+      const { object } = await googleClient.executeWithRotation(async () => {
+        return await generateObject({
+          model: googleClient.getModel(),
+          system: this.SYSTEM_PROMPT,
+          prompt: context,
+          schema: z.object({
+            isSpam: z.boolean(),
+            confidence: z.enum(["high", "medium", "low"]),
+          }),
+          temperature: 0.1,
+        });
       });
 
       console.log(

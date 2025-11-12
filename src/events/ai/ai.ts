@@ -1,4 +1,3 @@
-import { google } from "@ai-sdk/google";
 import { generateText, ModelMessage, StepResult } from "ai";
 import console, { error } from "console";
 import { Message, OmitPartialGroupDMChannel, ThreadChannel } from "discord.js";
@@ -16,6 +15,7 @@ import {
   MAX_MESSAGES_PER_CHANNEL,
   TOOLS,
 } from "./utils";
+import { googleClient } from "../../lib/google-client";
 
 @Discord()
 export class AiChat {
@@ -108,13 +108,16 @@ export class AiChat {
         // Add user message to history
         messages.push(userMessage);
 
-        const { text, steps } = await generateText({
-          model: google("gemini-2.5-flash"),
-          system: AI_SYSTEM_PROMPT,
-          messages: [...messages],
-          tools: TOOLS,
-        });
-
+        const { text, steps } = await googleClient.executeWithRotation(
+          async () => {
+            return await generateText({
+              model: googleClient.getModel(),
+              system: AI_SYSTEM_PROMPT,
+              messages: [...messages],
+              tools: TOOLS,
+            });
+          }
+        );
         messages.push({ role: "assistant", content: text?.trim() });
 
         // Trim history if too long
