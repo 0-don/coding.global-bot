@@ -1,4 +1,12 @@
 -- CreateTable
+CREATE TABLE "backList" (
+    "userID" TEXT NOT NULL,
+    "AddedBy" TEXT NOT NULL,
+
+    CONSTRAINT "backList_pkey" PRIMARY KEY ("userID")
+);
+
+-- CreateTable
 CREATE TABLE "Guild" (
     "guildId" TEXT NOT NULL,
     "guildName" TEXT NOT NULL,
@@ -77,6 +85,7 @@ CREATE TABLE "MemberRole" (
     "roleId" TEXT NOT NULL,
     "guildId" TEXT NOT NULL,
     "memberId" TEXT NOT NULL,
+    "name" TEXT,
 
     CONSTRAINT "MemberRole_pkey" PRIMARY KEY ("id")
 );
@@ -86,6 +95,7 @@ CREATE TABLE "MemberCommandHistory" (
     "id" SERIAL NOT NULL,
     "memberId" TEXT NOT NULL,
     "guildId" TEXT NOT NULL,
+    "channelId" TEXT NOT NULL,
     "command" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -105,6 +115,9 @@ CREATE TABLE "MemberDeletedMessages" (
 
     CONSTRAINT "MemberDeletedMessages_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "backList_userID_key" ON "backList"("userID");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Guild_guildId_key" ON "Guild"("guildId");
