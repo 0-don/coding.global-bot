@@ -29,63 +29,49 @@ class GoogleClientRotator {
     }
   }
 
-  private isKeyError(error: unknown): boolean {
-    // Handle different error types
-    const errorString = String(error);
+  private shouldRotateOnError(error: unknown): boolean {
+    const message = error instanceof Error ? error.message : String(error);
 
-    // Check error message
-    if (error && typeof error === "object" && "message" in error) {
-      const message = String(error.message);
-      if (
-        message.includes("API key expired") ||
-        message.includes("API_KEY_INVALID")
-      ) {
-        return true;
-      }
-    }
-
-    // Check responseBody for AI SDK errors
-    if (error && typeof error === "object" && "responseBody" in error) {
-      const responseBody = String(error.responseBody);
-      if (
-        responseBody.includes("API key expired") ||
-        responseBody.includes("API_KEY_INVALID")
-      ) {
-        return true;
-      }
-    }
-
-    // Fallback
     return (
-      errorString.includes("API key expired") ||
-      errorString.includes("API_KEY_INVALID")
+      message.includes("429") ||
+      message.includes("quota") ||
+      message.includes("API key") ||
+      message.includes("API_KEY_INVALID") ||
+      message.includes("RESOURCE_EXHAUSTED")
     );
   }
 
   async executeWithRotation<T>(
     operation: () => Promise<T>,
-    maxRetries = 3
+    maxRetries?: number
   ): Promise<T> {
+    const retries = maxRetries || this.providers.length;
     let lastError: unknown;
 
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
+    for (let attempt = 0; attempt < retries; attempt++) {
       try {
         return await operation();
       } catch (error) {
         lastError = error;
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(
+          `AI error (attempt ${attempt + 1}/${retries}): ${message}`
+        );
 
-        if (this.isKeyError(error) && attempt < maxRetries - 1) {
+        if (this.shouldRotateOnError(error) && attempt < retries - 1) {
           this.rotate();
-        }
-
-        if (attempt < maxRetries - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        } else if (attempt < retries - 1) {
           await new Promise((resolve) =>
-            setTimeout(resolve, 1000 * (attempt + 1))
+            setTimeout(resolve, Math.pow(2, attempt) * 1000)
           );
         }
       }
     }
 
+    const finalMessage =
+      lastError instanceof Error ? lastError.message : String(lastError);
+    console.error(`All AI attempts failed. Last error: ${finalMessage}`);
     throw lastError;
   }
 }
