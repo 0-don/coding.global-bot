@@ -1,9 +1,11 @@
+// src/events/ai/ai.ts
 import { generateText, ModelMessage, StepResult } from "ai";
 import console, { error } from "console";
 import { Message, OmitPartialGroupDMChannel, ThreadChannel } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { ConfigValidator } from "../../lib/config-validator";
+import { googleClient } from "../../lib/google-client";
 import { StatsService } from "../../lib/stats/stats.service";
 import { AI_SYSTEM_PROMPT } from "./prompt";
 import {
@@ -15,7 +17,6 @@ import {
   MAX_MESSAGES_PER_CHANNEL,
   TOOLS,
 } from "./utils";
-import { googleClient } from "../../lib/google-client";
 
 @Discord()
 export class AiChat {
@@ -128,6 +129,8 @@ export class AiChat {
         channelMessages.set(message.channel.id, messages);
 
         const gifUrl = this.extractGifFromSteps(steps);
+
+        // Fixed reply - don't use message_reference if it might be deleted
         await message.reply({
           content: text?.trim(),
           files: gifUrl
@@ -140,6 +143,41 @@ export class AiChat {
         return;
       } catch (err) {
         lastError = err as Error;
+        const errorMessage = lastError.message;
+
+        // Check for Discord API errors related to message references
+        if (
+          errorMessage.includes("MESSAGE_REFERENCE_UNKNOWN_MESSAGE") ||
+          errorMessage.includes("Unknown message")
+        ) {
+          // Try sending without reply
+          try {
+            const { text, steps } = await googleClient.executeWithRotation(
+              async () => {
+                return await generateText({
+                  model: googleClient.getModel(),
+                  system: AI_SYSTEM_PROMPT,
+                  messages: [...messages],
+                  tools: TOOLS,
+                });
+              }
+            );
+
+            const gifUrl = this.extractGifFromSteps(steps);
+
+            await message.channel.send({
+              content: text?.trim(),
+              files: gifUrl
+                ? [{ attachment: gifUrl, name: "reaction.gif" }]
+                : undefined,
+              allowedMentions: { users: [], roles: [] },
+            });
+            return;
+          } catch (fallbackErr) {
+            error(`Fallback send failed:`, fallbackErr);
+          }
+        }
+
         error(`AI error (attempt ${attempt + 1}/${AiChat.MAX_RETRIES}):`, err);
 
         // Don't wait after the last attempt
@@ -156,9 +194,13 @@ export class AiChat {
       `All ${AiChat.MAX_RETRIES} AI attempts failed. Last error:`,
       lastError
     );
-    await message.reply(
-      "Something went wrong while thinking. Try again later!"
-    );
+    try {
+      await message.channel.send(
+        "Something went wrong while thinking. Try again later!"
+      );
+    } catch (sendErr) {
+      error("Failed to send error message:", sendErr);
+    }
   }
 
   private async getUserContext(
