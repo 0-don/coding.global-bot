@@ -1,4 +1,3 @@
-// src/events/ai/ai.ts
 import { generateText, ModelMessage, StepResult } from "ai";
 import console, { error } from "console";
 import { Message, OmitPartialGroupDMChannel, ThreadChannel } from "discord.js";
