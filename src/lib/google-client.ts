@@ -37,7 +37,10 @@ class GoogleClientRotator {
       message.includes("quota") ||
       message.includes("API key") ||
       message.includes("API_KEY_INVALID") ||
-      message.includes("RESOURCE_EXHAUSTED")
+      message.includes("RESOURCE_EXHAUSTED") ||
+      message.includes("overloaded") || // Add this line
+      message.includes("The model is overloaded") || // Add this line
+      message.includes("Please try again later") // Add this line
     );
   }
 
