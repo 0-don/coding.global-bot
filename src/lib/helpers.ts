@@ -53,7 +53,7 @@ export const translate = async (text: string) => {
 
   const length = text.split(" ").length;
   if (length < 4) {
-    return "Please add more words";
+    return "Please add 5 or more words to translate.";
   }
   const translated = await TRANSLATOR?.translateText(text, null, "en-GB");
   return translated?.text;
