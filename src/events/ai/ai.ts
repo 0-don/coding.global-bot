@@ -97,6 +97,7 @@ export class AiChat {
             system: AI_SYSTEM_PROMPT,
             messages: [...messages],
             tools: TOOLS,
+            maxOutputTokens: 500,
           });
         }
       );
