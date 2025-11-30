@@ -139,7 +139,22 @@ export async function makeImageParts(message: Message): Promise<string[]> {
         console.log(`Skipping GIF attachment: ${attachment.url}`);
         continue;
       }
-      images.push(attachment.url);
+
+      // Check if file is accessible before adding to images array
+      try {
+        const response = await fetch(attachment.url, { method: "HEAD" });
+        if (response.ok) {
+          images.push(attachment.url);
+        } else {
+          console.log(
+            `Skipping inaccessible attachment: ${attachment.url} (${response.status})`
+          );
+        }
+      } catch (error) {
+        console.log(
+          `Skipping attachment due to network error: ${attachment.url}`
+        );
+      }
     }
   }
 
@@ -150,7 +165,18 @@ export async function makeImageParts(message: Message): Promise<string[]> {
         sticker.format === StickerFormatType.PNG ||
         sticker.format === StickerFormatType.APNG
       ) {
-        images.push(sticker.url);
+        try {
+          const response = await fetch(sticker.url, { method: "HEAD" });
+          if (response.ok) {
+            images.push(sticker.url);
+          } else {
+            console.log(
+              `Skipping inaccessible sticker: ${sticker.url} (${response.status})`
+            );
+          }
+        } catch (error) {
+          console.log(`Skipping sticker due to network error: ${sticker.url}`);
+        }
       } else {
         console.log(`Skipping GIF sticker: ${sticker.url}`);
       }
