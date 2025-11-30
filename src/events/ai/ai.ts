@@ -102,7 +102,15 @@ export class AiChat {
         }
       );
 
-      messages.push({ role: "assistant", content: text?.trim() });
+      // Fix: Check if text is empty or only whitespace
+      const responseText = text?.trim();
+      if (!responseText) {
+        console.warn("AI generated empty response, using fallback");
+        await message.reply("sorry, something went wrong with my response...");
+        return;
+      }
+
+      messages.push({ role: "assistant", content: responseText });
 
       if (messages.length > MAX_MESSAGES_PER_CHANNEL) {
         messages.splice(0, messages.length - MAX_MESSAGES_PER_CHANNEL);
@@ -112,7 +120,7 @@ export class AiChat {
 
       const gifUrl = this.extractGifFromSteps(steps);
       await message.reply({
-        content: text?.trim(),
+        content: responseText,
         files: gifUrl
           ? [{ attachment: gifUrl, name: "reaction.gif" }]
           : undefined,
