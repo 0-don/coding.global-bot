@@ -136,31 +136,24 @@ export async function makeImageParts(message: Message): Promise<string[]> {
     if (attachment.contentType?.startsWith("image/")) {
       // Filter out GIFs - Google Gemini doesn't support them
       if (attachment.contentType === "image/gif") {
-        console.log(`Skipping GIF attachment: ${attachment.url}`);
         continue;
       }
 
-      // Check if file is accessible before adding to images array
+      // Check if file is accessible - if not, don't add it at all
       try {
         const response = await fetch(attachment.url, { method: "HEAD" });
         if (response.ok) {
           images.push(attachment.url);
-        } else {
-          console.log(
-            `Skipping inaccessible attachment: ${attachment.url} (${response.status})`
-          );
         }
+        // If response is not ok (404, etc.), we simply don't add it - no logging needed
       } catch (error) {
-        console.log(
-          `Skipping attachment due to network error: ${attachment.url}`
-        );
+        // If fetch fails, we simply don't add it - no logging needed
       }
     }
   }
 
   for (const sticker of message.stickers.values()) {
     if (sticker.format !== StickerFormatType.Lottie) {
-      // Only include non-GIF stickers (PNG/APNG format stickers)
       if (
         sticker.format === StickerFormatType.PNG ||
         sticker.format === StickerFormatType.APNG
@@ -169,16 +162,11 @@ export async function makeImageParts(message: Message): Promise<string[]> {
           const response = await fetch(sticker.url, { method: "HEAD" });
           if (response.ok) {
             images.push(sticker.url);
-          } else {
-            console.log(
-              `Skipping inaccessible sticker: ${sticker.url} (${response.status})`
-            );
           }
+          // If response is not ok, we simply don't add it
         } catch (error) {
-          console.log(`Skipping sticker due to network error: ${sticker.url}`);
+          // If fetch fails, we simply don't add it
         }
-      } else {
-        console.log(`Skipping GIF sticker: ${sticker.url}`);
       }
     }
   }
