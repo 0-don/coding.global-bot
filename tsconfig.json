@@ -6,6 +6,8 @@
     "outDir": "dist",
     "rootDir": "src",
 
+    "declaration": true,
+
     "strict": true,
     "allowSyntheticDefaultImports": true,
 
