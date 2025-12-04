@@ -31,11 +31,6 @@ export const app = new Elysia({ adapter: node() })
       request.headers.get("x-forwarded-for") ||
       "Unknown IP",
   }))
-  // .onAfterHandle(({ startTime, clientIP, request }) =>
-  //   log(
-  //     `[${new Date().toLocaleString("de")}] ${request.method} ${request.url} - Client IP: ${clientIP} - Duration: ${Date.now() - startTime}ms`
-  //   )
-  // )
   .derive(({ path }) => {
     const matches = path.match(/\/api\/(\d{17,19})/);
     const guildId = matches ? matches[1] : null;
@@ -113,8 +108,9 @@ export const app = new Elysia({ adapter: node() })
             size: 512,
             extension: "webp",
           }),
-          bannerUrl: member.user.bannerURL({ size: 512, extension: "webp" })!,
-          displayHexColor: member.displayHexColor || null,
+          bannerUrl:
+            member.user.bannerURL({ size: 512, extension: "webp" }) || "",
+          displayHexColor: member.displayHexColor,
           memberRoles: roles.map((role) => role.name || ""),
         });
       }
@@ -172,14 +168,15 @@ export const app = new Elysia({ adapter: node() })
           size: 512,
           extension: "webp",
         }),
-        bannerUrl: message.author.bannerURL({
-          size: 512,
-          extension: "webp",
-        })!,
+        bannerUrl:
+          message.author.bannerURL({
+            size: 512,
+            extension: "webp",
+          }) || "",
         memberRoles: memberRoles
           .filter((role) => role.memberId === message.author?.id)
           .map((role) => role.name || ""),
-        displayHexColor: message.member?.displayHexColor!,
+        displayHexColor: message.member?.displayHexColor || "#000000",
       },
     }));
 
