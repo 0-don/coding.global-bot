@@ -14,7 +14,7 @@ const locks: Record<string, boolean> = {};
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
 new Elysia({ adapter: node() as ElysiaAdapter })
-  .use(openapi({ references: fromTypes() }))
+  .use(openapi({ references: fromTypes("src/elysia.ts") }))
   .use(cors())
   .derive(({ request }) => ({
     startTime: Date.now(),
