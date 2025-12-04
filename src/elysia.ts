@@ -3,7 +3,7 @@ import { node } from "@elysiajs/node";
 import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
-import { Elysia, ElysiaAdapter, status } from "elysia";
+import { Elysia, status } from "elysia";
 import { verifyAllUsers } from "./lib/members/verify-all-users";
 import { bot } from "./main";
 import { prisma } from "./prisma";
@@ -13,8 +13,16 @@ const locks: Record<string, boolean> = {};
 
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
-new Elysia({ adapter: node() as ElysiaAdapter })
-  .use(openapi({ references: fromTypes("src/elysia.ts") }))
+new Elysia({ adapter: node() })
+  .use(
+    openapi({
+      references: fromTypes(
+        process.env.NODE_ENV === "production"
+          ? "dist/elysia.d.ts"
+          : "src/elysia.ts",
+      ),
+    }),
+  )
   .use(cors())
   .derive(({ request }) => ({
     startTime: Date.now(),
