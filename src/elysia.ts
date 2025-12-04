@@ -108,9 +108,8 @@ export const app = new Elysia({ adapter: node() })
             size: 512,
             extension: "webp",
           }),
-          bannerUrl:
-            member.user.bannerURL({ size: 512, extension: "webp" }) || "",
-          displayHexColor: member.displayHexColor,
+          bannerUrl: member.user.bannerURL({ size: 512, extension: "webp" })!,
+          displayHexColor: (member.displayHexColor || "#000000") as string,
           memberRoles: roles.map((role) => role.name || ""),
         });
       }
@@ -168,15 +167,15 @@ export const app = new Elysia({ adapter: node() })
           size: 512,
           extension: "webp",
         }),
-        bannerUrl:
-          message.author.bannerURL({
-            size: 512,
-            extension: "webp",
-          }) || "",
+        bannerUrl: message.author.bannerURL({
+          size: 512,
+          extension: "webp",
+        })!,
         memberRoles: memberRoles
           .filter((role) => role.memberId === message.author?.id)
           .map((role) => role.name || ""),
-        displayHexColor: message.member?.displayHexColor || "#000000",
+        displayHexColor: (message.member?.displayHexColor ||
+          "#000000") as string,
       },
     }));
 
