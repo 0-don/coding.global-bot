@@ -1,38 +1,12 @@
 import { cors } from "@elysiajs/cors";
 import { node } from "@elysiajs/node";
-import { swagger } from "@elysiajs/swagger";
+import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
-import { Elysia, ElysiaAdapter, status, t } from "elysia";
+import { Elysia, ElysiaAdapter, status } from "elysia";
 import { verifyAllUsers } from "./lib/members/verify-all-users";
 import { bot } from "./main";
 import { prisma } from "./prisma";
-
-const UserSchema = t.Object({
-  id: t.String(),
-  username: t.String(),
-  globalName: t.String({ nullable: true }),
-  joinedAt: t.String(),
-  displayAvatarURL: t.String(),
-  bannerUrl: t.String({ nullable: true }),
-  displayHexColor: t.Optional(t.String()),
-  memberRoles: t.Array(t.String()),
-});
-
-const NewsAttachmentSchema = t.Object({
-  url: t.String(),
-  width: t.Number({ nullable: true }),
-  height: t.Number({ nullable: true }),
-  contentType: t.String({ nullable: true }),
-});
-
-const NewsSchema = t.Object({
-  id: t.String(),
-  content: t.String(),
-  createdAt: t.String(),
-  attachments: t.Array(NewsAttachmentSchema),
-  user: UserSchema,
-});
 
 const cache: Record<string, { timestamp: number; data: unknown }> = {};
 const locks: Record<string, boolean> = {};
@@ -40,7 +14,7 @@ const locks: Record<string, boolean> = {};
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
 new Elysia({ adapter: node() as ElysiaAdapter })
-  .use(swagger())
+  .use(openapi({ references: fromTypes() }))
   .use(cors())
   .derive(({ request }) => ({
     startTime: Date.now(),
@@ -109,7 +83,7 @@ new Elysia({ adapter: node() as ElysiaAdapter })
         (member) =>
           (member.permissions.has(PermissionsBitField.Flags.MuteMembers) ||
             member.permissions.has(PermissionsBitField.Flags.ChangeNickname)) &&
-          !member.user.bot
+          !member.user.bot,
       )
       .sort((a, b) => a.joinedAt!.getTime() - b.joinedAt!.getTime());
 
@@ -118,7 +92,7 @@ new Elysia({ adapter: node() as ElysiaAdapter })
       select: { memberId: true, name: true },
     });
 
-    const users: (typeof UserSchema.static)[] = [];
+    const users = [];
     for (const [_, member] of staffMembers) {
       const roles = memberRoles.filter((role) => role.memberId === member?.id);
       if (roles.length) {
@@ -144,7 +118,7 @@ new Elysia({ adapter: node() as ElysiaAdapter })
     if (!guild) throw status(404, "Guild not found");
 
     const newsChannel = guild.channels.cache.find((channel) =>
-      channel.name.toLowerCase().includes("news")
+      channel.name.toLowerCase().includes("news"),
     );
 
     if (!newsChannel) throw status(404, "News channel not found");
@@ -169,7 +143,7 @@ new Elysia({ adapter: node() as ElysiaAdapter })
       select: { memberId: true, name: true },
     });
 
-    const news: (typeof NewsSchema.static)[] = messages.map((message) => ({
+    const news = messages.map((message) => ({
       id: message?.id,
       content: message.content,
       createdAt: message.createdAt.toISOString(),
