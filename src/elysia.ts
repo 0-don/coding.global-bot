@@ -212,6 +212,64 @@ export const app = new Elysia({ adapter: node() })
       }),
     },
   )
+  .get(
+    "/api/:guildId/widget",
+    async ({ guild }) => {
+      if (!guild) throw status(404, "Guild not found");
+
+      // Fetch all members to get accurate counts
+      await guild.members.fetch();
+
+      // Count online members (status is not idle, dnd, or offline)
+      const onlineMembers = guild.members.cache.filter(
+        (member) =>
+          member.presence?.status === "online" ||
+          member.presence?.status === "idle" ||
+          member.presence?.status === "dnd",
+      );
+
+      // Get member list with details (limit to 50 like Discord's widget)
+      const members = onlineMembers
+        .filter((member) => !member.user.bot)
+        .first(50)
+        .map((member) => ({
+          id: member.id,
+          username: member.user.username,
+          discriminator: member.user.discriminator,
+          avatar: member.user.displayAvatarURL({ extension: "webp", size: 128 }),
+          status: member.presence?.status || "offline",
+          activity:
+            member.presence?.activities[0]?.name || null,
+        }));
+
+      return {
+        id: guild.id,
+        name: guild.name,
+        instantInvite: null, // You can add invite link logic here if needed
+        channels: guild.channels.cache
+          .filter(
+            (channel) =>
+              channel.type === ChannelType.GuildVoice ||
+              channel.type === ChannelType.GuildStageVoice,
+          )
+          .map((channel) => ({
+            id: channel.id,
+            name: channel.name,
+            position: channel.position,
+          })),
+        members,
+        presenceCount: onlineMembers.size,
+        memberCount: guild.memberCount,
+        icon: guild.iconURL({ extension: "webp", size: 256 }),
+        banner: guild.bannerURL({ extension: "webp", size: 1024 }),
+      };
+    },
+    {
+      params: t.Object({
+        guildId: t.String(),
+      }),
+    },
+  )
   .listen(3000);
 
 log("Server started on port 3000");
