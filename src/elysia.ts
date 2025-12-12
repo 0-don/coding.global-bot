@@ -185,10 +185,9 @@ export const app = new Elysia({ adapter: node() })
     async ({ guild }) => {
       if (!guild) throw status("Not Found", "Guild not found");
 
-      // Fetch all members to get accurate counts
       await guild.members.fetch();
 
-      // Count online members (status is not idle, dnd, or offline)
+      // Count online members only
       const onlineMembers = guild.members.cache.filter(
         (member) =>
           member.presence?.status === "online" ||
@@ -196,7 +195,6 @@ export const app = new Elysia({ adapter: node() })
           member.presence?.status === "dnd",
       );
 
-      // Get member list with details (limit to 50 like Discord's widget)
       const members = onlineMembers
         .filter((member) => !member.user.bot)
         .first(50)
@@ -208,7 +206,7 @@ export const app = new Elysia({ adapter: node() })
             extension: "webp",
             size: 128,
           }),
-          status: member.presence?.status || "offline",
+          status: String(member.presence?.status || "offline"),
           activity: member.presence?.activities[0]?.name || null,
         }));
 
