@@ -45,9 +45,9 @@ export const app = new Elysia({ adapter: node() })
   .get(
     "/api/:guildId/verify-all-users",
     ({ guild }) => {
-      if (!guild) throw status(404, "Guild not found");
+      if (!guild) throw status("Not Found", "Guild not found");
       if (locks[guild.id])
-        throw status(409, "Verification is already in progress");
+        throw status("Conflict", "Verification is already in progress");
 
       try {
         locks[guild.id] = true;
@@ -55,7 +55,10 @@ export const app = new Elysia({ adapter: node() })
         return "Verification started";
       } catch (err) {
         console.error(err);
-        throw status(500, "An error occurred while verifying users");
+        throw status(
+          "Internal Server Error",
+          "An error occurred while verifying users",
+        );
       }
     },
     {
@@ -89,7 +92,7 @@ export const app = new Elysia({ adapter: node() })
   .get(
     "/api/:guildId/staff",
     async ({ guild }) => {
-      if (!guild) throw status(404, "Guild not found");
+      if (!guild) throw status("Not Found", "Guild not found");
 
       const staffMembers = (await guild.members.fetch())
         .filter(
@@ -140,20 +143,20 @@ export const app = new Elysia({ adapter: node() })
   .get(
     "/api/:guildId/news",
     async ({ guild }) => {
-      if (!guild) throw status(404, "Guild not found");
+      if (!guild) throw status("Not Found", "Guild not found");
 
       const newsChannel = guild.channels.cache.find((channel) =>
         channel.name.toLowerCase().includes("news"),
       );
 
-      if (!newsChannel) throw status(404, "News channel not found");
+      if (!newsChannel) throw status("Not Found", "News channel not found");
 
       if (
         newsChannel.type !== ChannelType.GuildText &&
         newsChannel.type !== ChannelType.GuildAnnouncement
       ) {
         throw status(
-          400,
+          "Bad Request",
           "News channel must be a text or announcement channel",
         );
       }
@@ -207,15 +210,13 @@ export const app = new Elysia({ adapter: node() })
       return news;
     },
     {
-      params: t.Object({
-        guildId: t.String(),
-      }),
+      params: t.Object({ guildId: t.String() }),
     },
   )
   .get(
     "/api/:guildId/widget",
     async ({ guild }) => {
-      if (!guild) throw status(404, "Guild not found");
+      if (!guild) throw status("Not Found", "Guild not found");
 
       // Fetch all members to get accurate counts
       await guild.members.fetch();
@@ -236,10 +237,12 @@ export const app = new Elysia({ adapter: node() })
           id: member.id,
           username: member.user.username,
           discriminator: member.user.discriminator,
-          avatar: member.user.displayAvatarURL({ extension: "webp", size: 128 }),
+          avatar: member.user.displayAvatarURL({
+            extension: "webp",
+            size: 128,
+          }),
           status: member.presence?.status || "offline",
-          activity:
-            member.presence?.activities[0]?.name || null,
+          activity: member.presence?.activities[0]?.name || null,
         }));
 
       return {
