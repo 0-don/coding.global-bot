@@ -4,12 +4,10 @@ import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
-import { verifyAllUsers } from "./lib/members/verify-all-users";
 import { bot } from "./main";
 import { prisma } from "./prisma";
 
 const cache: Record<string, { timestamp: number; data: unknown }> = {};
-const locks: Record<string, boolean> = {};
 
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
@@ -42,31 +40,6 @@ export const app = new Elysia({ adapter: node() })
 
     return { guild };
   })
-  .get(
-    "/api/:guildId/verify-all-users",
-    ({ guild }) => {
-      if (!guild) throw status("Not Found", "Guild not found");
-      if (locks[guild.id])
-        throw status("Conflict", "Verification is already in progress");
-
-      try {
-        locks[guild.id] = true;
-        verifyAllUsers(guild).finally(() => (locks[guild.id] = false));
-        return "Verification started";
-      } catch (err) {
-        console.error(err);
-        throw status(
-          "Internal Server Error",
-          "An error occurred while verifying users",
-        );
-      }
-    },
-    {
-      params: t.Object({
-        guildId: t.String(),
-      }),
-    },
-  )
   .derive(({ request, path }) => {
     if (request.method !== "GET") return { cacheKey: null };
     return { cacheKey: path };
@@ -134,11 +107,7 @@ export const app = new Elysia({ adapter: node() })
 
       return users;
     },
-    {
-      params: t.Object({
-        guildId: t.String(),
-      }),
-    },
+    { params: t.Object({ guildId: t.String() }) },
   )
   .get(
     "/api/:guildId/news",
@@ -209,9 +178,7 @@ export const app = new Elysia({ adapter: node() })
 
       return news;
     },
-    {
-      params: t.Object({ guildId: t.String() }),
-    },
+    { params: t.Object({ guildId: t.String() }) },
   )
   .get(
     "/api/:guildId/widget",
@@ -245,10 +212,9 @@ export const app = new Elysia({ adapter: node() })
           activity: member.presence?.activities[0]?.name || null,
         }));
 
-      return {
+      const widget = {
         id: guild.id,
         name: guild.name,
-        instantInvite: null, // You can add invite link logic here if needed
         channels: guild.channels.cache
           .filter(
             (channel) =>
@@ -266,13 +232,11 @@ export const app = new Elysia({ adapter: node() })
         icon: guild.iconURL({ extension: "webp", size: 256 }),
         banner: guild.bannerURL({ extension: "webp", size: 1024 }),
       };
-    },
-    {
-      params: t.Object({
-        guildId: t.String(),
-      }),
-    },
-  )
-  .listen(3000);
 
-log("Server started on port 3000");
+      return widget;
+    },
+    { params: t.Object({ guildId: t.String() }) },
+  )
+  .listen(4000);
+
+log("Server started on port 4000");
