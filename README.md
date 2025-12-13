@@ -93,7 +93,7 @@ docker exec -i coding-global-bot-db pg_restore -U postgres -c -d coding-global-b
 ```sh
 docker exec -ti coding-global-bot-db pg_dump -U postgres coding-global-bot > coding-global-bot.sql
 
-cat coding-global-db.sql | docker exec -i coding-global-bot-db psql -U postgres -d coding-global-bot
+cat coding-global-bot.sql | docker exec -i coding-global-bot-db psql -U postgres -d coding-global-bot
 ```
 
 <!-- SELECT last_value FROM public."GuildVoiceEvents_id_seq"; -->
