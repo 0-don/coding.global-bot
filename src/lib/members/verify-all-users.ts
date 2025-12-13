@@ -1,34 +1,68 @@
 import { error, log } from "console";
-import { CommandInteraction, Guild } from "discord.js";
+import { Collection, CommandInteraction, Guild, GuildMember } from "discord.js";
 import { prisma } from "../../prisma";
 import { EVERYONE, STATUS_ROLES, VERIFIED } from "../constants";
 import { chunk } from "../helpers";
 import { RolesService } from "../roles/roles.service";
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function fetchMembersWithRetry(
+  guild: Guild,
+  maxRetries = 3,
+): Promise<Collection<string, GuildMember>> {
+  let lastError: any;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      log(`📥 Fetching members (attempt ${attempt}/${maxRetries})...`);
+      return await guild.members.fetch();
+    } catch (err: any) {
+      lastError = err;
+
+      if (err.name === "GatewayRateLimitError") {
+        const retryAfter = err.data?.retry_after || 30;
+        const waitTime = Math.ceil(retryAfter * 1000);
+
+        error(
+          `⚠️ Rate limited! Waiting ${retryAfter}s before retry ${attempt}/${maxRetries}...`,
+        );
+
+        if (attempt < maxRetries) {
+          await sleep(waitTime);
+        }
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  throw lastError;
+}
+
 export const verifyAllUsers = async (
   guild: Guild,
-  interaction?: CommandInteraction
+  interaction?: CommandInteraction,
 ) => {
   const startTime = Date.now();
   try {
     log(`🚀 Starting verification for ${guild.name} (${guild.id})`);
 
-    // Fetch all required data at once
-    const [guildData, allMembers, allRoles] = await Promise.all([
-      prisma.guild.upsert({
-        where: { guildId: guild.id },
-        create: { guildId: guild.id, guildName: guild.name },
-        update: { guildName: guild.name },
-      }),
-      guild.members.fetch(),
-      guild.roles.fetch(),
-    ]);
+    // Fetch guild data first
+    await prisma.guild.upsert({
+      where: { guildId: guild.id },
+      create: { guildId: guild.id, guildName: guild.name },
+      update: { guildName: guild.name },
+    });
+
+    // Fetch members separately with retry logic
+    const allMembers = await fetchMembersWithRetry(guild);
 
     const guildStatusRoles = RolesService.getGuildStatusRoles(guild);
 
     if (STATUS_ROLES.some((role) => !guildStatusRoles[role])) {
       const content = STATUS_ROLES.map(
-        (role) => `${role}: ${!!guildStatusRoles[role]}`
+        (role) => `${role}: ${!!guildStatusRoles[role]}`,
       ).join("\n");
       error(`❌ ${guild.name} (${guild.id}): Missing roles:\n${content}`);
       await interaction?.editReply({ content });
@@ -36,7 +70,7 @@ export const verifyAllUsers = async (
     }
 
     const nonBotMembers = Array.from(allMembers.values()).filter(
-      (m) => !m.user.bot
+      (m) => !m.user.bot,
     );
     const totalMembers = nonBotMembers.length;
 
@@ -72,7 +106,7 @@ export const verifyAllUsers = async (
             name: role.name,
             memberId: member.id,
             guildId: guild.id,
-          }))
+          })),
       );
 
       // Execute database transaction
@@ -115,29 +149,29 @@ export const verifyAllUsers = async (
                   return await member.roles.add(verifiedRoleId);
                 } catch (err) {
                   error(
-                    `❌ ${guild.name} (${guild.id}): Failed to add role to ${member.user.username} (${member.id})`
+                    `❌ ${guild.name} (${guild.id}): Failed to add role to ${member.user.username} (${member.id})`,
                   );
                 }
               }
               return Promise.resolve();
-            })
+            }),
           );
 
           const processedCount = i * batchSize + (j + 1) * discordBatchSize;
           const progressPercent = Math.min(
             100,
-            Math.round((processedCount / totalMembers) * 100)
+            Math.round((processedCount / totalMembers) * 100),
           );
 
           log(
-            `✅ ${guild.name} (${guild.id}): ${progressPercent}% (${processedCount}/${totalMembers})`
+            `✅ ${guild.name} (${guild.id}): ${progressPercent}% (${processedCount}/${totalMembers})`,
           );
         }
       }
 
       const processedMembers = Math.min((i + 1) * batchSize, totalMembers);
       const progressMessage = `Processed ${processedMembers}/${totalMembers} members (${Math.round(
-        (processedMembers / totalMembers) * 100
+        (processedMembers / totalMembers) * 100,
       )}%)`;
 
       await interaction?.editReply({ content: progressMessage });
