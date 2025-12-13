@@ -49,6 +49,9 @@ jobs:
 
           cat .env
 
+      - name: Stop existing containers
+        run: docker compose down || true
+
       - name: Docker run
         run: docker compose up -d --force-recreate --build
 
