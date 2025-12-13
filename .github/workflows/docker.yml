@@ -46,9 +46,6 @@ jobs:
           echo SHOULD_USER_LEVEL_UP=${{ secrets.SHOULD_USER_LEVEL_UP }} >> .env
           echo BOT_ICON=${{ secrets.BOT_ICON }} >> .env
 
-      - name: Stop existing containers
-        run: docker compose down || true
-
       - name: Docker run
         run: docker compose up -d --force-recreate --build
 
