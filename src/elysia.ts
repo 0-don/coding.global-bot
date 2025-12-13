@@ -196,9 +196,6 @@ export const app = new Elysia({ adapter: node() })
           member.presence?.status === "dnd",
       );
 
-      console.log(
-        `Generating widget for guild ${guild.id} with ${onlineMembers.size} online members`,
-      );
       // Find the highest position among STATUS_ROLES (verified, voiceonly, jail)
       const statusRolePositions = Array.from(guild.roles.cache.values())
         .filter((role) => {
