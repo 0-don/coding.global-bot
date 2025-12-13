@@ -6,7 +6,7 @@ import { ConfigValidator } from "./config-validator";
 export const GLOBAL_CANVAS = createCanvas(1200, 400);
 export const CHARTJS_NODE_CANVAS = GLOBAL_CANVAS.getContext("2d");
 export const TRANSLATOR = ConfigValidator.isFeatureEnabled("DEEPL")
-  ? new deepl.Translator(process.env.DEEPL)
+  ? new deepl.Translator(process.env.DEEPL!)
   : null;
 
 let _GLOBAL_CHART: Chart | null = null;
