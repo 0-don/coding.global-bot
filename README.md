@@ -85,15 +85,15 @@
 ### restore db
 
 ```sh
-docker exec -i coding-global-db pg_restore -U postgres -c -d coding-global-db -v < ~/coding-global-db-latest.sql.gz
+docker exec -i coding-global-bot-db pg_restore -U postgres -c -d coding-global-bot -v < ~/coding-global-bot-latest.sql.gz
 ```
 
 ### backup raw db / restore raw db
 
 ```sh
-docker exec -ti coding-global-db pg_dump -U postgres coding-global-db > coding-global-db.sql
+docker exec -ti coding-global-bot-db pg_dump -U postgres coding-global-bot > coding-global-bot.sql
 
-cat coding-global-db.sql | docker exec -i coding-global-db psql -U postgres -d coding-global-db
+cat coding-global-db.sql | docker exec -i coding-global-bot-db psql -U postgres -d coding-global-bot
 ```
 
 <!-- SELECT last_value FROM public."GuildVoiceEvents_id_seq"; -->
