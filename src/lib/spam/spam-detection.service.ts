@@ -6,6 +6,7 @@ import { prisma } from "../../prisma";
 import { ConfigValidator } from "../config-validator";
 import { googleClient } from "../google-client";
 import { deleteUserMessages } from "../messages/delete-user-messages";
+import { log } from "console";
 
 export class SpamDetectionService {
   private static _spamDetectionWarningLogged = false;
@@ -147,7 +148,7 @@ Message: "${message.content}"`;
         });
       });
 
-      console.log(
+      log(
         `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Spam: ${object.isSpam} - Confidence: ${object.confidence}`
       );
 

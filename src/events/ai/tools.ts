@@ -4,6 +4,7 @@ import { ConfigValidator } from "../../lib/config-validator";
 import { GifService } from "../../lib/gif/gif.service";
 import { StatsService } from "../../lib/stats/stats.service";
 import { bot } from "../../main";
+import { log } from "console";
 
 export const gatherChannelContext = tool({
   description:
@@ -22,7 +23,7 @@ export const gatherChannelContext = tool({
   }),
   execute: async ({ channelId, guildId, messageCount }) => {
     try {
-      console.log(
+      log(
         `Gathering AI context from channel ${channelId} in guild ${guildId}...`
       );
       const guild = await bot.guilds.fetch(guildId).catch(() => null);

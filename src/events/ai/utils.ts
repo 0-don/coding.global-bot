@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Collection, Message, StickerFormatType } from "discord.js";
 import { gatherChannelContext, searchMemeGifs } from "./tools";
+import { error, log } from "console";
 
 dayjs.extend(relativeTime);
 
@@ -90,18 +91,18 @@ export async function extractCodeFromAttachments(
 
     // Skip if file is too large (>1MB)
     if (size && size > 1024 * 1024) {
-      console.log(`Skipping large file: ${name} (${size} bytes)`);
+      log(`Skipping large file: ${name} (${size} bytes)`);
       continue;
     }
 
     // Check if it's text-based content
     if (contentType?.startsWith("text/") || !contentType) {
       try {
-        console.log(`Fetching code from attachment: ${name}`);
+        log(`Fetching code from attachment: ${name}`);
         const response = await fetch(url);
 
         if (!response.ok) {
-          console.error(`Failed to fetch ${name}: ${response.status}`);
+          error(`Failed to fetch ${name}: ${response.status}`);
           continue;
         }
 
