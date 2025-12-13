@@ -4,9 +4,9 @@ import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
+import { STATUS_ROLES } from "./lib/constants";
 import { bot } from "./main";
 import { prisma } from "./prisma";
-import { STATUS_ROLES } from "./lib/constants";
 
 const cache: Record<string, { timestamp: number; data: unknown }> = {};
 
@@ -196,22 +196,24 @@ export const app = new Elysia({ adapter: node() })
           member.presence?.status === "dnd",
       );
 
+      console.log(
+        `Generating widget for guild ${guild.id} with ${onlineMembers.size} online members`,
+      );
       // Find the highest position among STATUS_ROLES (verified, voiceonly, jail)
       const statusRolePositions = Array.from(guild.roles.cache.values())
-        .filter(role => {
+        .filter((role) => {
           const lowerName = role.name.toLowerCase();
-          return STATUS_ROLES.some(sr => sr.toLowerCase() === lowerName);
+          return STATUS_ROLES.some((sr) => sr.toLowerCase() === lowerName);
         })
-        .map(role => role.position);
+        .map((role) => role.position);
 
-      const highestStatusRolePosition = statusRolePositions.length > 0
-        ? Math.max(...statusRolePositions)
-        : 0;
+      const highestStatusRolePosition =
+        statusRolePositions.length > 0 ? Math.max(...statusRolePositions) : 0;
 
       // Fetch member roles from database for all online members
       const memberRoles = await prisma.memberRole.findMany({
         where: {
-          memberId: { in: Array.from(onlineMembers.keys()) }
+          memberId: { in: Array.from(onlineMembers.keys()) },
         },
         select: { memberId: true, name: true, roleId: true },
       });
@@ -220,29 +222,37 @@ export const app = new Elysia({ adapter: node() })
       const membersWithRoles = onlineMembers
         .filter((member) => !member.user.bot)
         .map((member) => {
-          const dbRoles = memberRoles.filter((role) => role.memberId === member.id);
+          const dbRoles = memberRoles.filter(
+            (role) => role.memberId === member.id,
+          );
 
           // Get Discord role objects with positions for this member
           const discordRoles = dbRoles
             .map((dbRole) => {
               const discordRole = guild.roles.cache.get(dbRole.roleId);
-              return discordRole ? {
-                id: dbRole.roleId,
-                name: dbRole.name || discordRole.name,
-                position: discordRole.position,
-              } : null;
+              return discordRole
+                ? {
+                    id: dbRole.roleId,
+                    name: dbRole.name || discordRole.name,
+                    position: discordRole.position,
+                  }
+                : null;
             })
-            .filter((role): role is { id: string; name: string; position: number } => role !== null);
+            .filter(
+              (role): role is { id: string; name: string; position: number } =>
+                role !== null,
+            );
 
           // Find the highest role position this member has
-          const highestRolePosition = discordRoles.length > 0
-            ? Math.max(...discordRoles.map(r => r.position))
-            : 0;
+          const highestRolePosition =
+            discordRoles.length > 0
+              ? Math.max(...discordRoles.map((r) => r.position))
+              : 0;
 
           // Get status roles (only roles positioned HIGHER than STATUS_ROLES)
           const statusRoles = discordRoles
-            .filter(role => role.position > highestStatusRolePosition)
-            .map(role => ({
+            .filter((role) => role.position > highestStatusRolePosition)
+            .map((role) => ({
               name: role.name,
               position: role.position,
             }));
@@ -273,17 +283,6 @@ export const app = new Elysia({ adapter: node() })
       const widget = {
         id: guild.id,
         name: guild.name,
-        channels: guild.channels.cache
-          .filter(
-            (channel) =>
-              channel.type === ChannelType.GuildVoice ||
-              channel.type === ChannelType.GuildStageVoice,
-          )
-          .map((channel) => ({
-            id: channel.id,
-            name: channel.name,
-            position: channel.position,
-          })),
         members,
         presenceCount: onlineMembers.size,
         memberCount: guild.memberCount,
