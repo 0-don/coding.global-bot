@@ -211,7 +211,7 @@ export const app = new Elysia({ adapter: node() })
 
       const highestStatusRolePosition =
         statusRolePositions.length > 0 ? Math.max(...statusRolePositions) : 0;
-      console.log("Fetching widget for guild:", guild?.id);
+
       // Fetch member roles from database for all online members
       const memberRoles = await prisma.memberRole.findMany({
         where: {
@@ -219,7 +219,7 @@ export const app = new Elysia({ adapter: node() })
         },
         select: { memberId: true, name: true, roleId: true },
       });
-      console.log("Member roles fetched:", memberRoles.length);
+
       // Filter to non-bot members and enrich with role information
       const membersWithRoles = onlineMembers
         .filter((member) => !member.user.bot)

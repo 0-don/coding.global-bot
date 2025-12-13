@@ -1,4 +1,5 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { log } from "console";
 
 function createGoogleProviders() {
   const keys =
@@ -23,7 +24,7 @@ class GoogleClientRotator {
   rotate() {
     if (this.providers.length > 1) {
       this.currentIndex = (this.currentIndex + 1) % this.providers.length;
-      console.log(
+      log(
         `Rotated to API key ${this.currentIndex + 1}/${this.providers.length}`
       );
     }
