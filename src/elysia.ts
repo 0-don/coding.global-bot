@@ -6,6 +6,7 @@ import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
 import { bot } from "./main";
 import { prisma } from "./prisma";
+import { STATUS_ROLES } from "./lib/constants";
 
 const cache: Record<string, { timestamp: number; data: unknown }> = {};
 
@@ -195,20 +196,79 @@ export const app = new Elysia({ adapter: node() })
           member.presence?.status === "dnd",
       );
 
-      const members = onlineMembers
+      // Find the highest position among STATUS_ROLES (verified, voiceonly, jail)
+      const statusRolePositions = Array.from(guild.roles.cache.values())
+        .filter(role => {
+          const lowerName = role.name.toLowerCase();
+          return STATUS_ROLES.some(sr => sr.toLowerCase() === lowerName);
+        })
+        .map(role => role.position);
+
+      const highestStatusRolePosition = statusRolePositions.length > 0
+        ? Math.max(...statusRolePositions)
+        : 0;
+
+      // Fetch member roles from database for all online members
+      const memberRoles = await prisma.memberRole.findMany({
+        where: {
+          memberId: { in: Array.from(onlineMembers.keys()) }
+        },
+        select: { memberId: true, name: true, roleId: true },
+      });
+
+      // Filter to non-bot members and enrich with role information
+      const membersWithRoles = onlineMembers
         .filter((member) => !member.user.bot)
-        .first(50)
-        .map((member) => ({
-          id: member.id,
-          username: member.user.username,
-          discriminator: member.user.discriminator,
-          avatar: member.user.displayAvatarURL({
-            extension: "webp",
-            size: 128,
-          }),
-          status: String(member.presence?.status || "offline"),
-          activity: member.presence?.activities[0]?.name || null,
-        }));
+        .map((member) => {
+          const dbRoles = memberRoles.filter((role) => role.memberId === member.id);
+
+          // Get Discord role objects with positions for this member
+          const discordRoles = dbRoles
+            .map((dbRole) => {
+              const discordRole = guild.roles.cache.get(dbRole.roleId);
+              return discordRole ? {
+                id: dbRole.roleId,
+                name: dbRole.name || discordRole.name,
+                position: discordRole.position,
+              } : null;
+            })
+            .filter((role): role is { id: string; name: string; position: number } => role !== null);
+
+          // Find the highest role position this member has
+          const highestRolePosition = discordRoles.length > 0
+            ? Math.max(...discordRoles.map(r => r.position))
+            : 0;
+
+          // Get status roles (only roles positioned HIGHER than STATUS_ROLES)
+          const statusRoles = discordRoles
+            .filter(role => role.position > highestStatusRolePosition)
+            .map(role => ({
+              name: role.name,
+              position: role.position,
+            }));
+
+          return {
+            id: member.id,
+            username: member.user.username,
+            discriminator: member.user.discriminator,
+            avatar: member.user.displayAvatarURL({
+              extension: "webp",
+              size: 128,
+            }),
+            status: String(member.presence?.status || "offline"),
+            activity: member.presence?.activities[0]?.name || null,
+            statusRoles,
+            highestRolePosition,
+          };
+        });
+
+      // Sort by highest role position (higher position = more important)
+      const sortedMembers = membersWithRoles.sort((a, b) => {
+        return b.highestRolePosition - a.highestRolePosition;
+      });
+
+      // Take first 50 members
+      const members = sortedMembers.slice(0, 50);
 
       const widget = {
         id: guild.id,
