@@ -23,6 +23,9 @@ export const app = new Elysia({ adapter: node() })
     }),
   )
   .use(cors())
+  .onError(({ code, error }) => {
+    console.error("API Error:", code, error);
+  })
   .derive(({ request }) => ({
     startTime: Date.now(),
     clientIP:
@@ -186,7 +189,9 @@ export const app = new Elysia({ adapter: node() })
     async ({ guild }) => {
       if (!guild) throw status("Not Found", "Guild not found");
 
-      await guild.members.fetch();
+      try {
+        await guild.members.fetch();
+      } catch (error) {}
 
       // Count online members only
       const onlineMembers = guild.members.cache.filter(
@@ -206,7 +211,7 @@ export const app = new Elysia({ adapter: node() })
 
       const highestStatusRolePosition =
         statusRolePositions.length > 0 ? Math.max(...statusRolePositions) : 0;
-
+      console.log("Fetching widget for guild:", guild?.id);
       // Fetch member roles from database for all online members
       const memberRoles = await prisma.memberRole.findMany({
         where: {
@@ -214,7 +219,7 @@ export const app = new Elysia({ adapter: node() })
         },
         select: { memberId: true, name: true, roleId: true },
       });
-
+      console.log("Member roles fetched:", memberRoles.length);
       // Filter to non-bot members and enrich with role information
       const membersWithRoles = onlineMembers
         .filter((member) => !member.user.bot)
