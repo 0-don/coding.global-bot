@@ -1,4 +1,5 @@
 import { dirname, importx } from "@discordx/importer";
+import "@dotenvx/dotenvx/config";
 import {
   CategoryScale,
   Chart,
@@ -13,7 +14,6 @@ import "chartjs-adapter-date-fns";
 import { error, log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
-import "dotenv/config";
 import "./elysia";
 import { ConfigValidator } from "./lib/config-validator";
 
@@ -24,7 +24,7 @@ Chart.register(
   CategoryScale,
   PointElement,
   TimeSeriesScale,
-  Filler
+  Filler,
 );
 
 ConfigValidator.validateConfig();
@@ -64,14 +64,14 @@ bot.once("clientReady", async () => {
 
 bot.on(
   "interactionCreate",
-  (interaction) => void bot.executeInteraction(interaction)
+  (interaction) => void bot.executeInteraction(interaction),
 );
 
 bot.on("messageCreate", (message) => void bot.executeCommand(message));
 
 bot.on(
   "messageReactionAdd",
-  (reaction, user) => void bot.executeReaction(reaction, user)
+  (reaction, user) => void bot.executeReaction(reaction, user),
 );
 
 const main = async () => {
@@ -93,9 +93,9 @@ const main = async () => {
 setInterval(
   () =>
     fetch("https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api").catch(
-      (e) => error("Ping error:", e)
+      (e) => error("Ping error:", e),
     ),
-  300000
+  300000,
 );
 
 main();
