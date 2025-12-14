@@ -11,7 +11,6 @@ export class VerifyAllUsers {
 
     if (!message.guild) return;
 
-    // Check if user has manage roles permission
     const member = await message.guild.members.fetch(message.author.id);
     if (!member.permissions.has("ManageRoles")) {
       await message.reply({
@@ -23,7 +22,6 @@ export class VerifyAllUsers {
     try {
       await verifyAllUsers(message.guild, message.channel);
     } catch (error) {
-      // Error handling is done in the verifyAllUsers function
       console.error("Error in verify-all command:", error);
     }
   }
