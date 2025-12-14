@@ -165,15 +165,15 @@ export const app = new Elysia({ adapter: node() })
       // Only fetch details for top 100 members
       const top100Members = sortedOnlineMembers.slice(0, 100);
 
-      const membersWithRoles = await Promise.all(
-        top100Members.map((member) =>
-          parseUserWithRoles(member.id, guild, member),
-        ),
-      );
-
-      const members = membersWithRoles.filter(
-        (m): m is NonNullable<typeof m> => m !== null,
-      );
+      const members = [];
+      for (let i = 0; i < top100Members.length; i++) {
+        const member = top100Members[i];
+        console.log(
+          `Processing member ${i + 1}/${top100Members.length}: ${member.user.tag}`,
+        );
+        const userData = await parseUserWithRoles(member.id, guild, member);
+        if (userData) members.push(userData);
+      }
 
       const widget = {
         id: guild.id,
