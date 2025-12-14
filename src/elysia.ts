@@ -262,6 +262,7 @@ export const app = new Elysia({ adapter: node() })
           return {
             id: member.id,
             username: member.user.username,
+            displayName: member.nickname || member.displayName,
             discriminator: member.user.discriminator,
             avatar: member.user.displayAvatarURL({
               extension: "webp",
