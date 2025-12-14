@@ -62,11 +62,12 @@ async function processSingleMember(
   member: GuildMember,
   guild: Guild,
   guildStatusRoles: Record<string, any>,
-  maxRetries = 3,
 ): Promise<void> {
-  let lastError: any;
+  let attempt = 0;
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  // Retry indefinitely until success
+  while (true) {
+    attempt++;
     try {
       // Force fetch user to get banner and accent color data
       const user = await member.user.fetch(true);
@@ -188,35 +189,25 @@ async function processSingleMember(
       // Success - exit retry loop
       return;
     } catch (err: any) {
-      lastError = err;
-
       if (err.name === "GatewayRateLimitError" || err.code === 50001) {
         const retryAfter = err.data?.retry_after || 5;
         const waitTime = Math.ceil(retryAfter * 1000);
 
         error(
-          `⚠️ Rate limited on member ${member.user.username}! Waiting ${retryAfter}s (attempt ${attempt}/${maxRetries})...`,
+          `⚠️ Rate limited on member ${member.user.username}! Waiting ${retryAfter}s (attempt ${attempt})...`,
         );
 
-        if (attempt < maxRetries) {
-          await sleep(waitTime);
-        }
+        await sleep(waitTime);
       } else {
         error(
-          `❌ Failed to process ${member.user.username} (${member.id}) on attempt ${attempt}/${maxRetries}:`,
+          `❌ Failed to process ${member.user.username} (${member.id}) on attempt ${attempt}:`,
           err,
         );
-        if (attempt < maxRetries) {
-          await sleep(1000); // Wait 1s before retry
-        }
+        await sleep(2000); // Wait 2s before retry for other errors
       }
+      // Continue loop to retry
     }
   }
-
-  error(
-    `❌ Failed to process ${member.user.username} (${member.id}) after ${maxRetries} attempts`,
-  );
-  throw lastError;
 }
 
 export const verifyAllUsers = async (
@@ -287,23 +278,18 @@ export const verifyAllUsers = async (
     for (let i = startIndex; i < totalMembers; i++) {
       const member = nonBotMembers[i];
 
-      try {
-        await processSingleMember(member, guild, guildStatusRoles);
+      await processSingleMember(member, guild, guildStatusRoles);
 
-        // Update state after each member
-        state.lastProcessedIndex = i + 1;
-        verificationStates.set(guild.id, state);
+      // Update state after each member
+      state.lastProcessedIndex = i + 1;
+      verificationStates.set(guild.id, state);
 
-        // Update progress after every member
-        const progressPercent = Math.round(((i + 1) / totalMembers) * 100);
-        const progressMessage = `Processed ${i + 1}/${totalMembers} members (${progressPercent}%)`;
+      // Update progress after every member
+      const progressPercent = Math.round(((i + 1) / totalMembers) * 100);
+      const progressMessage = `Processed ${i + 1}/${totalMembers} members (${progressPercent}%)`;
 
-        log(`✅ ${guild.name} (${guild.id}): ${progressMessage}`);
-        await interaction?.editReply({ content: progressMessage });
-      } catch (err) {
-        error(`❌ Skipping member ${member.user.username} (${member.id}) after max retries`);
-        // Continue with next member instead of stopping
-      }
+      log(`✅ ${guild.name} (${guild.id}): ${progressMessage}`);
+      await interaction?.editReply({ content: progressMessage });
     }
 
     const endTime = Date.now();
