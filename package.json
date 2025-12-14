@@ -7,7 +7,7 @@
     "dev": "tsx watch src/main.ts",
     "build": "tsc",
     "prettier": "prettier -w .",
-    "prisma": "prisma migrate dev --name init & prisma generate",
+    "prisma": "prisma migrate dev --name init && prisma generate",
     "postinstall": "prisma generate"
   },
   "dependencies": {

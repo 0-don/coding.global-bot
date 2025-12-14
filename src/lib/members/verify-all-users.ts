@@ -86,17 +86,52 @@ export const verifyAllUsers = async (
     for (let i = 0; i < memberBatches.length; i++) {
       const batch = memberBatches[i];
 
-      // Prepare batch data
-      const memberUpserts = batch.map((member) => ({
-        memberId: member.id,
-        username: member.user.username,
-      }));
+      // Force fetch users to get banner and accent color data
+      const fetchedUsers = await Promise.all(
+        batch.map(async (member) => {
+          try {
+            return await member.user.fetch(true); // force fetch
+          } catch (err) {
+            error(`Failed to force fetch user ${member.id}:`, err);
+            return member.user; // fallback to cached user
+          }
+        }),
+      );
 
-      const memberGuildUpserts = batch.map((member) => ({
-        memberId: member.id,
-        guildId: guild.id,
-        status: true,
-      }));
+      // Prepare batch data with complete user information
+      const memberUpserts = batch.map((member, index) => {
+        const user = fetchedUsers[index];
+        return {
+          memberId: member.id,
+          username: user.username,
+          globalName: user.globalName,
+          createdAt: user.createdAt,
+          bannerUrl: user.bannerURL({ size: 1024 }) || null,
+          accentColor: user.accentColor,
+        };
+      });
+
+      // Get highest role position for each member
+      const memberGuildUpserts = batch.map((member) => {
+        const sortedRoles = Array.from(member.roles.cache.values())
+          .filter((role) => role.name !== EVERYONE)
+          .sort((a, b) => b.position - a.position);
+
+        return {
+          memberId: member.id,
+          guildId: guild.id,
+          status: true,
+          nickname: member.nickname,
+          displayName: member.displayName,
+          joinedAt: member.joinedAt,
+          displayHexColor: member.displayHexColor,
+          highestRolePosition: sortedRoles[0]?.position || null,
+          avatarUrl: member.avatarURL({ size: 1024 }) || null, // Guild-specific avatar
+          presenceStatus: member.presence?.status || null,
+          presenceActivity: member.presence?.activities[0]?.name || null,
+          presenceUpdatedAt: member.presence ? new Date() : null,
+        };
+      });
 
       const memberRoleCreates = batch.flatMap((member) =>
         member.roles.cache
@@ -104,32 +139,76 @@ export const verifyAllUsers = async (
           .map((role) => ({
             roleId: role.id,
             name: role.name,
+            position: role.position,
+            color: role.colors?.primaryColor || null,
+            hexColor: role.hexColor,
+            hoist: role.hoist,
+            icon: role.icon,
+            unicodeEmoji: role.unicodeEmoji,
+            mentionable: role.mentionable,
+            managed: role.managed,
+            tags: role.tags ? JSON.parse(JSON.stringify(role.tags)) : null,
             memberId: member.id,
             guildId: guild.id,
           })),
       );
 
       // Execute database transaction
-      await prisma.$transaction([
-        prisma.memberRole.deleteMany({
+      await prisma.$transaction(async (tx) => {
+        // Delete existing roles for this batch
+        await tx.memberRole.deleteMany({
           where: {
             memberId: { in: batch.map((m) => m.id) },
             guildId: guild.id,
           },
-        }),
-        prisma.member.createMany({
-          data: memberUpserts,
-          skipDuplicates: true,
-        }),
-        prisma.memberGuild.createMany({
-          data: memberGuildUpserts,
-          skipDuplicates: true,
-        }),
-        prisma.memberRole.createMany({
+        });
+
+        // Upsert members with complete user data
+        for (const memberData of memberUpserts) {
+          await tx.member.upsert({
+            where: { memberId: memberData.memberId },
+            create: memberData,
+            update: {
+              username: memberData.username,
+              globalName: memberData.globalName,
+              createdAt: memberData.createdAt,
+              bannerUrl: memberData.bannerUrl,
+              accentColor: memberData.accentColor,
+            },
+          });
+        }
+
+        // Upsert member guild data
+        for (const memberGuildData of memberGuildUpserts) {
+          await tx.memberGuild.upsert({
+            where: {
+              member_guild: {
+                memberId: memberGuildData.memberId,
+                guildId: memberGuildData.guildId,
+              },
+            },
+            create: memberGuildData,
+            update: {
+              status: memberGuildData.status,
+              nickname: memberGuildData.nickname,
+              displayName: memberGuildData.displayName,
+              joinedAt: memberGuildData.joinedAt,
+              displayHexColor: memberGuildData.displayHexColor,
+              highestRolePosition: memberGuildData.highestRolePosition,
+              avatarUrl: memberGuildData.avatarUrl,
+              presenceStatus: memberGuildData.presenceStatus,
+              presenceActivity: memberGuildData.presenceActivity,
+              presenceUpdatedAt: memberGuildData.presenceUpdatedAt,
+            },
+          });
+        }
+
+        // Create role assignments
+        await tx.memberRole.createMany({
           data: memberRoleCreates,
           skipDuplicates: true,
-        }),
-      ]);
+        });
+      });
 
       // Handle verified role assignments
       if (guildStatusRoles[VERIFIED]) {
