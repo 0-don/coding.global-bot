@@ -4,9 +4,8 @@ import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
-import { STATUS_ROLES } from "./lib/constants";
 import { bot } from "./main";
-import { prisma } from "./prisma";
+import { parseUserWithRoles } from "./server/server";
 
 const cache: Record<string, { timestamp: number; data: unknown }> = {};
 
@@ -71,43 +70,22 @@ export const app = new Elysia({ adapter: node() })
     async ({ guild }) => {
       if (!guild) throw status("Not Found", "Guild not found");
 
-      const staffMembers = (await guild.members.fetch())
-        .filter(
-          (member) =>
-            (member.permissions.has(PermissionsBitField.Flags.MuteMembers) ||
-              member.permissions.has(
-                PermissionsBitField.Flags.ChangeNickname,
-              )) &&
-            !member.user.bot,
-        )
-        .sort((a, b) => a.joinedAt!.getTime() - b.joinedAt!.getTime());
+      const staffMembers = (await guild.members.fetch()).filter(
+        (member) =>
+          (member.permissions.has(PermissionsBitField.Flags.MuteMembers) ||
+            member.permissions.has(PermissionsBitField.Flags.ChangeNickname)) &&
+          !member.user.bot,
+      );
 
-      const memberRoles = await prisma.memberRole.findMany({
-        where: { memberId: { in: Array.from(staffMembers.keys()) } },
-        select: { memberId: true, name: true },
-      });
-
+      // Build users array with role position data
       const users = [];
       for (const [_, member] of staffMembers) {
-        const roles = memberRoles.filter(
-          (role) => role.memberId === member?.id,
-        );
-        if (roles.length) {
-          users.push({
-            id: member?.id,
-            username: member.user.username,
-            globalName: member.user.globalName!,
-            joinedAt: member.joinedAt!.toISOString(),
-            displayAvatarURL: member.user.displayAvatarURL({
-              size: 512,
-              extension: "webp",
-            }),
-            bannerUrl: member.user.bannerURL({ size: 512, extension: "webp" })!,
-            displayHexColor: (member.displayHexColor || "#000000") as string,
-            memberRoles: roles.map((role) => role.name || ""),
-          });
-        }
+        const userData = await parseUserWithRoles(member.id, guild, member);
+        if (userData) users.push(userData);
       }
+
+      // Sort by highest role position (descending)
+      users.sort((a, b) => b.highestRolePosition - a.highestRolePosition);
 
       return users;
     },
@@ -136,49 +114,24 @@ export const app = new Elysia({ adapter: node() })
 
       const messages = await newsChannel.messages.fetch({ limit: 100 });
 
-      const memberRoles = await prisma.memberRole.findMany({
-        where: {
-          memberId: {
-            in: messages
-              .map((m) => m.author?.id)
-              .filter((id): id is string => !!id),
-          },
-        },
-        select: { memberId: true, name: true },
-      });
-
-      const news = messages.map((message) => ({
-        id: message?.id,
-        content: message.content,
-        createdAt: message.createdAt.toISOString(),
-        attachments: Array.from(message.attachments.values())
-          .filter((attachment) => attachment.contentType?.startsWith("image/"))
-          .map((attachment) => ({
-            url: attachment.url,
-            width: attachment.width!,
-            height: attachment.height!,
-            contentType: attachment.contentType!,
-          })),
-        user: {
-          id: message.author?.id,
-          username: message.author.username,
-          globalName: message.author.globalName!,
-          joinedAt: message.author.createdAt.toISOString(),
-          displayAvatarURL: message.author.displayAvatarURL({
-            size: 512,
-            extension: "webp",
-          }),
-          bannerUrl: message.author.bannerURL({
-            size: 512,
-            extension: "webp",
-          })!,
-          memberRoles: memberRoles
-            .filter((role) => role.memberId === message.author?.id)
-            .map((role) => role.name || ""),
-          displayHexColor: (message.member?.displayHexColor ||
-            "#000000") as string,
-        },
-      }));
+      const news = await Promise.all(
+        messages.map(async (message) => ({
+          id: message?.id,
+          content: message.content,
+          createdAt: message.createdAt.toISOString(),
+          attachments: Array.from(message.attachments.values())
+            .filter((attachment) =>
+              attachment.contentType?.startsWith("image/"),
+            )
+            .map((attachment) => ({
+              url: attachment.url,
+              width: attachment.width!,
+              height: attachment.height!,
+              contentType: attachment.contentType!,
+            })),
+          user: await parseUserWithRoles(message.author.id, guild, message),
+        })),
+      );
 
       return news;
     },
@@ -196,89 +149,22 @@ export const app = new Elysia({ adapter: node() })
       // Count online members only
       const onlineMembers = guild.members.cache.filter(
         (member) =>
-          member.presence?.status === "online" ||
-          member.presence?.status === "idle" ||
-          member.presence?.status === "dnd",
+          (member.presence?.status === "online" ||
+            member.presence?.status === "idle" ||
+            member.presence?.status === "dnd") &&
+          !member.user.bot,
       );
 
-      // Find the highest position among STATUS_ROLES (verified, voiceonly, jail)
-      const statusRolePositions = Array.from(guild.roles.cache.values())
-        .filter((role) => {
-          const lowerName = role.name.toLowerCase();
-          return STATUS_ROLES.some((sr) => sr.toLowerCase() === lowerName);
-        })
-        .map((role) => role.position);
+      const membersWithRoles = await Promise.all(
+        Array.from(onlineMembers.values()).map((member) =>
+          parseUserWithRoles(member.id, guild, member),
+        ),
+      );
 
-      const highestStatusRolePosition =
-        statusRolePositions.length > 0 ? Math.max(...statusRolePositions) : 0;
-
-      // Fetch member roles from database for all online members
-      const memberRoles = await prisma.memberRole.findMany({
-        where: {
-          memberId: { in: Array.from(onlineMembers.keys()) },
-        },
-        select: { memberId: true, name: true, roleId: true },
-      });
-
-      // Filter to non-bot members and enrich with role information
-      const membersWithRoles = onlineMembers
-        .filter((member) => !member.user.bot)
-        .map((member) => {
-          const dbRoles = memberRoles.filter(
-            (role) => role.memberId === member.id,
-          );
-
-          // Get Discord role objects with positions for this member
-          const discordRoles = dbRoles
-            .map((dbRole) => {
-              const discordRole = guild.roles.cache.get(dbRole.roleId);
-              return discordRole
-                ? {
-                    id: dbRole.roleId,
-                    name: dbRole.name || discordRole.name,
-                    position: discordRole.position,
-                  }
-                : null;
-            })
-            .filter(
-              (role): role is { id: string; name: string; position: number } =>
-                role !== null,
-            );
-
-          // Find the highest role position this member has
-          const highestRolePosition =
-            discordRoles.length > 0
-              ? Math.max(...discordRoles.map((r) => r.position))
-              : 0;
-
-          // Get status roles (only roles positioned HIGHER than STATUS_ROLES)
-          const statusRoles = discordRoles
-            .filter((role) => role.position > highestStatusRolePosition)
-            .map((role) => ({
-              name: role.name,
-              position: role.position,
-            }));
-
-          return {
-            id: member.id,
-            username: member.user.username,
-            displayName: member.nickname || member.displayName,
-            avatar: member.user.displayAvatarURL({
-              extension: "webp",
-              size: 128,
-            }),
-            banner: member.user.bannerURL({ extension: "webp", size: 512 }),
-            status: String(member.presence?.status || "offline"),
-            activity: member.presence?.activities[0]?.name || null,
-            statusRoles,
-            highestRolePosition,
-          };
-        });
-
-      // Sort by highest role position (higher position = more important)
-      const sortedMembers = membersWithRoles.sort((a, b) => {
-        return b.highestRolePosition - a.highestRolePosition;
-      });
+      //sort by highest role position
+      const sortedMembers = membersWithRoles
+        .filter((m): m is NonNullable<typeof m> => m !== null)
+        .sort((a, b) => b.highestRolePosition - a.highestRolePosition);
 
       const members = sortedMembers.slice(0, 500);
 
