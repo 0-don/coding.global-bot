@@ -290,18 +290,16 @@ export const verifyAllUsers = async (
       try {
         await processSingleMember(member, guild, guildStatusRoles);
 
-        // Update state
+        // Update state after each member
         state.lastProcessedIndex = i + 1;
         verificationStates.set(guild.id, state);
 
-        // Log progress every 10 members
-        if ((i + 1) % 10 === 0 || i === totalMembers - 1) {
-          const progressPercent = Math.round(((i + 1) / totalMembers) * 100);
-          const progressMessage = `Processed ${i + 1}/${totalMembers} members (${progressPercent}%)`;
+        // Update progress after every member
+        const progressPercent = Math.round(((i + 1) / totalMembers) * 100);
+        const progressMessage = `Processed ${i + 1}/${totalMembers} members (${progressPercent}%)`;
 
-          log(`✅ ${guild.name} (${guild.id}): ${progressMessage}`);
-          await interaction?.editReply({ content: progressMessage });
-        }
+        log(`✅ ${guild.name} (${guild.id}): ${progressMessage}`);
+        await interaction?.editReply({ content: progressMessage });
       } catch (err) {
         error(`❌ Skipping member ${member.user.username} (${member.id}) after max retries`);
         // Continue with next member instead of stopping
