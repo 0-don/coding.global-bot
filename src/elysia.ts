@@ -5,7 +5,10 @@ import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
 import { bot } from "./main";
-import { parseUserWithRoles } from "./server/server";
+import {
+  parseMultipleUsersWithRoles,
+  parseUserWithRoles,
+} from "./server/server";
 
 const cache: Record<string, { timestamp: number; data: unknown }> = {};
 
@@ -77,12 +80,8 @@ export const app = new Elysia({ adapter: node() })
           !member.user.bot,
       );
 
-      const users = [];
-      for (const [_, member] of staffMembers) {
-        const userData = await parseUserWithRoles(member.id, guild, member);
-        if (userData) users.push(userData);
-      }
-
+      const userIds = Array.from(staffMembers.keys());
+      const users = await parseMultipleUsersWithRoles(userIds, guild);
       users.sort((a, b) => b.highestRolePosition - a.highestRolePosition);
 
       return users;
@@ -92,7 +91,7 @@ export const app = new Elysia({ adapter: node() })
   .get(
     "/api/:guildId/news",
     async ({ guild }) => {
-      if (!guild) throw status("Not Found", "Guild not found");
+      if (!guild) throw status("Not Found", "News channel not found");
 
       const newsChannel = guild.channels.cache.find((channel) =>
         channel.name.toLowerCase().includes("news"),
@@ -144,7 +143,6 @@ export const app = new Elysia({ adapter: node() })
         await guild.members.fetch();
       } catch (error) {}
 
-      // Count online members only
       const onlineMembers = guild.members.cache.filter(
         (member) =>
           (member.presence?.status === "online" ||
@@ -153,7 +151,6 @@ export const app = new Elysia({ adapter: node() })
           !member.user.bot,
       );
 
-      // Sort members by highest role position BEFORE fetching details
       const sortedOnlineMembers = Array.from(onlineMembers.values()).sort(
         (a, b) => {
           const highestRoleA = a.roles.highest.position;
@@ -162,18 +159,9 @@ export const app = new Elysia({ adapter: node() })
         },
       );
 
-      // Only fetch details for top 100 members
       const top100Members = sortedOnlineMembers.slice(0, 100);
-
-      const members = [];
-      for (let i = 0; i < top100Members.length; i++) {
-        const member = top100Members[i];
-        console.log(
-          `Processing member ${i + 1}/${top100Members.length}: ${member.user.tag}`,
-        );
-        const userData = await parseUserWithRoles(member.id, guild, member);
-        if (userData) members.push(userData);
-      }
+      const userIds = top100Members.map((member) => member.id);
+      const members = await parseMultipleUsersWithRoles(userIds, guild);
 
       const widget = {
         id: guild.id,
