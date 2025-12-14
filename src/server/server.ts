@@ -58,12 +58,7 @@ export async function parseUserWithRoles(
       size: 512,
       extension: "webp",
     }),
-    avatar: user.displayAvatarURL({
-      size: 512,
-      extension: "webp",
-    }),
     bannerUrl: user.bannerURL({ size: 512, extension: "webp" }) || null,
-    banner: user.bannerURL({ size: 512, extension: "webp" }) || null,
     displayHexColor: String(fetchedMember?.displayHexColor || "#000000"),
     roles,
     highestRolePosition,
