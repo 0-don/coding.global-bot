@@ -77,14 +77,12 @@ export const app = new Elysia({ adapter: node() })
           !member.user.bot,
       );
 
-      // Build users array with role position data
       const users = [];
       for (const [_, member] of staffMembers) {
         const userData = await parseUserWithRoles(member.id, guild, member);
         if (userData) users.push(userData);
       }
 
-      // Sort by highest role position (descending)
       users.sort((a, b) => b.highestRolePosition - a.highestRolePosition);
 
       return users;
