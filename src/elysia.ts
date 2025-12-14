@@ -263,11 +263,11 @@ export const app = new Elysia({ adapter: node() })
             id: member.id,
             username: member.user.username,
             displayName: member.nickname || member.displayName,
-            discriminator: member.user.discriminator,
             avatar: member.user.displayAvatarURL({
               extension: "webp",
               size: 128,
             }),
+            banner: member.user.bannerURL({ extension: "webp", size: 512 }),
             status: String(member.presence?.status || "offline"),
             activity: member.presence?.activities[0]?.name || null,
             statusRoles,
