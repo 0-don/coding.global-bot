@@ -172,8 +172,8 @@ export const app = new Elysia({ adapter: node() })
         members,
         presenceCount: onlineMembers.size,
         memberCount: guild.memberCount,
-        icon: guild.iconURL({ extension: "webp", size: 256 }),
-        banner: guild.bannerURL({ extension: "webp", size: 1024 }),
+        iconURL: guild.iconURL({ extension: "webp", size: 256 }),
+        bannerURL: guild.bannerURL({ extension: "webp", size: 1024 }),
       };
 
       return widget;
