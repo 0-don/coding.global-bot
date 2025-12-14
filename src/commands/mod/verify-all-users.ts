@@ -1,35 +1,30 @@
-import type { CommandInteraction, TextChannel } from "discord.js";
-import { MessageFlags, PermissionFlagsBits } from "discord.js";
-import { Discord, Slash } from "discordx";
+import type { SimpleCommandMessage } from "discordx";
+import { Discord, SimpleCommand } from "discordx";
 
-import { LogService } from "../../lib/logs/log.service";
 import { verifyAllUsers } from "../../lib/members/verify-all-users";
 
 @Discord()
 export class VerifyAllUsers {
-  @Slash({
-    name: "verify-all-users",
-    description: "verify all users in the server",
-    defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
-      dmPermission: false, 
-  })
-  async verifyAllUsers(interaction: CommandInteraction) {
-    LogService.logCommandHistory(interaction, "verify-all-users");
+  @SimpleCommand({ aliases: ["verify-all"], prefix: "!" })
+  async verifyAllUsers(command: SimpleCommandMessage) {
+    const message = command.message;
 
-    if (!interaction.guild) return;
+    if (!message.guild) return;
 
-    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    // Check if user has manage roles permission
+    const member = await message.guild.members.fetch(message.author.id);
+    if (!member.permissions.has("ManageRoles")) {
+      await message.reply({
+        content: "You don't have permission to use this command.",
+      });
+      return;
+    }
 
     try {
-      const members = await verifyAllUsers(interaction.guild, interaction);
-
-      return (interaction.channel as TextChannel)?.send({
-        content: `Verified all users (${members?.size}) in ${interaction.guild.name}`,
-      });
+      await verifyAllUsers(message.guild, message.channel);
     } catch (error) {
-      return interaction.editReply({
-        content: "An error occured while verifying all users",
-      });
+      // Error handling is done in the verifyAllUsers function
+      console.error("Error in verify-all command:", error);
     }
   }
 }
