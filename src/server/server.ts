@@ -63,7 +63,11 @@ export async function parseMultipleUsersWithRoles(
     .catch(() => null);
   if (!members) return [];
 
-  return Array.from(members.values()).map((fetchedMember) =>
+  const formattedMembers = Array.from(members.values()).map((fetchedMember) =>
     formatMemberData(fetchedMember, guild),
+  );
+
+  return formattedMembers.sort(
+    (a, b) => b.highestRolePosition - a.highestRolePosition,
   );
 }
