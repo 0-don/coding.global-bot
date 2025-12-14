@@ -3,7 +3,7 @@ import { prisma } from "../../prisma";
 
 export const joinSettings = async (
   member: GuildMember | PartialGuildMember,
-  voiceState?: VoiceState
+  voiceState?: VoiceState,
 ) => {
   // dont add bots to the list
   if (member && member?.user?.bot) return;

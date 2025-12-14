@@ -24,7 +24,7 @@ export class DeleteMemberDb {
       type: ApplicationCommandOptionType.User,
     })
     user: User,
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) {
     const guildId = interaction.guildId;
     if (!guildId) {

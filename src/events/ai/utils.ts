@@ -13,7 +13,7 @@ export const CODING_GLOBAL_PATTERN = /^coding\s?global/i;
 export const TOOLS = { searchMemeGifs, gatherChannelContext };
 
 export async function gatherMessageContext(
-  repliedMessage: Message<boolean>
+  repliedMessage: Message<boolean>,
 ): Promise<{
   context: string;
   images: string[];
@@ -70,7 +70,7 @@ export async function gatherMessageContext(
         }
 
         return content;
-      })
+      }),
     );
 
     const context = contextParts.filter(Boolean).join("\n") || "";
@@ -82,7 +82,7 @@ export async function gatherMessageContext(
 }
 
 export async function extractCodeFromAttachments(
-  message: Message
+  message: Message,
 ): Promise<string | null> {
   let extractedCode = "";
 

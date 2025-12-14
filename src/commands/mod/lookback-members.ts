@@ -22,7 +22,7 @@ export class LookbackMembers {
       type: ApplicationCommandOptionType.Integer,
     })
     lookback: number,
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) {
     LogService.logCommandHistory(interaction, "lookback-members");
     // get guild data
@@ -41,7 +41,7 @@ export class LookbackMembers {
 
     // send success message
     return await interaction.reply(
-      `Lookback set to ${lookback} days for ${guildName}`
+      `Lookback set to ${lookback} days for ${guildName}`,
     );
   }
 }

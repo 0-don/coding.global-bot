@@ -22,7 +22,7 @@ export class AiChat {
   @On()
   async messageCreate(
     [message]: ArgsOf<"messageCreate">,
-    client: Client
+    client: Client,
   ): Promise<void> {
     if (
       message.author.bot ||
@@ -99,7 +99,7 @@ export class AiChat {
             tools: TOOLS,
             maxOutputTokens: 500,
           });
-        }
+        },
       );
 
       // Fix: Check if text is empty or only whitespace
@@ -143,12 +143,12 @@ export class AiChat {
 
   private async checkIfReplyToBot(
     message: Message,
-    client: Client
+    client: Client,
   ): Promise<boolean> {
     if (!message.reference) return false;
     try {
       const referenced = await message.channel.messages.fetch(
-        message.reference.messageId!
+        message.reference.messageId!,
       );
       return referenced?.author.id === client.user?.id;
     } catch {
@@ -157,13 +157,13 @@ export class AiChat {
   }
 
   private async getReplyContext(
-    message: Message
+    message: Message,
   ): Promise<{ replyContext: string; repliedImages: string[] }> {
     if (!message.reference) return { replyContext: "", repliedImages: [] };
 
     try {
       const repliedMessage = await message.channel.messages.fetch(
-        message.reference.messageId!
+        message.reference.messageId!,
       );
       if (!repliedMessage) return { replyContext: "", repliedImages: [] };
 
@@ -174,7 +174,7 @@ export class AiChat {
           : "message";
         const repliedUserContext = await this.getUserContext(
           repliedMessage.author.id,
-          message
+          message,
         );
 
         return {
@@ -199,12 +199,12 @@ export class AiChat {
 
   private async getUserContext(
     memberId: string,
-    message: Message
+    message: Message,
   ): Promise<string> {
     try {
       const userStats = await StatsService.getUserStatsEmbed(
         memberId,
-        message.guildId!
+        message.guildId!,
       );
       if (!userStats)
         return "\n\n[User Context: New member, no stats available]";
@@ -231,7 +231,7 @@ export class AiChat {
 
     for (const step of steps) {
       const gifResult = step.toolResults?.find(
-        (result: any) => result.toolName === "searchMemeGifs"
+        (result: any) => result.toolName === "searchMemeGifs",
       );
       if (gifResult?.output?.success && gifResult.output.gifUrl) {
         return gifResult.output.gifUrl;

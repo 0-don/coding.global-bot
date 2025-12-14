@@ -12,7 +12,7 @@ export class VoiceStateUpdate {
   @On()
   async voiceStateUpdate(
     [oldVoiceState, newVoiceState]: ArgsOf<"voiceStateUpdate">,
-    client: Client
+    client: Client,
   ) {
     const member =
       newVoiceState?.member || (oldVoiceState?.member as GuildMember);

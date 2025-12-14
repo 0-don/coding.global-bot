@@ -23,11 +23,11 @@ export const simpleEmbedExample = (): APIEmbed => ({
 });
 
 export const deletedMessagesHistoryEmbed = (
-  history: MemberDeletedMessages[]
+  history: MemberDeletedMessages[],
 ): APIEmbed => {
   const historyText = history.map(
     ({ channelId, deletedByMemberId, messageMemberId, createdAt }, i) =>
-      `${codeString(placementSuffix(i + 1))} <@${deletedByMemberId}> deleted msg from <@${messageMemberId}> in <#${channelId}> at <t:${dayjs(createdAt).unix()}:R>`
+      `${codeString(placementSuffix(i + 1))} <@${deletedByMemberId}> deleted msg from <@${messageMemberId}> in <#${channelId}> at <t:${dayjs(createdAt).unix()}:R>`,
   );
 
   return {
@@ -48,11 +48,11 @@ ${historyText.join("\n")}
 };
 
 export const commandHistoryEmbed = (
-  history: MemberCommandHistory[]
+  history: MemberCommandHistory[],
 ): APIEmbed => {
   const historyText = history.map(
     ({ memberId, command, channelId, createdAt }, i) =>
-      `${codeString(placementSuffix(i + 1))} <@${memberId}>: **${command}** in <#${channelId}> at <t:${dayjs(createdAt).unix()}:R>`
+      `${codeString(placementSuffix(i + 1))} <@${memberId}>: **${command}** in <#${channelId}> at <t:${dayjs(createdAt).unix()}:R>`,
   );
 
   return {
@@ -76,44 +76,44 @@ export const topStatsExampleEmbed = (args: ToptatsExampleEmbed): APIEmbed => {
   const mostActiveVoiceUserSumString = codeString(
     args.mostActiveVoiceUsers
       .reduce((acc, { sum }) => acc + sum, 0)
-      .toLocaleString("en") + " hours"
+      .toLocaleString("en") + " hours",
   );
 
   const mostActiveVoiceUsersString = args.mostActiveVoiceUsers?.map(
     ({ memberId, sum, username }, i) =>
       `${codeString(
-        placementSuffix(i + 1)
+        placementSuffix(i + 1),
       )} <@${memberId}>: (${username}) ${codeString(
-        sum.toLocaleString("en") + " hours"
-      )}`
+        sum.toLocaleString("en") + " hours",
+      )}`,
   );
 
   const mostActiveVoiceChannelSumString = codeString(
     args.mostActiveVoiceChannels
       .reduce((a, b) => a + b.sum, 0)
-      .toLocaleString("en") + " hours"
+      .toLocaleString("en") + " hours",
   );
 
   const mostActiveVoiceChannelString = args.mostActiveVoiceChannels.map(
     ({ sum, channelId }, i) =>
       `${codeString(placementSuffix(i + 1))} <#${channelId}>: ${codeString(
-        sum.toLocaleString("en") + " hours"
-      )}`
+        sum.toLocaleString("en") + " hours",
+      )}`,
   );
 
   const mostActiveMessageUsersSumString = codeString(
     args.mostActiveMessageUsers
       .reduce((a, b) => a + Number(b.count), 0)
-      .toLocaleString("en") + " messages"
+      .toLocaleString("en") + " messages",
   );
 
   const mostHelpfulUsersString = args.mostHelpfulUsers.map(
     ({ count, memberId, username }, i) =>
       `${codeString(
-        placementSuffix(i + 1)
+        placementSuffix(i + 1),
       )} <@${memberId}>: (${username}) ${codeString(
-        count.toLocaleString("en") + ` help${count > 1 ? "s" : ""}`
-      )}`
+        count.toLocaleString("en") + ` help${count > 1 ? "s" : ""}`,
+      )}`,
   );
 
   const mostHelpfulUsersCount =
@@ -124,23 +124,23 @@ export const topStatsExampleEmbed = (args: ToptatsExampleEmbed): APIEmbed => {
   const mostActiveMessageUsersString = args.mostActiveMessageUsers.map(
     ({ count, memberId, username }, i) =>
       `${codeString(
-        placementSuffix(i + 1)
+        placementSuffix(i + 1),
       )} <@${memberId}>: (${username}) ${codeString(
-        "messaged " + count.toLocaleString("en") + " times"
-      )}`
+        "messaged " + count.toLocaleString("en") + " times",
+      )}`,
   );
 
   const mostActiveMessageChannelSumString = codeString(
     args.mostActiveMessageChannels
       .reduce((a, b) => a + Number(b.count), 0)
-      .toLocaleString("en") + " messages"
+      .toLocaleString("en") + " messages",
   );
 
   const mostActiveMessageChannelString = args.mostActiveMessageChannels.map(
     ({ count, channelId }, i) =>
       `${codeString(placementSuffix(i + 1))} <#${channelId}>: ${codeString(
-        Number(count).toLocaleString("en") + " messages"
-      )}`
+        Number(count).toLocaleString("en") + " messages",
+      )}`,
   );
 
   return {
@@ -183,30 +183,30 @@ ${mostActiveVoiceUsersString.join("\n")}
 };
 
 export const userStatsExampleEmbed = (
-  args: UserStatsExampleEmbed
+  args: UserStatsExampleEmbed,
 ): APIEmbed => {
   const lookbackCommand = codeString("/lookback-me");
   const mostActiveTextChannelString = args.mostActiveTextChannelId
     ? `<#${args.mostActiveTextChannelId}>`
     : "";
   const mostActiveTextChannelCountString = codeString(
-    args.mostActiveTextChannelMessageCount.toLocaleString("en") + " messages"
+    args.mostActiveTextChannelMessageCount.toLocaleString("en") + " messages",
   );
 
   const mostActiveVoiceChannelString = args.mostActiveVoice?.channelId
     ? `<#${args.mostActiveVoice.channelId}> ${codeString(
-        args.mostActiveVoice?.sum.toLocaleString("en") + " hours"
+        args.mostActiveVoice?.sum.toLocaleString("en") + " hours",
       )}`
     : "";
 
   const lookbackVoiceSumString = codeString(
-    args.lookbackVoiceSum.toLocaleString("en") + " hours"
+    args.lookbackVoiceSum.toLocaleString("en") + " hours",
   );
   const oneDayVoiceSumString = codeString(
-    args.oneDayVoiceSum.toLocaleString("en") + " hours"
+    args.oneDayVoiceSum.toLocaleString("en") + " hours",
   );
   const sevenDaysVoiceSumString = codeString(
-    args.sevenDayVoiceSum.toLocaleString("en") + " hours"
+    args.sevenDayVoiceSum.toLocaleString("en") + " hours",
   );
 
   const joinedAtUnix = dayjs(args.joinedAt).unix();
@@ -255,7 +255,7 @@ Received help ${codeString(args.helpReceivedCount.toLocaleString("en"))} times.
         name: "Messages",
         value: `
 __${args.lookback} Days__: ${codeString(
-          `${args.lookbackDaysCount.toLocaleString("en")} messages`
+          `${args.lookbackDaysCount.toLocaleString("en")} messages`,
         )} 
 7 Days: ${codeString(`${args.sevenDaysCount.toLocaleString("en")} messages`)}
 24 Hours: ${codeString(`${args.oneDayCount.toLocaleString("en")} messages`)}

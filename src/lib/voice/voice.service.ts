@@ -31,13 +31,13 @@ export class VoiceService {
 
   static async logVoiceEvents(
     oldVoiceState: VoiceState,
-    newVoiceState: VoiceState
+    newVoiceState: VoiceState,
   ) {
     if (!ConfigValidator.isFeatureEnabled("SHOULD_LOG_VOICE_EVENTS")) {
       if (!this._voiceLoggingWarningLogged) {
         ConfigValidator.logFeatureDisabled(
           "Voice Event Logging",
-          "SHOULD_LOG_VOICE_EVENTS"
+          "SHOULD_LOG_VOICE_EVENTS",
         );
         this._voiceLoggingWarningLogged = true;
       }
@@ -48,7 +48,7 @@ export class VoiceService {
       if (!this._voiceLoggingWarningLogged) {
         ConfigValidator.logFeatureDisabled(
           "Voice Event Logging",
-          "VOICE_EVENT_CHANNELS"
+          "VOICE_EVENT_CHANNELS",
         );
         this._voiceLoggingWarningLogged = true;
       }
@@ -61,7 +61,7 @@ export class VoiceService {
 
       // get voice channel by name
       const voiceEventsChannel = oldVoiceState.guild.channels.cache.find(
-        ({ name }) => VOICE_EVENT_CHANNELS.includes(name)
+        ({ name }) => VOICE_EVENT_CHANNELS.includes(name),
       );
 
       // check if voice channel exists and it is voice channel
@@ -94,7 +94,7 @@ export class VoiceService {
 
   static async logVoiceEventsDb(
     oldVoiceState: VoiceState,
-    newVoiceState: VoiceState
+    newVoiceState: VoiceState,
   ) {
     const memberId = newVoiceState.member?.id ?? oldVoiceState.member?.id;
     const guildId = newVoiceState.guild.id ?? oldVoiceState.guild.id;
