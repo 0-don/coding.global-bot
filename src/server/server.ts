@@ -11,10 +11,7 @@ function formatMemberData(fetchedMember: GuildMember, guild: Guild) {
     id: fetchedMember.user.id,
     username: fetchedMember.user.username,
     globalName: fetchedMember.user.globalName,
-    displayName:
-      fetchedMember.nickname ||
-      fetchedMember.displayName ||
-      fetchedMember.user.username,
+    nickname: fetchedMember.nickname,
     joinedAt: fetchedMember.joinedAt?.toISOString() || null,
     createdAt: fetchedMember.user.createdAt.toISOString(),
     displayAvatarURL: fetchedMember.user.displayAvatarURL({

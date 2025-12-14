@@ -40,6 +40,15 @@ model Member {
   memberId String @id @unique
   username String
 
+  // Global user data
+  globalName  String?
+  createdAt   DateTime?
+  bannerUrl   String?
+  accentColor Int?
+
+  // Timestamps
+  updatedAt DateTime @default(now()) @updatedAt
+
   roles                MemberRole[]
   guilds               MemberGuild[]
   memberMessages       MemberMessages[]
@@ -71,18 +80,32 @@ model MemberGuild {
   status   Boolean
   nickname String?
 
+  // Guild-specific avatar (Nitro feature)
+  avatarUrl String?
+
+  // Guild-specific display data
+  displayName         String?
+  joinedAt            DateTime?
+  displayHexColor     String?
+  highestRolePosition Int?
+
+  // Presence data (optional - can be stale)
+  presenceStatus    String?
+  presenceActivity  String?
+  presenceUpdatedAt DateTime?
+
   moveCounter Int     @default(0) // troll-move-user command
   moving      Boolean @default(false) // troll-move-user command
   moveTimeout Int     @default(0) // troll-move-user command
 
   warnings Int @default(0) // spamming external links
 
-  gptId   String? // gpt session key
-  gptDate DateTime @default(now()) // refresh session every 30 minutes
-
   muted    Boolean @default(false) // if true, mute on join
   deafened Boolean @default(false) // if true, deafen on join
   lookback Int     @default(9999) // stats looback period
+
+  // Timestamps
+  updatedAt DateTime @default(now()) @updatedAt
 
   member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
   guild  Guild  @relation(fields: [guildId], references: [guildId])
@@ -110,7 +133,22 @@ model MemberRole {
   roleId   String
   guildId  String
   memberId String
-  name     String?
+
+  // Role metadata
+  name         String?
+  position     Int?
+  color        Int?
+  hexColor     String?
+  hoist        Boolean?
+  icon         String?
+  unicodeEmoji String?
+  mentionable  Boolean?
+  managed      Boolean?
+  tags         Json?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   member Member @relation(fields: [memberId], references: [memberId], onDelete: Cascade)
   guild  Guild  @relation(fields: [guildId], references: [guildId])
