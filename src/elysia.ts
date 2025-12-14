@@ -279,8 +279,7 @@ export const app = new Elysia({ adapter: node() })
         return b.highestRolePosition - a.highestRolePosition;
       });
 
-      // Take first 50 members
-      const members = sortedMembers.slice(0, 50);
+      const members = sortedMembers.slice(0, 500);
 
       const widget = {
         id: guild.id,
