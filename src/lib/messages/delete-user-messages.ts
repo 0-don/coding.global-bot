@@ -53,7 +53,7 @@ export const deleteUserMessages = async (params: {
 
     // Add Discord role if user is on server
     const member = params.guild.members.cache.get(
-      params.user?.id || params.memberId
+      params.user?.id || params.memberId,
     );
     const role = params.guild.roles.cache.get(jailRoleId);
     if (member && role?.editable) {
@@ -91,11 +91,11 @@ export const deleteUserMessages = async (params: {
       const userMessages = messages.filter(
         (m: Message) =>
           m.author.id === params.memberId &&
-          dayjs(m.createdAt).isAfter(cutoffDate)
+          dayjs(m.createdAt).isAfter(cutoffDate),
       );
 
       await Promise.all(
-        userMessages.map((m: Message) => m.delete().catch(console.error))
+        userMessages.map((m: Message) => m.delete().catch(console.error)),
       );
     } catch (error) {
       console.error(`Error processing channel ${channel.id}:`, error);

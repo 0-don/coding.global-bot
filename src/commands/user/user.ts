@@ -27,7 +27,7 @@ export class UserCommand {
       type: ApplicationCommandOptionType.User,
     })
     user: User,
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) {
     // get text channel
     const channel = (await interaction.channel?.fetch()) as TextChannel;
@@ -41,7 +41,7 @@ export class UserCommand {
       // if not bot channel, return
       if (!BOT_CHANNELS.includes(channel.name))
         return await interaction.editReply(
-          "Please use this command in the bot channel"
+          "Please use this command in the bot channel",
         );
     }
 

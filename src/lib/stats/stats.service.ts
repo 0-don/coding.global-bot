@@ -99,7 +99,7 @@ export class StatsService {
 
   static async userStatsEmbed(
     interaction: CommandInteraction<CacheType>,
-    user?: User | null
+    user?: User | null,
   ) {
     const memberId = user?.id ?? interaction.member?.user.id;
     const guildId = interaction.guild?.id;
@@ -259,28 +259,28 @@ export class StatsService {
         voiceStatsLookback.reduce((acc, curr) => acc + Number(curr.sum), 0) /
         60 /
         60
-      ).toFixed(2)
+      ).toFixed(2),
     );
 
     const sevenDayVoiceSum = Number(
       (
         voiceStatsSevenDays.reduce(
           (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)),
-          0
+          0,
         ) /
         60 /
         60
-      ).toFixed(2)
+      ).toFixed(2),
     );
     const oneDayVoiceSum = Number(
       (
         voiceStatsOneDay.reduce(
           (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)),
-          0
+          0,
         ) /
         60 /
         60
-      ).toFixed(2)
+      ).toFixed(2),
     );
 
     return {
@@ -294,7 +294,7 @@ export class StatsService {
   static async messagesStats(
     memberId: string,
     guildId: string,
-    lookback: number
+    lookback: number,
   ) {
     // Execute message stat queries in parallel
     const [memberMessagesByDate, mostActiveTextChannel] = await Promise.all([
@@ -313,19 +313,19 @@ export class StatsService {
 
     const mostActiveTextChannelId = mostActiveTextChannel?.[0]?.channelId;
     const mostActiveTextChannelMessageCount = Number(
-      mostActiveTextChannel?.[0]?.count ?? 0
+      mostActiveTextChannel?.[0]?.count ?? 0,
     );
 
     // create date array from first to today for each day
     const startEndDateArray = getDaysArray(
       memberMessagesByDate[0]?.createdAt ?? new Date(),
-      dayjs().add(1, "day").toDate()
+      dayjs().add(1, "day").toDate(),
     );
 
     const messages: ChartDataset[] = startEndDateArray.map((date) => ({
       x: dayjs(date).toDate(),
       y: memberMessagesByDate.filter(
-        ({ createdAt }) => dayjs(createdAt) <= dayjs(date)
+        ({ createdAt }) => dayjs(createdAt) <= dayjs(date),
       ).length,
     }));
 

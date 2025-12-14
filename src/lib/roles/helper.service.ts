@@ -11,7 +11,7 @@ export class HelperService {
       if (!this._helperSystemWarningLogged) {
         ConfigValidator.logFeatureDisabled(
           "Helper Role System",
-          "HELPER_ROLES"
+          "HELPER_ROLES",
         );
         this._helperSystemWarningLogged = true;
       }
@@ -26,7 +26,7 @@ export class HelperService {
 
     //check if user has helper role
     const hasHelperRole = memberRoles.some((role) =>
-      HELPER_ROLES.includes(role.name as (typeof HELPER_ROLES)[number])
+      HELPER_ROLES.includes(role.name as (typeof HELPER_ROLES)[number]),
     );
     if (!hasHelperRole) return;
 
@@ -51,7 +51,7 @@ export class HelperService {
       (message.channel as TextChannel).send(
         `Congratulations ${guildMember.toString()} you are now ${
           helperRole.name
-        } 🎉`
+        } 🎉`,
       );
     }
   }

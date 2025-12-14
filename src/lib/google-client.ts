@@ -25,7 +25,7 @@ class GoogleClientRotator {
     if (this.providers.length > 1) {
       this.currentIndex = (this.currentIndex + 1) % this.providers.length;
       log(
-        `Rotated to API key ${this.currentIndex + 1}/${this.providers.length}`
+        `Rotated to API key ${this.currentIndex + 1}/${this.providers.length}`,
       );
     }
   }
@@ -47,7 +47,7 @@ class GoogleClientRotator {
 
   async executeWithRotation<T>(
     operation: () => Promise<T>,
-    maxRetries?: number
+    maxRetries?: number,
   ): Promise<T> {
     const retries = maxRetries || this.providers.length;
     let lastError: unknown;
@@ -59,7 +59,7 @@ class GoogleClientRotator {
         lastError = error;
         const message = error instanceof Error ? error.message : String(error);
         console.error(
-          `AI error (attempt ${attempt + 1}/${retries}): ${message}`
+          `AI error (attempt ${attempt + 1}/${retries}): ${message}`,
         );
 
         if (this.shouldRotateOnError(error) && attempt < retries - 1) {
@@ -67,7 +67,7 @@ class GoogleClientRotator {
           await new Promise((resolve) => setTimeout(resolve, 1000));
         } else if (attempt < retries - 1) {
           await new Promise((resolve) =>
-            setTimeout(resolve, Math.pow(2, attempt) * 1000)
+            setTimeout(resolve, Math.pow(2, attempt) * 1000),
           );
         }
       }

@@ -24,7 +24,7 @@ export const gatherChannelContext = tool({
   execute: async ({ channelId, guildId, messageCount }) => {
     try {
       log(
-        `Gathering AI context from channel ${channelId} in guild ${guildId}...`
+        `Gathering AI context from channel ${channelId} in guild ${guildId}...`,
       );
       const guild = await bot.guilds.fetch(guildId).catch(() => null);
       if (!guild) {
@@ -52,7 +52,7 @@ export const gatherChannelContext = tool({
           try {
             const userStats = await StatsService.getUserStatsEmbed(
               message.author.id,
-              guildId
+              guildId,
             );
             userContexts.set(message.author.id, userStats);
           } catch (error) {

@@ -9,7 +9,7 @@ import type {
 
 export async function fetchMessages(
   channel: TextChannel | PrivateThreadChannel | PublicThreadChannel<boolean>,
-  limit: number = 100
+  limit: number = 100,
 ): Promise<Message[]> {
   let out: Message[] = [];
   if (limit <= 100) {
@@ -40,6 +40,6 @@ export async function fetchMessages(
   // remove duplicates
   return out.filter(
     (message, index, self) =>
-      self.findIndex((m) => m.id === message.id) === index
+      self.findIndex((m) => m.id === message.id) === index,
   );
 }

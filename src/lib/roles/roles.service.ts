@@ -46,14 +46,14 @@ export class RolesService {
       // Check for restricted roles (JAIL or VOICE_ONLY)
       const jailId = args.guildRoles.find((role) => role.name === JAIL)?.id;
       const voiceOnlyId = args.guildRoles.find(
-        (role) => role.name === VOICE_ONLY
+        (role) => role.name === VOICE_ONLY,
       )?.id;
 
       const jailDbRole = args.memberDbRoles.find(
-        (dbRole) => dbRole.roleId === jailId
+        (dbRole) => dbRole.roleId === jailId,
       );
       const voiceOnlyDbRole = args.memberDbRoles.find(
-        (dbRole) => dbRole.roleId === voiceOnlyId
+        (dbRole) => dbRole.roleId === voiceOnlyId,
       );
 
       // If user has JAIL or VOICE_ONLY role, don't add new roles
@@ -61,7 +61,7 @@ export class RolesService {
 
       // add or update new role
       const newAddedRole = args.newRoles.filter(
-        (role) => !args.oldRoles.includes(role)
+        (role) => !args.oldRoles.includes(role),
       )[0];
       if (!newAddedRole) return;
 
@@ -88,7 +88,7 @@ export class RolesService {
     if (args.newRoles.length < args.oldRoles.length) {
       // get the removed role
       const newRemovedRole = args.oldRoles.find(
-        (role) => !args.newRoles.includes(role)
+        (role) => !args.newRoles.includes(role),
       );
 
       // if no role was removed return
@@ -122,13 +122,13 @@ export class RolesService {
         (dbRole) =>
           dbRole.roleId ===
           args.guildRoles.find((role) =>
-            restrictedRoleNames.includes(role.name)
-          )?.id
+            restrictedRoleNames.includes(role.name),
+          )?.id,
       );
 
       if (dbRestrictedRole) {
         const restrictedRoleName = args.guildRoles.find(
-          (role) => role.id === dbRestrictedRole.roleId
+          (role) => role.id === dbRestrictedRole.roleId,
         )?.name;
 
         // Remove all roles except the restricted one
@@ -140,7 +140,7 @@ export class RolesService {
         // Add restricted role if not on user
         if (
           !args.newMember.roles.cache.some(
-            (role) => role.name === restrictedRoleName
+            (role) => role.name === restrictedRoleName,
           )
         )
           args.newMember.roles.add(dbRestrictedRole.roleId).catch(() => {});
@@ -169,13 +169,13 @@ export class RolesService {
     // Handle JAIL or VOICE_ONLY role addition
     if (newAddedRole === JAIL || newAddedRole === VOICE_ONLY) {
       const restrictedRole = args.newMember.roles.cache.find(
-        (role) => role.name === newAddedRole
+        (role) => role.name === newAddedRole,
       );
 
       args.newMember.roles.cache.forEach(
         (role) =>
           role.name !== newAddedRole &&
-          args.newMember.roles.remove(role).catch(() => {})
+          args.newMember.roles.remove(role).catch(() => {}),
       );
 
       return await prisma.memberRole.deleteMany({
@@ -193,7 +193,7 @@ export class RolesService {
         (role) =>
           newAddedRole !== role.name &&
           STATUS_ROLES.includes(role.name) &&
-          args.newMember.roles.remove(role)
+          args.newMember.roles.remove(role),
       );
     }
 
@@ -209,7 +209,7 @@ export class RolesService {
         },
       });
       const role = args.newMember.guild.roles.cache.find(
-        (role) => role.name === newAddedRole
+        (role) => role.name === newAddedRole,
       );
       if (memberMessages < levelRole.count && role) {
         args.newMember.roles.remove(role);
@@ -224,14 +224,14 @@ export class RolesService {
     //check for verified roles "verified", "voiceOnly", "readOnly", "mute"
     for (let role of STATUS_ROLES)
       guildStatusRoles[role] = guild?.roles.cache.find(
-        ({ name }) => name === role
+        ({ name }) => name === role,
       );
     return guildStatusRoles;
   }
 
   static async verify(
     member: GuildMember | PartialGuildMember,
-    role: StatusRoles
+    role: StatusRoles,
   ) {
     // get icon reaction role
     const guildStatusRoles = RolesService.getGuildStatusRoles(member.guild);
@@ -245,7 +245,7 @@ export class RolesService {
 
   static async verifyReaction(
     reaction: MessageReaction | PartialMessageReaction,
-    user: User | PartialUser
+    user: User | PartialUser,
   ) {
     // check if template
     const isTemplate = reaction.message.embeds[0]?.footer?.text;
@@ -265,7 +265,7 @@ export class RolesService {
     });
 
     const guildRoles = reaction.message.guild?.roles.cache.filter((role) =>
-      memberDbRoles.some((dbRole) => dbRole.roleId === role.id)
+      memberDbRoles.some((dbRole) => dbRole.roleId === role.id),
     );
 
     // if jail role exist then exit
@@ -274,14 +274,14 @@ export class RolesService {
     // if icon reaction role on user then exit
     if (
       member?.roles.cache.some((role) =>
-        [VERIFIED, JAIL, VOICE_ONLY].includes(role.name as any)
+        [VERIFIED, JAIL, VOICE_ONLY].includes(role.name as any),
       )
     )
       return;
 
     // get icon reaction role
     const guildStatusRoles = RolesService.getGuildStatusRoles(
-      reaction.message.guild!
+      reaction.message.guild!,
     );
 
     const guildRole = guildStatusRoles[VERIFIED];

@@ -30,7 +30,7 @@ export class Members {
       // if not bot channel, return
       if (!BOT_CHANNELS.includes(channel.name))
         return await interaction.editReply(
-          "Please use this command in the bot channel"
+          "Please use this command in the bot channel",
         );
     }
     // if somehow no guild, return
@@ -50,7 +50,7 @@ export class Members {
 
     const count = interaction.guild.members.cache.size;
     const memberCount = interaction.guild.members.cache.filter(
-      (member) => !member.user.bot
+      (member) => !member.user.bot,
     ).size;
     const botCount = count - memberCount;
 

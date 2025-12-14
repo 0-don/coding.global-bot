@@ -38,7 +38,7 @@ export class GifService {
   }
 
   static async getRandomMeme(
-    category: string = "programming"
+    category: string = "programming",
   ): Promise<string | null> {
     const gifs = await this.searchGifs(`${category} meme`, 10);
     return gifs.length > 0

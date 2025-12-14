@@ -35,7 +35,7 @@ export class DeleteMessages {
       type: ApplicationCommandOptionType.Boolean,
     })
     jail: boolean = false,
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) {
     LogService.logCommandHistory(interaction, "delete-user-messages");
     const memberId = user?.id ?? userId;

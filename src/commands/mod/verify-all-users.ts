@@ -1,7 +1,6 @@
+import { PermissionFlagsBits } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
 import { Discord, SimpleCommand } from "discordx";
-
-import { PermissionFlagsBits } from "discord.js";
 import { verifyAllUsers } from "../../lib/members/verify-all-users";
 
 @Discord()

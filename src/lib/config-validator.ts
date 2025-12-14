@@ -119,7 +119,7 @@ export class ConfigValidator {
     }
 
     log(
-      `📊 Configuration: ${configured.length}/${this.checks.length} features enabled\n`
+      `📊 Configuration: ${configured.length}/${this.checks.length} features enabled\n`,
     );
   }
 
@@ -130,7 +130,7 @@ export class ConfigValidator {
 
   public static logFeatureDisabled(
     feature: string,
-    envKey: keyof FeatureBotEnvironment
+    envKey: keyof FeatureBotEnvironment,
   ): void {
     warn(`⚠️  ${feature} disabled: ${envKey} not configured`);
   }

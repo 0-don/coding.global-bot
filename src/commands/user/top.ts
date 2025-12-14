@@ -29,7 +29,7 @@ export class Top {
       maxValue: 9999,
     })
     lookback: number = 9999,
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) {
     // get text channel
     LogService.logCommandHistory(interaction, "top");
@@ -45,16 +45,16 @@ export class Top {
     } else if (!ConfigValidator.isFeatureEnabled("BOT_CHANNELS")) {
       ConfigValidator.logFeatureDisabled(
         "Bot Channel Restrictions",
-        "BOT_CHANNELS"
+        "BOT_CHANNELS",
       );
       return await interaction.editReply(
-        "Bot channel restrictions are enabled but no bot channels are configured."
+        "Bot channel restrictions are enabled but no bot channels are configured.",
       );
     } else {
       const channel = (await interaction.channel?.fetch()) as TextChannel;
       if (!BOT_CHANNELS.includes(channel.name)) {
         return await interaction.editReply(
-          "Please use this command in the bot channel"
+          "Please use this command in the bot channel",
         );
       }
     }
@@ -63,12 +63,12 @@ export class Top {
       if (!BOT_CHANNELS.includes(channel.name))
         // if not bot channel, return
         return await interaction.editReply(
-          "Please use this command in the bot channel"
+          "Please use this command in the bot channel",
         );
     }
     const embed = await StatsService.topStatsEmbed(
       interaction.guildId,
-      lookback
+      lookback,
     );
 
     if (typeof embed === "string") return await interaction.editReply(embed);

@@ -3,7 +3,7 @@ import { prisma } from "../../prisma";
 
 export const updateNickname = async (
   oldMember: GuildMember | PartialGuildMember,
-  newMember: GuildMember | PartialGuildMember
+  newMember: GuildMember | PartialGuildMember,
 ) => {
   if (oldMember.user.bot) return;
 

@@ -57,7 +57,7 @@ export class MessagesService {
   // }
 
   static async saveDeletedMessageHistory(
-    message: Message<boolean> | PartialMessage
+    message: Message<boolean> | PartialMessage,
   ) {
     const content = message.content;
     const channelId = message.channelId;
@@ -116,7 +116,7 @@ export class MessagesService {
       if (!this._levelSystemWarningLogged) {
         ConfigValidator.logFeatureDisabled(
           "Level Up System",
-          "SHOULD_USER_LEVEL_UP"
+          "SHOULD_USER_LEVEL_UP",
         );
         this._levelSystemWarningLogged = true;
       }
@@ -134,7 +134,7 @@ export class MessagesService {
     const memberInJail = message.member?.roles.cache.some(
       (role) =>
         JAIL === role.name.toLowerCase() ||
-        VOICE_ONLY === role.name.toLowerCase()
+        VOICE_ONLY === role.name.toLowerCase(),
     );
 
     if (memberInJail) return;
@@ -146,7 +146,7 @@ export class MessagesService {
     for (const item of LEVEL_LIST) {
       if (memberMessages >= item.count) {
         const role = message.guild?.roles.cache.find(
-          (role) => role.name === item.role
+          (role) => role.name === item.role,
         );
 
         if (

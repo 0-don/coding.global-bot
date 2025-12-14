@@ -22,7 +22,7 @@ export class Translate {
       type: ApplicationCommandOptionType.String,
     })
     txt: string,
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) {
     // Defer reply if it takes longer than usual
     await interaction.deferReply();

@@ -20,7 +20,7 @@ export class MessageCreate {
   @On({ event: "messageCreate" })
   async messageCreate(
     [message]: ArgsOf<"messageCreate">,
-    client: Client
+    client: Client,
   ): Promise<void> {
     // remove regular messages in verify channel
     // MessagesService.cleanUpVerifyChannel(message);
@@ -54,7 +54,7 @@ export class MessageCreate {
       channel instanceof ThreadChannel // Type guard
     ) {
       const parentChannel = message.guild?.channels.cache.get(
-        channel.parentId!
+        channel.parentId!,
       );
       if (
         parentChannel &&
@@ -281,14 +281,14 @@ export class MessageCreate {
       const channel = (await message.channel.fetch()) as TextChannel;
 
       const replyMsg = await channel.messages.fetch(
-        message.reference?.messageId
+        message.reference?.messageId,
       );
 
       await message.delete();
 
       channel.send({
         content: await translate(
-          Buffer.from(replyMsg.content, "utf-8").toString()
+          Buffer.from(replyMsg.content, "utf-8").toString(),
         ),
         allowedMentions: { users: [], roles: [] },
       });

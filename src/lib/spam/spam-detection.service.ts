@@ -36,7 +36,7 @@ Provide your confidence level:
 
   private static async isFirstMessage(
     memberId: string,
-    guildId: string
+    guildId: string,
   ): Promise<boolean> {
     const messageCount = await prisma.memberMessages.count({
       where: { memberId, guildId },
@@ -78,7 +78,7 @@ Provide your confidence level:
       if (!this._spamDetectionWarningLogged) {
         ConfigValidator.logFeatureDisabled(
           "AI Spam Detection",
-          "GOOGLE_GENERATIVE_AI_API_KEY"
+          "GOOGLE_GENERATIVE_AI_API_KEY",
         );
         this._spamDetectionWarningLogged = true;
       }
@@ -92,7 +92,7 @@ Provide your confidence level:
 
     const isFirst = await this.isFirstMessage(
       message.author.id,
-      message.guildId
+      message.guildId,
     );
     if (!isFirst) return false;
 
@@ -149,7 +149,7 @@ Message: "${message.content}"`;
       });
 
       log(
-        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Spam: ${object.isSpam} - Confidence: ${object.confidence}`
+        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Spam: ${object.isSpam} - Confidence: ${object.confidence}`,
       );
 
       return object.isSpam && object.confidence !== "low";

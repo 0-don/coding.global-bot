@@ -29,7 +29,7 @@ export class MembersService {
 
   static async upsertDbMember(
     member: GuildMember | PartialGuildMember,
-    status: "join" | "leave"
+    status: "join" | "leave",
   ) {
     // dont add bots to the list
     if (member.user.bot) return;
@@ -38,7 +38,7 @@ export class MembersService {
       if (!this._memberCountWarningLogged) {
         ConfigValidator.logFeatureDisabled(
           "Member Count Display",
-          "SHOULD_COUNT_MEMBERS"
+          "SHOULD_COUNT_MEMBERS",
         );
         this._memberCountWarningLogged = true;
       }
@@ -49,7 +49,7 @@ export class MembersService {
       if (!this._memberCountWarningLogged) {
         ConfigValidator.logFeatureDisabled(
           "Member Count Display",
-          "MEMBERS_COUNT_CHANNELS"
+          "MEMBERS_COUNT_CHANNELS",
         );
         this._memberCountWarningLogged = true;
       }
@@ -114,7 +114,7 @@ export class MembersService {
 
   static async logJoinLeaveEvents(
     member: GuildMember,
-    event: "join" | "leave"
+    event: "join" | "leave",
   ) {
     try {
       if (!ConfigValidator.isFeatureEnabled("JOIN_EVENT_CHANNELS")) {
@@ -123,7 +123,7 @@ export class MembersService {
 
       // get voice channel by name
       const joinEventsChannel = member.guild.channels.cache.find(({ name }) =>
-        JOIN_EVENT_CHANNELS.includes(name)
+        JOIN_EVENT_CHANNELS.includes(name),
       );
 
       // check if voice channel exists and it is voice channel
@@ -160,7 +160,7 @@ export class MembersService {
     for (const channelName of MEMBERS_COUNT_CHANNELS) {
       // find member: channel
       const memberCountChannel = member.guild.channels.cache.find((channel) =>
-        channel.name.includes(channelName)
+        channel.name.includes(channelName),
       );
 
       // if no channel return
@@ -168,7 +168,7 @@ export class MembersService {
 
       // count members exc
       const memberCount = member.guild.members.cache.filter(
-        (member) => !member.user.bot
+        (member) => !member.user.bot,
       ).size;
 
       // set channel name as member count
@@ -179,7 +179,7 @@ export class MembersService {
   }
 
   static async guildMemberCountChart(
-    guild: Guild
+    guild: Guild,
   ): Promise<GuildMemberCountChart> {
     // get guild data
     const guildId = guild.id;
@@ -203,7 +203,7 @@ export class MembersService {
     // create date array from first to today for each day
     const startEndDateArray = getDaysArray(
       dates[0],
-      dayjs().add(1, "day").toDate()
+      dayjs().add(1, "day").toDate(),
     );
 
     // get member count for each day and format it for chartjs
@@ -228,14 +228,14 @@ export class MembersService {
     const config = chartConfig(
       data.slice(
         // splice only the lookback range if it fits. 2 values minium needed for chart
-        data.length - 2 < lookback ? 0 : lookback * -1
-      ) as any
+        data.length - 2 < lookback ? 0 : lookback * -1,
+      ) as any,
     );
 
     ChartManager.destroyChart();
     const chart = new Chart(
       CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D,
-      config
+      config,
     );
     ChartManager.setChart(chart);
 

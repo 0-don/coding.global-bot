@@ -20,7 +20,7 @@ export class LogDeletedMessagesHistory {
       type: ApplicationCommandOptionType.String,
     })
     count: string,
-    interaction: CommandInteraction
+    interaction: CommandInteraction,
   ) {
     LogService.logCommandHistory(interaction, "log-deleted-messages-history");
     const c = count ? Number(count) : 10;

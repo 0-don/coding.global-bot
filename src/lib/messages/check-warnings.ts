@@ -31,7 +31,7 @@ export const checkWarnings = async (message: Message<boolean>) => {
     if (currentWarnings < 4) {
       try {
         await member.send(
-          `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be muted at 3 warnings.`
+          `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be muted at 3 warnings.`,
         );
       } catch (error) {}
     } else {
