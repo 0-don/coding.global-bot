@@ -153,18 +153,27 @@ export const app = new Elysia({ adapter: node() })
           !member.user.bot,
       );
 
+      // Sort members by highest role position BEFORE fetching details
+      const sortedOnlineMembers = Array.from(onlineMembers.values()).sort(
+        (a, b) => {
+          const highestRoleA = a.roles.highest.position;
+          const highestRoleB = b.roles.highest.position;
+          return highestRoleB - highestRoleA;
+        },
+      );
+
+      // Only fetch details for top 100 members
+      const top100Members = sortedOnlineMembers.slice(0, 100);
+
       const membersWithRoles = await Promise.all(
-        Array.from(onlineMembers.values()).map((member) =>
+        top100Members.map((member) =>
           parseUserWithRoles(member.id, guild, member),
         ),
       );
 
-      //sort by highest role position
-      const sortedMembers = membersWithRoles
-        .filter((m): m is NonNullable<typeof m> => m !== null)
-        .sort((a, b) => b.highestRolePosition - a.highestRolePosition);
-
-      const members = sortedMembers.slice(0, 500);
+      const members = membersWithRoles.filter(
+        (m): m is NonNullable<typeof m> => m !== null,
+      );
 
       const widget = {
         id: guild.id,
