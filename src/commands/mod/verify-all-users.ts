@@ -1,6 +1,7 @@
 import type { SimpleCommandMessage } from "discordx";
 import { Discord, SimpleCommand } from "discordx";
 
+import { PermissionFlagsBits } from "discord.js";
 import { verifyAllUsers } from "../../lib/members/verify-all-users";
 
 @Discord()
@@ -12,7 +13,7 @@ export class VerifyAllUsers {
     if (!message.guild) return;
 
     const member = await message.guild.members.fetch(message.author.id);
-    if (!member.permissions.has("ManageRoles")) {
+    if (!member.permissions.has(PermissionFlagsBits.ManageRoles)) {
       await message.reply({
         content: "You don't have permission to use this command.",
       });
