@@ -38,7 +38,7 @@ export async function parseUserWithRoles(
       size: 512,
       extension: "webp",
     }),
-    bannerUrl: fullUser.bannerURL({ size: 512, extension: "webp" }) || null,
+    bannerUrl: fullUser.bannerURL({ size: 1024, extension: "webp" }) || null,
     displayHexColor: String(fetchedMember.displayHexColor || "#000000"),
     roles,
     highestRolePosition: roles[0]?.position || 0,
