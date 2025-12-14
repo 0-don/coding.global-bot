@@ -34,6 +34,11 @@ export async function parseUserWithRoles(
   const user = isMessage ? (member as Message).author : fetchedMember?.user;
   if (!user || !fetchedMember) return null;
 
+  // Fetch full user data to get banner (partial user objects don't include banner)
+  const fullUser = await bot.users
+    .fetch(userId, { force: true })
+    .catch(() => user);
+
   // Get roles directly from Discord member and map to our format
   const roles = Array.from(fetchedMember.roles.cache.values())
     .filter((role) => role.id !== guild.id) // Exclude @everyone role
@@ -47,18 +52,20 @@ export async function parseUserWithRoles(
   const highestRolePosition = roles.length > 0 ? roles[0].position : 0;
 
   return {
-    id: user.id,
-    username: user.username,
-    globalName: user.globalName,
+    id: fullUser.id,
+    username: fullUser.username,
+    globalName: fullUser.globalName,
     displayName:
-      fetchedMember?.nickname || fetchedMember?.displayName || user.username,
+      fetchedMember?.nickname ||
+      fetchedMember?.displayName ||
+      fullUser.username,
     joinedAt: fetchedMember?.joinedAt?.toISOString() || null,
-    createdAt: user.createdAt.toISOString(),
-    displayAvatarURL: user.displayAvatarURL({
+    createdAt: fullUser.createdAt.toISOString(),
+    displayAvatarURL: fullUser.displayAvatarURL({
       size: 512,
       extension: "webp",
     }),
-    bannerUrl: user.bannerURL({ size: 512, extension: "webp" }) || null,
+    bannerUrl: fullUser.bannerURL({ size: 512, extension: "webp" }) || null,
     displayHexColor: String(fetchedMember?.displayHexColor || "#000000"),
     roles,
     highestRolePosition,
