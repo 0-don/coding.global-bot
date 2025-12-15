@@ -1,23 +1,26 @@
+import { error } from "console";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { joinSettings } from "../lib/members/join-nickname";
+import { updateCompleteMemberData } from "../lib/members/member-data.service";
 import { MembersService } from "../lib/members/members.service";
 
 @Discord()
 export class GuildMemberAdd {
   @On({ event: "guildMemberAdd" })
   async guildMemberAdd([member]: ArgsOf<"guildMemberAdd">, client: Client) {
-    MembersService.logJoinLeaveEvents(member, "join");
+    try {
+      MembersService.logJoinLeaveEvents(member, "join");
 
-    // create or update user with his roles
-    MembersService.upsertDbMember(member, "join");
+      await updateCompleteMemberData(member);
 
-    // rules not yet accepted
-    if (member.pending) return;
+      if (member.pending) return;
 
-    // update user count channel
-    MembersService.updateMemberCount(member);
+      MembersService.updateMemberCount(member);
 
-    joinSettings(member);
+      joinSettings(member);
+    } catch (err) {
+      error(`Failed to process guild member add for ${member.id}:`, err);
+    }
   }
 }

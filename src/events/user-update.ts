@@ -1,26 +1,23 @@
 import { error } from "console";
-import type { ArgsOf } from "discordx";
+import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { prisma } from "../prisma";
+import { updateCompleteMemberData } from "../lib/members/member-data.service";
 
 @Discord()
 export class UserUpdate {
   @On()
-  async userUpdate([oldUser, newUser]: ArgsOf<"userUpdate">) {
+  async userUpdate([oldUser, newUser]: ArgsOf<"userUpdate">, client: Client) {
     try {
-      // Force fetch to get banner and accent color data
-      const fetchedUser = await newUser.fetch(true).catch(() => newUser);
-
-      // Update user data in database
-      await prisma.member.update({
-        where: { memberId: newUser.id },
-        data: {
-          username: fetchedUser.username,
-          globalName: fetchedUser.globalName,
-          bannerUrl: fetchedUser.bannerURL({ size: 1024 }) || null,
-          accentColor: fetchedUser.accentColor,
-        },
-      });
+      for (const guild of client.guilds.cache.values()) {
+        try {
+          const member = await guild.members.fetch(newUser.id);
+          if (member) {
+            await updateCompleteMemberData(member);
+          }
+        } catch (err) {
+          continue;
+        }
+      }
     } catch (err) {
       error(`Failed to update user ${newUser.id}:`, err);
     }
