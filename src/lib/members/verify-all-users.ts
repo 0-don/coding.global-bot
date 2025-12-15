@@ -2,8 +2,9 @@ import { error, log } from "console";
 import type { TextBasedChannel } from "discord.js";
 import { Collection, Guild, GuildMember } from "discord.js";
 import { prisma } from "../../prisma";
-import { EVERYONE, STATUS_ROLES, VERIFIED } from "../constants";
+import { STATUS_ROLES, VERIFIED } from "../constants";
 import { RolesService } from "../roles/roles.service";
+import { updateCompleteMemberData } from "./member-data.service";
 
 interface VerificationState {
   lastProcessedIndex: number;
@@ -103,100 +104,8 @@ class MemberVerifier {
     while (true) {
       attempt++;
       try {
-        const user = await member.user.fetch(true);
-
-        const memberData = {
-          memberId: member.id,
-          username: user.username,
-          globalName: user.globalName,
-          createdAt: user.createdAt,
-          bannerUrl: user.bannerURL({ size: 1024 }) || null,
-          accentColor: user.accentColor,
-        };
-
-        const sortedRoles = Array.from(member.roles.cache.values())
-          .filter((role) => role.name !== EVERYONE)
-          .sort((a, b) => b.position - a.position);
-
-        const memberGuildData = {
-          memberId: member.id,
-          guildId: this.guild.id,
-          status: true,
-          nickname: member.nickname,
-          displayName: member.displayName,
-          joinedAt: member.joinedAt,
-          displayHexColor: member.displayHexColor,
-          highestRolePosition: sortedRoles[0]?.position || null,
-          avatarUrl: member.avatarURL({ size: 1024 }) || null,
-          presenceStatus: member.presence?.status || null,
-          presenceActivity: member.presence?.activities[0]?.name || null,
-          presenceUpdatedAt: member.presence ? new Date() : null,
-        };
-
-        const memberRoleCreates = member.roles.cache
-          .filter((role) => role.name !== EVERYONE)
-          .map((role) => ({
-            roleId: role.id,
-            name: role.name,
-            position: role.position,
-            color: role.colors?.primaryColor || null,
-            hexColor: role.hexColor,
-            hoist: role.hoist,
-            icon: role.icon,
-            unicodeEmoji: role.unicodeEmoji,
-            mentionable: role.mentionable,
-            managed: role.managed,
-            tags: role.tags ? JSON.parse(JSON.stringify(role.tags)) : null,
-            memberId: member.id,
-            guildId: this.guild.id,
-          }));
-
-        await prisma.$transaction(async (tx) => {
-          await tx.memberRole.deleteMany({
-            where: { memberId: member.id, guildId: this.guild.id },
-          });
-
-          await tx.member.upsert({
-            where: { memberId: memberData.memberId },
-            create: memberData,
-            update: {
-              username: memberData.username,
-              globalName: memberData.globalName,
-              createdAt: memberData.createdAt,
-              bannerUrl: memberData.bannerUrl,
-              accentColor: memberData.accentColor,
-            },
-          });
-
-          await tx.memberGuild.upsert({
-            where: {
-              member_guild: {
-                memberId: memberGuildData.memberId,
-                guildId: memberGuildData.guildId,
-              },
-            },
-            create: memberGuildData,
-            update: {
-              status: memberGuildData.status,
-              nickname: memberGuildData.nickname,
-              displayName: memberGuildData.displayName,
-              joinedAt: memberGuildData.joinedAt,
-              displayHexColor: memberGuildData.displayHexColor,
-              highestRolePosition: memberGuildData.highestRolePosition,
-              avatarUrl: memberGuildData.avatarUrl,
-              presenceStatus: memberGuildData.presenceStatus,
-              presenceActivity: memberGuildData.presenceActivity,
-              presenceUpdatedAt: memberGuildData.presenceUpdatedAt,
-            },
-          });
-
-          if (memberRoleCreates.length > 0) {
-            await tx.memberRole.createMany({
-              data: memberRoleCreates,
-              skipDuplicates: true,
-            });
-          }
-        });
+        // Use the unified updateCompleteMemberData function
+        await updateCompleteMemberData(member);
 
         if (guildStatusRoles[VERIFIED]) {
           const verifiedRoleId = guildStatusRoles[VERIFIED]!.id;
