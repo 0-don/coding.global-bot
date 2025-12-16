@@ -1,7 +1,7 @@
-import { GuildVoiceEvents } from "@prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { TextChannel, VoiceState } from "discord.js";
+import { GuildVoiceEvents } from "../../generated/prisma/client";
 import { prisma } from "../../prisma";
 import { ConfigValidator } from "../config-validator";
 import { VOICE_EVENT_CHANNELS } from "../constants";

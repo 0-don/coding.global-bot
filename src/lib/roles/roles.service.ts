@@ -1,4 +1,3 @@
-import { MemberRole, Prisma } from "@prisma/client";
 import {
   Collection,
   Guild,
@@ -10,6 +9,7 @@ import {
   Role,
   User,
 } from "discord.js";
+import { MemberRole, Prisma } from "../../generated/prisma/client";
 import { prisma } from "../../prisma";
 import { StatusRoles } from "../../types/index";
 import {
