@@ -134,7 +134,7 @@ export class VoiceService {
       if (lastVoiceEvent?.leave === null) {
         lastVoiceEvent = await daysBetween(data);
         return await prisma.guildVoiceEvents.update({
-          where: { id: lastVoiceEvent.id },
+          where: { id: lastVoiceEvent!.id },
           data: { leave: new Date() },
         });
       }
@@ -147,7 +147,7 @@ export class VoiceService {
       if (lastVoiceEvent?.leave === null) {
         lastVoiceEvent = await daysBetween(data);
         await prisma.guildVoiceEvents.update({
-          where: { id: lastVoiceEvent.id },
+          where: { id: lastVoiceEvent!.id },
           data: { leave: new Date() },
         });
       }
