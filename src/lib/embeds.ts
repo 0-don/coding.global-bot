@@ -1,6 +1,9 @@
-import { MemberCommandHistory, MemberDeletedMessages } from "@prisma/client";
 import dayjs from "dayjs";
 import { APIEmbed } from "discord.js";
+import {
+  MemberCommandHistory,
+  MemberDeletedMessages,
+} from "../generated/prisma/client";
 import { ToptatsExampleEmbed, UserStatsExampleEmbed } from "../types/index";
 import {
   BOT_ICON,

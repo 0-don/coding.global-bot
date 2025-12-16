@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { Chart } from "chart.js";
 import { log } from "console";
 import dayjs from "dayjs";
@@ -23,6 +22,7 @@ import {
 } from "../constants";
 import { simpleEmbedExample } from "../embeds";
 import { chartConfig, getDaysArray } from "../helpers";
+import { Prisma } from "../../generated/prisma/client";
 
 export class MembersService {
   private static _memberCountWarningLogged = false;
