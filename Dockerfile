@@ -1,6 +1,6 @@
 # Install dependencies only when needed
 # Stage 0
-FROM imbios/bun-node:latest-22-debian  AS deps
+FROM imbios/bun-node:latest-24-debian  AS deps
 WORKDIR /app
 
 COPY package.json ./
@@ -12,7 +12,7 @@ RUN bun install
 
 # Rebuild the source code only when needed
 # Stage 1
-FROM imbios/bun-node:latest-22-debian AS builder
+FROM imbios/bun-node:latest-24-debian AS builder
 WORKDIR /app
 
 COPY . .
@@ -23,7 +23,7 @@ RUN bun run build
 
 # Production image, copy only production files
 # Stage 2
-FROM imbios/bun-node:latest-22-debian  AS prod
+FROM imbios/bun-node:latest-24-debian  AS prod
 
 USER root
 
