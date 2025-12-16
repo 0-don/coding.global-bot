@@ -10,6 +10,7 @@
 
     "strict": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
 
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -17,5 +18,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["dist", "node_modules", "prisma.config.ts"]
 }
