@@ -1,7 +1,4 @@
-import {
-  createGoogleGenerativeAI,
-  GoogleGenerativeAIProvider,
-} from "@ai-sdk/google";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { log } from "console";
 
 function createGoogleProviders() {
@@ -20,12 +17,16 @@ class GoogleClientRotator {
   private providers = createGoogleProviders();
   private currentIndex = 0;
 
-  getModel(
-    modelName: Parameters<GoogleGenerativeAIProvider>[0] = "gemini-3-flash-preview",
-  ) {
+  // getModel(
+  //   modelName: Parameters<GoogleGenerativeAIProvider>[0] = "gemini-3-flash-preview",
+  // ) {
+  //   return this.providers[this.currentIndex](modelName);
+  // }
+
+  getModel(modelName = "gemini-2.5-flash") {
     return this.providers[this.currentIndex](modelName);
   }
-
+  
   rotate() {
     if (this.providers.length > 1) {
       this.currentIndex = (this.currentIndex + 1) % this.providers.length;
