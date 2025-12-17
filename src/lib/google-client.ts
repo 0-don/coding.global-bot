@@ -4,8 +4,6 @@ import {
 } from "@ai-sdk/google";
 import { log } from "console";
 
-type GoogleGenerativeAIModelId = Parameters<GoogleGenerativeAIProvider>[0];
-
 function createGoogleProviders() {
   const keys =
     process.env.GOOGLE_GENERATIVE_AI_API_KEY?.split(",").map((k) => k.trim()) ||
@@ -22,7 +20,9 @@ class GoogleClientRotator {
   private providers = createGoogleProviders();
   private currentIndex = 0;
 
-  getModel(modelName: GoogleGenerativeAIModelId = "gemini-3-flash-preview") {
+  getModel(
+    modelName: Parameters<GoogleGenerativeAIProvider>[0] = "gemini-3-flash-preview",
+  ) {
     return this.providers[this.currentIndex](modelName);
   }
 
