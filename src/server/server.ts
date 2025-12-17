@@ -28,16 +28,29 @@ function formatMemberGuild(
     id: memberGuild.memberId,
     username: memberGuild.member.username,
     globalName: memberGuild.member.globalName,
+    discriminator: memberGuild.member.discriminator,
     nickname: memberGuild.nickname,
     displayName: memberGuild.displayName,
+
+    // User Type
+    bot: memberGuild.member.bot,
+    system: memberGuild.member.system,
 
     // Appearance
     displayAvatarURL:
       memberGuild.avatarUrl ||
+      memberGuild.member.avatarUrl ||
       `https://cdn.discordapp.com/embed/avatars/${parseInt(memberGuild.memberId) % 5}.png`,
-    bannerUrl: memberGuild.member.bannerUrl || null,
+    avatarUrl: memberGuild.member.avatarUrl || null,
+    guildAvatarUrl: memberGuild.avatarUrl || null,
+    bannerUrl: memberGuild.bannerUrl || memberGuild.member.bannerUrl || null,
     accentColor: memberGuild.member.accentColor,
+    avatarDecorationUrl:
+      memberGuild.avatarDecorationUrl ||
+      memberGuild.member.avatarDecorationUrl ||
+      null,
     displayHexColor: memberGuild.displayHexColor || "#000000",
+    flags: memberGuild.member.flags?.toString() || null,
 
     // Roles
     roles,
@@ -48,11 +61,19 @@ function formatMemberGuild(
     activity: memberGuild.presenceActivity || null,
     presenceUpdatedAt: memberGuild.presenceUpdatedAt?.toISOString() || null,
 
+    // Guild Member Status
+    pending: memberGuild.pending,
+    premiumSince: memberGuild.premiumSince?.toISOString() || null,
+    communicationDisabledUntil:
+      memberGuild.communicationDisabledUntil?.toISOString() || null,
+    guildFlags: memberGuild.flags?.toString() || null,
+
     // Timestamps
     joinedAt: memberGuild.joinedAt?.toISOString() || null,
     createdAt:
       memberGuild.member.createdAt?.toISOString() || new Date().toISOString(),
     updatedAt: memberGuild.member.updatedAt?.toISOString() || null,
+    guildUpdatedAt: memberGuild.updatedAt?.toISOString() || null,
   };
 }
 
