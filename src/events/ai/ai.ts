@@ -103,20 +103,13 @@ export class AiChat {
       );
 
       const responseText = text?.trim();
-      if (!responseText) {
-        const hasToolResults = steps?.some(
-          (step) => step.toolResults?.length > 0,
-        );
-        if (!hasToolResults) {
-          await message.reply(
-            "sorry, something went wrong with my response...",
-          );
-          return;
-        }
-        messages.push({ role: "assistant", content: "" });
-      } else {
-        messages.push({ role: "assistant", content: responseText });
-      }
+      // if (!responseText) {
+      //   console.warn("AI generated empty response, using fallback");
+      //   await message.reply("sorry, something went wrong with my response...");
+      //   return;
+      // }
+
+      messages.push({ role: "assistant", content: responseText });
 
       if (messages.length > MAX_MESSAGES_PER_CHANNEL) {
         messages.splice(0, messages.length - MAX_MESSAGES_PER_CHANNEL);
@@ -125,14 +118,17 @@ export class AiChat {
       channelMessages.set(message.channel.id, messages);
 
       const gifUrl = this.extractGifFromSteps(steps);
-
       await message.reply({
-        content: responseText || gifUrl || "sorry, something went wrong...",
+        content: responseText,
+        files: gifUrl
+          ? [{ attachment: gifUrl, name: "reaction.gif" }]
+          : undefined,
         allowedMentions: { users: [], roles: [] },
       });
     } catch (err) {
       const errorMessage = (err as Error).message;
 
+      // Exit silently for message reference errors - original message was deleted
       if (
         errorMessage.includes("MESSAGE_REFERENCE_UNKNOWN_MESSAGE") ||
         errorMessage.includes("Unknown message")
