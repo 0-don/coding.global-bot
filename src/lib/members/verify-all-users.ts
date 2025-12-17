@@ -27,9 +27,7 @@ class MemberVerifier {
   ) {}
 
   private get guildDisplayName(): string {
-    return this.guild.name.length > 30
-      ? this.guild.name.slice(0, 30) + "..."
-      : this.guild.name;
+    return this.guild.name.slice(0, 30);
   }
 
   static getState(guildId: string): VerificationState | undefined {
