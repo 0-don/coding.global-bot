@@ -3,15 +3,13 @@ import { prisma } from "../../prisma";
 import { EVERYONE } from "../constants";
 
 export async function updateCompleteMemberData(member: GuildMember) {
-  // Force fetch user to get banner and accent color data
   const user = await member.user.fetch(true);
+  const guildMember = await member.fetch(true);
 
-  // Prepare all data
   const memberData = prepareMemberData(user);
-  const memberGuildData = prepareMemberGuildData(member);
-  const memberRoleCreates = prepareMemberRolesData(member);
+  const memberGuildData = prepareMemberGuildData(guildMember);
+  const memberRoleCreates = prepareMemberRolesData(guildMember);
 
-  // Update database with all fetched data in a transaction
   await prisma.$transaction(async (tx) => {
     // Delete existing roles to avoid duplicates
     await tx.memberRole.deleteMany({
