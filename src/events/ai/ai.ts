@@ -104,7 +104,6 @@ export class AiChat {
 
       const responseText = text?.trim();
       if (!responseText) {
-        // If there are tool results but no text, extract GIF and send it without text
         const hasToolResults = steps?.some(
           (step) => step.toolResults?.length > 0,
         );
@@ -114,7 +113,6 @@ export class AiChat {
           );
           return;
         }
-        // Tool was used (like searchMemeGifs) but no text was generated
         messages.push({ role: "assistant", content: "" });
       } else {
         messages.push({ role: "assistant", content: responseText });
@@ -128,7 +126,6 @@ export class AiChat {
 
       const gifUrl = this.extractGifFromSteps(steps);
 
-      // If no text but has GIF, send the GIF URL as content, otherwise send the text
       await message.reply({
         content: responseText || gifUrl || "sorry, something went wrong...",
         allowedMentions: { users: [], roles: [] },
