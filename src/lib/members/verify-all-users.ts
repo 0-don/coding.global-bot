@@ -74,101 +74,34 @@ class MemberVerifier {
     }
   }
 
-  private async fetchMembers(
-    maxRetries = 3,
-  ): Promise<Collection<string, GuildMember>> {
-    let lastError: Error | undefined;
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        const members = await this.guild.members.fetch();
-        if (attempt > 1) {
-          log(`✅ Fetched ${members.size} members on attempt ${attempt}`);
-        }
-        return members;
-      } catch (err) {
-        const errorObj = err instanceof Error ? err : new Error(String(err));
-        error(`Failed to fetch members (attempt ${attempt}/${maxRetries}):`, errorObj);
-        lastError = errorObj;
-
-        if (
-          "name" in errorObj &&
-          errorObj.name === "GatewayRateLimitError"
-        ) {
-          const retryAfter =
-            "data" in errorObj &&
-            typeof errorObj.data === "object" &&
-            errorObj.data &&
-            "retry_after" in errorObj.data
-              ? (errorObj.data.retry_after as number)
-              : 30;
-          const waitTime = Math.ceil(retryAfter * 1000);
-
-          error(`⚠️ Rate limited! Waiting ${retryAfter}s before retry...`);
-
-          if (attempt < maxRetries) {
-            await new Promise((resolve) => setTimeout(resolve, waitTime));
-          }
-        } else {
-          throw errorObj;
-        }
-      }
+  private async fetchMembers(): Promise<Collection<string, GuildMember>> {
+    try {
+      return await this.guild.members.fetch();
+    } catch (_) {
+      return this.fetchMembers();
     }
-
-    throw lastError || new Error("Failed to fetch members");
   }
 
   private async processMember(
     member: GuildMember,
     guildStatusRoles: Record<string, Role | undefined>,
   ): Promise<void> {
-    let attempt = 0;
+    try {
+      await updateCompleteMemberData(member);
 
-    while (true) {
-      attempt++;
-      try {
-        await updateCompleteMemberData(member);
-
-        if (guildStatusRoles[VERIFIED]) {
-          const verifiedRoleId = guildStatusRoles[VERIFIED]!.id;
-          if (!member.roles.cache.has(verifiedRoleId)) {
-            const roleToAdd = member.guild.roles.cache.get(verifiedRoleId);
-            if (roleToAdd?.editable) {
-              await member.roles.add(verifiedRoleId);
-            }
+      if (guildStatusRoles[VERIFIED]) {
+        const verifiedRoleId = guildStatusRoles[VERIFIED]!.id;
+        if (!member.roles.cache.has(verifiedRoleId)) {
+          const roleToAdd = member.guild.roles.cache.get(verifiedRoleId);
+          if (roleToAdd?.editable) {
+            await member.roles.add(verifiedRoleId);
           }
         }
-
-        return;
-      } catch (err) {
-        const errorObj = err instanceof Error ? err : new Error(String(err));
-        const isRateLimit =
-          ("name" in errorObj && errorObj.name === "GatewayRateLimitError") ||
-          ("code" in errorObj && errorObj.code === 50001);
-
-        if (isRateLimit) {
-          const retryAfter =
-            "data" in errorObj &&
-            typeof errorObj.data === "object" &&
-            errorObj.data &&
-            "retry_after" in errorObj.data
-              ? (errorObj.data.retry_after as number)
-              : 5;
-          const waitTime = Math.ceil(retryAfter * 1000);
-
-          error(
-            `⚠️ Rate limited on ${member.user.username}! Waiting ${retryAfter}s...`,
-          );
-
-          await new Promise((resolve) => setTimeout(resolve, waitTime));
-        } else {
-          error(
-            `Failed to process ${member.user.username} on attempt ${attempt}:`,
-            errorObj,
-          );
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-        }
       }
+
+      return;
+    } catch (_) {
+      return await this.processMember(member, guildStatusRoles);
     }
   }
 
@@ -248,32 +181,20 @@ class MemberVerifier {
         await this.updateProgress(progressMessage, state);
       }
 
-      const durationMs = dayjs().valueOf() - startTime;
-      const formattedDuration = dayjs.duration(durationMs).format("HH:mm:ss");
-      log(`🎉 Completed verification for ${this.guildDisplayName}`);
-      log(`⏱️ Total time: ${formattedDuration}`);
-
       await this.updateProgress(
-        `✅ Completed verification! Processed ${totalMembers} members in ${formattedDuration}`,
+        `✅ Completed verification! Processed ${totalMembers} members`,
         state,
       );
 
       MemberVerifier.states.delete(this.guild.id);
       return allMembers;
     } catch (err) {
-      const durationMs = dayjs().valueOf() - startTime;
-      const formattedDuration = dayjs.duration(durationMs).format("HH:mm:ss");
-      error(
-        `❌ Error in ${this.guildDisplayName} after ${formattedDuration}:`,
-        err,
-      );
-
       if (state) {
         state.isRunning = false;
         this.setState(state);
 
         await this.channel.send(
-          `❌ Error occurred after ${formattedDuration}. Progress saved at ${state.lastProcessedIndex}/${state.totalMembers}. Run the command again to resume.`,
+          `❌ Error occurred, Progress saved at ${state.lastProcessedIndex}/${state.totalMembers}. Run the command again to resume.`,
         );
       }
 
