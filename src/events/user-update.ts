@@ -10,7 +10,7 @@ export class UserUpdate {
     try {
       for (const guild of client.guilds.cache.values()) {
         try {
-          const member = await guild.members.fetch(newUser.id);
+          const member = await guild.members.fetch(newUser);
           if (member) {
             await updateCompleteMemberData(member);
           }
