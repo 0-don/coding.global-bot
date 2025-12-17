@@ -2,7 +2,6 @@ import { error } from "console";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { joinSettings } from "../lib/members/join-nickname";
-import { updateCompleteMemberData } from "../lib/members/member-data.service";
 import { MembersService } from "../lib/members/members.service";
 
 @Discord()
@@ -12,7 +11,7 @@ export class GuildMemberAdd {
     try {
       MembersService.logJoinLeaveEvents(member, "join");
 
-      await updateCompleteMemberData(member);
+      // await updateCompleteMemberData(member);
 
       if (member.pending) return;
 

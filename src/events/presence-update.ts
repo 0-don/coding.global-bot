@@ -1,7 +1,6 @@
 import { error } from "console";
 import type { ArgsOf } from "discordx";
 import { Discord, On } from "discordx";
-import { updateCompleteMemberData } from "../lib/members/member-data.service";
 
 @Discord()
 export class PresenceUpdate {
@@ -10,7 +9,7 @@ export class PresenceUpdate {
     if (!newPresence.member || !newPresence.guild) return;
 
     try {
-      await updateCompleteMemberData(newPresence.member);
+      // await updateCompleteMemberData(newPresence.member);
     } catch (err) {
       error(
         `Failed to update presence for user ${newPresence.userId} in guild ${newPresence.guild.id}:`,
