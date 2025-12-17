@@ -104,7 +104,6 @@ class MemberVerifier {
     while (true) {
       attempt++;
       try {
-        // Use the unified updateCompleteMemberData function
         await updateCompleteMemberData(member);
 
         if (guildStatusRoles[VERIFIED]) {
