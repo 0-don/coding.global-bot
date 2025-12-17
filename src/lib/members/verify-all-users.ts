@@ -120,8 +120,6 @@ class MemberVerifier {
     const startTime = state?.startTime || dayjs().valueOf();
 
     try {
-      log(`🚀 Starting verification for ${this.guildDisplayName}`);
-
       await prisma.guild.upsert({
         where: { guildId: this.guild.id },
         create: { guildId: this.guild.id, guildName: this.guild.name },
@@ -174,10 +172,14 @@ class MemberVerifier {
         this.setState(state);
 
         const progressPercent = Math.round(((i + 1) / totalMembers) * 100);
-        const progressMessage = `Processed ${currentMember.user.globalName} ${i + 1}/${totalMembers} members (${progressPercent}%)`;
+        const progressMessage = `Processed ${currentMember.user.globalName} members ${i + 1}/${totalMembers} (${progressPercent}%)`;
 
-        await this.updateProgress(progressMessage, state);
         console.log(progressMessage);
+
+        // Update Discord progress every 10 members or on the last member
+        if ((i + 1) % 10 === 0 || i + 1 === totalMembers) {
+          await this.updateProgress(progressMessage, state);
+        }
       }
 
       await this.updateProgress(
