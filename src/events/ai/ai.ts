@@ -102,13 +102,16 @@ export class AiChat {
         },
       );
 
-      // Fix: Check if text is empty or only whitespace
       const responseText = text?.trim();
       if (!responseText) {
         // If there are tool results but no text, extract GIF and send it without text
-        const hasToolResults = steps?.some(step => step.toolResults?.length > 0);
+        const hasToolResults = steps?.some(
+          (step) => step.toolResults?.length > 0,
+        );
         if (!hasToolResults) {
-          await message.reply("sorry, something went wrong with my response...");
+          await message.reply(
+            "sorry, something went wrong with my response...",
+          );
           return;
         }
         // Tool was used (like searchMemeGifs) but no text was generated
@@ -133,7 +136,6 @@ export class AiChat {
     } catch (err) {
       const errorMessage = (err as Error).message;
 
-      // Exit silently for message reference errors - original message was deleted
       if (
         errorMessage.includes("MESSAGE_REFERENCE_UNKNOWN_MESSAGE") ||
         errorMessage.includes("Unknown message")
