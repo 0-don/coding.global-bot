@@ -20,14 +20,7 @@ export async function updateCompleteMemberData(member: GuildMember) {
     await tx.member.upsert({
       where: { memberId: memberData.memberId },
       create: memberData,
-      update: {
-        username: memberData.username,
-        globalName: memberData.globalName,
-        createdAt: memberData.createdAt,
-        avatarUrl: memberData.avatarUrl,
-        bannerUrl: memberData.bannerUrl,
-        accentColor: memberData.accentColor,
-      },
+      update: memberData,
     });
 
     // Upsert member guild (guild-specific data)
@@ -39,19 +32,7 @@ export async function updateCompleteMemberData(member: GuildMember) {
         },
       },
       create: memberGuildData,
-      update: {
-        status: memberGuildData.status,
-        nickname: memberGuildData.nickname,
-        displayName: memberGuildData.displayName,
-        joinedAt: memberGuildData.joinedAt,
-        displayHexColor: memberGuildData.displayHexColor,
-        highestRolePosition: memberGuildData.highestRolePosition,
-        avatarUrl: memberGuildData.avatarUrl,
-        bannerUrl: memberGuildData.bannerUrl,
-        presenceStatus: memberGuildData.presenceStatus,
-        presenceActivity: memberGuildData.presenceActivity,
-        presenceUpdatedAt: memberGuildData.presenceUpdatedAt,
-      },
+      update: memberGuildData,
     });
 
     // Create member roles if any exist
@@ -71,10 +52,15 @@ function prepareMemberData(user: User) {
     memberId: user.id,
     username: user.username,
     globalName: user.globalName,
+    discriminator: user.discriminator,
+    bot: user.bot,
+    system: user.system,
     createdAt: user.createdAt,
     avatarUrl: user.avatarURL({ size: 1024 }) || null,
     bannerUrl: user.bannerURL({ size: 1024 }) || null,
     accentColor: user.accentColor,
+    avatarDecorationUrl: user.avatarDecorationURL() || null,
+    flags: user.flags?.bitfield || null,
   };
 }
 
@@ -94,9 +80,14 @@ function prepareMemberGuildData(member: GuildMember) {
     highestRolePosition: sortedRoles[0]?.position || null,
     avatarUrl: member.avatarURL({ size: 1024 }) || null,
     bannerUrl: member.bannerURL({ size: 1024 }) || null,
+    avatarDecorationUrl: member.avatarDecorationURL() || null,
     presenceStatus: member.presence?.status || null,
     presenceActivity: member.presence?.activities[0]?.name || null,
     presenceUpdatedAt: member.presence ? new Date() : null,
+    pending: member.pending,
+    premiumSince: member.premiumSince,
+    communicationDisabledUntil: member.communicationDisabledUntil,
+    flags: member.flags.bitfield,
   };
 }
 
