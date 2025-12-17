@@ -1,67 +1,117 @@
-import { Guild, GuildMember, Message } from "discord.js";
-import { bot } from "../main";
+import { Guild } from "discord.js";
+import { Prisma } from "../generated/prisma/client";
+import { prisma } from "../prisma";
 
-function formatMemberData(fetchedMember: GuildMember, guild: Guild) {
-  const roles = Array.from(fetchedMember.roles.cache.values())
-    .filter((role) => role.id !== guild.id)
-    .map((role) => ({ name: role.name, position: role.position }))
-    .sort((a, b) => b.position - a.position);
+type MemberGuildWithRelations = Prisma.MemberGuildGetPayload<{
+  include: {
+    member: {
+      include: {
+        roles: true;
+      };
+    };
+  };
+}>;
+
+function formatMemberGuild(
+  memberGuild: MemberGuildWithRelations,
+  resolvedGuildId: string,
+) {
+  const roles = memberGuild.member.roles
+    .filter((role) => role.roleId !== resolvedGuildId)
+    .map((role) => ({
+      name: role.name || "",
+      position: role.position || 0,
+    }));
 
   return {
-    id: fetchedMember.user.id,
-    username: fetchedMember.user.username,
-    globalName: fetchedMember.user.globalName,
-    nickname: fetchedMember.nickname,
-    joinedAt: fetchedMember.joinedAt?.toISOString() || null,
-    createdAt: fetchedMember.user.createdAt.toISOString(),
-    displayAvatarURL: fetchedMember.user.displayAvatarURL({
-      size: 512,
-      extension: "webp",
-    }),
-    bannerUrl:
-      fetchedMember.user.bannerURL({ size: 1024, extension: "webp" }) || null,
-    displayHexColor: String(fetchedMember.displayHexColor || "#000000"),
+    // Identity
+    id: memberGuild.memberId,
+    username: memberGuild.member.username,
+    globalName: memberGuild.member.globalName,
+    nickname: memberGuild.nickname,
+    displayName: memberGuild.displayName,
+
+    // Appearance
+    displayAvatarURL:
+      memberGuild.avatarUrl ||
+      `https://cdn.discordapp.com/embed/avatars/${parseInt(memberGuild.memberId) % 5}.png`,
+    bannerUrl: memberGuild.member.bannerUrl || null,
+    accentColor: memberGuild.member.accentColor,
+    displayHexColor: memberGuild.displayHexColor || "#000000",
+
+    // Roles
     roles,
-    highestRolePosition: roles[0]?.position || 0,
-    status: String(fetchedMember.presence?.status || "offline"),
-    activity: fetchedMember.presence?.activities?.[0]?.name || null,
+    highestRolePosition: memberGuild.highestRolePosition || 0,
+
+    // Presence
+    status: memberGuild.presenceStatus || "offline",
+    activity: memberGuild.presenceActivity || null,
+    presenceUpdatedAt: memberGuild.presenceUpdatedAt?.toISOString() || null,
+
+    // Timestamps
+    joinedAt: memberGuild.joinedAt?.toISOString() || null,
+    createdAt:
+      memberGuild.member.createdAt?.toISOString() || new Date().toISOString(),
+    updatedAt: memberGuild.member.updatedAt?.toISOString() || null,
   };
 }
 
 export async function parseUserWithRoles(
   userId: string,
   guildId: string | Guild,
-  member?: GuildMember | Message,
 ) {
-  const guild =
-    typeof guildId === "string" ? bot.guilds.cache.get(guildId) : guildId;
-  if (!guild) return null;
+  const resolvedGuildId = typeof guildId === "string" ? guildId : guildId.id;
 
-  const isMessage = member && "author" in member;
-  const fetchedMember =
-    (isMessage ? member.member : (member as GuildMember | undefined)) ||
-    (await guild.members.fetch(userId).catch(() => null));
+  const memberGuild = await prisma.memberGuild.findUnique({
+    where: {
+      member_guild: {
+        memberId: userId,
+        guildId: resolvedGuildId,
+      },
+    },
+    include: {
+      member: {
+        include: {
+          roles: {
+            where: { guildId: resolvedGuildId },
+            orderBy: { position: "desc" },
+          },
+        },
+      },
+    },
+  });
 
-  if (!fetchedMember) return null;
+  if (!memberGuild || !memberGuild.status) return null;
 
-  return formatMemberData(fetchedMember, guild);
+  return formatMemberGuild(memberGuild, resolvedGuildId);
 }
 
 export async function parseMultipleUsersWithRoles(
   userIds: string[],
   guildId: string | Guild,
 ) {
-  const guild =
-    typeof guildId === "string" ? bot.guilds.cache.get(guildId) : guildId;
-  if (!guild) return [];
+  const resolvedGuildId = typeof guildId === "string" ? guildId : guildId.id;
 
-  const members = await guild.members
-    .fetch({ user: userIds })
-    .catch(() => null);
-  if (!members) return [];
+  const members = await prisma.memberGuild.findMany({
+    where: {
+      memberId: { in: userIds },
+      guildId: resolvedGuildId,
+      status: true,
+    },
+    include: {
+      member: {
+        include: {
+          roles: {
+            where: { guildId: resolvedGuildId },
+            orderBy: { position: "desc" },
+          },
+        },
+      },
+    },
+  });
 
-  const formattedMembers = Array.from(members.values()).map((fetchedMember) =>
-    formatMemberData(fetchedMember, guild),
+  const formattedMembers = members.map((memberGuild) =>
+    formatMemberGuild(memberGuild, resolvedGuildId),
   );
 
   return formattedMembers.sort(
