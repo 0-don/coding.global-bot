@@ -11,7 +11,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@ai-sdk/google": "2.0.48",
+    "@ai-sdk/google": "2.0.49",
     "@discordx/importer": "1.3.3",
     "@elysiajs/cors": "1.4.0",
     "@elysiajs/node": "1.4.2",
