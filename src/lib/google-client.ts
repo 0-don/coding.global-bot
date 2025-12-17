@@ -1,5 +1,10 @@
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import {
+  createGoogleGenerativeAI,
+  GoogleGenerativeAIProvider,
+} from "@ai-sdk/google";
 import { log } from "console";
+
+type GoogleGenerativeAIModelId = Parameters<GoogleGenerativeAIProvider>[0];
 
 function createGoogleProviders() {
   const keys =
@@ -17,7 +22,7 @@ class GoogleClientRotator {
   private providers = createGoogleProviders();
   private currentIndex = 0;
 
-  getModel(modelName = "gemini-2.5-flash") {
+  getModel(modelName: GoogleGenerativeAIModelId = "gemini-3-flash-preview") {
     return this.providers[this.currentIndex](modelName);
   }
 
