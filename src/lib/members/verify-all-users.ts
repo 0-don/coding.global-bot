@@ -1,10 +1,14 @@
 import { error, log } from "console";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
 import type { TextBasedChannel } from "discord.js";
 import { Collection, Guild, GuildMember } from "discord.js";
 import { prisma } from "../../prisma";
 import { STATUS_ROLES, VERIFIED } from "../constants";
 import { RolesService } from "../roles/roles.service";
 import { updateCompleteMemberData } from "./member-data.service";
+
+dayjs.extend(duration);
 
 interface VerificationState {
   lastProcessedIndex: number;
@@ -21,6 +25,12 @@ class MemberVerifier {
     private guild: Guild,
     private channel: TextBasedChannel,
   ) {}
+
+  private get guildDisplayName(): string {
+    return this.guild.name.length > 30
+      ? this.guild.name.slice(0, 30) + "..."
+      : this.guild.name;
+  }
 
   static getState(guildId: string): VerificationState | undefined {
     return this.states.get(guildId);
@@ -71,9 +81,28 @@ class MemberVerifier {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        log(`📥 Fetching members (attempt ${attempt}/${maxRetries})...`);
-        return await this.guild.members.fetch();
+        const fetchStartTime = dayjs();
+        const timestamp = fetchStartTime.format("HH:mm:ss");
+        log(
+          `[${timestamp}] 📥 Fetching members (attempt ${attempt}/${maxRetries})...`,
+        );
+
+        const members = await this.guild.members.fetch();
+
+        const fetchDuration = dayjs()
+          .diff(fetchStartTime, "second", true)
+          .toFixed(2);
+        log(
+          `[${timestamp}] ✅ Fetched ${members.size} members in ${fetchDuration}s`,
+        );
+
+        return members;
       } catch (err: any) {
+        const timestamp = dayjs().format("HH:mm:ss");
+        error(
+          `[${timestamp}] ❌ Failed to fetch members on attempt ${attempt}:`,
+          err,
+        );
         lastError = err;
 
         if (err.name === "GatewayRateLimitError") {
@@ -81,11 +110,19 @@ class MemberVerifier {
           const waitTime = Math.ceil(retryAfter * 1000);
 
           error(
-            `⚠️ Rate limited! Waiting ${retryAfter}s before retry ${attempt}/${maxRetries}...`,
+            `[${timestamp}] ⚠️ Rate limited! Waiting ${retryAfter}s (${waitTime}ms) before retry ${attempt}/${maxRetries}...`,
           );
 
-          if (attempt < maxRetries)
+          if (attempt < maxRetries) {
+            const waitStartTime = dayjs();
             await new Promise((resolve) => setTimeout(resolve, waitTime));
+            const actualWaitTime = dayjs()
+              .diff(waitStartTime, "second", true)
+              .toFixed(2);
+            log(
+              `[${dayjs().format("HH:mm:ss")}] ⏰ Waited ${actualWaitTime}s, retrying now...`,
+            );
+          }
         } else {
           throw err;
         }
@@ -100,37 +137,73 @@ class MemberVerifier {
     guildStatusRoles: Record<string, any>,
   ): Promise<void> {
     let attempt = 0;
+    const memberStartTime = dayjs();
 
     while (true) {
       attempt++;
       try {
+        const updateStartTime = dayjs();
         await updateCompleteMemberData(member);
+        const updateDuration = dayjs()
+          .diff(updateStartTime, "second", true)
+          .toFixed(2);
 
         if (guildStatusRoles[VERIFIED]) {
           const verifiedRoleId = guildStatusRoles[VERIFIED]!.id;
           if (!member.roles.cache.has(verifiedRoleId)) {
             const roleToAdd = member.guild.roles.cache.get(verifiedRoleId);
             if (roleToAdd?.editable) {
+              const roleStartTime = dayjs();
               await member.roles.add(verifiedRoleId);
+              const roleDuration = dayjs()
+                .diff(roleStartTime, "second", true)
+                .toFixed(2);
+              log(
+                `  └─ Added verified role in ${roleDuration}s (update took ${updateDuration}s)`,
+              );
             }
           }
         }
 
+        const totalDuration = dayjs()
+          .diff(memberStartTime, "second", true)
+          .toFixed(2);
+        if (parseFloat(totalDuration) > 2) {
+          log(
+            `  ⚠️ Slow processing: ${member.user.username} took ${totalDuration}s total`,
+          );
+        }
+
         return;
       } catch (err: any) {
+        const timestamp = dayjs().format("HH:mm:ss");
+
         if (err.name === "GatewayRateLimitError" || err.code === 50001) {
           const retryAfter = err.data?.retry_after || 5;
+          const waitTime = Math.ceil(retryAfter * 1000);
+
           error(
-            `⚠️ Rate limited on member ${member.user.username}! Waiting ${retryAfter}s (attempt ${attempt})...`,
+            `[${timestamp}] ⚠️ Rate limited on member ${member.user.username}! Waiting ${retryAfter}s (${waitTime}ms) - attempt ${attempt}`,
           );
-          await new Promise((resolve) =>
-            setTimeout(resolve, Math.ceil(retryAfter * 1000)),
+          error(`  └─ Error details:`, {
+            name: err.name,
+            code: err.code,
+            message: err.message,
+          });
+
+          const waitStartTime = dayjs();
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
+          const actualWaitTime = dayjs()
+            .diff(waitStartTime, "second", true)
+            .toFixed(2);
+          log(
+            `[${dayjs().format("HH:mm:ss")}] ⏰ Rate limit wait complete (${actualWaitTime}s), retrying ${member.user.username}...`,
           );
         } else {
           error(
-            `❌ Failed to process ${member.user.username} (${member.id}) on attempt ${attempt}:`,
-            err,
+            `[${timestamp}] ❌ Failed to process ${member.user.username} (${member.id}) on attempt ${attempt}:`,
           );
+          error(`  └─ Error:`, err);
           await new Promise((resolve) => setTimeout(resolve, 2000));
         }
       }
@@ -151,10 +224,10 @@ class MemberVerifier {
       return;
     }
 
-    const startTime = state?.startTime || Date.now();
+    const startTime = state?.startTime || dayjs().valueOf();
 
     try {
-      log(`🚀 Starting verification for ${this.guild.name} (${this.guild.id})`);
+      log(`🚀 Starting verification for ${this.guildDisplayName}`);
 
       await prisma.guild.upsert({
         where: { guildId: this.guild.id },
@@ -169,9 +242,7 @@ class MemberVerifier {
         const content = STATUS_ROLES.map(
           (role) => `${role}: ${!!guildStatusRoles[role]}`,
         ).join("\n");
-        error(
-          `❌ ${this.guild.name} (${this.guild.id}): Missing roles:\n${content}`,
-        );
+        error(`❌ ${this.guildDisplayName}: Missing roles:\n${content}`);
         await this.channel.send(`Missing required roles:\n${content}`);
         throw new Error("Missing required status roles");
       }
@@ -194,7 +265,7 @@ class MemberVerifier {
       const resumeMessage =
         startIndex > 0 ? ` (resuming from ${startIndex}/${totalMembers})` : "";
       log(
-        `✅ ${this.guild.name} (${this.guild.id}): Processing ${totalMembers} members${resumeMessage}`,
+        `✅ ${this.guildDisplayName}: Processing ${totalMembers} members${resumeMessage}`,
       );
       await this.updateProgress(
         `Processing ${totalMembers} members${resumeMessage}...`,
@@ -202,7 +273,14 @@ class MemberVerifier {
       );
 
       for (let i = startIndex; i < totalMembers; i++) {
-        await this.processMember(nonBotMembers[i], guildStatusRoles);
+        const currentMember = nonBotMembers[i];
+        const timestamp = dayjs().format("HH:mm:ss");
+
+        log(
+          `[${timestamp}] 🔄 ${this.guildDisplayName}: Processing ${i + 1}/${totalMembers} - ${currentMember.user.username}`,
+        );
+
+        await this.processMember(currentMember, guildStatusRoles);
 
         state.lastProcessedIndex = i + 1;
         this.setState(state);
@@ -210,27 +288,29 @@ class MemberVerifier {
         const progressPercent = Math.round(((i + 1) / totalMembers) * 100);
         const progressMessage = `Processed ${i + 1}/${totalMembers} members (${progressPercent}%)`;
 
-        log(`✅ ${this.guild.name} (${this.guild.id}): ${progressMessage}`);
+        log(
+          `[${timestamp}] ✅ ${this.guildDisplayName}: Completed ${currentMember.user.username} (${currentMember.id})`,
+        );
         await this.updateProgress(progressMessage, state);
       }
 
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-      log(
-        `🎉 Completed verification for ${this.guild.name} (${this.guild.id})`,
-      );
-      log(`⏱️ Total time: ${duration}s`);
+      const durationMs = dayjs().valueOf() - startTime;
+      const formattedDuration = dayjs.duration(durationMs).format("HH:mm:ss");
+      log(`🎉 Completed verification for ${this.guildDisplayName}`);
+      log(`⏱️ Total time: ${formattedDuration}`);
 
       await this.updateProgress(
-        `✅ Completed verification! Processed ${totalMembers} members in ${duration}s`,
+        `✅ Completed verification! Processed ${totalMembers} members in ${formattedDuration}`,
         state,
       );
 
       MemberVerifier.states.delete(this.guild.id);
       return allMembers;
     } catch (err) {
-      const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+      const durationMs = dayjs().valueOf() - startTime;
+      const formattedDuration = dayjs.duration(durationMs).format("HH:mm:ss");
       error(
-        `❌ Error in ${this.guild.name} (${this.guild.id}) after ${duration}s:`,
+        `❌ Error in ${this.guildDisplayName} after ${formattedDuration}:`,
         err,
       );
 
@@ -239,7 +319,7 @@ class MemberVerifier {
         this.setState(state);
 
         await this.channel.send(
-          `❌ Error occurred after ${duration}s. Progress saved at ${state.lastProcessedIndex}/${state.totalMembers}. Run the command again to resume.`,
+          `❌ Error occurred after ${formattedDuration}. Progress saved at ${state.lastProcessedIndex}/${state.totalMembers}. Run the command again to resume.`,
         );
       }
 
