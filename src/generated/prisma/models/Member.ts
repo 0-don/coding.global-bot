@@ -28,19 +28,26 @@ export type AggregateMember = {
 
 export type MemberAvgAggregateOutputType = {
   accentColor: number | null
+  flags: number | null
 }
 
 export type MemberSumAggregateOutputType = {
   accentColor: number | null
+  flags: bigint | null
 }
 
 export type MemberMinAggregateOutputType = {
   memberId: string | null
   username: string | null
   globalName: string | null
+  discriminator: string | null
+  bot: boolean | null
+  system: boolean | null
   avatarUrl: string | null
   bannerUrl: string | null
   accentColor: number | null
+  avatarDecorationUrl: string | null
+  flags: bigint | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -49,9 +56,14 @@ export type MemberMaxAggregateOutputType = {
   memberId: string | null
   username: string | null
   globalName: string | null
+  discriminator: string | null
+  bot: boolean | null
+  system: boolean | null
   avatarUrl: string | null
   bannerUrl: string | null
   accentColor: number | null
+  avatarDecorationUrl: string | null
+  flags: bigint | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -60,9 +72,14 @@ export type MemberCountAggregateOutputType = {
   memberId: number
   username: number
   globalName: number
+  discriminator: number
+  bot: number
+  system: number
   avatarUrl: number
   bannerUrl: number
   accentColor: number
+  avatarDecorationUrl: number
+  flags: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -71,19 +88,26 @@ export type MemberCountAggregateOutputType = {
 
 export type MemberAvgAggregateInputType = {
   accentColor?: true
+  flags?: true
 }
 
 export type MemberSumAggregateInputType = {
   accentColor?: true
+  flags?: true
 }
 
 export type MemberMinAggregateInputType = {
   memberId?: true
   username?: true
   globalName?: true
+  discriminator?: true
+  bot?: true
+  system?: true
   avatarUrl?: true
   bannerUrl?: true
   accentColor?: true
+  avatarDecorationUrl?: true
+  flags?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -92,9 +116,14 @@ export type MemberMaxAggregateInputType = {
   memberId?: true
   username?: true
   globalName?: true
+  discriminator?: true
+  bot?: true
+  system?: true
   avatarUrl?: true
   bannerUrl?: true
   accentColor?: true
+  avatarDecorationUrl?: true
+  flags?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -103,9 +132,14 @@ export type MemberCountAggregateInputType = {
   memberId?: true
   username?: true
   globalName?: true
+  discriminator?: true
+  bot?: true
+  system?: true
   avatarUrl?: true
   bannerUrl?: true
   accentColor?: true
+  avatarDecorationUrl?: true
+  flags?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -201,9 +235,14 @@ export type MemberGroupByOutputType = {
   memberId: string
   username: string
   globalName: string | null
+  discriminator: string | null
+  bot: boolean
+  system: boolean
   avatarUrl: string | null
   bannerUrl: string | null
   accentColor: number | null
+  avatarDecorationUrl: string | null
+  flags: bigint | null
   createdAt: Date | null
   updatedAt: Date
   _count: MemberCountAggregateOutputType | null
@@ -235,9 +274,14 @@ export type MemberWhereInput = {
   memberId?: Prisma.StringFilter<"Member"> | string
   username?: Prisma.StringFilter<"Member"> | string
   globalName?: Prisma.StringNullableFilter<"Member"> | string | null
+  discriminator?: Prisma.StringNullableFilter<"Member"> | string | null
+  bot?: Prisma.BoolFilter<"Member"> | boolean
+  system?: Prisma.BoolFilter<"Member"> | boolean
   avatarUrl?: Prisma.StringNullableFilter<"Member"> | string | null
   bannerUrl?: Prisma.StringNullableFilter<"Member"> | string | null
   accentColor?: Prisma.IntNullableFilter<"Member"> | number | null
+  avatarDecorationUrl?: Prisma.StringNullableFilter<"Member"> | string | null
+  flags?: Prisma.BigIntNullableFilter<"Member"> | bigint | number | null
   createdAt?: Prisma.DateTimeNullableFilter<"Member"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"Member"> | Date | string
   roles?: Prisma.MemberRoleListRelationFilter
@@ -254,9 +298,14 @@ export type MemberOrderByWithRelationInput = {
   memberId?: Prisma.SortOrder
   username?: Prisma.SortOrder
   globalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  discriminator?: Prisma.SortOrderInput | Prisma.SortOrder
+  bot?: Prisma.SortOrder
+  system?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   bannerUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   accentColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarDecorationUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  flags?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   roles?: Prisma.MemberRoleOrderByRelationAggregateInput
@@ -276,9 +325,14 @@ export type MemberWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.MemberWhereInput | Prisma.MemberWhereInput[]
   username?: Prisma.StringFilter<"Member"> | string
   globalName?: Prisma.StringNullableFilter<"Member"> | string | null
+  discriminator?: Prisma.StringNullableFilter<"Member"> | string | null
+  bot?: Prisma.BoolFilter<"Member"> | boolean
+  system?: Prisma.BoolFilter<"Member"> | boolean
   avatarUrl?: Prisma.StringNullableFilter<"Member"> | string | null
   bannerUrl?: Prisma.StringNullableFilter<"Member"> | string | null
   accentColor?: Prisma.IntNullableFilter<"Member"> | number | null
+  avatarDecorationUrl?: Prisma.StringNullableFilter<"Member"> | string | null
+  flags?: Prisma.BigIntNullableFilter<"Member"> | bigint | number | null
   createdAt?: Prisma.DateTimeNullableFilter<"Member"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"Member"> | Date | string
   roles?: Prisma.MemberRoleListRelationFilter
@@ -295,9 +349,14 @@ export type MemberOrderByWithAggregationInput = {
   memberId?: Prisma.SortOrder
   username?: Prisma.SortOrder
   globalName?: Prisma.SortOrderInput | Prisma.SortOrder
+  discriminator?: Prisma.SortOrderInput | Prisma.SortOrder
+  bot?: Prisma.SortOrder
+  system?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   bannerUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   accentColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarDecorationUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  flags?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.MemberCountOrderByAggregateInput
@@ -314,9 +373,14 @@ export type MemberScalarWhereWithAggregatesInput = {
   memberId?: Prisma.StringWithAggregatesFilter<"Member"> | string
   username?: Prisma.StringWithAggregatesFilter<"Member"> | string
   globalName?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
+  discriminator?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
+  bot?: Prisma.BoolWithAggregatesFilter<"Member"> | boolean
+  system?: Prisma.BoolWithAggregatesFilter<"Member"> | boolean
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
   bannerUrl?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
   accentColor?: Prisma.IntNullableWithAggregatesFilter<"Member"> | number | null
+  avatarDecorationUrl?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
+  flags?: Prisma.BigIntNullableWithAggregatesFilter<"Member"> | bigint | number | null
   createdAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Member"> | Date | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Member"> | Date | string
 }
@@ -325,9 +389,14 @@ export type MemberCreateInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -344,9 +413,14 @@ export type MemberUncheckedCreateInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -363,9 +437,14 @@ export type MemberUpdateInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -382,9 +461,14 @@ export type MemberUncheckedUpdateInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -401,9 +485,14 @@ export type MemberCreateManyInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
 }
@@ -412,9 +501,14 @@ export type MemberUpdateManyMutationInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -423,9 +517,14 @@ export type MemberUncheckedUpdateManyInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -439,24 +538,35 @@ export type MemberCountOrderByAggregateInput = {
   memberId?: Prisma.SortOrder
   username?: Prisma.SortOrder
   globalName?: Prisma.SortOrder
+  discriminator?: Prisma.SortOrder
+  bot?: Prisma.SortOrder
+  system?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   bannerUrl?: Prisma.SortOrder
   accentColor?: Prisma.SortOrder
+  avatarDecorationUrl?: Prisma.SortOrder
+  flags?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type MemberAvgOrderByAggregateInput = {
   accentColor?: Prisma.SortOrder
+  flags?: Prisma.SortOrder
 }
 
 export type MemberMaxOrderByAggregateInput = {
   memberId?: Prisma.SortOrder
   username?: Prisma.SortOrder
   globalName?: Prisma.SortOrder
+  discriminator?: Prisma.SortOrder
+  bot?: Prisma.SortOrder
+  system?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   bannerUrl?: Prisma.SortOrder
   accentColor?: Prisma.SortOrder
+  avatarDecorationUrl?: Prisma.SortOrder
+  flags?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -465,15 +575,21 @@ export type MemberMinOrderByAggregateInput = {
   memberId?: Prisma.SortOrder
   username?: Prisma.SortOrder
   globalName?: Prisma.SortOrder
+  discriminator?: Prisma.SortOrder
+  bot?: Prisma.SortOrder
+  system?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
   bannerUrl?: Prisma.SortOrder
   accentColor?: Prisma.SortOrder
+  avatarDecorationUrl?: Prisma.SortOrder
+  flags?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type MemberSumOrderByAggregateInput = {
   accentColor?: Prisma.SortOrder
+  flags?: Prisma.SortOrder
 }
 
 export type MemberCreateNestedOneWithoutGuildVoiceEventsInput = {
@@ -494,12 +610,24 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type NullableBigIntFieldUpdateOperationsInput = {
+  set?: bigint | number | null
+  increment?: bigint | number
+  decrement?: bigint | number
+  multiply?: bigint | number
+  divide?: bigint | number
 }
 
 export type MemberCreateNestedOneWithoutMemberMessagesInput = {
@@ -604,9 +732,14 @@ export type MemberCreateWithoutGuildVoiceEventsInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -622,9 +755,14 @@ export type MemberUncheckedCreateWithoutGuildVoiceEventsInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -656,9 +794,14 @@ export type MemberUpdateWithoutGuildVoiceEventsInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -674,9 +817,14 @@ export type MemberUncheckedUpdateWithoutGuildVoiceEventsInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -692,9 +840,14 @@ export type MemberCreateWithoutMemberMessagesInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -710,9 +863,14 @@ export type MemberUncheckedCreateWithoutMemberMessagesInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -744,9 +902,14 @@ export type MemberUpdateWithoutMemberMessagesInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -762,9 +925,14 @@ export type MemberUncheckedUpdateWithoutMemberMessagesInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -780,9 +948,14 @@ export type MemberCreateWithoutGuildsInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -798,9 +971,14 @@ export type MemberUncheckedCreateWithoutGuildsInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -832,9 +1010,14 @@ export type MemberUpdateWithoutGuildsInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -850,9 +1033,14 @@ export type MemberUncheckedUpdateWithoutGuildsInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -868,9 +1056,14 @@ export type MemberCreateWithoutMemberHelperInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -886,9 +1079,14 @@ export type MemberUncheckedCreateWithoutMemberHelperInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -920,9 +1118,14 @@ export type MemberUpdateWithoutMemberHelperInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -938,9 +1141,14 @@ export type MemberUncheckedUpdateWithoutMemberHelperInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -956,9 +1164,14 @@ export type MemberCreateWithoutRolesInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   guilds?: Prisma.MemberGuildCreateNestedManyWithoutMemberInput
@@ -974,9 +1187,14 @@ export type MemberUncheckedCreateWithoutRolesInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   guilds?: Prisma.MemberGuildUncheckedCreateNestedManyWithoutMemberInput
@@ -1008,9 +1226,14 @@ export type MemberUpdateWithoutRolesInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   guilds?: Prisma.MemberGuildUpdateManyWithoutMemberNestedInput
@@ -1026,9 +1249,14 @@ export type MemberUncheckedUpdateWithoutRolesInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   guilds?: Prisma.MemberGuildUncheckedUpdateManyWithoutMemberNestedInput
@@ -1044,9 +1272,14 @@ export type MemberCreateWithoutMemberCommandHistoryInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -1062,9 +1295,14 @@ export type MemberUncheckedCreateWithoutMemberCommandHistoryInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -1096,9 +1334,14 @@ export type MemberUpdateWithoutMemberCommandHistoryInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -1114,9 +1357,14 @@ export type MemberUncheckedUpdateWithoutMemberCommandHistoryInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -1132,9 +1380,14 @@ export type MemberCreateWithoutDeletedByMemberMessagesInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -1150,9 +1403,14 @@ export type MemberUncheckedCreateWithoutDeletedByMemberMessagesInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -1173,9 +1431,14 @@ export type MemberCreateWithoutMemberDeletedMessagesInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -1191,9 +1454,14 @@ export type MemberUncheckedCreateWithoutMemberDeletedMessagesInput = {
   memberId: string
   username: string
   globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
   avatarUrl?: string | null
   bannerUrl?: string | null
   accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -1225,9 +1493,14 @@ export type MemberUpdateWithoutDeletedByMemberMessagesInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -1243,9 +1516,14 @@ export type MemberUncheckedUpdateWithoutDeletedByMemberMessagesInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -1272,9 +1550,14 @@ export type MemberUpdateWithoutMemberDeletedMessagesInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -1290,9 +1573,14 @@ export type MemberUncheckedUpdateWithoutMemberDeletedMessagesInput = {
   memberId?: Prisma.StringFieldUpdateOperationsInput | string
   username?: Prisma.StringFieldUpdateOperationsInput | string
   globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -1402,9 +1690,14 @@ export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   memberId?: boolean
   username?: boolean
   globalName?: boolean
+  discriminator?: boolean
+  bot?: boolean
+  system?: boolean
   avatarUrl?: boolean
   bannerUrl?: boolean
   accentColor?: boolean
+  avatarDecorationUrl?: boolean
+  flags?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   roles?: boolean | Prisma.Member$rolesArgs<ExtArgs>
@@ -1422,9 +1715,14 @@ export type MemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   memberId?: boolean
   username?: boolean
   globalName?: boolean
+  discriminator?: boolean
+  bot?: boolean
+  system?: boolean
   avatarUrl?: boolean
   bannerUrl?: boolean
   accentColor?: boolean
+  avatarDecorationUrl?: boolean
+  flags?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["member"]>
@@ -1433,9 +1731,14 @@ export type MemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   memberId?: boolean
   username?: boolean
   globalName?: boolean
+  discriminator?: boolean
+  bot?: boolean
+  system?: boolean
   avatarUrl?: boolean
   bannerUrl?: boolean
   accentColor?: boolean
+  avatarDecorationUrl?: boolean
+  flags?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["member"]>
@@ -1444,14 +1747,19 @@ export type MemberSelectScalar = {
   memberId?: boolean
   username?: boolean
   globalName?: boolean
+  discriminator?: boolean
+  bot?: boolean
+  system?: boolean
   avatarUrl?: boolean
   bannerUrl?: boolean
   accentColor?: boolean
+  avatarDecorationUrl?: boolean
+  flags?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"memberId" | "username" | "globalName" | "avatarUrl" | "bannerUrl" | "accentColor" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
+export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"memberId" | "username" | "globalName" | "discriminator" | "bot" | "system" | "avatarUrl" | "bannerUrl" | "accentColor" | "avatarDecorationUrl" | "flags" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
 export type MemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   roles?: boolean | Prisma.Member$rolesArgs<ExtArgs>
   guilds?: boolean | Prisma.Member$guildsArgs<ExtArgs>
@@ -1482,9 +1790,14 @@ export type $MemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     memberId: string
     username: string
     globalName: string | null
+    discriminator: string | null
+    bot: boolean
+    system: boolean
     avatarUrl: string | null
     bannerUrl: string | null
     accentColor: number | null
+    avatarDecorationUrl: string | null
+    flags: bigint | null
     createdAt: Date | null
     updatedAt: Date
   }, ExtArgs["result"]["member"]>
@@ -1921,9 +2234,14 @@ export interface MemberFieldRefs {
   readonly memberId: Prisma.FieldRef<"Member", 'String'>
   readonly username: Prisma.FieldRef<"Member", 'String'>
   readonly globalName: Prisma.FieldRef<"Member", 'String'>
+  readonly discriminator: Prisma.FieldRef<"Member", 'String'>
+  readonly bot: Prisma.FieldRef<"Member", 'Boolean'>
+  readonly system: Prisma.FieldRef<"Member", 'Boolean'>
   readonly avatarUrl: Prisma.FieldRef<"Member", 'String'>
   readonly bannerUrl: Prisma.FieldRef<"Member", 'String'>
   readonly accentColor: Prisma.FieldRef<"Member", 'Int'>
+  readonly avatarDecorationUrl: Prisma.FieldRef<"Member", 'String'>
+  readonly flags: Prisma.FieldRef<"Member", 'BigInt'>
   readonly createdAt: Prisma.FieldRef<"Member", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Member", 'DateTime'>
 }

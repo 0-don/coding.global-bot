@@ -39,12 +39,18 @@ model GuildVoiceEvents {
 model Member {
   memberId String @id @unique
 
-  username   String
-  globalName String?
+  username      String
+  globalName    String?
+  discriminator String?
 
-  avatarUrl   String?
-  bannerUrl   String?
-  accentColor Int?
+  bot    Boolean @default(false)
+  system Boolean @default(false)
+
+  avatarUrl           String?
+  bannerUrl           String?
+  accentColor         Int?
+  avatarDecorationUrl String?
+  flags               BigInt?
 
   // Timestamps
   createdAt DateTime?
@@ -82,8 +88,9 @@ model MemberGuild {
   nickname String?
 
   // Guild-specific avatar (Nitro feature)
-  avatarUrl String?
-  bannerUrl String?
+  avatarUrl           String?
+  bannerUrl           String?
+  avatarDecorationUrl String?
 
   // Guild-specific display data
   displayName         String?
@@ -95,6 +102,12 @@ model MemberGuild {
   presenceStatus    String?
   presenceActivity  String?
   presenceUpdatedAt DateTime?
+
+  // Member status
+  pending                    Boolean   @default(false)
+  premiumSince               DateTime?
+  communicationDisabledUntil DateTime?
+  flags                      BigInt?
 
   moveCounter Int     @default(0) // troll-move-user command
   moving      Boolean @default(false) // troll-move-user command

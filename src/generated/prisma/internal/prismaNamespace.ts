@@ -1142,9 +1142,14 @@ export const MemberScalarFieldEnum = {
   memberId: 'memberId',
   username: 'username',
   globalName: 'globalName',
+  discriminator: 'discriminator',
+  bot: 'bot',
+  system: 'system',
   avatarUrl: 'avatarUrl',
   bannerUrl: 'bannerUrl',
   accentColor: 'accentColor',
+  avatarDecorationUrl: 'avatarDecorationUrl',
+  flags: 'flags',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1172,6 +1177,7 @@ export const MemberGuildScalarFieldEnum = {
   nickname: 'nickname',
   avatarUrl: 'avatarUrl',
   bannerUrl: 'bannerUrl',
+  avatarDecorationUrl: 'avatarDecorationUrl',
   displayName: 'displayName',
   joinedAt: 'joinedAt',
   displayHexColor: 'displayHexColor',
@@ -1179,6 +1185,10 @@ export const MemberGuildScalarFieldEnum = {
   presenceStatus: 'presenceStatus',
   presenceActivity: 'presenceActivity',
   presenceUpdatedAt: 'presenceUpdatedAt',
+  pending: 'pending',
+  premiumSince: 'premiumSince',
+  communicationDisabledUntil: 'communicationDisabledUntil',
+  flags: 'flags',
   moveCounter: 'moveCounter',
   moving: 'moving',
   moveTimeout: 'moveTimeout',
@@ -1345,6 +1355,20 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'BigInt'
+ */
+export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+/**
+ * Reference to a field of type 'BigInt[]'
+ */
+export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
     
 
 
