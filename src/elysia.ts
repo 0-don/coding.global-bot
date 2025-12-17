@@ -5,6 +5,7 @@ import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
 import { bot } from "./main";
+import { prisma } from "./prisma";
 import {
   parseMultipleUsersWithRoles,
   parseUserWithRoles,
@@ -70,18 +71,47 @@ export const app = new Elysia({ adapter: node() })
   })
   .get(
     "/api/:guildId/staff",
-    async ({ guild }) => {
+    async ({ guild, params }) => {
       if (!guild) throw status("Not Found", "Guild not found");
 
-      const staffMembers = (await guild.members.fetch()).filter(
-        (member) =>
-          (member.permissions.has(PermissionsBitField.Flags.MuteMembers) ||
-            member.permissions.has(PermissionsBitField.Flags.ChangeNickname)) &&
-          !member.user.bot,
-      );
+      // Get all members from database with their roles
+      const memberGuids = await prisma.memberGuild.findMany({
+        where: {
+          guildId: params.guildId,
+          status: true,
+        },
+        include: {
+          member: {
+            include: {
+              roles: {
+                where: { guildId: params.guildId },
+              },
+            },
+          },
+        },
+      });
 
-      const userIds = Array.from(staffMembers.keys());
-      const users = await parseMultipleUsersWithRoles(userIds, guild);
+      // Filter for staff members (those with MuteMembers or ChangeNickname permissions)
+      // We need to check if they have roles with these permissions
+      const staffUserIds = memberGuids
+        .filter((memberGuild) => {
+          // Check if any of their roles have staff permissions
+          return memberGuild.member.roles.some((role) => {
+            const discordRole = guild.roles.cache.get(role.roleId);
+            if (!discordRole) return false;
+            return (
+              discordRole.permissions.has(
+                PermissionsBitField.Flags.MuteMembers,
+              ) ||
+              discordRole.permissions.has(
+                PermissionsBitField.Flags.ChangeNickname,
+              )
+            );
+          });
+        })
+        .map((memberGuild) => memberGuild.memberId);
+
+      const users = await parseMultipleUsersWithRoles(staffUserIds, guild);
       users.sort((a, b) => b.highestRolePosition - a.highestRolePosition);
 
       return users;
@@ -126,7 +156,7 @@ export const app = new Elysia({ adapter: node() })
               height: attachment.height!,
               contentType: attachment.contentType!,
             })),
-          user: await parseUserWithRoles(message.author.id, guild, message),
+          user: await parseUserWithRoles(message.author.id, guild),
         })),
       );
 
@@ -136,38 +166,43 @@ export const app = new Elysia({ adapter: node() })
   )
   .get(
     "/api/:guildId/widget",
-    async ({ guild }) => {
+    async ({ guild, params }) => {
       if (!guild) throw status("Not Found", "Guild not found");
 
-      try {
-        await guild.members.fetch();
-      } catch (error) {}
-
-      const onlineMembers = guild.members.cache.filter(
-        (member) =>
-          (member.presence?.status === "online" ||
-            member.presence?.status === "idle" ||
-            member.presence?.status === "dnd") &&
-          !member.user.bot,
-      );
-
-      const sortedOnlineMembers = Array.from(onlineMembers.values()).sort(
-        (a, b) => {
-          const highestRoleA = a.roles.highest.position;
-          const highestRoleB = b.roles.highest.position;
-          return highestRoleB - highestRoleA;
+      // Get online members from database
+      const onlineMembers = await prisma.memberGuild.findMany({
+        where: {
+          guildId: params.guildId,
+          status: true,
+          presenceStatus: {
+            in: ["online", "idle", "dnd"],
+          },
         },
-      );
+        orderBy: {
+          highestRolePosition: "desc",
+        },
+        take: 100,
+      });
 
-      const top100Members = sortedOnlineMembers.slice(0, 100);
-      const userIds = top100Members.map((member) => member.id);
+      const userIds = onlineMembers.map((member) => member.memberId);
       const members = await parseMultipleUsersWithRoles(userIds, guild);
+
+      // Get total presence count
+      const presenceCount = await prisma.memberGuild.count({
+        where: {
+          guildId: params.guildId,
+          status: true,
+          presenceStatus: {
+            in: ["online", "idle", "dnd"],
+          },
+        },
+      });
 
       const widget = {
         id: guild.id,
         name: guild.name,
         members,
-        presenceCount: onlineMembers.size,
+        presenceCount,
         memberCount: guild.memberCount,
         iconURL: guild.iconURL({ extension: "webp", size: 256 }),
         bannerURL: guild.bannerURL({ extension: "webp", size: 1024 }),
