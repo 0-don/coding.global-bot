@@ -1,7 +1,6 @@
 import { error } from "console";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { updateCompleteMemberData } from "../lib/members/member-data.service";
 
 @Discord()
 export class UserUpdate {
@@ -12,7 +11,7 @@ export class UserUpdate {
         try {
           const member = await guild.members.fetch(newUser);
           if (member) {
-            await updateCompleteMemberData(member);
+            // await updateCompleteMemberData(member);
           }
         } catch (err) {
           continue;
