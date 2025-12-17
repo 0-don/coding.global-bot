@@ -172,7 +172,7 @@ class MemberVerifier {
         this.setState(state);
 
         const progressPercent = Math.round(((i + 1) / totalMembers) * 100);
-        const progressMessage = `Processed ${currentMember.user.globalName} members ${i + 1}/${totalMembers} (${progressPercent}%)`;
+        const progressMessage = `Verifying ${currentMember.user.globalName} members ${i + 1}/${totalMembers} (${progressPercent}%)`;
 
         console.log(progressMessage);
 
