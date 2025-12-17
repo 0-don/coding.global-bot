@@ -1171,6 +1171,7 @@ export const MemberGuildScalarFieldEnum = {
   status: 'status',
   nickname: 'nickname',
   avatarUrl: 'avatarUrl',
+  bannerUrl: 'bannerUrl',
   displayName: 'displayName',
   joinedAt: 'joinedAt',
   displayHexColor: 'displayHexColor',
