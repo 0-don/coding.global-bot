@@ -102,15 +102,41 @@ export class AiChat {
         },
       );
 
+      console.log('[AI Response Debug]', {
+        rawText: text,
+        textLength: text?.length || 0,
+        trimmedLength: text?.trim().length || 0,
+        hasSteps: !!steps?.length,
+        stepsCount: steps?.length || 0,
+        stepDetails: steps?.map(step => ({
+          toolCallsCount: step.toolCalls?.length || 0,
+          toolResultsCount: step.toolResults?.length || 0,
+          toolNames: step.toolResults?.map((r: any) => r.toolName) || []
+        }))
+      });
+
       // Fix: Check if text is empty or only whitespace
       const responseText = text?.trim();
       if (!responseText) {
         console.warn("AI generated empty response, using fallback");
-        await message.reply("sorry, something went wrong with my response...");
-        return;
+        // If there are tool results but no text, provide a default message
+        const hasToolResults = steps?.some(step => step.toolResults?.length > 0);
+        console.log('[Empty Response Handling]', {
+          hasToolResults,
+          willUseFallback: !hasToolResults
+        });
+        if (hasToolResults) {
+          // Tool was used (like searchMemeGifs) but no text was generated
+          // The GIF will still be sent below, so just add a simple message
+          messages.push({ role: "assistant", content: "👍" });
+        } else {
+          await message.reply("sorry, something went wrong with my response...");
+          return;
+        }
+      } else {
+        console.log('[AI Response Success]', { responseLength: responseText.length });
+        messages.push({ role: "assistant", content: responseText });
       }
-
-      messages.push({ role: "assistant", content: responseText });
 
       if (messages.length > MAX_MESSAGES_PER_CHANNEL) {
         messages.splice(0, messages.length - MAX_MESSAGES_PER_CHANNEL);
@@ -119,8 +145,27 @@ export class AiChat {
       channelMessages.set(message.channel.id, messages);
 
       const gifUrl = this.extractGifFromSteps(steps);
+      console.log('[GIF Extraction]', { gifUrl, hasGif: !!gifUrl });
+
+      // Use responseText if available, otherwise get the last assistant message content
+      let replyContent = responseText;
+      if (!replyContent) {
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage && typeof lastMessage.content === 'string') {
+          replyContent = lastMessage.content;
+        } else {
+          replyContent = "👍";
+        }
+      }
+
+      console.log('[Reply Content]', {
+        replyContent: replyContent.substring(0, 100),
+        contentLength: replyContent.length,
+        hasGifAttachment: !!gifUrl
+      });
+
       await message.reply({
-        content: responseText,
+        content: replyContent,
         files: gifUrl
           ? [{ attachment: gifUrl, name: "reaction.gif" }]
           : undefined,
