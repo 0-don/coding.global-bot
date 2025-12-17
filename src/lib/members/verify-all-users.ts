@@ -174,7 +174,7 @@ class MemberVerifier {
         const progressPercent = Math.round(((i + 1) / totalMembers) * 100);
         const progressMessage = `Verifying ${currentMember.user.globalName} members ${i + 1}/${totalMembers} (${progressPercent}%)`;
 
-        console.log(progressMessage);
+        log(progressMessage);
 
         // Update Discord progress every 10 members or on the last member
         if ((i + 1) % 10 === 0 || i + 1 === totalMembers) {
