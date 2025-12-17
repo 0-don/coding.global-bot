@@ -38,8 +38,8 @@ model GuildVoiceEvents {
 
 model Member {
   memberId String @id @unique
-  
-  username String
+
+  username   String
   globalName String?
 
   avatarUrl   String?
@@ -83,6 +83,7 @@ model MemberGuild {
 
   // Guild-specific avatar (Nitro feature)
   avatarUrl String?
+  bannerUrl String?
 
   // Guild-specific display data
   displayName         String?

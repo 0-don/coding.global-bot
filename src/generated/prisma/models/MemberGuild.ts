@@ -51,6 +51,7 @@ export type MemberGuildMinAggregateOutputType = {
   status: boolean | null
   nickname: string | null
   avatarUrl: string | null
+  bannerUrl: string | null
   displayName: string | null
   joinedAt: Date | null
   displayHexColor: string | null
@@ -75,6 +76,7 @@ export type MemberGuildMaxAggregateOutputType = {
   status: boolean | null
   nickname: string | null
   avatarUrl: string | null
+  bannerUrl: string | null
   displayName: string | null
   joinedAt: Date | null
   displayHexColor: string | null
@@ -99,6 +101,7 @@ export type MemberGuildCountAggregateOutputType = {
   status: number
   nickname: number
   avatarUrl: number
+  bannerUrl: number
   displayName: number
   joinedAt: number
   displayHexColor: number
@@ -143,6 +146,7 @@ export type MemberGuildMinAggregateInputType = {
   status?: true
   nickname?: true
   avatarUrl?: true
+  bannerUrl?: true
   displayName?: true
   joinedAt?: true
   displayHexColor?: true
@@ -167,6 +171,7 @@ export type MemberGuildMaxAggregateInputType = {
   status?: true
   nickname?: true
   avatarUrl?: true
+  bannerUrl?: true
   displayName?: true
   joinedAt?: true
   displayHexColor?: true
@@ -191,6 +196,7 @@ export type MemberGuildCountAggregateInputType = {
   status?: true
   nickname?: true
   avatarUrl?: true
+  bannerUrl?: true
   displayName?: true
   joinedAt?: true
   displayHexColor?: true
@@ -302,6 +308,7 @@ export type MemberGuildGroupByOutputType = {
   status: boolean
   nickname: string | null
   avatarUrl: string | null
+  bannerUrl: string | null
   displayName: string | null
   joinedAt: Date | null
   displayHexColor: string | null
@@ -349,6 +356,7 @@ export type MemberGuildWhereInput = {
   status?: Prisma.BoolFilter<"MemberGuild"> | boolean
   nickname?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
+  bannerUrl?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
   displayName?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
   joinedAt?: Prisma.DateTimeNullableFilter<"MemberGuild"> | Date | string | null
   displayHexColor?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
@@ -375,6 +383,7 @@ export type MemberGuildOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   nickname?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  bannerUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   displayName?: Prisma.SortOrderInput | Prisma.SortOrder
   joinedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   displayHexColor?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -405,6 +414,7 @@ export type MemberGuildWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.BoolFilter<"MemberGuild"> | boolean
   nickname?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
+  bannerUrl?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
   displayName?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
   joinedAt?: Prisma.DateTimeNullableFilter<"MemberGuild"> | Date | string | null
   displayHexColor?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
@@ -431,6 +441,7 @@ export type MemberGuildOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   nickname?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  bannerUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   displayName?: Prisma.SortOrderInput | Prisma.SortOrder
   joinedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   displayHexColor?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -463,6 +474,7 @@ export type MemberGuildScalarWhereWithAggregatesInput = {
   status?: Prisma.BoolWithAggregatesFilter<"MemberGuild"> | boolean
   nickname?: Prisma.StringNullableWithAggregatesFilter<"MemberGuild"> | string | null
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"MemberGuild"> | string | null
+  bannerUrl?: Prisma.StringNullableWithAggregatesFilter<"MemberGuild"> | string | null
   displayName?: Prisma.StringNullableWithAggregatesFilter<"MemberGuild"> | string | null
   joinedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"MemberGuild"> | Date | string | null
   displayHexColor?: Prisma.StringNullableWithAggregatesFilter<"MemberGuild"> | string | null
@@ -484,6 +496,7 @@ export type MemberGuildCreateInput = {
   status: boolean
   nickname?: string | null
   avatarUrl?: string | null
+  bannerUrl?: string | null
   displayName?: string | null
   joinedAt?: Date | string | null
   displayHexColor?: string | null
@@ -510,6 +523,7 @@ export type MemberGuildUncheckedCreateInput = {
   status: boolean
   nickname?: string | null
   avatarUrl?: string | null
+  bannerUrl?: string | null
   displayName?: string | null
   joinedAt?: Date | string | null
   displayHexColor?: string | null
@@ -531,6 +545,7 @@ export type MemberGuildUpdateInput = {
   status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   displayHexColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -557,6 +572,7 @@ export type MemberGuildUncheckedUpdateInput = {
   status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   displayHexColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -581,6 +597,7 @@ export type MemberGuildCreateManyInput = {
   status: boolean
   nickname?: string | null
   avatarUrl?: string | null
+  bannerUrl?: string | null
   displayName?: string | null
   joinedAt?: Date | string | null
   displayHexColor?: string | null
@@ -602,6 +619,7 @@ export type MemberGuildUpdateManyMutationInput = {
   status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   displayHexColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -626,6 +644,7 @@ export type MemberGuildUncheckedUpdateManyInput = {
   status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   displayHexColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -665,6 +684,7 @@ export type MemberGuildCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  bannerUrl?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   displayHexColor?: Prisma.SortOrder
@@ -698,6 +718,7 @@ export type MemberGuildMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  bannerUrl?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   displayHexColor?: Prisma.SortOrder
@@ -722,6 +743,7 @@ export type MemberGuildMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  bannerUrl?: Prisma.SortOrder
   displayName?: Prisma.SortOrder
   joinedAt?: Prisma.SortOrder
   displayHexColor?: Prisma.SortOrder
@@ -840,6 +862,7 @@ export type MemberGuildCreateWithoutGuildInput = {
   status: boolean
   nickname?: string | null
   avatarUrl?: string | null
+  bannerUrl?: string | null
   displayName?: string | null
   joinedAt?: Date | string | null
   displayHexColor?: string | null
@@ -864,6 +887,7 @@ export type MemberGuildUncheckedCreateWithoutGuildInput = {
   status: boolean
   nickname?: string | null
   avatarUrl?: string | null
+  bannerUrl?: string | null
   displayName?: string | null
   joinedAt?: Date | string | null
   displayHexColor?: string | null
@@ -917,6 +941,7 @@ export type MemberGuildScalarWhereInput = {
   status?: Prisma.BoolFilter<"MemberGuild"> | boolean
   nickname?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
+  bannerUrl?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
   displayName?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
   joinedAt?: Prisma.DateTimeNullableFilter<"MemberGuild"> | Date | string | null
   displayHexColor?: Prisma.StringNullableFilter<"MemberGuild"> | string | null
@@ -938,6 +963,7 @@ export type MemberGuildCreateWithoutMemberInput = {
   status: boolean
   nickname?: string | null
   avatarUrl?: string | null
+  bannerUrl?: string | null
   displayName?: string | null
   joinedAt?: Date | string | null
   displayHexColor?: string | null
@@ -962,6 +988,7 @@ export type MemberGuildUncheckedCreateWithoutMemberInput = {
   status: boolean
   nickname?: string | null
   avatarUrl?: string | null
+  bannerUrl?: string | null
   displayName?: string | null
   joinedAt?: Date | string | null
   displayHexColor?: string | null
@@ -1011,6 +1038,7 @@ export type MemberGuildCreateManyGuildInput = {
   status: boolean
   nickname?: string | null
   avatarUrl?: string | null
+  bannerUrl?: string | null
   displayName?: string | null
   joinedAt?: Date | string | null
   displayHexColor?: string | null
@@ -1032,6 +1060,7 @@ export type MemberGuildUpdateWithoutGuildInput = {
   status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   displayHexColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1056,6 +1085,7 @@ export type MemberGuildUncheckedUpdateWithoutGuildInput = {
   status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   displayHexColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1079,6 +1109,7 @@ export type MemberGuildUncheckedUpdateManyWithoutGuildInput = {
   status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   displayHexColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1102,6 +1133,7 @@ export type MemberGuildCreateManyMemberInput = {
   status: boolean
   nickname?: string | null
   avatarUrl?: string | null
+  bannerUrl?: string | null
   displayName?: string | null
   joinedAt?: Date | string | null
   displayHexColor?: string | null
@@ -1123,6 +1155,7 @@ export type MemberGuildUpdateWithoutMemberInput = {
   status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   displayHexColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1147,6 +1180,7 @@ export type MemberGuildUncheckedUpdateWithoutMemberInput = {
   status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   displayHexColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1170,6 +1204,7 @@ export type MemberGuildUncheckedUpdateManyWithoutMemberInput = {
   status?: Prisma.BoolFieldUpdateOperationsInput | boolean
   nickname?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   joinedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   displayHexColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1196,6 +1231,7 @@ export type MemberGuildSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   status?: boolean
   nickname?: boolean
   avatarUrl?: boolean
+  bannerUrl?: boolean
   displayName?: boolean
   joinedAt?: boolean
   displayHexColor?: boolean
@@ -1222,6 +1258,7 @@ export type MemberGuildSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   status?: boolean
   nickname?: boolean
   avatarUrl?: boolean
+  bannerUrl?: boolean
   displayName?: boolean
   joinedAt?: boolean
   displayHexColor?: boolean
@@ -1248,6 +1285,7 @@ export type MemberGuildSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   status?: boolean
   nickname?: boolean
   avatarUrl?: boolean
+  bannerUrl?: boolean
   displayName?: boolean
   joinedAt?: boolean
   displayHexColor?: boolean
@@ -1274,6 +1312,7 @@ export type MemberGuildSelectScalar = {
   status?: boolean
   nickname?: boolean
   avatarUrl?: boolean
+  bannerUrl?: boolean
   displayName?: boolean
   joinedAt?: boolean
   displayHexColor?: boolean
@@ -1291,7 +1330,7 @@ export type MemberGuildSelectScalar = {
   updatedAt?: boolean
 }
 
-export type MemberGuildOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "memberId" | "guildId" | "status" | "nickname" | "avatarUrl" | "displayName" | "joinedAt" | "displayHexColor" | "highestRolePosition" | "presenceStatus" | "presenceActivity" | "presenceUpdatedAt" | "moveCounter" | "moving" | "moveTimeout" | "warnings" | "muted" | "deafened" | "lookback" | "updatedAt", ExtArgs["result"]["memberGuild"]>
+export type MemberGuildOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "memberId" | "guildId" | "status" | "nickname" | "avatarUrl" | "bannerUrl" | "displayName" | "joinedAt" | "displayHexColor" | "highestRolePosition" | "presenceStatus" | "presenceActivity" | "presenceUpdatedAt" | "moveCounter" | "moving" | "moveTimeout" | "warnings" | "muted" | "deafened" | "lookback" | "updatedAt", ExtArgs["result"]["memberGuild"]>
 export type MemberGuildInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   member?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   guild?: boolean | Prisma.GuildDefaultArgs<ExtArgs>
@@ -1318,6 +1357,7 @@ export type $MemberGuildPayload<ExtArgs extends runtime.Types.Extensions.Interna
     status: boolean
     nickname: string | null
     avatarUrl: string | null
+    bannerUrl: string | null
     displayName: string | null
     joinedAt: Date | null
     displayHexColor: string | null
@@ -1764,6 +1804,7 @@ export interface MemberGuildFieldRefs {
   readonly status: Prisma.FieldRef<"MemberGuild", 'Boolean'>
   readonly nickname: Prisma.FieldRef<"MemberGuild", 'String'>
   readonly avatarUrl: Prisma.FieldRef<"MemberGuild", 'String'>
+  readonly bannerUrl: Prisma.FieldRef<"MemberGuild", 'String'>
   readonly displayName: Prisma.FieldRef<"MemberGuild", 'String'>
   readonly joinedAt: Prisma.FieldRef<"MemberGuild", 'DateTime'>
   readonly displayHexColor: Prisma.FieldRef<"MemberGuild", 'String'>
