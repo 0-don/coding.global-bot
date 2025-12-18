@@ -1,4 +1,6 @@
-import { Guild } from "discord.js";
+import { AnyThreadChannel, ForumChannel, Guild } from "discord.js";
+import { Static } from "elysia";
+import { BoardType } from "../elysia";
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "../prisma";
 
@@ -11,81 +13,6 @@ type MemberGuildWithRelations = Prisma.MemberGuildGetPayload<{
     };
   };
 }>;
-
-// function formatMemberGuild(
-//   memberGuild: MemberGuildWithRelations,
-//   resolvedGuildId: string,
-// ) {
-//   const roles = memberGuild.member.roles
-//     .filter((role) => role.roleId !== resolvedGuildId)
-//     .map((role) => ({
-//       name: role.name || "",
-//       position: role.position || 0,
-//     }));
-
-//   return {
-//     // Identity
-//     id: memberGuild.memberId,
-//     username: memberGuild.member.username,
-//     globalName: memberGuild.member.globalName,
-//     discriminator: memberGuild.member.discriminator,
-//     nickname: memberGuild.nickname,
-//     displayName: memberGuild.displayName,
-
-//     // User Type
-//     bot: memberGuild.member.bot,
-//     system: memberGuild.member.system,
-
-//     // Appearance
-//     displayAvatarURL:
-//       memberGuild.avatarUrl ||
-//       memberGuild.member.avatarUrl ||
-//       `https://cdn.discordapp.com/embed/avatars/${parseInt(memberGuild.memberId) % 5}.png`,
-//     avatarUrl: memberGuild.member.avatarUrl || null,
-//     guildAvatarUrl: memberGuild.avatarUrl || null,
-//     bannerUrl: memberGuild.bannerUrl || memberGuild.member.bannerUrl || null,
-//     accentColor: memberGuild.member.accentColor,
-//     hexAccentColor: memberGuild.member.hexAccentColor || null,
-//     avatarDecorationUrl:
-//       memberGuild.avatarDecorationUrl ||
-//       memberGuild.member.avatarDecorationUrl ||
-//       null,
-//     avatarDecorationData:
-//       memberGuild.avatarDecorationData ||
-//       memberGuild.member.avatarDecorationData ||
-//       null,
-//     displayHexColor: memberGuild.displayHexColor || "#000000",
-//     displayColor: memberGuild.displayColor || null,
-//     flags: memberGuild.member.flags?.toString() || null,
-//     collectibles: memberGuild.member.collectibles || null,
-//     primaryGuild: memberGuild.member.primaryGuild || null,
-
-//     // Roles
-//     roles,
-//     highestRolePosition: memberGuild.highestRolePosition || 0,
-
-//     // Presence
-//     status: memberGuild.presenceStatus || "offline",
-//     activity: memberGuild.presenceActivity || null,
-//     presenceUpdatedAt: memberGuild.presenceUpdatedAt || null,
-
-//     // Guild Member Status
-//     pending: memberGuild.pending,
-//     premiumSince: memberGuild.premiumSince || null,
-//     communicationDisabledUntil: memberGuild.communicationDisabledUntil || null,
-//     guildFlags: memberGuild.flags || null,
-//     bannable: memberGuild.bannable,
-//     kickable: memberGuild.kickable,
-//     manageable: memberGuild.manageable,
-//     moderatable: memberGuild.moderatable,
-
-//     // Timestamps
-//     joinedAt: memberGuild.joinedAt || null,
-//     createdAt: memberGuild.member.createdAt || new Date(),
-//     updatedAt: memberGuild.member.updatedAt || null,
-//     guildUpdatedAt: memberGuild.updatedAt || null,
-//   };
-// }
 
 function formatMemberGuild(
   memberGuild: MemberGuildWithRelations,
@@ -199,4 +126,54 @@ export async function parseMultipleUsersWithRoles(
   return formattedMembers.sort(
     (a, b) => b.highestRolePosition - a.highestRolePosition,
   );
+}
+
+export async function extractThreadDetails(
+  thread: AnyThreadChannel,
+  boardChannel: ForumChannel,
+  guild: Guild,
+  boardType: Static<typeof BoardType>,
+) {
+  const threadOwner = await parseUserWithRoles(thread.ownerId, guild);
+
+  const tags = thread.appliedTags
+    .map((tagId) => {
+      const tag = boardChannel.availableTags.find((t) => t.id === tagId);
+      return {
+        id: tag!.id,
+        name: tag!.name,
+        emoji: {
+          id: tag!.emoji?.id || null,
+          name: tag!.emoji?.name || null,
+        },
+      };
+    })
+    .filter(Boolean);
+
+  let previewImage: string | null = null;
+  let previewText: string | null = null;
+  try {
+    const starterMessage = await thread.fetchStarterMessage();
+    if (starterMessage) {
+      const imageAttachment = starterMessage.attachments.find((attachment) =>
+        attachment.contentType?.startsWith("image/"),
+      );
+      previewImage = imageAttachment?.url || null;
+      previewText = starterMessage.content || null;
+    }
+  } catch (error) {}
+
+  return {
+    id: thread.id,
+    name: thread.name,
+    boardType,
+    messageCount: thread.messageCount,
+    author: threadOwner || null,
+    archived: !!thread.archived,
+    locked: thread.locked,
+    createdAt: thread.createdAt,
+    tags,
+    previewImage,
+    previewText,
+  };
 }

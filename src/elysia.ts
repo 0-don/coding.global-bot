@@ -7,6 +7,7 @@ import { Elysia, status, t } from "elysia";
 import { bot } from "./main";
 import { prisma } from "./prisma";
 import {
+  extractThreadDetails,
   parseMultipleUsersWithRoles,
   parseUserWithRoles,
 } from "./server/server";
@@ -16,7 +17,7 @@ const cache: Record<string, { timestamp: number; data: unknown }> = {};
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 const PAGE_LIMIT = 100;
 
-const BoardType = t.Union([
+export const BoardType = t.Union([
   t.Literal("job-board"),
   t.Literal("dev-board"),
   t.Literal("showcase"),
@@ -241,57 +242,10 @@ export const app = new Elysia({ adapter: node() })
         ...archivedThreads.threads.values(),
       ];
 
-      const ownerIds = allThreads.map((thread) => thread.ownerId);
-      const owners = await parseMultipleUsersWithRoles(ownerIds, guild);
-
       const threadList = await Promise.all(
-        allThreads.map(async (thread) => {
-          const author = owners.find((owner) => owner.id === thread.ownerId);
-
-          const tags = thread.appliedTags
-            .map((tagId) => {
-              const tag = boardChannel.availableTags.find(
-                (t) => t.id === tagId,
-              );
-              return {
-                id: tag!.id,
-                name: tag!.name,
-                emoji: {
-                  id: tag!.emoji?.id || null,
-                  name: tag!.emoji?.name || null,
-                },
-              };
-            })
-            .filter(Boolean);
-
-          let previewImage: string | null = null;
-          let previewText: string | null = null;
-          try {
-            const starterMessage = await thread.fetchStarterMessage();
-            if (starterMessage) {
-              const imageAttachment = starterMessage.attachments.find(
-                (attachment) => attachment.contentType?.startsWith("image/"),
-              );
-              previewImage = imageAttachment?.url || null;
-              previewText = starterMessage.content || null;
-            }
-          } catch (error) {}
-
-          const result = {
-            id: thread.id,
-            name: thread.name,
-            boardType: params.boardType,
-            messageCount: thread.messageCount,
-            author: author || null,
-            archived: !!thread.archived,
-            locked: thread.locked,
-            createdAt: thread.createdAt,
-            tags,
-            previewImage,
-            previewText,
-          };
-          return result;
-        }),
+        allThreads.map((thread) =>
+          extractThreadDetails(thread, boardChannel, guild, params.boardType),
+        ),
       );
 
       return threadList;
@@ -313,6 +267,18 @@ export const app = new Elysia({ adapter: node() })
       if (!thread || !thread.isThread()) {
         throw status("Not Found", "Thread not found");
       }
+
+      const boardChannel = thread.parent;
+      if (!boardChannel || boardChannel.type !== ChannelType.GuildForum) {
+        throw status("Bad Request", "Thread parent must be a forum channel");
+      }
+
+      const threadDetails = await extractThreadDetails(
+        thread,
+        boardChannel,
+        guild,
+        params.boardType,
+      );
 
       const messages = await thread.messages.fetch({
         limit: PAGE_LIMIT,
@@ -351,6 +317,7 @@ export const app = new Elysia({ adapter: node() })
       const sortedMessages = messageList.reverse();
 
       return {
+        thread: threadDetails,
         messages: sortedMessages,
         hasMore: messageArray.length === PAGE_LIMIT,
         nextCursor: sortedMessages.length > 0 ? sortedMessages[0].id : null,
