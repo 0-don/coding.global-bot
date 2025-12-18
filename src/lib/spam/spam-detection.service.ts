@@ -7,6 +7,7 @@ import { ConfigValidator } from "../config-validator";
 import { googleClient } from "../google-client";
 import { deleteUserMessages } from "../messages/delete-user-messages";
 import { log } from "console";
+import { makeImageParts } from "../../events/ai/utils";
 
 export class SpamDetectionService {
   private static _spamDetectionWarningLogged = false;
@@ -15,19 +16,28 @@ export class SpamDetectionService {
 
 Analyze if the message is spam based on these criteria:
 
-SPAM INDICATORS:
+SPAM INDICATORS (TEXT):
 - Job seeking: "available for work", "open to opportunities", "looking for projects"
 - Service promotion: offering paid services, listing skills for hire
 - Portfolio spam: promoting personal website/portfolio in first message
 - Business solicitation: "contact me for", "DM for services"
 - Generic intro + services: "I'm a developer who does X, Y, Z [contact info]"
 
+SPAM INDICATORS (IMAGES):
+- Portfolio screenshots showing "hire me" or "available for work"
+- Service price lists or package offerings
+- Business cards or promotional graphics
+- Screenshots of profiles on freelancing platforms
+- "Looking for clients" or similar promotional imagery
+- Resume or CV screenshots in first message
+
 LEGITIMATE CONTENT:
 - Asking programming questions
 - Casual introduction without business promotion
-- Sharing code/resources
-- Technical discussion
+- Sharing code/resources or screenshots for help
+- Technical discussion or error screenshots
 - Offering help (not services)
+- Memes or casual images
 
 Provide your confidence level:
 - high: clearly spam or clearly legitimate
@@ -96,7 +106,12 @@ Provide your confidence level:
     );
     if (!isFirst) return false;
 
-    if (!message.content.trim()) {
+    const hasText = message.content.trim().length > 0;
+    const hasImages = message.attachments.some((att) =>
+      att.contentType?.startsWith("image/"),
+    );
+
+    if (!hasText && !hasImages) {
       return false;
     }
 
@@ -118,7 +133,10 @@ Provide your confidence level:
         .map((role) => role.name)
         .filter((name) => name !== "@everyone");
 
-      const context = `User info:
+      const messageImages = await makeImageParts(message);
+      const imageCount = messageImages.length;
+
+      const contextText = `User info:
 - Account age: ${accountAge} days
 - Server member for: ${memberAge !== null ? `${memberAge} days` : "unknown"}
 - Channel: ${channelName}
@@ -132,14 +150,26 @@ Provide your confidence level:
 - Message length: ${message.content.length} characters
 - Has links: ${hasLinks}
 - Has mentions: ${hasMentions}
+- Has images: ${imageCount > 0 ? `yes (${imageCount})` : "no"}
 
-Message: "${message.content}"`;
+Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached image(s) for spam indicators like portfolio screenshots, service advertisements, promotional graphics, or other spam-related visual content." : ""}`;
 
       const { object } = await googleClient.executeWithRotation(async () => {
         return await generateObject({
           model: googleClient.getModel(),
           system: this.SYSTEM_PROMPT,
-          prompt: context,
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: contextText },
+                ...messageImages.map((url) => ({
+                  type: "image" as const,
+                  image: url,
+                })),
+              ],
+            },
+          ],
           schema: z.object({
             isSpam: z.boolean(),
             confidence: z.enum(["high", "medium", "low"]),
