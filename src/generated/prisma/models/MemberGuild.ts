@@ -30,6 +30,7 @@ export type MemberGuildAvgAggregateOutputType = {
   id: number | null
   highestRolePosition: number | null
   flags: number | null
+  displayColor: number | null
   moveCounter: number | null
   moveTimeout: number | null
   warnings: number | null
@@ -40,6 +41,7 @@ export type MemberGuildSumAggregateOutputType = {
   id: number | null
   highestRolePosition: number | null
   flags: bigint | null
+  displayColor: number | null
   moveCounter: number | null
   moveTimeout: number | null
   warnings: number | null
@@ -66,6 +68,11 @@ export type MemberGuildMinAggregateOutputType = {
   premiumSince: Date | null
   communicationDisabledUntil: Date | null
   flags: bigint | null
+  displayColor: number | null
+  bannable: boolean | null
+  kickable: boolean | null
+  manageable: boolean | null
+  moderatable: boolean | null
   moveCounter: number | null
   moving: boolean | null
   moveTimeout: number | null
@@ -96,6 +103,11 @@ export type MemberGuildMaxAggregateOutputType = {
   premiumSince: Date | null
   communicationDisabledUntil: Date | null
   flags: bigint | null
+  displayColor: number | null
+  bannable: boolean | null
+  kickable: boolean | null
+  manageable: boolean | null
+  moderatable: boolean | null
   moveCounter: number | null
   moving: boolean | null
   moveTimeout: number | null
@@ -126,6 +138,12 @@ export type MemberGuildCountAggregateOutputType = {
   premiumSince: number
   communicationDisabledUntil: number
   flags: number
+  displayColor: number
+  avatarDecorationData: number
+  bannable: number
+  kickable: number
+  manageable: number
+  moderatable: number
   moveCounter: number
   moving: number
   moveTimeout: number
@@ -142,6 +160,7 @@ export type MemberGuildAvgAggregateInputType = {
   id?: true
   highestRolePosition?: true
   flags?: true
+  displayColor?: true
   moveCounter?: true
   moveTimeout?: true
   warnings?: true
@@ -152,6 +171,7 @@ export type MemberGuildSumAggregateInputType = {
   id?: true
   highestRolePosition?: true
   flags?: true
+  displayColor?: true
   moveCounter?: true
   moveTimeout?: true
   warnings?: true
@@ -178,6 +198,11 @@ export type MemberGuildMinAggregateInputType = {
   premiumSince?: true
   communicationDisabledUntil?: true
   flags?: true
+  displayColor?: true
+  bannable?: true
+  kickable?: true
+  manageable?: true
+  moderatable?: true
   moveCounter?: true
   moving?: true
   moveTimeout?: true
@@ -208,6 +233,11 @@ export type MemberGuildMaxAggregateInputType = {
   premiumSince?: true
   communicationDisabledUntil?: true
   flags?: true
+  displayColor?: true
+  bannable?: true
+  kickable?: true
+  manageable?: true
+  moderatable?: true
   moveCounter?: true
   moving?: true
   moveTimeout?: true
@@ -238,6 +268,12 @@ export type MemberGuildCountAggregateInputType = {
   premiumSince?: true
   communicationDisabledUntil?: true
   flags?: true
+  displayColor?: true
+  avatarDecorationData?: true
+  bannable?: true
+  kickable?: true
+  manageable?: true
+  moderatable?: true
   moveCounter?: true
   moving?: true
   moveTimeout?: true
@@ -355,6 +391,12 @@ export type MemberGuildGroupByOutputType = {
   premiumSince: Date | null
   communicationDisabledUntil: Date | null
   flags: bigint | null
+  displayColor: number | null
+  avatarDecorationData: runtime.JsonValue | null
+  bannable: boolean
+  kickable: boolean
+  manageable: boolean
+  moderatable: boolean
   moveCounter: number
   moving: boolean
   moveTimeout: number
@@ -408,6 +450,12 @@ export type MemberGuildWhereInput = {
   premiumSince?: Prisma.DateTimeNullableFilter<"MemberGuild"> | Date | string | null
   communicationDisabledUntil?: Prisma.DateTimeNullableFilter<"MemberGuild"> | Date | string | null
   flags?: Prisma.BigIntNullableFilter<"MemberGuild"> | bigint | number | null
+  displayColor?: Prisma.IntNullableFilter<"MemberGuild"> | number | null
+  avatarDecorationData?: Prisma.JsonNullableFilter<"MemberGuild">
+  bannable?: Prisma.BoolFilter<"MemberGuild"> | boolean
+  kickable?: Prisma.BoolFilter<"MemberGuild"> | boolean
+  manageable?: Prisma.BoolFilter<"MemberGuild"> | boolean
+  moderatable?: Prisma.BoolFilter<"MemberGuild"> | boolean
   moveCounter?: Prisma.IntFilter<"MemberGuild"> | number
   moving?: Prisma.BoolFilter<"MemberGuild"> | boolean
   moveTimeout?: Prisma.IntFilter<"MemberGuild"> | number
@@ -440,6 +488,12 @@ export type MemberGuildOrderByWithRelationInput = {
   premiumSince?: Prisma.SortOrderInput | Prisma.SortOrder
   communicationDisabledUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   flags?: Prisma.SortOrderInput | Prisma.SortOrder
+  displayColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarDecorationData?: Prisma.SortOrderInput | Prisma.SortOrder
+  bannable?: Prisma.SortOrder
+  kickable?: Prisma.SortOrder
+  manageable?: Prisma.SortOrder
+  moderatable?: Prisma.SortOrder
   moveCounter?: Prisma.SortOrder
   moving?: Prisma.SortOrder
   moveTimeout?: Prisma.SortOrder
@@ -476,6 +530,12 @@ export type MemberGuildWhereUniqueInput = Prisma.AtLeast<{
   premiumSince?: Prisma.DateTimeNullableFilter<"MemberGuild"> | Date | string | null
   communicationDisabledUntil?: Prisma.DateTimeNullableFilter<"MemberGuild"> | Date | string | null
   flags?: Prisma.BigIntNullableFilter<"MemberGuild"> | bigint | number | null
+  displayColor?: Prisma.IntNullableFilter<"MemberGuild"> | number | null
+  avatarDecorationData?: Prisma.JsonNullableFilter<"MemberGuild">
+  bannable?: Prisma.BoolFilter<"MemberGuild"> | boolean
+  kickable?: Prisma.BoolFilter<"MemberGuild"> | boolean
+  manageable?: Prisma.BoolFilter<"MemberGuild"> | boolean
+  moderatable?: Prisma.BoolFilter<"MemberGuild"> | boolean
   moveCounter?: Prisma.IntFilter<"MemberGuild"> | number
   moving?: Prisma.BoolFilter<"MemberGuild"> | boolean
   moveTimeout?: Prisma.IntFilter<"MemberGuild"> | number
@@ -508,6 +568,12 @@ export type MemberGuildOrderByWithAggregationInput = {
   premiumSince?: Prisma.SortOrderInput | Prisma.SortOrder
   communicationDisabledUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   flags?: Prisma.SortOrderInput | Prisma.SortOrder
+  displayColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarDecorationData?: Prisma.SortOrderInput | Prisma.SortOrder
+  bannable?: Prisma.SortOrder
+  kickable?: Prisma.SortOrder
+  manageable?: Prisma.SortOrder
+  moderatable?: Prisma.SortOrder
   moveCounter?: Prisma.SortOrder
   moving?: Prisma.SortOrder
   moveTimeout?: Prisma.SortOrder
@@ -546,6 +612,12 @@ export type MemberGuildScalarWhereWithAggregatesInput = {
   premiumSince?: Prisma.DateTimeNullableWithAggregatesFilter<"MemberGuild"> | Date | string | null
   communicationDisabledUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"MemberGuild"> | Date | string | null
   flags?: Prisma.BigIntNullableWithAggregatesFilter<"MemberGuild"> | bigint | number | null
+  displayColor?: Prisma.IntNullableWithAggregatesFilter<"MemberGuild"> | number | null
+  avatarDecorationData?: Prisma.JsonNullableWithAggregatesFilter<"MemberGuild">
+  bannable?: Prisma.BoolWithAggregatesFilter<"MemberGuild"> | boolean
+  kickable?: Prisma.BoolWithAggregatesFilter<"MemberGuild"> | boolean
+  manageable?: Prisma.BoolWithAggregatesFilter<"MemberGuild"> | boolean
+  moderatable?: Prisma.BoolWithAggregatesFilter<"MemberGuild"> | boolean
   moveCounter?: Prisma.IntWithAggregatesFilter<"MemberGuild"> | number
   moving?: Prisma.BoolWithAggregatesFilter<"MemberGuild"> | boolean
   moveTimeout?: Prisma.IntWithAggregatesFilter<"MemberGuild"> | number
@@ -573,6 +645,12 @@ export type MemberGuildCreateInput = {
   premiumSince?: Date | string | null
   communicationDisabledUntil?: Date | string | null
   flags?: bigint | number | null
+  displayColor?: number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: number
   moving?: boolean
   moveTimeout?: number
@@ -605,6 +683,12 @@ export type MemberGuildUncheckedCreateInput = {
   premiumSince?: Date | string | null
   communicationDisabledUntil?: Date | string | null
   flags?: bigint | number | null
+  displayColor?: number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: number
   moving?: boolean
   moveTimeout?: number
@@ -632,6 +716,12 @@ export type MemberGuildUpdateInput = {
   premiumSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   communicationDisabledUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  displayColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kickable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manageable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  moderatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveCounter?: Prisma.IntFieldUpdateOperationsInput | number
   moving?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveTimeout?: Prisma.IntFieldUpdateOperationsInput | number
@@ -664,6 +754,12 @@ export type MemberGuildUncheckedUpdateInput = {
   premiumSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   communicationDisabledUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  displayColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kickable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manageable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  moderatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveCounter?: Prisma.IntFieldUpdateOperationsInput | number
   moving?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveTimeout?: Prisma.IntFieldUpdateOperationsInput | number
@@ -694,6 +790,12 @@ export type MemberGuildCreateManyInput = {
   premiumSince?: Date | string | null
   communicationDisabledUntil?: Date | string | null
   flags?: bigint | number | null
+  displayColor?: number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: number
   moving?: boolean
   moveTimeout?: number
@@ -721,6 +823,12 @@ export type MemberGuildUpdateManyMutationInput = {
   premiumSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   communicationDisabledUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  displayColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kickable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manageable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  moderatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveCounter?: Prisma.IntFieldUpdateOperationsInput | number
   moving?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveTimeout?: Prisma.IntFieldUpdateOperationsInput | number
@@ -751,6 +859,12 @@ export type MemberGuildUncheckedUpdateManyInput = {
   premiumSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   communicationDisabledUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  displayColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kickable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manageable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  moderatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveCounter?: Prisma.IntFieldUpdateOperationsInput | number
   moving?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveTimeout?: Prisma.IntFieldUpdateOperationsInput | number
@@ -796,6 +910,12 @@ export type MemberGuildCountOrderByAggregateInput = {
   premiumSince?: Prisma.SortOrder
   communicationDisabledUntil?: Prisma.SortOrder
   flags?: Prisma.SortOrder
+  displayColor?: Prisma.SortOrder
+  avatarDecorationData?: Prisma.SortOrder
+  bannable?: Prisma.SortOrder
+  kickable?: Prisma.SortOrder
+  manageable?: Prisma.SortOrder
+  moderatable?: Prisma.SortOrder
   moveCounter?: Prisma.SortOrder
   moving?: Prisma.SortOrder
   moveTimeout?: Prisma.SortOrder
@@ -810,6 +930,7 @@ export type MemberGuildAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   highestRolePosition?: Prisma.SortOrder
   flags?: Prisma.SortOrder
+  displayColor?: Prisma.SortOrder
   moveCounter?: Prisma.SortOrder
   moveTimeout?: Prisma.SortOrder
   warnings?: Prisma.SortOrder
@@ -836,6 +957,11 @@ export type MemberGuildMaxOrderByAggregateInput = {
   premiumSince?: Prisma.SortOrder
   communicationDisabledUntil?: Prisma.SortOrder
   flags?: Prisma.SortOrder
+  displayColor?: Prisma.SortOrder
+  bannable?: Prisma.SortOrder
+  kickable?: Prisma.SortOrder
+  manageable?: Prisma.SortOrder
+  moderatable?: Prisma.SortOrder
   moveCounter?: Prisma.SortOrder
   moving?: Prisma.SortOrder
   moveTimeout?: Prisma.SortOrder
@@ -866,6 +992,11 @@ export type MemberGuildMinOrderByAggregateInput = {
   premiumSince?: Prisma.SortOrder
   communicationDisabledUntil?: Prisma.SortOrder
   flags?: Prisma.SortOrder
+  displayColor?: Prisma.SortOrder
+  bannable?: Prisma.SortOrder
+  kickable?: Prisma.SortOrder
+  manageable?: Prisma.SortOrder
+  moderatable?: Prisma.SortOrder
   moveCounter?: Prisma.SortOrder
   moving?: Prisma.SortOrder
   moveTimeout?: Prisma.SortOrder
@@ -880,6 +1011,7 @@ export type MemberGuildSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   highestRolePosition?: Prisma.SortOrder
   flags?: Prisma.SortOrder
+  displayColor?: Prisma.SortOrder
   moveCounter?: Prisma.SortOrder
   moveTimeout?: Prisma.SortOrder
   warnings?: Prisma.SortOrder
@@ -987,6 +1119,12 @@ export type MemberGuildCreateWithoutGuildInput = {
   premiumSince?: Date | string | null
   communicationDisabledUntil?: Date | string | null
   flags?: bigint | number | null
+  displayColor?: number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: number
   moving?: boolean
   moveTimeout?: number
@@ -1017,6 +1155,12 @@ export type MemberGuildUncheckedCreateWithoutGuildInput = {
   premiumSince?: Date | string | null
   communicationDisabledUntil?: Date | string | null
   flags?: bigint | number | null
+  displayColor?: number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: number
   moving?: boolean
   moveTimeout?: number
@@ -1076,6 +1220,12 @@ export type MemberGuildScalarWhereInput = {
   premiumSince?: Prisma.DateTimeNullableFilter<"MemberGuild"> | Date | string | null
   communicationDisabledUntil?: Prisma.DateTimeNullableFilter<"MemberGuild"> | Date | string | null
   flags?: Prisma.BigIntNullableFilter<"MemberGuild"> | bigint | number | null
+  displayColor?: Prisma.IntNullableFilter<"MemberGuild"> | number | null
+  avatarDecorationData?: Prisma.JsonNullableFilter<"MemberGuild">
+  bannable?: Prisma.BoolFilter<"MemberGuild"> | boolean
+  kickable?: Prisma.BoolFilter<"MemberGuild"> | boolean
+  manageable?: Prisma.BoolFilter<"MemberGuild"> | boolean
+  moderatable?: Prisma.BoolFilter<"MemberGuild"> | boolean
   moveCounter?: Prisma.IntFilter<"MemberGuild"> | number
   moving?: Prisma.BoolFilter<"MemberGuild"> | boolean
   moveTimeout?: Prisma.IntFilter<"MemberGuild"> | number
@@ -1103,6 +1253,12 @@ export type MemberGuildCreateWithoutMemberInput = {
   premiumSince?: Date | string | null
   communicationDisabledUntil?: Date | string | null
   flags?: bigint | number | null
+  displayColor?: number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: number
   moving?: boolean
   moveTimeout?: number
@@ -1133,6 +1289,12 @@ export type MemberGuildUncheckedCreateWithoutMemberInput = {
   premiumSince?: Date | string | null
   communicationDisabledUntil?: Date | string | null
   flags?: bigint | number | null
+  displayColor?: number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: number
   moving?: boolean
   moveTimeout?: number
@@ -1188,6 +1350,12 @@ export type MemberGuildCreateManyGuildInput = {
   premiumSince?: Date | string | null
   communicationDisabledUntil?: Date | string | null
   flags?: bigint | number | null
+  displayColor?: number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: number
   moving?: boolean
   moveTimeout?: number
@@ -1215,6 +1383,12 @@ export type MemberGuildUpdateWithoutGuildInput = {
   premiumSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   communicationDisabledUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  displayColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kickable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manageable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  moderatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveCounter?: Prisma.IntFieldUpdateOperationsInput | number
   moving?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveTimeout?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1245,6 +1419,12 @@ export type MemberGuildUncheckedUpdateWithoutGuildInput = {
   premiumSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   communicationDisabledUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  displayColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kickable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manageable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  moderatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveCounter?: Prisma.IntFieldUpdateOperationsInput | number
   moving?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveTimeout?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1274,6 +1454,12 @@ export type MemberGuildUncheckedUpdateManyWithoutGuildInput = {
   premiumSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   communicationDisabledUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  displayColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kickable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manageable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  moderatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveCounter?: Prisma.IntFieldUpdateOperationsInput | number
   moving?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveTimeout?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1303,6 +1489,12 @@ export type MemberGuildCreateManyMemberInput = {
   premiumSince?: Date | string | null
   communicationDisabledUntil?: Date | string | null
   flags?: bigint | number | null
+  displayColor?: number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: number
   moving?: boolean
   moveTimeout?: number
@@ -1330,6 +1522,12 @@ export type MemberGuildUpdateWithoutMemberInput = {
   premiumSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   communicationDisabledUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  displayColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kickable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manageable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  moderatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveCounter?: Prisma.IntFieldUpdateOperationsInput | number
   moving?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveTimeout?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1360,6 +1558,12 @@ export type MemberGuildUncheckedUpdateWithoutMemberInput = {
   premiumSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   communicationDisabledUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  displayColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kickable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manageable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  moderatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveCounter?: Prisma.IntFieldUpdateOperationsInput | number
   moving?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveTimeout?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1389,6 +1593,12 @@ export type MemberGuildUncheckedUpdateManyWithoutMemberInput = {
   premiumSince?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   communicationDisabledUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  displayColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  bannable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  kickable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  manageable?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  moderatable?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveCounter?: Prisma.IntFieldUpdateOperationsInput | number
   moving?: Prisma.BoolFieldUpdateOperationsInput | boolean
   moveTimeout?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1421,6 +1631,12 @@ export type MemberGuildSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   premiumSince?: boolean
   communicationDisabledUntil?: boolean
   flags?: boolean
+  displayColor?: boolean
+  avatarDecorationData?: boolean
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: boolean
   moving?: boolean
   moveTimeout?: boolean
@@ -1453,6 +1669,12 @@ export type MemberGuildSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   premiumSince?: boolean
   communicationDisabledUntil?: boolean
   flags?: boolean
+  displayColor?: boolean
+  avatarDecorationData?: boolean
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: boolean
   moving?: boolean
   moveTimeout?: boolean
@@ -1485,6 +1707,12 @@ export type MemberGuildSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   premiumSince?: boolean
   communicationDisabledUntil?: boolean
   flags?: boolean
+  displayColor?: boolean
+  avatarDecorationData?: boolean
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: boolean
   moving?: boolean
   moveTimeout?: boolean
@@ -1517,6 +1745,12 @@ export type MemberGuildSelectScalar = {
   premiumSince?: boolean
   communicationDisabledUntil?: boolean
   flags?: boolean
+  displayColor?: boolean
+  avatarDecorationData?: boolean
+  bannable?: boolean
+  kickable?: boolean
+  manageable?: boolean
+  moderatable?: boolean
   moveCounter?: boolean
   moving?: boolean
   moveTimeout?: boolean
@@ -1527,7 +1761,7 @@ export type MemberGuildSelectScalar = {
   updatedAt?: boolean
 }
 
-export type MemberGuildOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "memberId" | "guildId" | "status" | "nickname" | "avatarUrl" | "bannerUrl" | "avatarDecorationUrl" | "displayName" | "joinedAt" | "displayHexColor" | "highestRolePosition" | "presenceStatus" | "presenceActivity" | "presenceUpdatedAt" | "pending" | "premiumSince" | "communicationDisabledUntil" | "flags" | "moveCounter" | "moving" | "moveTimeout" | "warnings" | "muted" | "deafened" | "lookback" | "updatedAt", ExtArgs["result"]["memberGuild"]>
+export type MemberGuildOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "memberId" | "guildId" | "status" | "nickname" | "avatarUrl" | "bannerUrl" | "avatarDecorationUrl" | "displayName" | "joinedAt" | "displayHexColor" | "highestRolePosition" | "presenceStatus" | "presenceActivity" | "presenceUpdatedAt" | "pending" | "premiumSince" | "communicationDisabledUntil" | "flags" | "displayColor" | "avatarDecorationData" | "bannable" | "kickable" | "manageable" | "moderatable" | "moveCounter" | "moving" | "moveTimeout" | "warnings" | "muted" | "deafened" | "lookback" | "updatedAt", ExtArgs["result"]["memberGuild"]>
 export type MemberGuildInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   member?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   guild?: boolean | Prisma.GuildDefaultArgs<ExtArgs>
@@ -1567,6 +1801,12 @@ export type $MemberGuildPayload<ExtArgs extends runtime.Types.Extensions.Interna
     premiumSince: Date | null
     communicationDisabledUntil: Date | null
     flags: bigint | null
+    displayColor: number | null
+    avatarDecorationData: runtime.JsonValue | null
+    bannable: boolean
+    kickable: boolean
+    manageable: boolean
+    moderatable: boolean
     moveCounter: number
     moving: boolean
     moveTimeout: number
@@ -2019,6 +2259,12 @@ export interface MemberGuildFieldRefs {
   readonly premiumSince: Prisma.FieldRef<"MemberGuild", 'DateTime'>
   readonly communicationDisabledUntil: Prisma.FieldRef<"MemberGuild", 'DateTime'>
   readonly flags: Prisma.FieldRef<"MemberGuild", 'BigInt'>
+  readonly displayColor: Prisma.FieldRef<"MemberGuild", 'Int'>
+  readonly avatarDecorationData: Prisma.FieldRef<"MemberGuild", 'Json'>
+  readonly bannable: Prisma.FieldRef<"MemberGuild", 'Boolean'>
+  readonly kickable: Prisma.FieldRef<"MemberGuild", 'Boolean'>
+  readonly manageable: Prisma.FieldRef<"MemberGuild", 'Boolean'>
+  readonly moderatable: Prisma.FieldRef<"MemberGuild", 'Boolean'>
   readonly moveCounter: Prisma.FieldRef<"MemberGuild", 'Int'>
   readonly moving: Prisma.FieldRef<"MemberGuild", 'Boolean'>
   readonly moveTimeout: Prisma.FieldRef<"MemberGuild", 'Int'>
