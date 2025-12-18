@@ -275,9 +275,9 @@ export const app = new Elysia({ adapter: node() })
           const result = {
             id: thread.id,
             name: thread.name,
-            // boardType: params.boardType,
+            boardType: params.boardType,
             messageCount: thread.messageCount,
-            // author: author || null,
+            author: author || null,
             archived: !!thread.archived,
             locked: thread.locked,
             createdAt: thread.createdAt?.toISOString(),
