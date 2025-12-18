@@ -177,7 +177,7 @@ class MemberVerifier {
         log(progressMessage);
 
         // Update Discord progress every 10 members or on the last member
-        if ((i + 1) % 10 === 0 || i + 1 === totalMembers) {
+        if ((i + 1) % 25 === 0 || i + 1 === totalMembers) {
           await this.updateProgress(progressMessage, state);
         }
       }
