@@ -51,7 +51,9 @@ function formatMemberGuild(
       memberGuild.member.avatarDecorationUrl ||
       null,
     avatarDecorationData:
-      memberGuild.avatarDecorationData || memberGuild.member.avatarDecorationData || null,
+      memberGuild.avatarDecorationData ||
+      memberGuild.member.avatarDecorationData ||
+      null,
     displayHexColor: memberGuild.displayHexColor || "#000000",
     displayColor: memberGuild.displayColor || null,
     flags: memberGuild.member.flags?.toString() || null,
@@ -65,25 +67,23 @@ function formatMemberGuild(
     // Presence
     status: memberGuild.presenceStatus || "offline",
     activity: memberGuild.presenceActivity || null,
-    presenceUpdatedAt: memberGuild.presenceUpdatedAt?.toISOString() || null,
+    presenceUpdatedAt: memberGuild.presenceUpdatedAt || null,
 
     // Guild Member Status
     pending: memberGuild.pending,
-    premiumSince: memberGuild.premiumSince?.toISOString() || null,
-    communicationDisabledUntil:
-      memberGuild.communicationDisabledUntil?.toISOString() || null,
-    guildFlags: memberGuild.flags?.toString() || null,
+    premiumSince: memberGuild.premiumSince || null,
+    communicationDisabledUntil: memberGuild.communicationDisabledUntil || null,
+    guildFlags: memberGuild.flags || null,
     bannable: memberGuild.bannable,
     kickable: memberGuild.kickable,
     manageable: memberGuild.manageable,
     moderatable: memberGuild.moderatable,
 
     // Timestamps
-    joinedAt: memberGuild.joinedAt?.toISOString() || null,
-    createdAt:
-      memberGuild.member.createdAt?.toISOString() || new Date().toISOString(),
-    updatedAt: memberGuild.member.updatedAt?.toISOString() || null,
-    guildUpdatedAt: memberGuild.updatedAt?.toISOString() || null,
+    joinedAt: memberGuild.joinedAt || null,
+    createdAt: memberGuild.member.createdAt || new Date(),
+    updatedAt: memberGuild.member.updatedAt || null,
+    guildUpdatedAt: memberGuild.updatedAt || null,
   };
 }
 
