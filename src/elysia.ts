@@ -256,7 +256,10 @@ export const app = new Elysia({ adapter: node() })
               return {
                 id: tag!.id,
                 name: tag!.name,
-                emoji: tag!.emoji,
+                emoji: {
+                  id: tag!.emoji?.id || null,
+                  name: tag!.emoji?.name || null,
+                },
               };
             })
             .filter(Boolean);
