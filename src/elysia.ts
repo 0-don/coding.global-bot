@@ -285,7 +285,7 @@ export const app = new Elysia({ adapter: node() })
             author: author || null,
             archived: !!thread.archived,
             locked: thread.locked,
-            createdAt: thread.createdAt?.toISOString(),
+            createdAt: thread.createdAt,
             tags,
             previewImage,
             previewText,
