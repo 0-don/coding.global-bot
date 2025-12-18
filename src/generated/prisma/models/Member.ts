@@ -48,6 +48,7 @@ export type MemberMinAggregateOutputType = {
   accentColor: number | null
   avatarDecorationUrl: string | null
   flags: bigint | null
+  hexAccentColor: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -64,6 +65,7 @@ export type MemberMaxAggregateOutputType = {
   accentColor: number | null
   avatarDecorationUrl: string | null
   flags: bigint | null
+  hexAccentColor: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -80,6 +82,10 @@ export type MemberCountAggregateOutputType = {
   accentColor: number
   avatarDecorationUrl: number
   flags: number
+  hexAccentColor: number
+  avatarDecorationData: number
+  collectibles: number
+  primaryGuild: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -108,6 +114,7 @@ export type MemberMinAggregateInputType = {
   accentColor?: true
   avatarDecorationUrl?: true
   flags?: true
+  hexAccentColor?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -124,6 +131,7 @@ export type MemberMaxAggregateInputType = {
   accentColor?: true
   avatarDecorationUrl?: true
   flags?: true
+  hexAccentColor?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -140,6 +148,10 @@ export type MemberCountAggregateInputType = {
   accentColor?: true
   avatarDecorationUrl?: true
   flags?: true
+  hexAccentColor?: true
+  avatarDecorationData?: true
+  collectibles?: true
+  primaryGuild?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -243,6 +255,10 @@ export type MemberGroupByOutputType = {
   accentColor: number | null
   avatarDecorationUrl: string | null
   flags: bigint | null
+  hexAccentColor: string | null
+  avatarDecorationData: runtime.JsonValue | null
+  collectibles: runtime.JsonValue | null
+  primaryGuild: runtime.JsonValue | null
   createdAt: Date | null
   updatedAt: Date
   _count: MemberCountAggregateOutputType | null
@@ -282,6 +298,10 @@ export type MemberWhereInput = {
   accentColor?: Prisma.IntNullableFilter<"Member"> | number | null
   avatarDecorationUrl?: Prisma.StringNullableFilter<"Member"> | string | null
   flags?: Prisma.BigIntNullableFilter<"Member"> | bigint | number | null
+  hexAccentColor?: Prisma.StringNullableFilter<"Member"> | string | null
+  avatarDecorationData?: Prisma.JsonNullableFilter<"Member">
+  collectibles?: Prisma.JsonNullableFilter<"Member">
+  primaryGuild?: Prisma.JsonNullableFilter<"Member">
   createdAt?: Prisma.DateTimeNullableFilter<"Member"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"Member"> | Date | string
   roles?: Prisma.MemberRoleListRelationFilter
@@ -306,6 +326,10 @@ export type MemberOrderByWithRelationInput = {
   accentColor?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarDecorationUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   flags?: Prisma.SortOrderInput | Prisma.SortOrder
+  hexAccentColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarDecorationData?: Prisma.SortOrderInput | Prisma.SortOrder
+  collectibles?: Prisma.SortOrderInput | Prisma.SortOrder
+  primaryGuild?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   roles?: Prisma.MemberRoleOrderByRelationAggregateInput
@@ -333,6 +357,10 @@ export type MemberWhereUniqueInput = Prisma.AtLeast<{
   accentColor?: Prisma.IntNullableFilter<"Member"> | number | null
   avatarDecorationUrl?: Prisma.StringNullableFilter<"Member"> | string | null
   flags?: Prisma.BigIntNullableFilter<"Member"> | bigint | number | null
+  hexAccentColor?: Prisma.StringNullableFilter<"Member"> | string | null
+  avatarDecorationData?: Prisma.JsonNullableFilter<"Member">
+  collectibles?: Prisma.JsonNullableFilter<"Member">
+  primaryGuild?: Prisma.JsonNullableFilter<"Member">
   createdAt?: Prisma.DateTimeNullableFilter<"Member"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"Member"> | Date | string
   roles?: Prisma.MemberRoleListRelationFilter
@@ -357,6 +385,10 @@ export type MemberOrderByWithAggregationInput = {
   accentColor?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarDecorationUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   flags?: Prisma.SortOrderInput | Prisma.SortOrder
+  hexAccentColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarDecorationData?: Prisma.SortOrderInput | Prisma.SortOrder
+  collectibles?: Prisma.SortOrderInput | Prisma.SortOrder
+  primaryGuild?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.MemberCountOrderByAggregateInput
@@ -381,6 +413,10 @@ export type MemberScalarWhereWithAggregatesInput = {
   accentColor?: Prisma.IntNullableWithAggregatesFilter<"Member"> | number | null
   avatarDecorationUrl?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
   flags?: Prisma.BigIntNullableWithAggregatesFilter<"Member"> | bigint | number | null
+  hexAccentColor?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
+  avatarDecorationData?: Prisma.JsonNullableWithAggregatesFilter<"Member">
+  collectibles?: Prisma.JsonNullableWithAggregatesFilter<"Member">
+  primaryGuild?: Prisma.JsonNullableWithAggregatesFilter<"Member">
   createdAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Member"> | Date | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Member"> | Date | string
 }
@@ -397,6 +433,10 @@ export type MemberCreateInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -421,6 +461,10 @@ export type MemberUncheckedCreateInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -445,6 +489,10 @@ export type MemberUpdateInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -469,6 +517,10 @@ export type MemberUncheckedUpdateInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -493,6 +545,10 @@ export type MemberCreateManyInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
 }
@@ -509,6 +565,10 @@ export type MemberUpdateManyMutationInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -525,6 +585,10 @@ export type MemberUncheckedUpdateManyInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -546,6 +610,10 @@ export type MemberCountOrderByAggregateInput = {
   accentColor?: Prisma.SortOrder
   avatarDecorationUrl?: Prisma.SortOrder
   flags?: Prisma.SortOrder
+  hexAccentColor?: Prisma.SortOrder
+  avatarDecorationData?: Prisma.SortOrder
+  collectibles?: Prisma.SortOrder
+  primaryGuild?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -567,6 +635,7 @@ export type MemberMaxOrderByAggregateInput = {
   accentColor?: Prisma.SortOrder
   avatarDecorationUrl?: Prisma.SortOrder
   flags?: Prisma.SortOrder
+  hexAccentColor?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -583,6 +652,7 @@ export type MemberMinOrderByAggregateInput = {
   accentColor?: Prisma.SortOrder
   avatarDecorationUrl?: Prisma.SortOrder
   flags?: Prisma.SortOrder
+  hexAccentColor?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -740,6 +810,10 @@ export type MemberCreateWithoutGuildVoiceEventsInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -763,6 +837,10 @@ export type MemberUncheckedCreateWithoutGuildVoiceEventsInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -802,6 +880,10 @@ export type MemberUpdateWithoutGuildVoiceEventsInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -825,6 +907,10 @@ export type MemberUncheckedUpdateWithoutGuildVoiceEventsInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -848,6 +934,10 @@ export type MemberCreateWithoutMemberMessagesInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -871,6 +961,10 @@ export type MemberUncheckedCreateWithoutMemberMessagesInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -910,6 +1004,10 @@ export type MemberUpdateWithoutMemberMessagesInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -933,6 +1031,10 @@ export type MemberUncheckedUpdateWithoutMemberMessagesInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -956,6 +1058,10 @@ export type MemberCreateWithoutGuildsInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -979,6 +1085,10 @@ export type MemberUncheckedCreateWithoutGuildsInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -1018,6 +1128,10 @@ export type MemberUpdateWithoutGuildsInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -1041,6 +1155,10 @@ export type MemberUncheckedUpdateWithoutGuildsInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -1064,6 +1182,10 @@ export type MemberCreateWithoutMemberHelperInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -1087,6 +1209,10 @@ export type MemberUncheckedCreateWithoutMemberHelperInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -1126,6 +1252,10 @@ export type MemberUpdateWithoutMemberHelperInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -1149,6 +1279,10 @@ export type MemberUncheckedUpdateWithoutMemberHelperInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -1172,6 +1306,10 @@ export type MemberCreateWithoutRolesInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   guilds?: Prisma.MemberGuildCreateNestedManyWithoutMemberInput
@@ -1195,6 +1333,10 @@ export type MemberUncheckedCreateWithoutRolesInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   guilds?: Prisma.MemberGuildUncheckedCreateNestedManyWithoutMemberInput
@@ -1234,6 +1376,10 @@ export type MemberUpdateWithoutRolesInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   guilds?: Prisma.MemberGuildUpdateManyWithoutMemberNestedInput
@@ -1257,6 +1403,10 @@ export type MemberUncheckedUpdateWithoutRolesInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   guilds?: Prisma.MemberGuildUncheckedUpdateManyWithoutMemberNestedInput
@@ -1280,6 +1430,10 @@ export type MemberCreateWithoutMemberCommandHistoryInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -1303,6 +1457,10 @@ export type MemberUncheckedCreateWithoutMemberCommandHistoryInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -1342,6 +1500,10 @@ export type MemberUpdateWithoutMemberCommandHistoryInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -1365,6 +1527,10 @@ export type MemberUncheckedUpdateWithoutMemberCommandHistoryInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -1388,6 +1554,10 @@ export type MemberCreateWithoutDeletedByMemberMessagesInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -1411,6 +1581,10 @@ export type MemberUncheckedCreateWithoutDeletedByMemberMessagesInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -1439,6 +1613,10 @@ export type MemberCreateWithoutMemberDeletedMessagesInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
@@ -1462,6 +1640,10 @@ export type MemberUncheckedCreateWithoutMemberDeletedMessagesInput = {
   accentColor?: number | null
   avatarDecorationUrl?: string | null
   flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string | null
   updatedAt?: Date | string
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
@@ -1501,6 +1683,10 @@ export type MemberUpdateWithoutDeletedByMemberMessagesInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -1524,6 +1710,10 @@ export type MemberUncheckedUpdateWithoutDeletedByMemberMessagesInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -1558,6 +1748,10 @@ export type MemberUpdateWithoutMemberDeletedMessagesInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
@@ -1581,6 +1775,10 @@ export type MemberUncheckedUpdateWithoutMemberDeletedMessagesInput = {
   accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
@@ -1698,6 +1896,10 @@ export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   accentColor?: boolean
   avatarDecorationUrl?: boolean
   flags?: boolean
+  hexAccentColor?: boolean
+  avatarDecorationData?: boolean
+  collectibles?: boolean
+  primaryGuild?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   roles?: boolean | Prisma.Member$rolesArgs<ExtArgs>
@@ -1723,6 +1925,10 @@ export type MemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   accentColor?: boolean
   avatarDecorationUrl?: boolean
   flags?: boolean
+  hexAccentColor?: boolean
+  avatarDecorationData?: boolean
+  collectibles?: boolean
+  primaryGuild?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["member"]>
@@ -1739,6 +1945,10 @@ export type MemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   accentColor?: boolean
   avatarDecorationUrl?: boolean
   flags?: boolean
+  hexAccentColor?: boolean
+  avatarDecorationData?: boolean
+  collectibles?: boolean
+  primaryGuild?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["member"]>
@@ -1755,11 +1965,15 @@ export type MemberSelectScalar = {
   accentColor?: boolean
   avatarDecorationUrl?: boolean
   flags?: boolean
+  hexAccentColor?: boolean
+  avatarDecorationData?: boolean
+  collectibles?: boolean
+  primaryGuild?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"memberId" | "username" | "globalName" | "discriminator" | "bot" | "system" | "avatarUrl" | "bannerUrl" | "accentColor" | "avatarDecorationUrl" | "flags" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
+export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"memberId" | "username" | "globalName" | "discriminator" | "bot" | "system" | "avatarUrl" | "bannerUrl" | "accentColor" | "avatarDecorationUrl" | "flags" | "hexAccentColor" | "avatarDecorationData" | "collectibles" | "primaryGuild" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
 export type MemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   roles?: boolean | Prisma.Member$rolesArgs<ExtArgs>
   guilds?: boolean | Prisma.Member$guildsArgs<ExtArgs>
@@ -1798,6 +2012,10 @@ export type $MemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     accentColor: number | null
     avatarDecorationUrl: string | null
     flags: bigint | null
+    hexAccentColor: string | null
+    avatarDecorationData: runtime.JsonValue | null
+    collectibles: runtime.JsonValue | null
+    primaryGuild: runtime.JsonValue | null
     createdAt: Date | null
     updatedAt: Date
   }, ExtArgs["result"]["member"]>
@@ -2242,6 +2460,10 @@ export interface MemberFieldRefs {
   readonly accentColor: Prisma.FieldRef<"Member", 'Int'>
   readonly avatarDecorationUrl: Prisma.FieldRef<"Member", 'String'>
   readonly flags: Prisma.FieldRef<"Member", 'BigInt'>
+  readonly hexAccentColor: Prisma.FieldRef<"Member", 'String'>
+  readonly avatarDecorationData: Prisma.FieldRef<"Member", 'Json'>
+  readonly collectibles: Prisma.FieldRef<"Member", 'Json'>
+  readonly primaryGuild: Prisma.FieldRef<"Member", 'Json'>
   readonly createdAt: Prisma.FieldRef<"Member", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Member", 'DateTime'>
 }

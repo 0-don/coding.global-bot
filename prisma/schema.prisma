@@ -52,6 +52,11 @@ model Member {
   avatarDecorationUrl String?
   flags               BigInt?
 
+  hexAccentColor       String? // hexadecimal accent color
+  avatarDecorationData Json? // AvatarDecorationData object
+  collectibles         Json? // user collectibles
+  primaryGuild         Json? // UserPrimaryGuild object
+
   // Timestamps
   createdAt DateTime?
   updatedAt DateTime  @default(now()) @updatedAt
@@ -108,6 +113,14 @@ model MemberGuild {
   premiumSince               DateTime?
   communicationDisabledUntil DateTime?
   flags                      BigInt?
+
+  // Additional GuildMember fields from API
+  displayColor         Int? // displayed role color in base 10
+  avatarDecorationData Json? // AvatarDecorationData object
+  bannable             Boolean @default(true)
+  kickable             Boolean @default(true)
+  manageable           Boolean @default(true)
+  moderatable          Boolean @default(true)
 
   moveCounter Int     @default(0) // troll-move-user command
   moving      Boolean @default(false) // troll-move-user command

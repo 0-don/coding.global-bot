@@ -111,6 +111,10 @@ export const MemberScalarFieldEnum = {
   accentColor: 'accentColor',
   avatarDecorationUrl: 'avatarDecorationUrl',
   flags: 'flags',
+  hexAccentColor: 'hexAccentColor',
+  avatarDecorationData: 'avatarDecorationData',
+  collectibles: 'collectibles',
+  primaryGuild: 'primaryGuild',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -150,6 +154,12 @@ export const MemberGuildScalarFieldEnum = {
   premiumSince: 'premiumSince',
   communicationDisabledUntil: 'communicationDisabledUntil',
   flags: 'flags',
+  displayColor: 'displayColor',
+  avatarDecorationData: 'avatarDecorationData',
+  bannable: 'bannable',
+  kickable: 'kickable',
+  manageable: 'manageable',
+  moderatable: 'moderatable',
   moveCounter: 'moveCounter',
   moving: 'moving',
   moveTimeout: 'moveTimeout',

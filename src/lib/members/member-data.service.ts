@@ -61,6 +61,16 @@ function prepareMemberData(user: User) {
     accentColor: user.accentColor,
     avatarDecorationUrl: user.avatarDecorationURL() || null,
     flags: user.flags?.bitfield || null,
+    hexAccentColor: user.hexAccentColor || null,
+    avatarDecorationData: user.avatarDecorationData
+      ? JSON.parse(JSON.stringify(user.avatarDecorationData))
+      : null,
+    collectibles: user.collectibles
+      ? JSON.parse(JSON.stringify(user.collectibles))
+      : null,
+    primaryGuild: user.primaryGuild
+      ? JSON.parse(JSON.stringify(user.primaryGuild))
+      : null,
   };
 }
 
@@ -88,6 +98,14 @@ function prepareMemberGuildData(member: GuildMember) {
     premiumSince: member.premiumSince,
     communicationDisabledUntil: member.communicationDisabledUntil,
     flags: member.flags.bitfield,
+    displayColor: member.displayColor || null,
+    avatarDecorationData: member.avatarDecorationData
+      ? JSON.parse(JSON.stringify(member.avatarDecorationData))
+      : null,
+    bannable: member.bannable,
+    kickable: member.kickable,
+    manageable: member.manageable,
+    moderatable: member.moderatable,
   };
 }
 
