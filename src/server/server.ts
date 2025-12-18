@@ -211,7 +211,7 @@ export async function extractThreadDetails(
     author: threadOwner || null,
     archived: !!thread.archived,
     locked: thread.locked,
-    createdAt: thread.createdAt,
+    createdAt: thread.createdAt?.toISOString() || null,
     tags,
     previewImage,
     previewText,
