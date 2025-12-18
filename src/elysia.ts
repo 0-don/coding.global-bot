@@ -14,6 +14,7 @@ import {
 const cache: Record<string, { timestamp: number; data: unknown }> = {};
 
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+const PAGE_LIMIT = 100;
 
 const BoardType = t.Union([
   t.Literal("job-board"),
@@ -302,7 +303,7 @@ export const app = new Elysia({ adapter: node() })
   )
   .get(
     "/api/:guildId/board/:boardType/:threadId",
-    async ({ guild, params }) => {
+    async ({ guild, params, query }) => {
       if (!guild) throw status("Not Found", "Guild not found");
 
       const thread = guild.channels.cache.get(params.threadId);
@@ -311,7 +312,10 @@ export const app = new Elysia({ adapter: node() })
         throw status("Not Found", "Thread not found");
       }
 
-      const messages = await thread.messages.fetch({ limit: 100 });
+      const messages = await thread.messages.fetch({
+        limit: PAGE_LIMIT,
+        before: query.before,
+      });
       const messageArray = Array.from(messages.values());
 
       const authorIds = [...new Set(messageArray.map((msg) => msg.author.id))];
@@ -342,7 +346,13 @@ export const app = new Elysia({ adapter: node() })
         };
       });
 
-      return messageList.reverse();
+      const sortedMessages = messageList.reverse();
+
+      return {
+        messages: sortedMessages,
+        hasMore: messageArray.length === PAGE_LIMIT,
+        nextCursor: sortedMessages.length > 0 ? sortedMessages[0].id : null,
+      };
     },
     {
       params: t.Object({
@@ -350,6 +360,7 @@ export const app = new Elysia({ adapter: node() })
         boardType: BoardType,
         threadId: t.String(),
       }),
+      query: t.Object({ before: t.Optional(t.String()) }),
     },
   )
   .listen(4000);
