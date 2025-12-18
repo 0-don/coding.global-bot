@@ -113,6 +113,9 @@ function formatMemberGuild(
     bannerUrl: memberGuild.member.bannerUrl || null,
     accentColor: memberGuild.member.accentColor,
     displayHexColor: memberGuild.displayHexColor || "#000000",
+    flags: memberGuild.member.flags?.toString() || null,
+    collectibles: JSON.stringify(memberGuild.member.collectibles) || null,
+    primaryGuild: JSON.stringify(memberGuild.member.primaryGuild) || null,
 
     // Roles
     roles,
@@ -124,6 +127,9 @@ function formatMemberGuild(
     presenceUpdatedAt: memberGuild.presenceUpdatedAt?.toISOString() || null,
 
     // Timestamps
+    premiumSince: memberGuild.premiumSince?.toISOString() || null,
+    communicationDisabledUntil:
+      memberGuild.communicationDisabledUntil?.toISOString() || null,
     joinedAt: memberGuild.joinedAt?.toISOString() || null,
     createdAt:
       memberGuild.member.createdAt?.toISOString() || new Date().toISOString(),
