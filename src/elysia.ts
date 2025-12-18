@@ -15,6 +15,12 @@ const cache: Record<string, { timestamp: number; data: unknown }> = {};
 
 const CACHE_TTL = 60 * 60 * 1000; // 1 hour
 
+const BoardType = t.Union([
+  t.Literal("job-board"),
+  t.Literal("dev-board"),
+  t.Literal("showcase"),
+]);
+
 export const app = new Elysia({ adapter: node() })
   .use(
     openapi({
@@ -74,7 +80,6 @@ export const app = new Elysia({ adapter: node() })
     async ({ guild, params }) => {
       if (!guild) throw status("Not Found", "Guild not found");
 
-      // Get all members from database with their roles
       const memberGuids = await prisma.memberGuild.findMany({
         where: {
           guildId: params.guildId,
@@ -91,8 +96,6 @@ export const app = new Elysia({ adapter: node() })
         },
       });
 
-      // Filter for staff members (those with MuteMembers or ChangeNickname permissions)
-      // We need to check if they have roles with these permissions
       const staffUserIds = memberGuids
         .filter((memberGuild) => {
           // Check if any of their roles have staff permissions
@@ -169,7 +172,6 @@ export const app = new Elysia({ adapter: node() })
     async ({ guild, params }) => {
       if (!guild) throw status("Not Found", "Guild not found");
 
-      // Get online members from database
       const onlineMembers = await prisma.memberGuild.findMany({
         where: {
           guildId: params.guildId,
@@ -187,7 +189,6 @@ export const app = new Elysia({ adapter: node() })
       const userIds = onlineMembers.map((member) => member.memberId);
       const members = await parseMultipleUsersWithRoles(userIds, guild);
 
-      // Get total presence count
       const presenceCount = await prisma.memberGuild.count({
         where: {
           guildId: params.guildId,
@@ -211,6 +212,113 @@ export const app = new Elysia({ adapter: node() })
       return widget;
     },
     { params: t.Object({ guildId: t.String() }) },
+  )
+  .get(
+    "/api/:guildId/board/:boardType",
+    async ({ guild, params }) => {
+      if (!guild) throw status("Not Found", "Guild not found");
+
+      const boardChannel = guild.channels.cache.find((channel) =>
+        channel.name.includes(params.boardType),
+      );
+
+      if (!boardChannel)
+        throw status("Not Found", `${params.boardType} channel not found`);
+
+      if (boardChannel.type !== ChannelType.GuildForum) {
+        throw status(
+          "Bad Request",
+          `${params.boardType} must be a forum channel`,
+        );
+      }
+
+      const threads = await boardChannel.threads.fetchActive();
+      const archivedThreads = await boardChannel.threads.fetchArchived();
+
+      const allThreads = [
+        ...threads.threads.values(),
+        ...archivedThreads.threads.values(),
+      ];
+
+      const ownerIds = allThreads.map((thread) => thread.ownerId);
+      const owners = await parseMultipleUsersWithRoles(ownerIds, guild);
+
+      const threadList = allThreads.map((thread) => {
+        const author = owners.find((owner) => owner.id === thread.ownerId);
+
+        return {
+          id: thread.id,
+          name: thread.name,
+          boardType: params.boardType,
+          messageCount: thread.messageCount,
+          author: author || null,
+          archived: thread.archived,
+          locked: thread.locked,
+          createdAt: thread.createdAt?.toISOString(),
+          tags: thread.appliedTags,
+        };
+      });
+
+      return threadList;
+    },
+    {
+      params: t.Object({
+        guildId: t.String(),
+        boardType: BoardType,
+      }),
+    },
+  )
+  .get(
+    "/api/:guildId/board/:boardType/:threadId",
+    async ({ guild, params }) => {
+      if (!guild) throw status("Not Found", "Guild not found");
+
+      const thread = guild.channels.cache.get(params.threadId);
+
+      if (!thread || !thread.isThread()) {
+        throw status("Not Found", "Thread not found");
+      }
+
+      const messages = await thread.messages.fetch({ limit: 100 });
+      const messageArray = Array.from(messages.values());
+
+      const authorIds = [...new Set(messageArray.map((msg) => msg.author.id))];
+      const authors = await parseMultipleUsersWithRoles(authorIds, guild);
+
+      const messageList = messageArray.map((message) => {
+        const author = authors.find((a) => a.id === message.author.id);
+
+        return {
+          id: message.id,
+          content: message.content,
+          author: author || null,
+          createdAt: message.createdAt.toISOString(),
+          attachments: Array.from(message.attachments.values()).map(
+            (attachment) => ({
+              url: attachment.url,
+              name: attachment.name,
+              contentType: attachment.contentType,
+              size: attachment.size,
+            }),
+          ),
+          embeds: message.embeds.map((embed) => ({
+            title: embed.title,
+            description: embed.description,
+            url: embed.url,
+            color: embed.color,
+          })),
+        };
+      });
+
+      return messageList.reverse();
+    },
+    {
+      params: t.Object({
+        guildId: t.String(),
+        boardType: BoardType,
+        threadId: t.String(),
+      }),
+    },
   )
   .listen(4000);
 
