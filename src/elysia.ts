@@ -248,7 +248,6 @@ export const app = new Elysia({ adapter: node() })
         allThreads.map(async (thread) => {
           const author = owners.find((owner) => owner.id === thread.ownerId);
 
-          // Map tag IDs to full tag information
           const tags = thread.appliedTags
             .map((tagId) => {
               const tag = boardChannel.availableTags.find(
@@ -263,7 +262,6 @@ export const app = new Elysia({ adapter: node() })
             })
             .filter(Boolean);
 
-          // Fetch the first message to get preview images
           let previewImage: string | null = null;
           try {
             const starterMessage = await thread.fetchStarterMessage();
@@ -273,9 +271,7 @@ export const app = new Elysia({ adapter: node() })
               );
               previewImage = imageAttachment?.url || null;
             }
-          } catch (error) {
-            // Ignore errors if the message is deleted or inaccessible
-          }
+          } catch (error) {}
 
           return {
             id: thread.id,
