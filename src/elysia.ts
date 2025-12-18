@@ -253,11 +253,10 @@ export const app = new Elysia({ adapter: node() })
               const tag = boardChannel.availableTags.find(
                 (t) => t.id === tagId,
               );
-              if (!tag) return null;
               return {
-                id: tag.id,
-                name: tag.name,
-                emoji: tag.emoji,
+                id: tag!.id,
+                name: tag!.name,
+                emoji: tag!.emoji,
               };
             })
             .filter(Boolean);
@@ -273,18 +272,19 @@ export const app = new Elysia({ adapter: node() })
             }
           } catch (error) {}
 
-          return {
+          const result = {
             id: thread.id,
             name: thread.name,
-            boardType: params.boardType,
+            // boardType: params.boardType,
             messageCount: thread.messageCount,
-            author: author || null,
-            archived: thread.archived,
+            // author: author || null,
+            archived: !!thread.archived,
             locked: thread.locked,
             createdAt: thread.createdAt?.toISOString(),
             tags,
             previewImage,
           };
+          return result;
         }),
       );
 
