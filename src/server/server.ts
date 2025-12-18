@@ -45,12 +45,18 @@ function formatMemberGuild(
     guildAvatarUrl: memberGuild.avatarUrl || null,
     bannerUrl: memberGuild.bannerUrl || memberGuild.member.bannerUrl || null,
     accentColor: memberGuild.member.accentColor,
+    hexAccentColor: memberGuild.member.hexAccentColor || null,
     avatarDecorationUrl:
       memberGuild.avatarDecorationUrl ||
       memberGuild.member.avatarDecorationUrl ||
       null,
+    avatarDecorationData:
+      memberGuild.avatarDecorationData || memberGuild.member.avatarDecorationData || null,
     displayHexColor: memberGuild.displayHexColor || "#000000",
+    displayColor: memberGuild.displayColor || null,
     flags: memberGuild.member.flags?.toString() || null,
+    collectibles: memberGuild.member.collectibles || null,
+    primaryGuild: memberGuild.member.primaryGuild || null,
 
     // Roles
     roles,
@@ -67,6 +73,10 @@ function formatMemberGuild(
     communicationDisabledUntil:
       memberGuild.communicationDisabledUntil?.toISOString() || null,
     guildFlags: memberGuild.flags?.toString() || null,
+    bannable: memberGuild.bannable,
+    kickable: memberGuild.kickable,
+    manageable: memberGuild.manageable,
+    moderatable: memberGuild.moderatable,
 
     // Timestamps
     joinedAt: memberGuild.joinedAt?.toISOString() || null,
