@@ -7,21 +7,15 @@ import { Elysia, status, t } from "elysia";
 import { bot } from "./main";
 import { prisma } from "./prisma";
 import {
+  BoardType,
+  CACHE_TTL,
   extractThreadDetails,
+  PAGE_LIMIT,
+  parseMessage,
   parseMultipleUsersWithRoles,
-  parseUserWithRoles,
 } from "./server/server";
 
-const cache: Record<string, { timestamp: number; data: unknown }> = {};
-
-const CACHE_TTL = 60 * 60 * 1000; // 1 hour
-const PAGE_LIMIT = 100;
-
-export const BoardType = t.Union([
-  t.Literal("job-board"),
-  t.Literal("dev-board"),
-  t.Literal("showcase"),
-]);
+const CACHE: Record<string, { timestamp: number; data: unknown }> = {};
 
 export const app = new Elysia({ adapter: node() })
   .use(
@@ -62,19 +56,19 @@ export const app = new Elysia({ adapter: node() })
   .onBeforeHandle(({ cacheKey }) => {
     if (!cacheKey) return;
 
-    const cachedData = cache[cacheKey];
+    const cachedData = CACHE[cacheKey];
     if (cachedData && Date.now() - cachedData.timestamp < CACHE_TTL) {
       return cachedData.data;
     }
 
-    if (cachedData) delete cache[cacheKey];
+    if (cachedData) delete CACHE[cacheKey];
   })
-  .onAfterHandle(({ cacheKey, response }) => {
+  .onAfterHandle(({ cacheKey, responseValue }) => {
     if (!cacheKey) return;
 
-    cache[cacheKey] = {
+    CACHE[cacheKey] = {
       timestamp: Date.now(),
-      data: response,
+      data: responseValue,
     };
   })
   .get(
@@ -144,26 +138,16 @@ export const app = new Elysia({ adapter: node() })
         );
       }
 
-      const messages = await newsChannel.messages.fetch({ limit: 100 });
+      const messages = await newsChannel.messages.fetch({ limit: PAGE_LIMIT });
+      const messageArray = Array.from(messages.values());
 
-      const news = await Promise.all(
-        messages.map(async (message) => ({
-          id: message?.id,
-          content: message.content,
-          createdAt: message.createdAt.toISOString(),
-          attachments: Array.from(message.attachments.values())
-            .filter((attachment) =>
-              attachment.contentType?.startsWith("image/"),
-            )
-            .map((attachment) => ({
-              url: attachment.url,
-              width: attachment.width!,
-              height: attachment.height!,
-              contentType: attachment.contentType!,
-            })),
-          user: await parseUserWithRoles(message.author.id, guild),
-        })),
-      );
+      const authorIds = [...new Set(messageArray.map((msg) => msg.author.id))];
+      const authors = await parseMultipleUsersWithRoles(authorIds, guild);
+
+      const news = messageArray.map((message) => ({
+        ...parseMessage(message, true),
+        author: authors.find((a) => a.id === message.author.id)!,
+      }));
 
       return news;
     },
@@ -289,30 +273,10 @@ export const app = new Elysia({ adapter: node() })
       const authorIds = [...new Set(messageArray.map((msg) => msg.author.id))];
       const authors = await parseMultipleUsersWithRoles(authorIds, guild);
 
-      const messageList = messageArray.map((message) => {
-        const author = authors.find((a) => a.id === message.author.id);
-
-        return {
-          id: message.id,
-          content: message.content,
-          author: author || null,
-          createdAt: message.createdAt.toISOString(),
-          attachments: Array.from(message.attachments.values()).map(
-            (attachment) => ({
-              url: attachment.url,
-              name: attachment.name,
-              contentType: attachment.contentType,
-              size: attachment.size,
-            }),
-          ),
-          embeds: message.embeds.map((embed) => ({
-            title: embed.title,
-            description: embed.description,
-            url: embed.url,
-            color: embed.color,
-          })),
-        };
-      });
+      const messageList = messageArray.map((message) => ({
+        ...parseMessage(message),
+        author: authors.find((a) => a.id === message.author.id)!,
+      }));
 
       const sortedMessages = messageList.reverse();
 

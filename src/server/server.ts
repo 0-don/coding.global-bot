@@ -1,8 +1,16 @@
-import { AnyThreadChannel, ForumChannel, Guild } from "discord.js";
-import { Static } from "elysia";
-import { BoardType } from "../elysia";
+import { AnyThreadChannel, ForumChannel, Guild, Message } from "discord.js";
+import { Static, t } from "elysia";
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "../prisma";
+
+export const PAGE_LIMIT = 100;
+export const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
+export const BoardType = t.Union([
+  t.Literal("job-board"),
+  t.Literal("dev-board"),
+  t.Literal("showcase"),
+]);
 
 type MemberGuildWithRelations = Prisma.MemberGuildGetPayload<{
   include: {
@@ -126,6 +134,38 @@ export async function parseMultipleUsersWithRoles(
   return formattedMembers.sort(
     (a, b) => b.highestRolePosition - a.highestRolePosition,
   );
+}
+
+export function parseMessage(message: Message, imagesOnly = false) {
+  return {
+    id: message.id,
+    content: message.content,
+    createdAt: message.createdAt.toISOString(),
+    attachments: Array.from(message.attachments.values())
+      .filter((attachment) =>
+        imagesOnly ? attachment.contentType?.startsWith("image/") : true,
+      )
+      .map((attachment) => ({
+        url: attachment.url,
+        ...(imagesOnly
+          ? {
+              width: attachment.width!,
+              height: attachment.height!,
+              contentType: attachment.contentType!,
+            }
+          : {
+              name: attachment.name,
+              contentType: attachment.contentType,
+              size: attachment.size,
+            }),
+      })),
+    embeds: message.embeds.map((embed) => ({
+      title: embed.title,
+      description: embed.description,
+      url: embed.url,
+      color: embed.color,
+    })),
+  };
 }
 
 export async function extractThreadDetails(
