@@ -107,10 +107,11 @@ function formatMemberGuild(
     displayName: memberGuild.displayName,
 
     // Appearance
-    displayAvatarURL:
+    avatarUrl:
       memberGuild.avatarUrl ||
+      memberGuild.member.avatarUrl ||
       `https://cdn.discordapp.com/embed/avatars/${parseInt(memberGuild.memberId) % 5}.png`,
-    bannerUrl: memberGuild.member.bannerUrl || null,
+    bannerUrl: memberGuild.bannerUrl || memberGuild.member.bannerUrl || null,
     accentColor: memberGuild.member.accentColor,
     displayHexColor: memberGuild.displayHexColor || "#000000",
     flags: memberGuild.member.flags?.toString() || null,
