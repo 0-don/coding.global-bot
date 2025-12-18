@@ -265,6 +265,7 @@ export const app = new Elysia({ adapter: node() })
             .filter(Boolean);
 
           let previewImage: string | null = null;
+          let previewText: string | null = null;
           try {
             const starterMessage = await thread.fetchStarterMessage();
             if (starterMessage) {
@@ -272,6 +273,7 @@ export const app = new Elysia({ adapter: node() })
                 (attachment) => attachment.contentType?.startsWith("image/"),
               );
               previewImage = imageAttachment?.url || null;
+              previewText = starterMessage.content || null;
             }
           } catch (error) {}
 
@@ -286,6 +288,7 @@ export const app = new Elysia({ adapter: node() })
             createdAt: thread.createdAt?.toISOString(),
             tags,
             previewImage,
+            previewText,
           };
           return result;
         }),
