@@ -190,30 +190,49 @@ export async function extractThreadDetails(
     })
     .filter(Boolean);
 
-  let previewImage: string | null = null;
-  let previewText: string | null = null;
+  let imageUrl: string | null = null;
+  let content: string | null = null;
   try {
     const starterMessage = await thread.fetchStarterMessage();
     if (starterMessage) {
       const imageAttachment = starterMessage.attachments.find((attachment) =>
         attachment.contentType?.startsWith("image/"),
       );
-      previewImage = imageAttachment?.url || null;
-      previewText = starterMessage.content || null;
+      imageUrl = imageAttachment?.url || null;
+      content = starterMessage.content || null;
     }
   } catch (error) {}
 
   return {
+    // Basic info
     id: thread.id,
     name: thread.name,
     boardType,
-    messageCount: thread.messageCount,
+    parentId: thread.parentId,
+
+    // Author & metadata
     author: threadOwner || null,
-    archived: !!thread.archived,
-    locked: thread.locked,
     createdAt: thread.createdAt?.toISOString() || null,
     tags,
-    previewImage,
-    previewText,
+
+    // Content preview
+    content,
+    imageUrl,
+
+    // Statistics
+    messageCount: thread.messageCount,
+    totalMessageSent: thread.totalMessageSent,
+    memberCount: thread.memberCount,
+
+    // Thread settings
+    locked: thread.locked,
+    archived: !!thread.archived,
+    archivedAt: thread.archiveTimestamp
+      ? new Date(thread.archiveTimestamp).toISOString()
+      : null,
+    autoArchiveDuration: thread.autoArchiveDuration?.toString() || null,
+    invitable: thread.invitable,
+    rateLimitPerUser: thread.rateLimitPerUser,
+    flags: thread.flags.bitfield,
   };
 }
