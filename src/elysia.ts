@@ -243,21 +243,53 @@ export const app = new Elysia({ adapter: node() })
       const ownerIds = allThreads.map((thread) => thread.ownerId);
       const owners = await parseMultipleUsersWithRoles(ownerIds, guild);
 
-      const threadList = allThreads.map((thread) => {
-        const author = owners.find((owner) => owner.id === thread.ownerId);
+      const threadList = await Promise.all(
+        allThreads.map(async (thread) => {
+          const author = owners.find((owner) => owner.id === thread.ownerId);
 
-        return {
-          id: thread.id,
-          name: thread.name,
-          boardType: params.boardType,
-          messageCount: thread.messageCount,
-          author: author || null,
-          archived: thread.archived,
-          locked: thread.locked,
-          createdAt: thread.createdAt?.toISOString(),
-          tags: thread.appliedTags,
-        };
-      });
+          // Map tag IDs to full tag information
+          const tags = thread.appliedTags
+            .map((tagId) => {
+              const tag = boardChannel.availableTags.find(
+                (t) => t.id === tagId,
+              );
+              if (!tag) return null;
+              return {
+                id: tag.id,
+                name: tag.name,
+                emoji: tag.emoji,
+              };
+            })
+            .filter(Boolean);
+
+          // Fetch the first message to get preview images
+          let previewImage: string | null = null;
+          try {
+            const starterMessage = await thread.fetchStarterMessage();
+            if (starterMessage) {
+              const imageAttachment = starterMessage.attachments.find(
+                (attachment) => attachment.contentType?.startsWith("image/"),
+              );
+              previewImage = imageAttachment?.url || null;
+            }
+          } catch (error) {
+            // Ignore errors if the message is deleted or inaccessible
+          }
+
+          return {
+            id: thread.id,
+            name: thread.name,
+            boardType: params.boardType,
+            messageCount: thread.messageCount,
+            author: author || null,
+            archived: thread.archived,
+            locked: thread.locked,
+            createdAt: thread.createdAt?.toISOString(),
+            tags,
+            previewImage,
+          };
+        }),
+      );
 
       return threadList;
     },
