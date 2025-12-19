@@ -242,7 +242,9 @@ export const app = new Elysia({ adapter: node() })
       }),
       query: t.Object({ before: t.Optional(t.String()) }),
     },
-  )
-  .listen(4000);
+  );
 
-log("Server started on port 4000");
+export function startServer() {
+  app.listen(4000);
+  log("Server started on port 4000");
+}

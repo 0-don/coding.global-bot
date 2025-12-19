@@ -14,7 +14,7 @@ import "chartjs-adapter-date-fns";
 import { error, log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
-import "./elysia";
+import { startServer } from "./elysia";
 import { ConfigValidator } from "./lib/config-validator";
 
 Chart.register(
@@ -60,6 +60,7 @@ export const bot = new Client({
 bot.once("clientReady", async () => {
   await bot.initApplicationCommands();
   log("Bot started");
+  startServer();
 });
 
 bot.on(
