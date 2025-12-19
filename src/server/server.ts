@@ -1,5 +1,5 @@
 import { AnyThreadChannel, ForumChannel, Guild, Message } from "discord.js";
-import { Static, t } from "elysia";
+import { status, Static, t } from "elysia";
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "../prisma";
 
@@ -11,6 +11,12 @@ export const BoardType = t.Union([
   t.Literal("dev-board"),
   t.Literal("showcase"),
 ]);
+
+export const ThreadParams = t.Object({
+  guildId: t.String(),
+  boardType: BoardType,
+  threadId: t.String(),
+});
 
 type MemberGuildWithRelations = Prisma.MemberGuildGetPayload<{
   include: {
@@ -253,6 +259,28 @@ export function parseMessage(message: Message) {
         }
       : null,
   };
+}
+
+export async function fetchThreadFromGuild(
+  guild: Guild,
+  threadId: string,
+): Promise<AnyThreadChannel> {
+  let thread = guild.channels.cache.get(threadId);
+
+  // Try to fetch the thread from Discord API if not in cache
+  if (!thread?.isThread()) {
+    try {
+      const fetchedThread = await guild.channels.fetch(threadId);
+      if (!fetchedThread?.isThread()) {
+        throw status("Not Found", "Thread not found");
+      }
+      thread = fetchedThread;
+    } catch (err) {
+      throw status("Not Found", "Thread not found or was deleted");
+    }
+  }
+
+  return thread;
 }
 
 export async function extractThreadDetails(
