@@ -197,7 +197,7 @@ export const app = new Elysia({ adapter: node() })
           .map((thread) =>
             extractThreadDetails(thread, boardChannel, guild, params.boardType),
           )
-          .filter(Boolean)!,
+          .filter(Boolean),
       );
     },
     { params: t.Object({ guildId: t.String(), boardType: BoardType }) },
