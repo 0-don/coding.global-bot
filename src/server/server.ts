@@ -314,7 +314,7 @@ export async function extractThreadDetails(
     memberCount: thread.memberCount || 0,
 
     // Thread settings
-    locked: thread.locked,
+    locked: !!thread.locked,
     archived: !!thread.archived,
     archivedAt: thread.archiveTimestamp
       ? new Date(thread.archiveTimestamp).toISOString()
