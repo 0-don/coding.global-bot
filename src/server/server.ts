@@ -309,9 +309,9 @@ export async function extractThreadDetails(
     imageUrl,
 
     // Statistics
-    messageCount: thread.messageCount,
-    totalMessageSent: thread.totalMessageSent,
-    memberCount: thread.memberCount,
+    messageCount: thread.messageCount || 0,
+    totalMessageSent: thread.totalMessageSent || 0,
+    memberCount: thread.memberCount || 0,
 
     // Thread settings
     locked: thread.locked,
