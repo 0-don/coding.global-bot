@@ -169,8 +169,9 @@ export const app = new Elysia({ adapter: node() })
     "/api/:guildId/board/:boardType",
     async ({ guild, params }) => {
       const boardChannel = guild.channels.cache.find((ch) =>
-        ch.name.includes(params.boardType),
+        ch.name.toLowerCase().includes(params.boardType.toLowerCase()),
       );
+
       if (!boardChannel)
         throw status("Not Found", `${params.boardType} channel not found`);
       if (boardChannel.type !== ChannelType.GuildForum) {
