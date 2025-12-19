@@ -113,7 +113,7 @@ export const app = new Elysia({ adapter: node() })
       const authors = await parseMultipleUsersWithRoles(authorIds, guild);
 
       return messages.map((message) => ({
-        ...parseMessage(message, true),
+        ...parseMessage(message),
         author: authors.find((a) => a.id === message.author.id)!,
       }));
     },
