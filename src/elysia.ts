@@ -193,9 +193,11 @@ export const app = new Elysia({ adapter: node() })
       ];
 
       return Promise.all(
-        allThreads.map((thread) =>
-          extractThreadDetails(thread, boardChannel, guild, params.boardType),
-        ),
+        allThreads
+          .map((thread) =>
+            extractThreadDetails(thread, boardChannel, guild, params.boardType),
+          )
+          .filter(Boolean)!,
       );
     },
     { params: t.Object({ guildId: t.String(), boardType: BoardType }) },
