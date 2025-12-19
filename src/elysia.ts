@@ -188,13 +188,13 @@ export const app = new Elysia({ adapter: node() })
         ...archivedThreads.threads.values(),
       ];
 
-      return Promise.all(
-        allThreads
-          .map((thread) =>
-            extractThreadDetails(thread, boardChannel, guild, params.boardType),
-          )
-          .filter(Boolean),
+      const responseThreads = await Promise.all(
+        allThreads.map((thread) =>
+          extractThreadDetails(thread, boardChannel, guild, params.boardType),
+        ),
       );
+
+      return responseThreads.filter(Boolean);
     },
     { params: t.Object({ guildId: t.String(), boardType: BoardType }) },
   )
