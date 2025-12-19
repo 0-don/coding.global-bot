@@ -272,8 +272,8 @@ export async function extractThreadDetails(
         id: tag!.id,
         name: tag!.name,
         emoji: {
-          id: tag!.emoji?.id || null,
-          name: tag!.emoji?.name || null,
+          id: tag?.emoji?.id || null,
+          name: tag?.emoji?.name || null,
         },
       };
     })
