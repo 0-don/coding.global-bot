@@ -98,7 +98,7 @@ export async function parseUserWithRoles(
     },
   });
 
-  if (!memberGuild || !memberGuild.status) return null;
+  if (!memberGuild) return null;
 
   return formatMemberGuild(memberGuild, resolvedGuildId);
 }
