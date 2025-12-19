@@ -2,7 +2,7 @@ import { cors } from "@elysiajs/cors";
 import { node } from "@elysiajs/node";
 import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
-import { ChannelType, Guild, PermissionsBitField } from "discord.js";
+import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
 import { Prisma } from "./generated/prisma/client";
 import { bot } from "./main";
@@ -11,9 +11,11 @@ import {
   BoardType,
   CACHE_TTL,
   extractThreadDetails,
+  fetchThreadFromGuild,
   PAGE_LIMIT,
   parseMessage,
   parseMultipleUsersWithRoles,
+  ThreadParams,
 } from "./server/server";
 
 const CACHE: Record<string, { timestamp: number; data: unknown }> = {};
@@ -40,9 +42,10 @@ export const app = new Elysia({ adapter: node() })
   .derive(({ path }) => {
     const matches = path.match(/\/api\/(\d{17,19})/);
     const guildId = matches?.[1];
-    return {
-      guild: (guildId ? bot.guilds.cache.get(guildId) : null) as Guild | null,
-    };
+    const guild = guildId ? bot.guilds.cache.get(guildId) : null;
+
+    if (!guild) throw status("Not Found", "Guild not found");
+    return { guild };
   })
   .derive(({ request, path }) => ({
     cacheKey: request.method === "GET" ? path : null,
@@ -60,8 +63,6 @@ export const app = new Elysia({ adapter: node() })
   .get(
     "/api/:guildId/staff",
     async ({ guild, params }) => {
-      if (!guild) throw status("Not Found", "Guild not found");
-
       const memberGuids = await prisma.memberGuild.findMany({
         where: { guildId: params.guildId, status: true },
         include: {
@@ -98,8 +99,6 @@ export const app = new Elysia({ adapter: node() })
   .get(
     "/api/:guildId/news",
     async ({ guild }) => {
-      if (!guild) throw status("Not Found", "Guild not found");
-
       const newsChannel = guild.channels.cache.find((ch) =>
         ch.name.toLowerCase().includes("news"),
       );
@@ -131,8 +130,6 @@ export const app = new Elysia({ adapter: node() })
   .get(
     "/api/:guildId/widget",
     async ({ guild, params }) => {
-      if (!guild) throw status("Not Found", "Guild not found");
-
       const onlineMembers = await prisma.memberGuild.findMany({
         where: {
           guildId: params.guildId,
@@ -171,8 +168,6 @@ export const app = new Elysia({ adapter: node() })
   .get(
     "/api/:guildId/board/:boardType",
     async ({ guild, params }) => {
-      if (!guild) throw status("Not Found", "Guild not found");
-
       const boardChannel = guild.channels.cache.find((ch) =>
         ch.name.includes(params.boardType),
       );
@@ -205,23 +200,8 @@ export const app = new Elysia({ adapter: node() })
 
   .get(
     "/api/:guildId/board/:boardType/:threadId",
-    async ({ guild, params, query }) => {
-      if (!guild) throw status("Not Found", "Guild not found");
-
-      let thread = guild.channels.cache.get(params.threadId);
-
-      // Try to fetch the thread from Discord API if not in cache
-      if (!thread?.isThread()) {
-        try {
-          const fetchedThread = await guild.channels.fetch(params.threadId);
-          if (!fetchedThread?.isThread()) {
-            throw status("Not Found", "Thread not found");
-          }
-          thread = fetchedThread;
-        } catch (err) {
-          throw status("Not Found", "Thread not found or was deleted");
-        }
-      }
+    async ({ guild, params }) => {
+      const thread = await fetchThreadFromGuild(guild, params.threadId);
 
       const boardChannel = thread.parent;
       if (!boardChannel || boardChannel.type !== ChannelType.GuildForum) {
@@ -234,6 +214,16 @@ export const app = new Elysia({ adapter: node() })
         guild,
         params.boardType,
       );
+
+      return threadDetails;
+    },
+    { params: ThreadParams },
+  )
+  .get(
+    "/api/:guildId/board/:boardType/:threadId/messages",
+    async ({ guild, params, query }) => {
+      const thread = await fetchThreadFromGuild(guild, params.threadId);
+
       const messages = await thread.messages.fetch({
         limit: PAGE_LIMIT,
         before: query.before,
@@ -250,18 +240,13 @@ export const app = new Elysia({ adapter: node() })
         .reverse();
 
       return {
-        thread: threadDetails,
         messages: messageList,
         hasMore: messageArray.length === PAGE_LIMIT,
         nextCursor: messageList.length > 0 ? messageList[0].id : null,
       };
     },
     {
-      params: t.Object({
-        guildId: t.String(),
-        boardType: BoardType,
-        threadId: t.String(),
-      }),
+      params: ThreadParams,
       query: t.Object({ before: t.Optional(t.String()) }),
     },
   )
