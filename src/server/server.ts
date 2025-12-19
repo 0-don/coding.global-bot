@@ -261,9 +261,9 @@ export async function extractThreadDetails(
   guild: Guild,
   boardType: Static<typeof BoardType>,
 ) {
-  const threadOwner = await parseUserWithRoles(thread.ownerId, guild);
+  const author = await parseUserWithRoles(thread.ownerId, guild);
 
-  if (!threadOwner) return null!;
+  if (!author) return null!;
 
   const tags = thread.appliedTags
     .map((tagId) => {
@@ -300,7 +300,7 @@ export async function extractThreadDetails(
     parentId: thread.parentId,
 
     // Author & metadata
-    author: threadOwner || null,
+    author,
     createdAt: thread.createdAt?.toISOString() || null,
     tags,
 
