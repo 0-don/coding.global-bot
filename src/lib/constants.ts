@@ -137,7 +137,7 @@ export const LEVEL_MESSAGES = {
     "curl -sSL install.sh | bash; // ${user} living on the edge as ${role}!",
   ],
   [VIBE_CODER]: [
-    "console.log('Just vibing and coding!'); // ${user} joined as ${role}! ✨",
+    "print('Just vibing and coding!'); // ${user} joined as ${role}! ✨",
     "const vibe = 'immaculate'; // ${user} bringing the energy as ${role}!",
     "// Just here for the good vibes and code - ${user} (${role})",
     "npm install good-vibes; // ${user} setting the mood as ${role}!",
@@ -145,7 +145,7 @@ export const LEVEL_MESSAGES = {
   ],
   [INTERN]: [
     "git init career; // ${user} started their internship as ${role}!",
-    "console.log('Hello World, I am ${user} the ${role}!'); // First day excitement!",
+    "print('Hello World, I am ${user} the ${role}!'); // First day excitement!",
     "npm install --save enthusiasm; // ${user} joining as ${role}!",
     "// Day 1: Everything is awesome! - ${user} (${role})",
     "const firstDay = new Experience('${user}', '${role}'); // Journey begins!",
