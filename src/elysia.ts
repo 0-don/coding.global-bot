@@ -225,15 +225,19 @@ export const app = new Elysia({ adapter: node() })
     async ({ guild, params, query }) => {
       const thread = await fetchThreadFromGuild(guild, params.threadId);
 
-      const messages = await thread.messages.fetch({
+      const allMessages = await thread.messages.fetch({
         limit: PAGE_LIMIT,
         before: query.before,
       });
-      const messageArray = Array.from(messages.values());
-      const authorIds = [...new Set(messageArray.map((msg) => msg.author.id))];
-      const authors = await parseMultipleUsersWithRoles(authorIds, guild);
+      const filteredMessages = Array.from(allMessages.values()).filter(
+        (msg) => msg.id !== thread.id,
+      );
+      const authors = await parseMultipleUsersWithRoles(
+        [...new Set(filteredMessages.map((msg) => msg.author.id))],
+        guild,
+      );
 
-      const messageList = messageArray
+      const messages = filteredMessages
         .map((message) => ({
           ...parseMessage(message),
           author: authors.find((a) => a.id === message.author.id)!,
@@ -241,9 +245,9 @@ export const app = new Elysia({ adapter: node() })
         .reverse();
 
       return {
-        messages: messageList,
-        hasMore: messageArray.length === PAGE_LIMIT,
-        nextCursor: messageList.length > 0 ? messageList[0].id : null,
+        messages,
+        hasMore: filteredMessages.length === PAGE_LIMIT,
+        nextCursor: messages[0]?.id ?? null,
       };
     },
     {
