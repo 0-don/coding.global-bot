@@ -4,6 +4,7 @@ import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
 import { ChannelType, Guild, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
+import { Prisma } from "./generated/prisma/client";
 import { bot } from "./main";
 import { prisma } from "./prisma";
 import {
@@ -28,7 +29,14 @@ export const app = new Elysia({ adapter: node() })
     }),
   )
   .use(cors())
-  .onError(({ code, error }) => console.error("API Error:", code, error))
+  .onError(({ error }) => {
+    // Log Prisma-specific errors only
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error("Prisma Error:", error.code, error.message, error.meta);
+    } else if (error instanceof Prisma.PrismaClientValidationError) {
+      console.error("Prisma Validation Error:", error.message);
+    }
+  })
   .derive(({ path }) => {
     const matches = path.match(/\/api\/(\d{17,19})/);
     const guildId = matches?.[1];
@@ -198,8 +206,20 @@ export const app = new Elysia({ adapter: node() })
     async ({ guild, params, query }) => {
       if (!guild) throw status("Not Found", "Guild not found");
 
-      const thread = guild.channels.cache.get(params.threadId);
-      if (!thread?.isThread()) throw status("Not Found", "Thread not found");
+      let thread = guild.channels.cache.get(params.threadId);
+
+      // Try to fetch the thread from Discord API if not in cache
+      if (!thread?.isThread()) {
+        try {
+          const fetchedThread = await guild.channels.fetch(params.threadId);
+          if (!fetchedThread?.isThread()) {
+            throw status("Not Found", "Thread not found");
+          }
+          thread = fetchedThread;
+        } catch (err) {
+          throw status("Not Found", "Thread not found or was deleted");
+        }
+      }
 
       const boardChannel = thread.parent;
       if (!boardChannel || boardChannel.type !== ChannelType.GuildForum) {
@@ -242,9 +262,7 @@ export const app = new Elysia({ adapter: node() })
       }),
       query: t.Object({ before: t.Optional(t.String()) }),
     },
-  );
+  )
+  .listen(4000);
 
-export function startServer() {
-  app.listen(4000);
-  log("Server started on port 4000");
-}
+log("Server started on port 4000");
