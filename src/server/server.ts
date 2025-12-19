@@ -263,7 +263,7 @@ export async function extractThreadDetails(
 ) {
   const threadOwner = await parseUserWithRoles(thread.ownerId, guild);
 
-  if (!threadOwner) return null;
+  if (!threadOwner) return null!;
 
   const tags = thread.appliedTags
     .map((tagId) => {
