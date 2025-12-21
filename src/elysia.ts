@@ -247,7 +247,7 @@ export const app = new Elysia({ adapter: node() })
       return {
         messages,
         hasMore: filteredMessages.length === PAGE_LIMIT,
-        nextCursor: messages[0]?.id ?? null,
+        nextCursor: filteredMessages[filteredMessages.length - 1]?.id ?? null,
       };
     },
     {
