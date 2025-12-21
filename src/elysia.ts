@@ -2,7 +2,11 @@ import { cors } from "@elysiajs/cors";
 import { node } from "@elysiajs/node";
 import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
-import { ChannelType, PermissionsBitField } from "discord.js";
+import {
+  ChannelType,
+  FetchMessagesOptions,
+  PermissionsBitField,
+} from "discord.js";
 import { Elysia, status, t } from "elysia";
 import { Prisma } from "./generated/prisma/client";
 import { bot } from "./main";
@@ -47,9 +51,12 @@ export const app = new Elysia({ adapter: node() })
     if (!guild) throw status("Not Found", "Guild not found");
     return { guild };
   })
-  .derive(({ request, path }) => ({
-    cacheKey: request.method === "GET" ? path : null,
-  }))
+  .derive(({ request, path }) => {
+    if (request.method !== "GET") return { cacheKey: null };
+    const url = new URL(request.url);
+    const cacheKey = url.search ? `${path}${url.search}` : path;
+    return { cacheKey };
+  })
   .onBeforeHandle(({ cacheKey }) => {
     if (!cacheKey) return;
     const cached = CACHE[cacheKey];
@@ -225,10 +232,16 @@ export const app = new Elysia({ adapter: node() })
     async ({ guild, params, query }) => {
       const thread = await fetchThreadFromGuild(guild, params.threadId);
 
-      const allMessages = await thread.messages.fetch({
-        limit: PAGE_LIMIT,
-        before: query.before,
-      });
+      const fetchOptions: FetchMessagesOptions = { limit: PAGE_LIMIT };
+
+      if (query.after) {
+        fetchOptions.after = query.after;
+      } else {
+        const starterMessage = await thread.fetchStarterMessage();
+        if (starterMessage) fetchOptions.after = starterMessage.id;
+      }
+
+      const allMessages = await thread.messages.fetch(fetchOptions);
       const filteredMessages = Array.from(allMessages.values()).filter(
         (msg) => msg.id !== thread.id,
       );
@@ -242,17 +255,20 @@ export const app = new Elysia({ adapter: node() })
           ...parseMessage(message),
           author: authors.find((a) => a.id === message.author.id)!,
         }))
-        .reverse();
+        .sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        );
 
       return {
         messages,
-        hasMore: filteredMessages.length === PAGE_LIMIT,
-        nextCursor: filteredMessages[filteredMessages.length - 1]?.id ?? null,
+        hasMore: messages.length === PAGE_LIMIT,
+        nextCursor: messages.at(-1)?.id ?? null,
       };
     },
     {
       params: ThreadParams,
-      query: t.Object({ before: t.Optional(t.String()) }),
+      query: t.Object({ after: t.Optional(t.String()) }),
     },
   )
   .listen(4000);
