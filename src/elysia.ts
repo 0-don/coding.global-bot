@@ -106,8 +106,9 @@ export const app = new Elysia({ adapter: node() })
   .get(
     "/api/:guildId/news",
     async ({ guild }) => {
-      const newsChannel = guild.channels.cache.find((ch) =>
-        ch.name.toLowerCase().includes("news"),
+      const channels = await guild.channels.fetch();
+      const newsChannel = channels.find((ch) =>
+        ch?.name.toLowerCase().includes("news"),
       );
       if (!newsChannel) throw status("Not Found", "News channel not found");
       if (
@@ -175,8 +176,9 @@ export const app = new Elysia({ adapter: node() })
   .get(
     "/api/:guildId/board/:boardType",
     async ({ guild, params }) => {
-      const boardChannel = guild.channels.cache.find((ch) =>
-        ch.name.toLowerCase().includes(params.boardType.toLowerCase()),
+      const channels = await guild.channels.fetch();
+      const boardChannel = channels.find((ch) =>
+        ch?.name.toLowerCase().includes(params.boardType.toLowerCase()),
       );
 
       if (!boardChannel)
@@ -188,7 +190,7 @@ export const app = new Elysia({ adapter: node() })
         );
       }
 
-      const threads = await boardChannel.threads.fetchActive();
+      const threads = await boardChannel.threads.fetchActive(true);
       const archivedThreads = await boardChannel.threads.fetchArchived();
       const allThreads = [
         ...threads.threads.values(),
