@@ -8,7 +8,6 @@ import {
   PermissionsBitField,
 } from "discord.js";
 import { Elysia, status, t } from "elysia";
-import { writeFileSync } from "fs";
 import { Prisma } from "./generated/prisma/client";
 import { bot } from "./main";
 import { prisma } from "./prisma";
@@ -213,7 +212,7 @@ export const app = new Elysia({ adapter: node() })
           extractThreadDetails(thread, boardChannel, guild, params.boardType),
         ),
       );
-      writeFileSync("theads.json", JSON.stringify(responseThreads, null, 2));
+
       return responseThreads.filter(Boolean);
     },
     { params: t.Object({ guildId: t.String(), boardType: BoardType }) },
