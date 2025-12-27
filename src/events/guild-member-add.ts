@@ -12,6 +12,8 @@ export class GuildMemberAdd {
       MembersService.logJoinLeaveEvents(member, "join");
 
       // await updateCompleteMemberData(member);
+      // create or update user with his roles
+      MembersService.upsertDbMember(member, "join");
 
       if (member.pending) return;
 
