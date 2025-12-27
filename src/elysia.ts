@@ -206,12 +206,11 @@ export const app = new Elysia({ adapter: node() })
         ])
       )
         .flat()
-        .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime())
-        .at(0);
+        .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
 
       const responseThreads = await Promise.all(
-        [allThreads].map((thread) =>
-          extractThreadDetails(thread!, boardChannel, guild, params.boardType),
+        allThreads.map((thread) =>
+          extractThreadDetails(thread, boardChannel, guild, params.boardType),
         ),
       );
       writeFileSync("theads.json", JSON.stringify(responseThreads, null, 2));
