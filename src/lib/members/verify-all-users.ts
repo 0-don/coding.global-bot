@@ -100,9 +100,10 @@ export async function verifyAllUsers(
           }
         }, `Process ${tag}`, guildName);
         processedIds.add(member.id);
+        logTs("info", guildName, `✓ ${tag} (${alreadyDone + i + 1}/${total})`);
       } catch {
         failedIds.add(member.id);
-        logTs("error", guildName, `Failed: ${tag}`);
+        logTs("error", guildName, `✗ ${tag} (${alreadyDone + i + 1}/${total})`);
       }
 
       const done = alreadyDone + i + 1;
