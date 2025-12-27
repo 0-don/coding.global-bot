@@ -291,8 +291,6 @@ export async function extractThreadDetails(
 ) {
   const author = await parseUserWithRoles(thread.ownerId, guild);
 
-  // console.log(boardChannel, author);
-
   if (!author) return null!;
 
   const tags = thread.appliedTags
