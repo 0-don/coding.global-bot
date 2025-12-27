@@ -51,11 +51,6 @@ async function processNextItem() {
 
     if (isVerificationRunning(item.guildId)) return;
 
-    console.log(
-      dayjs(item.createdAt).format("HH:mm:ss"),
-      `Processing member update for ${item.memberId}`,
-    );
-
     const deleteItem = () =>
       prisma.memberUpdateQueue.delete({ where: { id: item.id } }).catch(() => {});
 
