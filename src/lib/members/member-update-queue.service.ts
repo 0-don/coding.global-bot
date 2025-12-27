@@ -45,10 +45,13 @@ async function processNextItem() {
 
   if (isVerificationRunning(item.guildId)) return;
 
+  const deleteItem = () =>
+    prisma.memberUpdateQueue.deleteMany({ where: { id: item.id } });
+
   try {
     const guild = bot.guilds.cache.get(item.guildId);
     if (!guild) {
-      await prisma.memberUpdateQueue.delete({ where: { id: item.id } });
+      await deleteItem();
       return;
     }
 
@@ -56,15 +59,15 @@ async function processNextItem() {
     try {
       member = await guild.members.fetch(item.memberId);
     } catch {
-      await prisma.memberUpdateQueue.delete({ where: { id: item.id } });
+      await deleteItem();
       return;
     }
 
     await updateCompleteMemberData(member);
 
-    await prisma.memberUpdateQueue.delete({ where: { id: item.id } });
+    await deleteItem();
   } catch (err) {
     error(`Failed to process queue item for member ${item.memberId}:`, err);
-    await prisma.memberUpdateQueue.delete({ where: { id: item.id } });
+    await deleteItem();
   }
 }
