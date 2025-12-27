@@ -1,5 +1,5 @@
 import { AnyThreadChannel, ForumChannel, Guild, Message } from "discord.js";
-import { status, Static, t } from "elysia";
+import { Static, status, t } from "elysia";
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "../prisma";
 
@@ -290,6 +290,8 @@ export async function extractThreadDetails(
   boardType: Static<typeof BoardType>,
 ) {
   const author = await parseUserWithRoles(thread.ownerId, guild);
+
+  // console.log(boardChannel, author);
 
   if (!author) return null!;
 

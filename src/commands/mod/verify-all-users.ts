@@ -1,4 +1,4 @@
-import { PermissionFlagsBits } from "discord.js";
+import { type GuildTextBasedChannel, PermissionFlagsBits } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
 import { Discord, SimpleCommand } from "discordx";
 import { verifyAllUsers } from "../../lib/members/verify-all-users";
@@ -20,7 +20,7 @@ export class VerifyAllUsers {
     }
 
     try {
-      await verifyAllUsers(message.guild, message.channel);
+      await verifyAllUsers(message.guild, message.channel as GuildTextBasedChannel);
     } catch (error) {
       console.error("Error in verify-all command:", error);
     }

@@ -59,7 +59,8 @@ export const ModelName = {
   MemberHelper: 'MemberHelper',
   MemberRole: 'MemberRole',
   MemberCommandHistory: 'MemberCommandHistory',
-  MemberDeletedMessages: 'MemberDeletedMessages'
+  MemberDeletedMessages: 'MemberDeletedMessages',
+  VerificationProgress: 'VerificationProgress'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -231,6 +232,16 @@ export const MemberDeletedMessagesScalarFieldEnum = {
 } as const
 
 export type MemberDeletedMessagesScalarFieldEnum = (typeof MemberDeletedMessagesScalarFieldEnum)[keyof typeof MemberDeletedMessagesScalarFieldEnum]
+
+
+export const VerificationProgressScalarFieldEnum = {
+  guildId: 'guildId',
+  processedIds: 'processedIds',
+  failedIds: 'failedIds',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VerificationProgressScalarFieldEnum = (typeof VerificationProgressScalarFieldEnum)[keyof typeof VerificationProgressScalarFieldEnum]
 
 
 export const SortOrder = {
