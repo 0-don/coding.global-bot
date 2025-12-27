@@ -1,6 +1,6 @@
-import { error } from "console";
 import type { ArgsOf } from "discordx";
 import { Discord, On } from "discordx";
+import { queueMemberUpdate } from "../lib/members/member-update-queue.service";
 
 @Discord()
 export class PresenceUpdate {
@@ -8,13 +8,6 @@ export class PresenceUpdate {
   async presenceUpdate([oldPresence, newPresence]: ArgsOf<"presenceUpdate">) {
     if (!newPresence.member || !newPresence.guild) return;
 
-    try {
-      // await updateCompleteMemberData(newPresence.member);
-    } catch (err) {
-      error(
-        `Failed to update presence for user ${newPresence.userId} in guild ${newPresence.guild.id}:`,
-        err,
-      );
-    }
+    queueMemberUpdate(newPresence.member.id, newPresence.guild.id, -1);
   }
 }

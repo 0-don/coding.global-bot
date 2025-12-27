@@ -393,7 +393,8 @@ export const ModelName = {
   MemberRole: 'MemberRole',
   MemberCommandHistory: 'MemberCommandHistory',
   MemberDeletedMessages: 'MemberDeletedMessages',
-  VerificationProgress: 'VerificationProgress'
+  VerificationProgress: 'VerificationProgress',
+  MemberUpdateQueue: 'MemberUpdateQueue'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "guild" | "guildVoiceEvents" | "member" | "memberMessages" | "memberGuild" | "memberHelper" | "memberRole" | "memberCommandHistory" | "memberDeletedMessages" | "verificationProgress"
+    modelProps: "guild" | "guildVoiceEvents" | "member" | "memberMessages" | "memberGuild" | "memberHelper" | "memberRole" | "memberCommandHistory" | "memberDeletedMessages" | "verificationProgress" | "memberUpdateQueue"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1153,6 +1154,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MemberUpdateQueue: {
+      payload: Prisma.$MemberUpdateQueuePayload<ExtArgs>
+      fields: Prisma.MemberUpdateQueueFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MemberUpdateQueueFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberUpdateQueuePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MemberUpdateQueueFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberUpdateQueuePayload>
+        }
+        findFirst: {
+          args: Prisma.MemberUpdateQueueFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberUpdateQueuePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MemberUpdateQueueFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberUpdateQueuePayload>
+        }
+        findMany: {
+          args: Prisma.MemberUpdateQueueFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberUpdateQueuePayload>[]
+        }
+        create: {
+          args: Prisma.MemberUpdateQueueCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberUpdateQueuePayload>
+        }
+        createMany: {
+          args: Prisma.MemberUpdateQueueCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MemberUpdateQueueCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberUpdateQueuePayload>[]
+        }
+        delete: {
+          args: Prisma.MemberUpdateQueueDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberUpdateQueuePayload>
+        }
+        update: {
+          args: Prisma.MemberUpdateQueueUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberUpdateQueuePayload>
+        }
+        deleteMany: {
+          args: Prisma.MemberUpdateQueueDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MemberUpdateQueueUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MemberUpdateQueueUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberUpdateQueuePayload>[]
+        }
+        upsert: {
+          args: Prisma.MemberUpdateQueueUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberUpdateQueuePayload>
+        }
+        aggregate: {
+          args: Prisma.MemberUpdateQueueAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMemberUpdateQueue>
+        }
+        groupBy: {
+          args: Prisma.MemberUpdateQueueGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MemberUpdateQueueGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MemberUpdateQueueCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MemberUpdateQueueCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1355,6 +1430,17 @@ export const VerificationProgressScalarFieldEnum = {
 } as const
 
 export type VerificationProgressScalarFieldEnum = (typeof VerificationProgressScalarFieldEnum)[keyof typeof VerificationProgressScalarFieldEnum]
+
+
+export const MemberUpdateQueueScalarFieldEnum = {
+  id: 'id',
+  memberId: 'memberId',
+  guildId: 'guildId',
+  priority: 'priority',
+  createdAt: 'createdAt'
+} as const
+
+export type MemberUpdateQueueScalarFieldEnum = (typeof MemberUpdateQueueScalarFieldEnum)[keyof typeof MemberUpdateQueueScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1599,6 +1685,7 @@ export type GlobalOmitConfig = {
   memberCommandHistory?: Prisma.MemberCommandHistoryOmit
   memberDeletedMessages?: Prisma.MemberDeletedMessagesOmit
   verificationProgress?: Prisma.VerificationProgressOmit
+  memberUpdateQueue?: Prisma.MemberUpdateQueueOmit
 }
 
 /* Types for Logging */

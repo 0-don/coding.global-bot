@@ -3,48 +3,53 @@ import { prisma } from "../../prisma";
 import { EVERYONE } from "../constants";
 
 export async function updateCompleteMemberData(member: GuildMember) {
-  const user = await member.user.fetch(true);
-  const guildMember = await member.fetch(true);
+  try {
+    const user = await member.user.fetch(true);
+    const guildMember = await member.fetch(true);
 
-  const memberData = prepareMemberData(user);
-  const memberGuildData = prepareMemberGuildData(guildMember);
-  const memberRoleCreates = prepareMemberRolesData(guildMember);
+    const memberData = prepareMemberData(user);
+    const memberGuildData = prepareMemberGuildData(guildMember);
+    const memberRoleCreates = prepareMemberRolesData(guildMember);
 
-  await prisma.$transaction(async (tx) => {
-    // Delete existing roles to avoid duplicates
-    await tx.memberRole.deleteMany({
-      where: { memberId: member.id, guildId: member.guild.id },
-    });
-
-    // Upsert member (global user data)
-    await tx.member.upsert({
-      where: { memberId: memberData.memberId },
-      create: memberData,
-      update: memberData,
-    });
-
-    // Upsert member guild (guild-specific data)
-    await tx.memberGuild.upsert({
-      where: {
-        member_guild: {
-          memberId: memberGuildData.memberId,
-          guildId: memberGuildData.guildId,
-        },
-      },
-      create: memberGuildData,
-      update: memberGuildData,
-    });
-
-    // Create member roles if any exist
-    if (memberRoleCreates.length > 0) {
-      await tx.memberRole.createMany({
-        data: memberRoleCreates,
-        skipDuplicates: true,
+    await prisma.$transaction(async (tx) => {
+      // Delete existing roles to avoid duplicates
+      await tx.memberRole.deleteMany({
+        where: { memberId: member.id, guildId: member.guild.id },
       });
-    }
-  });
 
-  return { memberData, memberGuildData, memberRoleCreates };
+      // Upsert member (global user data)
+      await tx.member.upsert({
+        where: { memberId: memberData.memberId },
+        create: memberData,
+        update: memberData,
+      });
+
+      // Upsert member guild (guild-specific data)
+      await tx.memberGuild.upsert({
+        where: {
+          member_guild: {
+            memberId: memberGuildData.memberId,
+            guildId: memberGuildData.guildId,
+          },
+        },
+        create: memberGuildData,
+        update: memberGuildData,
+      });
+
+      // Create member roles if any exist
+      if (memberRoleCreates.length > 0) {
+        await tx.memberRole.createMany({
+          data: memberRoleCreates,
+          skipDuplicates: true,
+        });
+      }
+    });
+  } catch (error) {
+    console.error(
+      `Failed to update complete member data for ${member.id} ${member.user.username}:`,
+      error,
+    );
+  }
 }
 
 function prepareMemberData(user: User) {

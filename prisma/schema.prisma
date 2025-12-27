@@ -212,8 +212,18 @@ model MemberDeletedMessages {
 }
 
 model VerificationProgress {
-  guildId     String   @id @unique
+  guildId      String   @id @unique
   processedIds String[] @default([])
-  failedIds   String[] @default([])
-  updatedAt   DateTime @default(now()) @updatedAt
+  failedIds    String[] @default([])
+  updatedAt    DateTime @default(now()) @updatedAt
+}
+
+model MemberUpdateQueue {
+  id        Int      @id @default(autoincrement())
+  memberId  String
+  guildId   String
+  priority  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@unique([memberId, guildId])
 }

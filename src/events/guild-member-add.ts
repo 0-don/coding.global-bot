@@ -2,6 +2,7 @@ import { error } from "console";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { joinSettings } from "../lib/members/join-nickname";
+import { queueMemberUpdate } from "../lib/members/member-update-queue.service";
 import { MembersService } from "../lib/members/members.service";
 
 @Discord()
@@ -11,7 +12,7 @@ export class GuildMemberAdd {
     try {
       MembersService.logJoinLeaveEvents(member, "join");
 
-      // await updateCompleteMemberData(member);
+      queueMemberUpdate(member.id, member.guild.id);
       // create or update user with his roles
       MembersService.upsertDbMember(member, "join");
 

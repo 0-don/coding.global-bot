@@ -1,6 +1,7 @@
 import type { ArgsOf } from "discordx";
 import { Discord, On } from "discordx";
 import { EVERYONE } from "../lib/constants";
+import { queueMemberUpdate } from "../lib/members/member-update-queue.service";
 import { updateNickname } from "../lib/members/save-nickname";
 import { RolesService } from "../lib/roles/roles.service";
 import { prisma } from "../prisma";
@@ -45,6 +46,6 @@ export class GuildMemberUpdate {
 
     updateNickname(oldMember, newMember);
 
-    // await updateCompleteMemberData(newMember);
+    queueMemberUpdate(newMember.id, newMember.guild.id);
   }
 }
