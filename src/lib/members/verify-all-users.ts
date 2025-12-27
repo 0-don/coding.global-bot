@@ -37,6 +37,10 @@ async function withRetry<T>(fn: () => Promise<T>, label: string, guild: string):
 
 const runningGuilds = new Set<string>();
 
+export function isVerificationRunning(guildId: string): boolean {
+  return runningGuilds.has(guildId);
+}
+
 export async function verifyAllUsers(
   guild: Guild,
   channel: GuildTextBasedChannel,

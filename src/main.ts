@@ -16,6 +16,7 @@ import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
 import "./elysia";
 import { ConfigValidator } from "./lib/config-validator";
+import { startMemberUpdateQueue } from "./lib/members/member-update-queue.service";
 
 Chart.register(
   LineController,
@@ -59,6 +60,7 @@ export const bot = new Client({
 
 bot.once("clientReady", async () => {
   await bot.initApplicationCommands();
+  startMemberUpdateQueue();
   log("Bot started");
 });
 

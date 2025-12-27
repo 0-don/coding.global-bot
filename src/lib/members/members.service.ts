@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import { writeFileSync } from "fs";
 import path from "path";
+import { Prisma } from "../../generated/prisma/client";
 import { prisma } from "../../prisma";
 import { ChartDataset, GuildMemberCountChart } from "../../types/index";
 import { ConfigValidator } from "../config-validator";
@@ -22,7 +23,6 @@ import {
 } from "../constants";
 import { simpleEmbedExample } from "../embeds";
 import { chartConfig, getDaysArray } from "../helpers";
-import { Prisma } from "../../generated/prisma/client";
 
 export class MembersService {
   private static _memberCountWarningLogged = false;
@@ -79,7 +79,11 @@ export class MembersService {
     const dbMemberGuildInput: Prisma.MemberGuildUncheckedCreateInput = {
       memberId,
       guildId,
-      status: status === "join" ? true : false,
+      status: status === "join",
+      ...(status === "leave" && {
+        presenceStatus: "offline",
+        presenceUpdatedAt: new Date(),
+      }),
     };
 
     // create or update member guild

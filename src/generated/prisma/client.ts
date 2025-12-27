@@ -89,3 +89,8 @@ export type MemberDeletedMessages = Prisma.MemberDeletedMessagesModel
  * 
  */
 export type VerificationProgress = Prisma.VerificationProgressModel
+/**
+ * Model MemberUpdateQueue
+ * 
+ */
+export type MemberUpdateQueue = Prisma.MemberUpdateQueueModel
