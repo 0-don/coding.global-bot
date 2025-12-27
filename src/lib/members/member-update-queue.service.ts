@@ -6,6 +6,7 @@ import { updateCompleteMemberData } from "./member-data.service";
 import { isVerificationRunning } from "./verify-all-users";
 
 let processorInterval: NodeJS.Timeout | null = null;
+let isProcessing = false;
 
 const PROCESS_INTERVAL_MS = 100;
 
@@ -38,22 +39,26 @@ export function startMemberUpdateQueue() {
 }
 
 async function processNextItem() {
-  const item = await prisma.memberUpdateQueue.findFirst({
-    orderBy: { createdAt: "asc" },
-  });
-
-  if (!item) return;
-
-  if (isVerificationRunning(item.guildId)) return;
-
-  console.log(
-    dayjs(item.createdAt).format("HH:mm:ss"),
-    `Processing member update for ${item.memberId}`,
-  );
-  const deleteItem = () =>
-    prisma.memberUpdateQueue.delete({ where: { id: item.id } }).catch(() => {});
+  if (isProcessing) return;
+  isProcessing = true;
 
   try {
+    const item = await prisma.memberUpdateQueue.findFirst({
+      orderBy: { createdAt: "asc" },
+    });
+
+    if (!item) return;
+
+    if (isVerificationRunning(item.guildId)) return;
+
+    console.log(
+      dayjs(item.createdAt).format("HH:mm:ss"),
+      `Processing member update for ${item.memberId}`,
+    );
+
+    const deleteItem = () =>
+      prisma.memberUpdateQueue.delete({ where: { id: item.id } }).catch(() => {});
+
     const guild = bot.guilds.cache.get(item.guildId);
     if (!guild) {
       await deleteItem();
@@ -69,10 +74,10 @@ async function processNextItem() {
     }
 
     await updateCompleteMemberData(member);
-
     await deleteItem();
   } catch (err) {
-    error(`Failed to process queue item for member ${item.memberId}:`, err);
-    await deleteItem();
+    error(`Failed to process queue item:`, err);
+  } finally {
+    isProcessing = false;
   }
 }
