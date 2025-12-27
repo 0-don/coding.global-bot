@@ -38,7 +38,7 @@ export function startMemberUpdateQueue() {
 
 async function processNextItem() {
   const item = await prisma.memberUpdateQueue.findFirst({
-    orderBy: [{ priority: "desc" }, { createdAt: "asc" }],
+    orderBy: { createdAt: "asc" },
   });
 
   if (!item) return;
@@ -46,7 +46,7 @@ async function processNextItem() {
   if (isVerificationRunning(item.guildId)) return;
 
   const deleteItem = () =>
-    prisma.memberUpdateQueue.deleteMany({ where: { id: item.id } });
+    prisma.memberUpdateQueue.delete({ where: { id: item.id } }).catch(() => {});
 
   try {
     const guild = bot.guilds.cache.get(item.guildId);
