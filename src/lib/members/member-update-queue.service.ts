@@ -38,7 +38,7 @@ export function startMemberUpdateQueue() {
 
 async function processNextItem() {
   const item = await prisma.memberUpdateQueue.findFirst({
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: "desc" },
   });
 
   if (!item) return;
