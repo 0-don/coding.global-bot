@@ -210,3 +210,10 @@ model MemberDeletedMessages {
   messageMember   Member @relation(fields: [messageMemberId], references: [memberId], onDelete: Cascade, name: "memberDeletedMessages")
   guild           Guild  @relation(fields: [guildId], references: [guildId])
 }
+
+model VerificationProgress {
+  guildId     String   @id @unique
+  processedIds String[] @default([])
+  failedIds   String[] @default([])
+  updatedAt   DateTime @default(now()) @updatedAt
+}

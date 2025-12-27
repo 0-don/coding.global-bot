@@ -8,6 +8,7 @@ import {
   PermissionsBitField,
 } from "discord.js";
 import { Elysia, status, t } from "elysia";
+import { writeFileSync } from "fs";
 import { Prisma } from "./generated/prisma/client";
 import { bot } from "./main";
 import { prisma } from "./prisma";
@@ -172,7 +173,6 @@ export const app = new Elysia({ adapter: node() })
     },
     { params: t.Object({ guildId: t.String() }) },
   )
-
   .get(
     "/api/:guildId/board/:boardType",
     async ({ guild, params }) => {
@@ -190,24 +190,35 @@ export const app = new Elysia({ adapter: node() })
         );
       }
 
-      const threads = await boardChannel.threads.fetchActive(true);
-      const archivedThreads = await boardChannel.threads.fetchArchived();
-      const allThreads = [
-        ...threads.threads.values(),
-        ...archivedThreads.threads.values(),
-      ];
+      await boardChannel.fetch(true);
+
+      const allThreads = (
+        await Promise.all([
+          boardChannel.threads
+            .fetchActive(true)
+            .then((result) => [...result.threads.values()]),
+          boardChannel.threads
+            .fetchArchived({ type: "public", limit: 100 })
+            .then((result) => [...result.threads.values()]),
+          boardChannel.threads
+            .fetchArchived({ type: "private", limit: 100 })
+            .then((result) => [...result.threads.values()]),
+        ])
+      )
+        .flat()
+        .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime())
+        .at(0);
 
       const responseThreads = await Promise.all(
-        allThreads.map((thread) =>
-          extractThreadDetails(thread, boardChannel, guild, params.boardType),
+        [allThreads].map((thread) =>
+          extractThreadDetails(thread!, boardChannel, guild, params.boardType),
         ),
       );
-
+      writeFileSync("theads.json", JSON.stringify(responseThreads, null, 2));
       return responseThreads.filter(Boolean);
     },
     { params: t.Object({ guildId: t.String(), boardType: BoardType }) },
   )
-
   .get(
     "/api/:guildId/board/:boardType/:threadId",
     async ({ guild, params }) => {

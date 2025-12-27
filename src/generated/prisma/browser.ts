@@ -62,3 +62,8 @@ export type MemberCommandHistory = Prisma.MemberCommandHistoryModel
  * 
  */
 export type MemberDeletedMessages = Prisma.MemberDeletedMessagesModel
+/**
+ * Model VerificationProgress
+ * 
+ */
+export type VerificationProgress = Prisma.VerificationProgressModel
