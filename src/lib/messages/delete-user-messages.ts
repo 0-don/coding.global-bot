@@ -95,7 +95,13 @@ export const deleteUserMessages = async (params: {
       );
 
       await Promise.all(
-        userMessages.map((m: Message) => m.delete().catch(console.error)),
+        userMessages.map((m: Message) =>
+          m.delete().catch((error) => {
+            // Ignore "Unknown Message" errors (message already deleted)
+            if (error?.code === 10008) return;
+            console.error(`Failed to delete message ${m.id}:`, error);
+          }),
+        ),
       );
     } catch (error) {
       console.error(`Error processing channel ${channel.id}:`, error);

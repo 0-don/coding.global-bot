@@ -4,13 +4,14 @@ import { Message, ThreadChannel } from "discord.js";
 import { z } from "zod";
 import { prisma } from "../../prisma";
 import { ConfigValidator } from "../config-validator";
-import { googleClient } from "../google-client";
+import { CircuitBreakerOpen, googleClient } from "../google-client";
 import { deleteUserMessages } from "../messages/delete-user-messages";
 import { log } from "console";
 import { makeImageParts } from "../../events/ai/utils";
 
 export class SpamDetectionService {
   private static _spamDetectionWarningLogged = false;
+  private static _circuitBreakerWarningLogged = false;
 
   private static readonly SYSTEM_PROMPT = `You are a spam detector for a programming Discord server.
 
@@ -184,6 +185,20 @@ Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached
 
       return object.isSpam && object.confidence !== "low";
     } catch (error) {
+      // Handle circuit breaker - log once and skip silently
+      if (error instanceof CircuitBreakerOpen) {
+        if (!this._circuitBreakerWarningLogged) {
+          console.warn(
+            `[Spam Detection] Circuit breaker active - AI spam detection temporarily disabled`,
+          );
+          this._circuitBreakerWarningLogged = true;
+          // Reset the warning flag after circuit resets (60s + buffer)
+          setTimeout(() => {
+            this._circuitBreakerWarningLogged = false;
+          }, 65_000);
+        }
+        return false;
+      }
       console.error("Spam detection error:", error);
       return false;
     }
