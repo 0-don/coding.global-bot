@@ -6,10 +6,6 @@ function createGoogleProviders() {
     process.env.GOOGLE_GENERATIVE_AI_API_KEY?.split(",").map((k) => k.trim()) ||
     [];
 
-  if (keys.length === 0) {
-    throw new Error("No Google AI API keys configured");
-  }
-
   return keys.map((apiKey) => createGoogleGenerativeAI({ apiKey }));
 }
 
