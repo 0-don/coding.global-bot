@@ -36,5 +36,7 @@ COPY --from=builder /app/.env ./.env
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
+ENV DOCKER=true
+
 CMD bun start
 #############################################
