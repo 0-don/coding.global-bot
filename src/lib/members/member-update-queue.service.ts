@@ -1,5 +1,4 @@
 import { error, log } from "console";
-import dayjs from "dayjs";
 import { bot } from "../../main";
 import { prisma } from "../../prisma";
 import { updateCompleteMemberData } from "./member-data.service";
@@ -52,7 +51,9 @@ async function processNextItem() {
     if (isVerificationRunning(item.guildId)) return;
 
     const deleteItem = () =>
-      prisma.memberUpdateQueue.delete({ where: { id: item.id } }).catch(() => {});
+      prisma.memberUpdateQueue
+        .delete({ where: { id: item.id } })
+        .catch(() => {});
 
     const guild = bot.guilds.cache.get(item.guildId);
     if (!guild) {
