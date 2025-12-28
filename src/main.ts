@@ -60,7 +60,7 @@ export const bot = new Client({
 
 bot.once("clientReady", async () => {
   await bot.initApplicationCommands();
-  startMemberUpdateQueue();
+  process.env.DOCKER && startMemberUpdateQueue();
   log("Bot started");
 });
 
