@@ -189,8 +189,6 @@ export const app = new Elysia({ adapter: node() })
         );
       }
 
-      await boardChannel.fetch(true);
-
       const allThreads = (
         await Promise.all([
           boardChannel.threads
