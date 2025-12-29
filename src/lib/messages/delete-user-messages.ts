@@ -7,6 +7,7 @@ import {
   ThreadChannel,
   User,
 } from "discord.js";
+import { error } from "node:console";
 import { prisma } from "../../prisma";
 import { JAIL } from "../constants";
 import { RolesService } from "../roles/roles.service";
@@ -50,7 +51,7 @@ export const deleteUserMessages = async (params: {
     );
     const role = params.guild.roles.cache.get(jailRoleId);
     if (member && role?.editable)
-      await member.roles.add(jailRoleId).catch(console.error);
+      await member.roles.add(jailRoleId).catch(error);
   }
 
   const deleteMessages = async (channel: MessageChannel) => {
@@ -59,12 +60,12 @@ export const deleteUserMessages = async (params: {
       (m) => m.author.id === params.memberId,
     );
     if (userMessages.size > 0)
-      await channel.bulkDelete(userMessages).catch(console.error);
+      await channel.bulkDelete(userMessages).catch(error);
   };
 
   const processThread = async (thread: ThreadChannel) => {
     if (thread.ownerId === params.memberId)
-      return void (await thread.delete().catch(console.error));
+      return void (await thread.delete().catch(error));
     await deleteMessages(thread);
   };
 
@@ -78,7 +79,7 @@ export const deleteUserMessages = async (params: {
             (t) =>
               Promise.all(t.threads.map(processThread)) as Promise<unknown>,
           )
-          .catch(console.error) as Promise<void>,
+          .catch(error) as Promise<void>,
       );
     } else if (
       [ChannelType.GuildText, ChannelType.GuildAnnouncement].includes(
@@ -86,9 +87,7 @@ export const deleteUserMessages = async (params: {
       )
     ) {
       promises.push(
-        deleteMessages(channel as MessageChannel).catch(
-          console.error,
-        ) as Promise<void>,
+        deleteMessages(channel as MessageChannel).catch(error) as Promise<void>,
       );
     } else if (
       [ChannelType.PublicThread, ChannelType.PrivateThread].includes(
@@ -96,9 +95,7 @@ export const deleteUserMessages = async (params: {
       )
     ) {
       promises.push(
-        processThread(channel as ThreadChannel).catch(
-          console.error,
-        ) as Promise<void>,
+        processThread(channel as ThreadChannel).catch(error) as Promise<void>,
       );
     }
   }

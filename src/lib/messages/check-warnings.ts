@@ -36,7 +36,6 @@ export const checkWarnings = async (message: Message<boolean>) => {
       } catch (error) {}
     } else {
       await deleteUserMessages({
-        days: 7,
         jail: true,
         memberId: member.id,
         user: member.user,
