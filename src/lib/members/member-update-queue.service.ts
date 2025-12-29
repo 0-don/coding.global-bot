@@ -9,36 +9,18 @@ let isProcessing = false;
 
 const PROCESS_INTERVAL_MS = 100;
 
-async function queueMemberUpdateWithRetry(
-  memberId: string,
-  guildId: string,
-  priority: number,
-  retries = 3,
-): Promise<void> {
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      await prisma.memberUpdateQueue.upsert({
-        where: { memberId_guildId: { memberId, guildId } },
-        create: { memberId, guildId, priority },
-        update: { priority },
-      });
-      return;
-    } catch (err) {
-      if (attempt === retries) {
-        error(`Failed to queue member update for ${memberId}:`, err);
-        return;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 100 * attempt));
-    }
-  }
-}
-
 export function queueMemberUpdate(
   memberId: string,
   guildId: string,
   priority = 0,
 ) {
-  queueMemberUpdateWithRetry(memberId, guildId, priority);
+  prisma.memberUpdateQueue
+    .upsert({
+      where: { memberId_guildId: { memberId, guildId } },
+      create: { memberId, guildId, priority },
+      update: { priority },
+    })
+    .catch(() => {});
 }
 
 export function startMemberUpdateQueue() {
