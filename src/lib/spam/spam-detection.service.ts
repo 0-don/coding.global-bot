@@ -43,7 +43,9 @@ LEGITIMATE CONTENT:
 Provide your confidence level:
 - high: clearly spam or clearly legitimate
 - medium: some indicators present but ambiguous
-- low: uncertain, edge case`;
+- low: uncertain, edge case
+
+Also provide a brief reason (1 sentence) explaining why you classified it as spam or not.`;
 
   private static async isFirstMessage(
     memberId: string,
@@ -80,7 +82,9 @@ Provide your confidence level:
     }
   }
 
-  public static async detectSpam(message: Message): Promise<boolean> {
+  public static async detectSpamFirstMessageWithAi(
+    message: Message,
+  ): Promise<boolean> {
     if (!message.member || message.author.bot || !message.guildId) {
       return false;
     }
@@ -175,6 +179,7 @@ Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached
             schema: z.object({
               isSpam: z.boolean(),
               confidence: z.enum(["high", "medium", "low"]),
+              reason: z.string(),
             }),
           }),
           temperature: 0.1,
@@ -183,10 +188,14 @@ Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached
       const object = output;
 
       log(
-        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Spam: ${object.isSpam} - Confidence: ${object.confidence}`,
+        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Spam: ${object.isSpam} - Confidence: ${object.confidence} - Reason: ${object.reason}`,
       );
 
-      return object.isSpam && object.confidence !== "low";
+      if (object.isSpam && object.confidence !== "low") {
+        await this.handleSpam(message, object.reason);
+        return true;
+      }
+      return false;
     } catch (error) {
       // Handle circuit breaker - log once and skip silently
       if (error instanceof CircuitBreakerOpen) {
@@ -207,13 +216,17 @@ Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached
     }
   }
 
-  public static async handleSpam(message: Message): Promise<void> {
+  public static async handleSpam(
+    message: Message,
+    reason?: string,
+  ): Promise<void> {
     try {
       await deleteUserMessages({
         jail: true,
         memberId: message.author.id,
         user: message.author,
         guild: message.guild!,
+        reason: reason ?? "AI detected spam in first message",
       });
     } catch (error) {
       console.error("Error handling spam:", error);
