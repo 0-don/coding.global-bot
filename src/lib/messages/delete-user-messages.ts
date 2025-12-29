@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import {
   ChannelType,
+  ForumChannel,
   Guild,
   Message,
   NewsChannel,
@@ -70,24 +71,18 @@ export const deleteUserMessages = async (params: {
     ChannelType.PrivateThread,
   ];
 
-  for (const channel of params.guild.channels.cache.values()) {
-    if (!messageChannelTypes.includes(channel.type)) continue;
+  const forumChannelTypes = [ChannelType.GuildForum];
 
-    const messageChannel = channel as MessageChannel;
-
+  const processThread = async (thread: ThreadChannel) => {
     try {
-      // Check if this is a thread and user is the owner
-      if (channel.isThread()) {
-        const thread = channel as ThreadChannel;
-        if (thread.ownerId === params.memberId) {
-          // Delete the entire thread if user is the owner
-          await thread.delete().catch(console.error);
-          continue; // Skip message deletion since thread is deleted
-        }
+      // Delete entire thread if user is the owner
+      if (thread.ownerId === params.memberId) {
+        await thread.delete().catch(console.error);
+        return;
       }
 
       // Delete individual messages
-      const messages = await messageChannel.messages.fetch({ limit: 100 });
+      const messages = await thread.messages.fetch({ limit: 100 });
       const userMessages = messages.filter(
         (m: Message) =>
           m.author.id === params.memberId &&
@@ -97,7 +92,28 @@ export const deleteUserMessages = async (params: {
       await Promise.all(
         userMessages.map((m: Message) =>
           m.delete().catch((error) => {
-            // Ignore "Unknown Message" errors (message already deleted)
+            if (error?.code === 10008) return;
+            console.error(`Failed to delete message ${m.id}:`, error);
+          }),
+        ),
+      );
+    } catch (error) {
+      console.error(`Error processing thread ${thread.id}:`, error);
+    }
+  };
+
+  const processMessageChannel = async (channel: MessageChannel) => {
+    try {
+      const messages = await channel.messages.fetch({ limit: 100 });
+      const userMessages = messages.filter(
+        (m: Message) =>
+          m.author.id === params.memberId &&
+          dayjs(m.createdAt).isAfter(cutoffDate),
+      );
+
+      await Promise.all(
+        userMessages.map((m: Message) =>
+          m.delete().catch((error) => {
             if (error?.code === 10008) return;
             console.error(`Failed to delete message ${m.id}:`, error);
           }),
@@ -106,5 +122,37 @@ export const deleteUserMessages = async (params: {
     } catch (error) {
       console.error(`Error processing channel ${channel.id}:`, error);
     }
+  };
+
+  for (const channel of params.guild.channels.cache.values()) {
+    // Handle forum channels - fetch their threads
+    if (forumChannelTypes.includes(channel.type)) {
+      const forumChannel = channel as ForumChannel;
+      try {
+        const activeThreads = await forumChannel.threads.fetchActive();
+        const archivedThreads = await forumChannel.threads.fetchArchived();
+
+        for (const thread of activeThreads.threads.values()) {
+          await processThread(thread);
+        }
+        for (const thread of archivedThreads.threads.values()) {
+          await processThread(thread);
+        }
+      } catch (error) {
+        console.error(`Error fetching forum threads ${channel.id}:`, error);
+      }
+      continue;
+    }
+
+    if (!messageChannelTypes.includes(channel.type)) continue;
+
+    // Handle threads (from text channels)
+    if (channel.isThread()) {
+      await processThread(channel as ThreadChannel);
+      continue;
+    }
+
+    // Handle regular text/announcement channels
+    await processMessageChannel(channel as MessageChannel);
   }
 };
