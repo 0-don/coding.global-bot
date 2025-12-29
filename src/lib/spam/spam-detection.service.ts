@@ -1,13 +1,13 @@
 import { generateObject } from "ai";
+import { log } from "console";
 import dayjs from "dayjs";
 import { Message, ThreadChannel } from "discord.js";
 import { z } from "zod";
+import { makeImageParts } from "../../events/ai/utils";
 import { prisma } from "../../prisma";
 import { ConfigValidator } from "../config-validator";
 import { CircuitBreakerOpen, googleClient } from "../google-client";
 import { deleteUserMessages } from "../messages/delete-user-messages";
-import { log } from "console";
-import { makeImageParts } from "../../events/ai/utils";
 
 export class SpamDetectionService {
   private static _spamDetectionWarningLogged = false;
@@ -207,7 +207,6 @@ Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached
   public static async handleSpam(message: Message): Promise<void> {
     try {
       await deleteUserMessages({
-        days: 1,
         jail: true,
         memberId: message.author.id,
         user: message.author,

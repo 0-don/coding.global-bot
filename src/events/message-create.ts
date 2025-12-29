@@ -149,7 +149,6 @@ export class MessageCreate {
     // Take action if user has sent the same message 5 times
     if (userState.count >= 5) {
       await deleteUserMessages({
-        days: 7,
         jail: true,
         memberId: message.author.id,
         user: message.author,

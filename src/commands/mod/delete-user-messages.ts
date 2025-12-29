@@ -46,7 +46,6 @@ export class DeleteMessages {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
 
     await deleteUserMessages({
-      days: 7,
       guild: interaction.guild,
       memberId,
       jail,
