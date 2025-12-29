@@ -82,7 +82,7 @@ export const deleteUserMessages = async (params: {
           .catch(error) as Promise<void>,
       );
     } else if (
-      [ChannelType.GuildText, ChannelType.GuildAnnouncement].includes(
+      [ChannelType.GuildText, ChannelType.GuildAnnouncement, ChannelType.GuildVoice].includes(
         channel.type,
       )
     ) {
