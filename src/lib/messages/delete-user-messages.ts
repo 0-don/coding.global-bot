@@ -82,15 +82,19 @@ export const deleteUserMessages = async (params: {
           .catch(error) as Promise<void>,
       );
     } else if (
-      [ChannelType.GuildText, ChannelType.GuildAnnouncement, ChannelType.GuildVoice].includes(
-        channel.type,
-      )
+      [
+        ChannelType.GuildText,
+        ChannelType.GuildAnnouncement,
+        ChannelType.GuildVoice,
+        ChannelType.GuildStageVoice,
+        ChannelType.GuildMedia,
+      ].includes(channel.type)
     ) {
       promises.push(
         deleteMessages(channel as MessageChannel).catch(error) as Promise<void>,
       );
     } else if (
-      [ChannelType.PublicThread, ChannelType.PrivateThread].includes(
+      [ChannelType.PublicThread, ChannelType.PrivateThread, ChannelType.AnnouncementThread].includes(
         channel.type,
       )
     ) {
