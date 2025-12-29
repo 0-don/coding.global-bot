@@ -130,12 +130,8 @@ export const deleteUserMessages = async (params: {
       const forumChannel = channel as ForumChannel;
       try {
         const activeThreads = await forumChannel.threads.fetchActive();
-        const archivedThreads = await forumChannel.threads.fetchArchived();
 
         for (const thread of activeThreads.threads.values()) {
-          await processThread(thread);
-        }
-        for (const thread of archivedThreads.threads.values()) {
           await processThread(thread);
         }
       } catch (error) {
