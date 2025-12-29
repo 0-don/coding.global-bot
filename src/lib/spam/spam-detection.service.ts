@@ -1,4 +1,4 @@
-import { generateObject } from "ai";
+import { generateText, Output } from "ai";
 import { log } from "console";
 import dayjs from "dayjs";
 import { Message, ThreadChannel } from "discord.js";
@@ -155,8 +155,8 @@ Provide your confidence level:
 
 Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached image(s) for spam indicators like portfolio screenshots, service advertisements, promotional graphics, or other spam-related visual content." : ""}`;
 
-      const { object } = await googleClient.executeWithRotation(async () => {
-        return await generateObject({
+      const { output } = await googleClient.executeWithRotation(async () => {
+        return await generateText({
           model: googleClient.getModel(),
           system: this.SYSTEM_PROMPT,
           messages: [
@@ -171,13 +171,16 @@ Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached
               ],
             },
           ],
-          schema: z.object({
-            isSpam: z.boolean(),
-            confidence: z.enum(["high", "medium", "low"]),
+          output: Output.object({
+            schema: z.object({
+              isSpam: z.boolean(),
+              confidence: z.enum(["high", "medium", "low"]),
+            }),
           }),
           temperature: 0.1,
         });
       });
+      const object = output;
 
       log(
         `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Spam: ${object.isSpam} - Confidence: ${object.confidence}`,
