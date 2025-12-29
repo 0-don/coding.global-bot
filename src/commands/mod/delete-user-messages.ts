@@ -35,6 +35,13 @@ export class DeleteMessages {
       type: ApplicationCommandOptionType.Boolean,
     })
     jail: boolean = false,
+    @SlashOption({
+      name: "reason",
+      description: "Reason for jailing (shown in jail channel)",
+      type: ApplicationCommandOptionType.String,
+      required: false,
+    })
+    reason: string | undefined,
     interaction: CommandInteraction,
   ) {
     LogService.logCommandHistory(interaction, "delete-user-messages");
@@ -50,6 +57,7 @@ export class DeleteMessages {
       memberId,
       jail,
       user,
+      reason: reason ?? "Manual moderation",
     });
 
     // notify that messages were deleted

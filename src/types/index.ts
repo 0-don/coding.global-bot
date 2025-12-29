@@ -1,4 +1,3 @@
-import { Message } from "discord.js";
 import { GuildVoiceEvents, MemberMessages } from "../generated/prisma/client";
 import type { STATUS_ROLES } from "../lib/constants";
 
@@ -61,13 +60,6 @@ export type ToptatsExampleEmbed = {
   mostActiveVoiceChannels: { channelId: string; sum: number }[];
   lookback: number;
 };
-
-export interface UserState {
-  count: number;
-  lastMessage: Message | null;
-  same?: boolean;
-  recentLinks: Map<string, Set<string>>;
-}
 
 export type Commands =
   | "troll-move-user"

@@ -40,6 +40,7 @@ export const checkWarnings = async (message: Message<boolean>) => {
         memberId: member.id,
         user: member.user,
         guild: message.guild,
+        reason: `Posted Discord invite links (${currentWarnings} warnings)`,
       });
 
       try {

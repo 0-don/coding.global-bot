@@ -1,5 +1,6 @@
 import {
   ChannelType,
+  EmbedBuilder,
   ForumChannel,
   Guild,
   NewsChannel,
@@ -9,16 +10,67 @@ import {
 } from "discord.js";
 import { error } from "node:console";
 import { prisma } from "../../prisma";
-import { JAIL } from "../constants";
+import { BOT_ICON, JAIL, RED_COLOR } from "../constants";
 import { RolesService } from "../roles/roles.service";
 
 type MessageChannel = TextChannel | NewsChannel | ThreadChannel;
+
+const sendJailNotification = async (params: {
+  guild: Guild;
+  user: User | null;
+  memberId: string;
+  reason?: string;
+}) => {
+  // Find jail channel (channel with "jail" in name)
+  const jailChannel = params.guild.channels.cache.find(
+    (ch) =>
+      ch.type === ChannelType.GuildText &&
+      ch.name.toLowerCase().includes("jail"),
+  ) as TextChannel | undefined;
+
+  if (!jailChannel) return;
+
+  // Get user info from DB for fallback
+  const dbMember = await prisma.member.findUnique({
+    where: { memberId: params.memberId },
+    include: {
+      guilds: {
+        where: { guildId: params.guild.id },
+        take: 1,
+      },
+    },
+  });
+
+  const displayName =
+    dbMember?.guilds[0]?.displayName ||
+    dbMember?.globalName ||
+    dbMember?.username ||
+    "Unknown";
+  const username = dbMember?.username || "Unknown";
+
+  const embed = new EmbedBuilder()
+    .setColor(RED_COLOR ?? 0xff0000)
+    .setTitle("User Jailed")
+    .setDescription(
+      [
+        `**User:** <@${params.memberId}>`,
+        `**Username:** ${displayName} (${username})`,
+        `**Member ID:** ${params.memberId}`,
+        `**Reason:** ${params.reason || "No reason provided"}`,
+      ].join("\n"),
+    )
+    .setTimestamp()
+    .setFooter({ text: "Jail System", iconURL: BOT_ICON });
+
+  await jailChannel.send({ embeds: [embed] }).catch(error);
+};
 
 export const deleteUserMessages = async (params: {
   guild: Guild;
   user: User | null;
   memberId: string;
   jail: string | number | boolean;
+  reason?: string;
 }) => {
   if (params.jail) {
     const jailRoleId = RolesService.getGuildStatusRoles(params.guild)[JAIL]?.id;
@@ -52,6 +104,9 @@ export const deleteUserMessages = async (params: {
     const role = params.guild.roles.cache.get(jailRoleId);
     if (member && role?.editable)
       await member.roles.add(jailRoleId).catch(error);
+
+    // Send notification to jail channel
+    await sendJailNotification(params);
   }
 
   const deleteMessages = async (channel: MessageChannel) => {
