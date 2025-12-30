@@ -246,11 +246,14 @@ export const app = new Elysia({ adapter: node() })
       if (query.after) {
         fetchOptions.after = query.after;
       } else {
-        const starterMessage = await thread.fetchStarterMessage();
+        const starterMessage = await thread
+          .fetchStarterMessage()
+          .catch(() => null);
         if (starterMessage) fetchOptions.after = starterMessage.id;
       }
 
       const allMessages = await thread.messages.fetch(fetchOptions);
+
       const filteredMessages = Array.from(allMessages.values()).filter(
         (msg) => msg.id !== thread.id,
       );
