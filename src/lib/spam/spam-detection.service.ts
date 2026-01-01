@@ -6,12 +6,11 @@ import { z } from "zod";
 import { makeImageParts } from "../../events/ai/utils";
 import { prisma } from "../../prisma";
 import { ConfigValidator } from "../config-validator";
-import { CircuitBreakerOpen, googleClient } from "../google-client";
+import { googleClient } from "../google-client";
 import { deleteUserMessages } from "../messages/delete-user-messages";
 
 export class SpamDetectionService {
   private static _spamDetectionWarningLogged = false;
-  private static _circuitBreakerWarningLogged = false;
 
   private static readonly SYSTEM_PROMPT = `You are a spam detector for a programming Discord server.
 
@@ -159,7 +158,7 @@ Also provide a brief reason (1 sentence) explaining why you classified it as spa
 
 Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached image(s) for spam indicators like portfolio screenshots, service advertisements, promotional graphics, or other spam-related visual content." : ""}`;
 
-      const { output } = await googleClient.executeWithRotation(async () => {
+      const result = await googleClient.executeWithRotation(async () => {
         return await generateText({
           model: googleClient.getModel(),
           system: this.SYSTEM_PROMPT,
@@ -185,7 +184,12 @@ Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached
           temperature: 0.1,
         });
       });
-      const object = output;
+
+      if (!result) {
+        return false;
+      }
+
+      const object = result.output;
 
       log(
         `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Spam: ${object.isSpam} - Confidence: ${object.confidence} - Reason: ${object.reason}`,
@@ -197,20 +201,6 @@ Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached
       }
       return false;
     } catch (error) {
-      // Handle circuit breaker - log once and skip silently
-      if (error instanceof CircuitBreakerOpen) {
-        if (!this._circuitBreakerWarningLogged) {
-          console.warn(
-            `[Spam Detection] Circuit breaker active - AI spam detection temporarily disabled`,
-          );
-          this._circuitBreakerWarningLogged = true;
-          // Reset the warning flag after circuit resets (60s + buffer)
-          setTimeout(() => {
-            this._circuitBreakerWarningLogged = false;
-          }, 65_000);
-        }
-        return false;
-      }
       console.error("Spam detection error:", error);
       return false;
     }

@@ -90,18 +90,21 @@ export class AiChat {
 
       messages.push(userMessage);
 
-      const { text, steps } = await googleClient.executeWithRotation(
-        async () => {
-          return await generateText({
-            model: googleClient.getModel(),
-            system: AI_SYSTEM_PROMPT,
-            messages: [...messages],
-            tools: TOOLS,
-            maxOutputTokens: 500,
-          });
-        },
-      );
+      const result = await googleClient.executeWithRotation(async () => {
+        return await generateText({
+          model: googleClient.getModel(),
+          system: AI_SYSTEM_PROMPT,
+          messages: [...messages],
+          tools: TOOLS,
+          maxOutputTokens: 500,
+        });
+      });
 
+      if (!result) {
+        return;
+      }
+
+      const { text, steps } = result;
       const responseText = text?.trim();
       // if (!responseText) {
       //   console.warn("AI generated empty response, using fallback");
