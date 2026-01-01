@@ -8,6 +8,7 @@ import {
   PermissionsBitField,
 } from "discord.js";
 import { Elysia, status, t } from "elysia";
+import { Cache } from "./cache";
 import { Prisma } from "./generated/prisma/client";
 import { bot } from "./main";
 import { prisma } from "./prisma";
@@ -22,7 +23,10 @@ import {
   ThreadParams,
 } from "./server/server";
 
-const CACHE: Record<string, { timestamp: number; data: unknown }> = {};
+export const cache = new Cache({
+  ttl: CACHE_TTL,
+  max: 1000,
+});
 
 export const app = new Elysia({ adapter: node() })
   .use(
@@ -59,13 +63,10 @@ export const app = new Elysia({ adapter: node() })
   })
   .onBeforeHandle(({ cacheKey }) => {
     if (!cacheKey) return;
-    const cached = CACHE[cacheKey];
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
-    if (cached) delete CACHE[cacheKey];
+    return cache.get(cacheKey);
   })
   .onAfterHandle(({ cacheKey, responseValue }) => {
-    if (cacheKey)
-      CACHE[cacheKey] = { timestamp: Date.now(), data: responseValue };
+    if (cacheKey) cache.set(cacheKey, responseValue);
   })
   .get(
     "/api/:guildId/staff",
