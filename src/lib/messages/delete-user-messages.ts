@@ -76,6 +76,12 @@ export const deleteUserMessages = async (params: {
     const jailRoleId = RolesService.getGuildStatusRoles(params.guild)[JAIL]?.id;
     if (!jailRoleId) return;
 
+    // Check if user already has jail role - skip notification if they do
+    const member = params.guild.members.cache.get(
+      params.user?.id || params.memberId,
+    );
+    const alreadyJailed = member?.roles.cache.has(jailRoleId);
+
     await prisma.$transaction(async (tx) => {
       await tx.member.upsert({
         where: { memberId: params.memberId },
@@ -98,15 +104,14 @@ export const deleteUserMessages = async (params: {
       });
     });
 
-    const member = params.guild.members.cache.get(
-      params.user?.id || params.memberId,
-    );
     const role = params.guild.roles.cache.get(jailRoleId);
     if (member && role?.editable)
       await member.roles.add(jailRoleId).catch(error);
 
-    // Send notification to jail channel
-    await sendJailNotification(params);
+    // Send notification to jail channel only if user wasn't already jailed
+    if (!alreadyJailed) {
+      await sendJailNotification(params);
+    }
   }
 
   const deleteMessages = async (channel: MessageChannel) => {
