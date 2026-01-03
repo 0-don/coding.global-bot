@@ -1,9 +1,12 @@
 import { createHash } from "crypto";
 import { Attachment, Message } from "discord.js";
+import { prisma } from "../../prisma";
 import { deleteUserMessages } from "../messages/delete-user-messages";
 
-const DUPLICATE_THRESHOLD = 5;
-const CHANNEL_SPAM_THRESHOLD = 10;
+const DUPLICATE_WARNING_THRESHOLD = 3; // Start warning at 3rd duplicate
+const DUPLICATE_JAIL_THRESHOLD = 4; // Jail at 4th duplicate
+const CHANNEL_WARNING_THRESHOLD = 8; // Start warning at 8th channel
+const CHANNEL_JAIL_THRESHOLD = 10; // Jail at 10th channel
 const CHANNEL_SPAM_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 
 interface UserState {
@@ -118,24 +121,89 @@ export async function checkDuplicateSpam(message: Message): Promise<boolean> {
     recentChannels,
   });
 
-  // Check for spam: duplicate messages OR too many channels
-  const isDuplicateSpam = count >= DUPLICATE_THRESHOLD;
-  const isChannelSpam = uniqueChannels >= CHANNEL_SPAM_THRESHOLD;
+  // Check for duplicate spam warning/jail thresholds
+  const shouldWarnDuplicate = count >= DUPLICATE_WARNING_THRESHOLD;
+  const shouldJailDuplicate = count >= DUPLICATE_JAIL_THRESHOLD;
 
-  if (isDuplicateSpam || isChannelSpam) {
-    const reason = isDuplicateSpam
-      ? `Sent ${count} duplicate messages`
-      : `Posted in ${uniqueChannels} channels within 10 minutes`;
+  // Check for channel spam warning/jail thresholds
+  const shouldWarnChannelSpam = uniqueChannels >= CHANNEL_WARNING_THRESHOLD;
+  const shouldJailChannelSpam = uniqueChannels >= CHANNEL_JAIL_THRESHOLD;
 
-    await deleteUserMessages({
-      jail: true,
-      memberId: message.author.id,
-      user: message.author,
-      guild: message.guild!,
-      reason,
-    });
+  // Handle duplicate message spam
+  if (shouldWarnDuplicate || shouldJailDuplicate) {
+    if (!message.guild) return false;
 
-    userStates.delete(userId);
+    // Delete the spam message
+    await message.delete().catch(() => {});
+
+    if (shouldJailDuplicate) {
+      const reason = `Sent ${count} duplicate messages`;
+
+      await deleteUserMessages({
+        jail: true,
+        memberId: message.author.id,
+        user: message.author,
+        guild: message.guild,
+        reason,
+      });
+
+      try {
+        await message.author.send("You have been muted. Ask a mod to unmute you.");
+      } catch (error) {
+        // User has DMs disabled, ignore
+      }
+
+      userStates.delete(userId);
+    } else {
+      // Send warning
+      const warningMessage = `Stop posting duplicate messages. This is warning ${count - DUPLICATE_WARNING_THRESHOLD + 1}, you will be muted at ${DUPLICATE_JAIL_THRESHOLD - DUPLICATE_WARNING_THRESHOLD + 1} warnings.`;
+
+      try {
+        await message.author.send(warningMessage);
+      } catch (error) {
+        // User has DMs disabled, ignore
+      }
+    }
+
+    return true;
+  }
+
+  // Handle channel spam
+  if (shouldWarnChannelSpam || shouldJailChannelSpam) {
+    if (!message.guild) return false;
+
+    // Delete the spam message
+    await message.delete().catch(() => {});
+
+    if (shouldJailChannelSpam) {
+      const reason = `Posted in ${uniqueChannels} channels within 10 minutes`;
+
+      await deleteUserMessages({
+        jail: true,
+        memberId: message.author.id,
+        user: message.author,
+        guild: message.guild,
+        reason,
+      });
+
+      try {
+        await message.author.send("You have been muted. Ask a mod to unmute you.");
+      } catch (error) {
+        // User has DMs disabled, ignore
+      }
+
+      userStates.delete(userId);
+    } else {
+      // Send warning
+      const warningMessage = `Stop posting in multiple channels rapidly. This is warning ${uniqueChannels - CHANNEL_WARNING_THRESHOLD + 1}, you will be muted at ${CHANNEL_JAIL_THRESHOLD - CHANNEL_WARNING_THRESHOLD + 1} warnings.`;
+
+      try {
+        await message.author.send(warningMessage);
+      } catch (error) {
+        // User has DMs disabled, ignore
+      }
+    }
+
     return true;
   }
 
