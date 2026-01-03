@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/0-don/coding.global-bot">
-    <img src="https://raw.githubusercontent.com/0-don/coding.global-web/master/public/images/logo_512.gif" alt="Logo" width="80" height="80">
+    <img src="https://raw.githubusercontent.com/0-don/coding.global-web/master/public/images/logo.gif" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">coding.global Discord Bot!</h3>
