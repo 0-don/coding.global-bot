@@ -200,18 +200,24 @@ export const app = new Elysia({ adapter: node() })
 
       return {
         ...stats,
-        mostActiveMessageUsers: stats.mostActiveMessageUsers.map((user) => ({
-          ...userMap.get(user.memberId),
-          count: user.count,
-        })),
-        mostHelpfulUsers: stats.mostHelpfulUsers.map((user) => ({
-          ...userMap.get(user.memberId),
-          count: user.count,
-        })),
-        mostActiveVoiceUsers: stats.mostActiveVoiceUsers.map((user) => ({
-          ...userMap.get(user.memberId),
-          sum: user.sum,
-        })),
+        mostActiveMessageUsers: stats.mostActiveMessageUsers
+          .filter((user) => userMap.has(user.memberId))
+          .map((user) => ({
+            ...userMap.get(user.memberId),
+            count: user.count,
+          })),
+        mostHelpfulUsers: stats.mostHelpfulUsers
+          .filter((user) => userMap.has(user.memberId))
+          .map((user) => ({
+            ...userMap.get(user.memberId),
+            count: user.count,
+          })),
+        mostActiveVoiceUsers: stats.mostActiveVoiceUsers
+          .filter((user) => userMap.has(user.memberId))
+          .map((user) => ({
+            ...userMap.get(user.memberId),
+            sum: user.sum,
+          })),
       };
     },
     {
