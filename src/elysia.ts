@@ -177,9 +177,29 @@ export const app = new Elysia({ adapter: node() })
     "/api/:guildId/board/:boardType",
     async ({ guild, params }) => {
       const channels = await guild.channels.fetch();
-      const boardChannel = channels.find((ch) =>
-        ch?.name.toLowerCase().includes(params.boardType.toLowerCase()),
-      );
+      const boardType = params.boardType.toLowerCase();
+      const boardChannel = channels.find((ch) => {
+        if (!ch) return false;
+        const name = ch.name.toLowerCase();
+        // Exact match
+        if (name === boardType) return true;
+        // Check if channel name ends with the boardType (handles emoji prefixes like "💬│c")
+        if (name.endsWith(boardType)) {
+          // Make sure it's not a partial match (e.g., "c" shouldn't match "c++" or "c#")
+          const charBefore = name[name.length - boardType.length - 1];
+          // Valid if there's no char before, or it's not alphanumeric
+          return !charBefore || !/[a-z0-9]/.test(charBefore);
+        }
+        // For longer names with separators, check includes but verify word boundaries
+        const idx = name.indexOf(boardType);
+        if (idx === -1) return false;
+        const charAfter = name[idx + boardType.length];
+        const charBefore = name[idx - 1];
+        // Valid match if boardType is at word boundary (not followed by alphanumeric)
+        const validEnd = !charAfter || !/[a-z0-9]/.test(charAfter);
+        const validStart = idx === 0 || !/[a-z0-9]/.test(charBefore);
+        return validStart && validEnd;
+      });
 
       if (!boardChannel)
         throw status("Not Found", `${params.boardType} channel not found`);
