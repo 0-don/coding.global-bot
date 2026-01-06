@@ -64,12 +64,17 @@ bot.once("clientReady", async () => {
   log("Bot started");
 });
 
-bot.on(
-  "interactionCreate",
-  (interaction) => void bot.executeInteraction(interaction),
-);
+bot.on("interactionCreate", (interaction) => {
+  // Ignore DMs - only work in guild (server)
+  if (!interaction.guild) return;
+  void bot.executeInteraction(interaction);
+});
 
-bot.on("messageCreate", (message) => void bot.executeCommand(message));
+bot.on("messageCreate", (message) => {
+  // Ignore DMs - only work in guild (server)
+  if (!message.guild) return;
+  void bot.executeCommand(message);
+});
 
 bot.on(
   "messageReactionAdd",
