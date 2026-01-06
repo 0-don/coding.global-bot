@@ -181,7 +181,38 @@ export const app = new Elysia({ adapter: node() })
       const limit = query.limit ? Math.min(Math.max(1, query.limit), 10) : 5;
       const days = query.days ?? 9999;
       const stats = await StatsService.getTopStats(params.guildId, days, limit);
-      return stats;
+
+      // Collect all unique user IDs to resolve
+      const allUserIds = [
+        ...new Set([
+          ...stats.mostActiveMessageUsers.map((u) => u.memberId),
+          ...stats.mostHelpfulUsers.map((u) => u.memberId),
+          ...stats.mostActiveVoiceUsers.map((u) => u.memberId),
+        ]),
+      ];
+
+      // Resolve users with Discord data (avatars, display names)
+      const resolvedUsers = await parseMultipleUsersWithRoles(
+        allUserIds,
+        params.guildId,
+      );
+      const userMap = new Map(resolvedUsers.map((u) => [u.id, u]));
+
+      return {
+        ...stats,
+        mostActiveMessageUsers: stats.mostActiveMessageUsers.map((user) => ({
+          ...userMap.get(user.memberId),
+          count: user.count,
+        })),
+        mostHelpfulUsers: stats.mostHelpfulUsers.map((user) => ({
+          ...userMap.get(user.memberId),
+          count: user.count,
+        })),
+        mostActiveVoiceUsers: stats.mostActiveVoiceUsers.map((user) => ({
+          ...userMap.get(user.memberId),
+          sum: user.sum,
+        })),
+      };
     },
     {
       params: t.Object({ guildId: t.String() }),

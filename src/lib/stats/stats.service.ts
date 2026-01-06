@@ -16,6 +16,8 @@ export class StatsService {
       mostActiveMessageChannels,
       mostActiveVoiceUsers,
       mostActiveVoiceChannels,
+      totalMessagesResult,
+      totalVoiceHoursResult,
     ] = await Promise.all([
       prisma.$queryRaw`
         SELECT "MemberMessages"."memberId", "Member"."username", count("MemberMessages"."memberId")
@@ -78,6 +80,27 @@ export class StatsService {
         GROUP BY "channelId"
         ORDER BY "sum" DESC
         LIMIT ${limit}` as Promise<{ channelId: string; sum: number }[]>,
+
+      // Total messages count (all, not limited)
+      prisma.$queryRaw`
+        SELECT count(*) as total
+        FROM "MemberMessages"
+        WHERE "guildId" = ${guildId}
+        AND "createdAt" > (NOW() - ${`${lastDaysCount} days`}::interval)` as Promise<
+        [{ total: bigint }]
+      >,
+
+      // Total voice hours (all, not limited)
+      prisma.$queryRaw`
+        SELECT COALESCE(SUM(difference), 0) AS total
+        FROM (
+            SELECT
+            EXTRACT(EPOCH FROM (COALESCE("leave", CURRENT_TIMESTAMP) - "join")) AS difference
+            FROM "GuildVoiceEvents"
+            WHERE "guildId" = ${guildId}
+            AND "join" > (NOW() - ${`${lastDaysCount} days`}::interval)) AS t` as Promise<
+        [{ total: number }]
+      >,
     ]);
 
     return {
@@ -101,6 +124,10 @@ export class StatsService {
         ...channel,
         sum: Number((channel.sum / 60 / 60).toFixed(2)),
       })),
+      totalMessages: Number(totalMessagesResult[0]?.total ?? 0),
+      totalVoiceHours: Number(
+        ((totalVoiceHoursResult[0]?.total ?? 0) / 60 / 60).toFixed(0),
+      ),
       lookback: lastDaysCount,
     };
   }
