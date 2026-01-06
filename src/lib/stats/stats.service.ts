@@ -7,9 +7,8 @@ import { topStatsExampleEmbed, userStatsExampleEmbed } from "../embeds";
 import { getDaysArray } from "../helpers";
 
 export class StatsService {
-  static async topStatsEmbed(guildId: string, lastDaysCount: number = 9999) {
-    const limit = 10;
-
+  // Returns raw data for API usage
+  static async getTopStats(guildId: string, lastDaysCount: number = 9999, limit: number = 10) {
     // Execute all queries in parallel
     const [
       mostActiveMessageUsers,
@@ -19,37 +18,37 @@ export class StatsService {
       mostActiveVoiceChannels,
     ] = await Promise.all([
       prisma.$queryRaw`
-        SELECT "MemberMessages"."memberId", "Member"."username", count("MemberMessages"."memberId") 
+        SELECT "MemberMessages"."memberId", "Member"."username", count("MemberMessages"."memberId")
         FROM "MemberMessages"
-        LEFT JOIN "Member" ON "Member"."memberId" = "MemberMessages"."memberId" 
+        LEFT JOIN "Member" ON "Member"."memberId" = "MemberMessages"."memberId"
         WHERE "MemberMessages"."guildId" = ${guildId}
         AND "MemberMessages"."createdAt" > (NOW() - ${`${lastDaysCount} days`}::interval)
-        GROUP BY "MemberMessages"."memberId", "Member"."username" 
-        ORDER BY count(*) DESC 
+        GROUP BY "MemberMessages"."memberId", "Member"."username"
+        ORDER BY count(*) DESC
         LIMIT ${limit}` as Promise<
-        [{ memberId: string; count: number; username: string }]
+        { memberId: string; count: bigint; username: string }[]
       >,
 
       prisma.$queryRaw`
         SELECT "MemberHelper"."memberId", "Member"."username", count(*)
         FROM "MemberHelper"
-        LEFT JOIN "Member" ON "Member"."memberId" = "MemberHelper"."memberId" 
+        LEFT JOIN "Member" ON "Member"."memberId" = "MemberHelper"."memberId"
         WHERE "MemberHelper"."guildId" = ${guildId}
         AND "MemberHelper"."createdAt" > (NOW() - ${`${lastDaysCount} days`}::interval)
         GROUP BY "MemberHelper"."memberId", "Member"."username"
         ORDER BY count(*) DESC
         LIMIT ${limit}` as Promise<
-        [{ memberId: string; count: number; username: string }]
+        { memberId: string; count: bigint; username: string }[]
       >,
 
       prisma.$queryRaw`
-        SELECT "channelId", count(*) 
-        FROM "MemberMessages" 
+        SELECT "channelId", count(*)
+        FROM "MemberMessages"
         WHERE "guildId" = ${guildId}
         AND "createdAt" > (NOW() - ${`${lastDaysCount} days`}::interval)
-        GROUP BY "channelId" 
-        ORDER BY count(*) DESC 
-        LIMIT ${limit}` as Promise<[{ channelId: string; count: number }]>,
+        GROUP BY "channelId"
+        ORDER BY count(*) DESC
+        LIMIT ${limit}` as Promise<{ channelId: string; count: bigint }[]>,
 
       prisma.$queryRaw`
         SELECT t."memberId", "Member"."username", SUM(difference) AS sum
@@ -64,7 +63,7 @@ export class StatsService {
         GROUP BY t."memberId", "Member"."username"
         ORDER BY "sum" DESC
         LIMIT ${limit}` as Promise<
-        [{ memberId: string; username: string; sum: number }]
+        { memberId: string; username: string; sum: number }[]
       >,
 
       prisma.$queryRaw`
@@ -78,13 +77,22 @@ export class StatsService {
             AND "join" > (NOW() - ${`${lastDaysCount} days`}::interval)) AS t
         GROUP BY "channelId"
         ORDER BY "sum" DESC
-        LIMIT ${limit}` as Promise<[{ channelId: string; sum: number }]>,
+        LIMIT ${limit}` as Promise<{ channelId: string; sum: number }[]>,
     ]);
 
-    return topStatsExampleEmbed({
-      mostActiveMessageUsers,
-      mostActiveMessageChannels,
-      mostHelpfulUsers,
+    return {
+      mostActiveMessageUsers: mostActiveMessageUsers.map((user) => ({
+        ...user,
+        count: Number(user.count),
+      })),
+      mostHelpfulUsers: mostHelpfulUsers.map((user) => ({
+        ...user,
+        count: Number(user.count),
+      })),
+      mostActiveMessageChannels: mostActiveMessageChannels.map((channel) => ({
+        ...channel,
+        count: Number(channel.count),
+      })),
       mostActiveVoiceUsers: mostActiveVoiceUsers.map((user) => ({
         ...user,
         sum: Number((user.sum / 60 / 60).toFixed(2)),
@@ -94,7 +102,13 @@ export class StatsService {
         sum: Number((channel.sum / 60 / 60).toFixed(2)),
       })),
       lookback: lastDaysCount,
-    });
+    };
+  }
+
+  // Returns embed for Discord bot usage
+  static async topStatsEmbed(guildId: string, lastDaysCount: number = 9999) {
+    const data = await this.getTopStats(guildId, lastDaysCount);
+    return topStatsExampleEmbed(data);
   }
 
   static async userStatsEmbed(
