@@ -1,6 +1,7 @@
 import { AnyThreadChannel, ForumChannel, Guild, Message } from "discord.js";
 import { Static, status, t } from "elysia";
 import { Prisma } from "../generated/prisma/client";
+import { StatsService } from "../lib/stats/stats.service";
 import { prisma } from "../prisma";
 
 export const PAGE_LIMIT = 100;
@@ -372,5 +373,48 @@ export async function extractThreadDetails(
     invitable: thread.invitable,
     rateLimitPerUser: thread.rateLimitPerUser,
     flags: thread.flags.bitfield,
+  };
+}
+
+export async function getTopStatsWithUsers(
+  guildId: string,
+  days: number,
+  limit: number,
+) {
+  const stats = await StatsService.getTopStats(guildId, days, limit);
+
+  // Collect all unique user IDs to resolve
+  const allUserIds = [
+    ...new Set([
+      ...stats.mostActiveMessageUsers.map((u) => u.memberId),
+      ...stats.mostHelpfulUsers.map((u) => u.memberId),
+      ...stats.mostActiveVoiceUsers.map((u) => u.memberId),
+    ]),
+  ];
+
+  // Resolve users with Discord data (avatars, display names)
+  const resolvedUsers = await parseMultipleUsersWithRoles(allUserIds, guildId);
+  const userMap = new Map(resolvedUsers.map((u) => [u.id, u]));
+
+  return {
+    ...stats,
+    mostActiveMessageUsers: stats.mostActiveMessageUsers
+      .filter((user) => userMap.has(user.memberId))
+      .map((user) => ({
+        ...userMap.get(user.memberId),
+        count: user.count,
+      })),
+    mostHelpfulUsers: stats.mostHelpfulUsers
+      .filter((user) => userMap.has(user.memberId))
+      .map((user) => ({
+        ...userMap.get(user.memberId),
+        count: user.count,
+      })),
+    mostActiveVoiceUsers: stats.mostActiveVoiceUsers
+      .filter((user) => userMap.has(user.memberId))
+      .map((user) => ({
+        ...userMap.get(user.memberId),
+        sum: user.sum,
+      })),
   };
 }

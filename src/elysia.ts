@@ -10,7 +10,6 @@ import {
 import { Elysia, status, t } from "elysia";
 import { Cache } from "./cache";
 import { Prisma } from "./generated/prisma/client";
-import { StatsService } from "./lib/stats/stats.service";
 import { bot } from "./main";
 import { prisma } from "./prisma";
 import {
@@ -18,6 +17,7 @@ import {
   CACHE_TTL,
   extractThreadDetails,
   fetchThreadFromGuild,
+  getTopStatsWithUsers,
   PAGE_LIMIT,
   parseMessage,
   parseMultipleUsersWithRoles,
@@ -180,45 +180,7 @@ export const app = new Elysia({ adapter: node() })
     async ({ params, query }) => {
       const limit = query.limit ? Math.min(Math.max(1, query.limit), 10) : 5;
       const days = query.days ?? 9999;
-      const stats = await StatsService.getTopStats(params.guildId, days, limit);
-
-      // Collect all unique user IDs to resolve
-      const allUserIds = [
-        ...new Set([
-          ...stats.mostActiveMessageUsers.map((u) => u.memberId),
-          ...stats.mostHelpfulUsers.map((u) => u.memberId),
-          ...stats.mostActiveVoiceUsers.map((u) => u.memberId),
-        ]),
-      ];
-
-      // Resolve users with Discord data (avatars, display names)
-      const resolvedUsers = await parseMultipleUsersWithRoles(
-        allUserIds,
-        params.guildId,
-      );
-      const userMap = new Map(resolvedUsers.map((u) => [u.id, u]));
-
-      return {
-        ...stats,
-        mostActiveMessageUsers: stats.mostActiveMessageUsers
-          .filter((user) => userMap.has(user.memberId))
-          .map((user) => ({
-            ...userMap.get(user.memberId),
-            count: user.count,
-          })),
-        mostHelpfulUsers: stats.mostHelpfulUsers
-          .filter((user) => userMap.has(user.memberId))
-          .map((user) => ({
-            ...userMap.get(user.memberId),
-            count: user.count,
-          })),
-        mostActiveVoiceUsers: stats.mostActiveVoiceUsers
-          .filter((user) => userMap.has(user.memberId))
-          .map((user) => ({
-            ...userMap.get(user.memberId),
-            sum: user.sum,
-          })),
-      };
+      return getTopStatsWithUsers(params.guildId, days, limit);
     },
     {
       params: t.Object({ guildId: t.String() }),
@@ -233,28 +195,11 @@ export const app = new Elysia({ adapter: node() })
     async ({ guild, params }) => {
       const channels = await guild.channels.fetch();
       const boardType = params.boardType.toLowerCase();
-      const boardChannel = channels.find((ch) => {
-        if (!ch) return false;
-        const name = ch.name.toLowerCase();
-        // Exact match
-        if (name === boardType) return true;
-        // Check if channel name ends with the boardType (handles emoji prefixes like "💬│c")
-        if (name.endsWith(boardType)) {
-          // Make sure it's not a partial match (e.g., "c" shouldn't match "c++" or "c#")
-          const charBefore = name[name.length - boardType.length - 1];
-          // Valid if there's no char before, or it's not alphanumeric
-          return !charBefore || !/[a-z0-9]/.test(charBefore);
-        }
-        // For longer names with separators, check includes but verify word boundaries
-        const idx = name.indexOf(boardType);
-        if (idx === -1) return false;
-        const charAfter = name[idx + boardType.length];
-        const charBefore = name[idx - 1];
-        // Valid match if boardType is at word boundary (not followed by alphanumeric)
-        const validEnd = !charAfter || !/[a-z0-9]/.test(charAfter);
-        const validStart = idx === 0 || !/[a-z0-9]/.test(charBefore);
-        return validStart && validEnd;
-      });
+      // Match exact name or pattern like "💬│boardType" (word boundary check for short names like "c")
+      const pattern = new RegExp(`(^|[^a-z0-9])${boardType}$`, "i");
+      const boardChannel = channels.find(
+        (ch) => ch && pattern.test(ch.name.toLowerCase()),
+      );
 
       if (!boardChannel)
         throw status("Not Found", `${params.boardType} channel not found`);
