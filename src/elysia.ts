@@ -10,6 +10,7 @@ import {
 import { Elysia, status, t } from "elysia";
 import { Cache } from "./cache";
 import { Prisma } from "./generated/prisma/client";
+import { StatsService } from "./lib/stats/stats.service";
 import { bot } from "./main";
 import { prisma } from "./prisma";
 import {
@@ -172,6 +173,23 @@ export const app = new Elysia({ adapter: node() })
       };
     },
     { params: t.Object({ guildId: t.String() }) },
+  )
+
+  .get(
+    "/api/:guildId/top-stats",
+    async ({ params, query }) => {
+      const limit = query.limit ? Math.min(Math.max(1, query.limit), 10) : 5;
+      const days = query.days ?? 9999;
+      const stats = await StatsService.getTopStats(params.guildId, days, limit);
+      return stats;
+    },
+    {
+      params: t.Object({ guildId: t.String() }),
+      query: t.Object({
+        limit: t.Optional(t.Number()),
+        days: t.Optional(t.Number()),
+      }),
+    },
   )
   .get(
     "/api/:guildId/board/:boardType",
