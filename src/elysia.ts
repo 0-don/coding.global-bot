@@ -163,9 +163,9 @@ export const app = new Elysia({ adapter: node() })
       });
 
       const widget = {
+        members,
         id: guild.id,
         name: guild.name,
-        members,
         presenceCount,
         memberCount: guild.memberCount,
         iconURL: guild.iconURL({ extension: "webp", size: 256 }),
