@@ -162,7 +162,7 @@ export const app = new Elysia({ adapter: node() })
         },
       });
 
-      return {
+      const widget = {
         id: guild.id,
         name: guild.name,
         members,
@@ -171,6 +171,10 @@ export const app = new Elysia({ adapter: node() })
         iconURL: guild.iconURL({ extension: "webp", size: 256 }),
         bannerURL: guild.bannerURL({ extension: "webp", size: 1024 }),
       };
+
+      console.log("Widget Data Fetched for Guild ID:", params.guildId, widget);
+
+      return widget;
     },
     { params: t.Object({ guildId: t.String() }) },
   )
