@@ -4,7 +4,7 @@ import { prisma } from "../../prisma";
 import { deleteUserMessages } from "../messages/delete-user-messages";
 
 const DUPLICATE_WARNING_THRESHOLD = 3; // Start warning at 3rd duplicate
-const DUPLICATE_JAIL_THRESHOLD = 4; // Jail at 4th duplicate
+const DUPLICATE_JAIL_THRESHOLD = 5; // Jail at 5th duplicate
 const CHANNEL_WARNING_THRESHOLD = 8; // Start warning at 8th channel
 const CHANNEL_JAIL_THRESHOLD = 10; // Jail at 10th channel
 const CHANNEL_SPAM_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
