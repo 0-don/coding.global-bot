@@ -150,7 +150,7 @@ export const app = new Elysia({ adapter: node() })
         take: 100,
       });
 
-      const members = await parseMultipleUsersWithRoles(
+      const users = await parseMultipleUsersWithRoles(
         onlineMembers.map((m) => m.memberId),
         guild,
       );
@@ -162,8 +162,8 @@ export const app = new Elysia({ adapter: node() })
         },
       });
 
-      const widget = {
-        members,
+      const { members, ...widget } = {
+        members: users,
         id: guild.id,
         name: guild.name,
         presenceCount,
