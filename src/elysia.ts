@@ -174,7 +174,7 @@ export const app = new Elysia({ adapter: node() })
 
       console.log("Widget Data Fetched for Guild ID:", params.guildId, widget);
 
-      return widget;
+      return { ...widget, members };
     },
     { params: t.Object({ guildId: t.String() }) },
   )
