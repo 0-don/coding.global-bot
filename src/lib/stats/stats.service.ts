@@ -1,8 +1,6 @@
 import dayjs from "dayjs";
 import { prisma } from "../../prisma";
-import { ChartDataset } from "../../types/index";
 import { topStatsExampleEmbed, userStatsExampleEmbed } from "../embeds";
-import { getDaysArray } from "../helpers";
 
 const sumSeconds = (items: { sum: number }[]) =>
   items.reduce((acc, curr) => acc + Number(curr.sum), 0);
@@ -241,8 +239,8 @@ export class StatsService {
 
   // Returns raw user stats data for API usage (no embed)
   static async getUserStats(memberId: string, guildId: string) {
-    const memberGuild = await prisma.memberGuild.findFirst({
-      where: { guildId, memberId },
+    const memberGuild = await prisma.memberGuild.findUnique({
+      where: { member_guild: { memberId, guildId } },
       include: {
         member: {
           include: {
@@ -258,28 +256,28 @@ export class StatsService {
     if (!memberGuild) return null;
 
     // Execute all queries in parallel
-    const [lastVoice, lastMessage, helpCount, helpReceivedCount] =
-      await Promise.all([
-        prisma.guildVoiceEvents.findMany({
-          where: { guildId, memberId },
-          orderBy: { id: "desc" },
-          take: 1,
-        }),
-        prisma.memberMessages.findMany({
-          where: { guildId, memberId },
-          orderBy: { id: "desc" },
-          take: 1,
-        }),
-        prisma.memberHelper.count({
-          where: { guildId, memberId },
-        }),
-        prisma.memberHelper.count({
-          where: { guildId, threadOwnerId: memberId },
-        }),
-      ]);
-
-    // Execute stats queries in parallel
-    const [messagesStats, voiceStats] = await Promise.all([
+    const [
+      lastVoice,
+      lastMessage,
+      helpCount,
+      helpReceivedCount,
+      messagesStats,
+      voiceStats,
+    ] = await Promise.all([
+      prisma.guildVoiceEvents.findFirst({
+        where: { guildId, memberId },
+        orderBy: { id: "desc" },
+      }),
+      prisma.memberMessages.findFirst({
+        where: { guildId, memberId },
+        orderBy: { id: "desc" },
+      }),
+      prisma.memberHelper.count({
+        where: { guildId, memberId },
+      }),
+      prisma.memberHelper.count({
+        where: { guildId, threadOwnerId: memberId },
+      }),
       StatsService.messagesStats(memberId, guildId, memberGuild.lookback),
       StatsService.voiceStats(memberId, guildId, memberGuild.lookback),
     ]);
@@ -333,8 +331,8 @@ export class StatsService {
           received: helpReceivedCount,
         },
         lastActivity: {
-          lastVoice: lastVoice[0]?.join?.toISOString() || null,
-          lastMessage: lastMessage[0]?.createdAt?.toISOString() || null,
+          lastVoice: lastVoice?.join?.toISOString() || null,
+          lastMessage: lastMessage?.createdAt?.toISOString() || null,
         },
       },
       lookback: memberGuild.lookback,
@@ -346,59 +344,48 @@ export class StatsService {
     guildId: string,
     lookback: number,
   ) {
-    // Execute message stat queries in parallel
-    const [memberMessagesByDate, mostActiveTextChannel] = await Promise.all([
-      prisma.memberMessages.findMany({
-        where: { memberId, guildId },
-        orderBy: { createdAt: "asc" },
-      }),
-      prisma.$queryRaw`
-        SELECT "channelId", count(*) 
-        FROM "MemberMessages" 
-        WHERE "memberId" = ${memberId} 
-        GROUP BY "channelId" 
-        ORDER BY count(*) DESC 
-        LIMIT 1` as Promise<{ channelId: string; count: number }[]>,
-    ]);
+    // Execute all message stat queries in parallel using SQL
+    const [mostActiveTextChannel, lookbackCount, sevenDaysCount, oneDayCount] =
+      await Promise.all([
+        prisma.$queryRaw`
+        SELECT "channelId", count(*)
+        FROM "MemberMessages"
+        WHERE "memberId" = ${memberId} AND "guildId" = ${guildId}
+        GROUP BY "channelId"
+        ORDER BY count(*) DESC
+        LIMIT 1` as Promise<{ channelId: string; count: bigint }[]>,
 
-    const mostActiveTextChannelId = mostActiveTextChannel?.[0]?.channelId;
-    const mostActiveTextChannelMessageCount = Number(
-      mostActiveTextChannel?.[0]?.count ?? 0,
-    );
+        prisma.memberMessages.count({
+          where: {
+            memberId,
+            guildId,
+            createdAt: { gte: dayjs().subtract(lookback, "day").toDate() },
+          },
+        }),
 
-    // create date array from first to today for each day
-    const startEndDateArray = getDaysArray(
-      memberMessagesByDate[0]?.createdAt ?? new Date(),
-      dayjs().add(1, "day").toDate(),
-    );
+        prisma.memberMessages.count({
+          where: {
+            memberId,
+            guildId,
+            createdAt: { gte: dayjs().subtract(7, "day").toDate() },
+          },
+        }),
 
-    const messages: ChartDataset[] = startEndDateArray.map((date) => ({
-      x: dayjs(date).toDate(),
-      y: memberMessagesByDate.filter(
-        ({ createdAt }) => dayjs(createdAt) <= dayjs(date),
-      ).length,
-    }));
-
-    let lookbackDaysCount = messages[messages.length - 1]?.y ?? 0;
-    let sevenDaysCount = messages[messages.length - 1]?.y ?? 0;
-    let oneDayCount = messages[messages.length - 1]?.y ?? 0;
-
-    // count total members for date ranges
-    if (messages.length > lookback)
-      lookbackDaysCount =
-        messages[messages.length - 1]!.y -
-        messages[messages.length - lookback]!.y;
-    if (messages.length > 8)
-      sevenDaysCount =
-        messages[messages.length - 1]!.y - messages[messages.length - 7]!.y;
-    if (messages.length > 3)
-      oneDayCount =
-        messages[messages.length - 1]!.y - messages[messages.length - 2]!.y;
+        prisma.memberMessages.count({
+          where: {
+            memberId,
+            guildId,
+            createdAt: { gte: dayjs().subtract(1, "day").toDate() },
+          },
+        }),
+      ]);
 
     return {
-      mostActiveTextChannelId,
-      mostActiveTextChannelMessageCount,
-      lookbackDaysCount,
+      mostActiveTextChannelId: mostActiveTextChannel?.[0]?.channelId,
+      mostActiveTextChannelMessageCount: Number(
+        mostActiveTextChannel?.[0]?.count ?? 0,
+      ),
+      lookbackDaysCount: lookbackCount,
       oneDayCount,
       sevenDaysCount,
     };
