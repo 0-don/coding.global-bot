@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import { prisma } from "../../prisma";
 import { topStatsExampleEmbed, userStatsExampleEmbed } from "../embeds";
+import { formatMemberGuild } from "../members/format-member";
 
 const sumSeconds = (items: { sum: number }[]) =>
   items.reduce((acc, curr) => acc + Number(curr.sum), 0);
@@ -241,16 +242,7 @@ export class StatsService {
   static async getUserStats(memberId: string, guildId: string) {
     const memberGuild = await prisma.memberGuild.findUnique({
       where: { member_guild: { memberId, guildId } },
-      include: {
-        member: {
-          include: {
-            roles: {
-              where: { guildId },
-              orderBy: { position: "desc" },
-            },
-          },
-        },
-      },
+      include: { member: { include: { roles: true } } },
     });
 
     if (!memberGuild) return null;
@@ -283,30 +275,7 @@ export class StatsService {
     ]);
 
     return {
-      user: {
-        id: memberId,
-        username: memberGuild.member.username,
-        globalName: memberGuild.member.globalName,
-        displayName:
-          memberGuild.displayName ||
-          memberGuild.member.globalName ||
-          memberGuild.member.username,
-        avatarUrl:
-          memberGuild.avatarUrl ||
-          memberGuild.member.avatarUrl ||
-          `https://cdn.discordapp.com/embed/avatars/${parseInt(memberId) % 5}.png`,
-        bannerUrl: memberGuild.bannerUrl || memberGuild.member.bannerUrl,
-        displayHexColor: memberGuild.displayHexColor || "#000000",
-        roles: memberGuild.member.roles.map((role) => ({
-          id: role.roleId,
-          name: role.name || "",
-          position: role.position || 0,
-        })),
-        joinedAt: memberGuild.joinedAt?.toISOString() || null,
-        createdAt: memberGuild.member.createdAt?.toISOString() || null,
-        status: memberGuild.status,
-        presenceStatus: memberGuild.presenceStatus || "offline",
-      },
+      user: formatMemberGuild(memberGuild, guildId),
       stats: {
         messages: {
           total: messagesStats.lookbackDaysCount,
