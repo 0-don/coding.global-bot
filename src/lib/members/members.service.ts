@@ -7,8 +7,6 @@ import {
   PartialGuildMember,
   TextChannel,
 } from "discord.js";
-import { writeFileSync } from "fs";
-import path from "path";
 import { Prisma } from "../../generated/prisma/client";
 import { prisma } from "../../prisma";
 import { ChartDataset, GuildMemberCountChart } from "../../types/index";
@@ -238,15 +236,8 @@ export class MembersService {
     };
   }
 
-  // Generate chart and return buffer + optional file path
-  private static generateChart(
-    data: ChartDataset[],
-    lookback: number,
-    guildId: string,
-    options: { saveToFile?: boolean; suffix?: string } = {},
-  ): { buffer: Buffer; fileName?: string; imgPath?: string } {
-    const { saveToFile = true, suffix = "" } = options;
-
+  // Generate chart and return buffer
+  private static generateChart(data: ChartDataset[], lookback: number): Buffer {
     const config = chartConfig(
       data.slice(
         // splice only the lookback range if it fits. 2 values minimum needed for chart
@@ -261,16 +252,7 @@ export class MembersService {
     );
     ChartManager.setChart(chart);
 
-    const buffer = GLOBAL_CANVAS.toBuffer("image/png");
-
-    if (saveToFile) {
-      const fileName = `${guildId}${suffix}.png`;
-      const imgPath = path.join(path.resolve(), fileName);
-      writeFileSync(fileName, buffer);
-      return { buffer, fileName, imgPath };
-    }
-
-    return { buffer };
+    return GLOBAL_CANVAS.toBuffer("image/png");
   }
 
   static async guildMemberCountChart(
@@ -280,18 +262,13 @@ export class MembersService {
 
     if (!stats) return { error: "No members found" };
 
-    const { fileName, imgPath } = this.generateChart(
-      stats.data,
-      stats.lookback,
-      stats.guildId,
-      { saveToFile: true },
-    );
+    const buffer = this.generateChart(stats.data, stats.lookback);
 
     log(`Created guild member count ${stats.guildName}`);
 
     return {
-      fileName: fileName!,
-      imgPath: imgPath!,
+      buffer,
+      fileName: `${stats.guildId}.png`,
       thirtyDaysCount: stats.thirtyDaysCount,
       sevedDaysCount: stats.sevenDaysCount,
       oneDayCount: stats.oneDayCount,
@@ -319,14 +296,7 @@ export class MembersService {
       };
     }
 
-    // Generate chart without saving to file
-    const { buffer } = this.generateChart(
-      stats.data,
-      stats.lookback,
-      stats.guildId,
-      { saveToFile: false },
-    );
-
+    const buffer = this.generateChart(stats.data, stats.lookback);
     const base64Chart = `data:image/png;base64,${buffer.toString("base64")}`;
 
     log(`Created guild member count for API ${stats.guildName}`);

@@ -6,9 +6,8 @@ export type StatusRoles = (typeof STATUS_ROLES)[number];
 export type ChartDataset = { x: Date; y: number };
 
 export type GuildMemberCountChart = {
-  link?: string;
+  buffer?: Buffer;
   fileName?: string;
-  imgPath?: string;
   thirtyDaysCount?: number;
   sevedDaysCount?: number;
   oneDayCount?: number;
