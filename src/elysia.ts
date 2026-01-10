@@ -2,21 +2,19 @@ import { cors } from "@elysiajs/cors";
 import { node } from "@elysiajs/node";
 import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
-import {
-  ChannelType,
-  FetchMessagesOptions,
-  PermissionsBitField,
-} from "discord.js";
+import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
 import { Cache } from "./cache";
 import { Prisma } from "./generated/prisma/client";
+import { ThreadService } from "./lib/threads/thread.service";
 import { bot } from "./main";
 import { prisma } from "./prisma";
 import {
   BoardType,
   CACHE_TTL,
-  extractThreadDetails,
-  fetchThreadFromGuild,
+  formatRepliesFromDb,
+  formatThreadFromDb,
+  formatThreadsFromDb,
   getTopStatsWithUsers,
   PAGE_LIMIT,
   parseMessage,
@@ -113,10 +111,19 @@ export const app = new Elysia({ adapter: node() })
   .get(
     "/api/:guildId/news",
     async ({ guild }) => {
-      const channels = await guild.channels.fetch();
-      const newsChannel = channels.find((ch) =>
-        ch?.name.toLowerCase().includes("news"),
+      // Try cache first, only fetch from API if not found
+      let newsChannel = guild.channels.cache.find(
+        (ch) => ch?.name.toLowerCase().includes("news"),
       );
+
+      if (!newsChannel) {
+        const channels = await guild.channels.fetch();
+        const found = channels.find((ch) =>
+          ch?.name.toLowerCase().includes("news"),
+        );
+        if (found) newsChannel = found;
+      }
+
       if (!newsChannel) throw status("Not Found", "News channel not found");
       if (
         newsChannel.type !== ChannelType.GuildText &&
@@ -201,111 +208,38 @@ export const app = new Elysia({ adapter: node() })
   )
   .get(
     "/api/:guildId/board/:boardType",
-    async ({ guild, params }) => {
-      const channels = await guild.channels.fetch();
+    async ({ params }) => {
       const boardType = params.boardType.toLowerCase();
-      // Match exact name or pattern like "💬│boardType" (word boundary check for short names like "c")
-      const pattern = new RegExp(`(^|[^a-z0-9])${boardType}$`, "i");
-      const boardChannel = channels.find(
-        (ch) => ch && pattern.test(ch.name.toLowerCase()),
+      const threads = await ThreadService.getThreadsByBoard(
+        params.guildId,
+        boardType,
       );
-
-      if (!boardChannel)
-        throw status("Not Found", `${params.boardType} channel not found`);
-      if (boardChannel.type !== ChannelType.GuildForum) {
-        throw status(
-          "Bad Request",
-          `${params.boardType} must be a forum channel`,
-        );
-      }
-
-      const allThreads = (
-        await Promise.all([
-          boardChannel.threads
-            .fetchActive(true)
-            .then((result) => [...result.threads.values()]),
-          boardChannel.threads
-            .fetchArchived({ type: "public", limit: 100 })
-            .then((result) => [...result.threads.values()]),
-          boardChannel.threads
-            .fetchArchived({ type: "private", limit: 100 })
-            .then((result) => [...result.threads.values()]),
-        ])
-      )
-        .flat()
-        .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
-
-      const responseThreads = await Promise.all(
-        allThreads.map((thread) =>
-          extractThreadDetails(thread, boardChannel, guild, params.boardType),
-        ),
-      );
-
-      return responseThreads.filter(Boolean);
+      return formatThreadsFromDb(threads, params.guildId);
     },
     { params: t.Object({ guildId: t.String(), boardType: BoardType }) },
   )
   .get(
     "/api/:guildId/board/:boardType/:threadId",
-    async ({ guild, params }) => {
-      const thread = await fetchThreadFromGuild(guild, params.threadId);
-
-      const boardChannel = thread.parent;
-      if (!boardChannel || boardChannel.type !== ChannelType.GuildForum) {
-        throw status("Bad Request", "Thread parent must be a forum channel");
+    async ({ params }) => {
+      const thread = await ThreadService.getThread(params.threadId);
+      if (!thread) {
+        throw status("Not Found", "Thread not found");
       }
-
-      const threadDetails = await extractThreadDetails(
-        thread,
-        boardChannel,
-        guild,
-        params.boardType,
-      );
-
-      return threadDetails;
+      return formatThreadFromDb(thread, params.guildId);
     },
     { params: ThreadParams },
   )
   .get(
     "/api/:guildId/board/:boardType/:threadId/messages",
-    async ({ guild, params, query }) => {
-      const thread = await fetchThreadFromGuild(guild, params.threadId);
-
-      const fetchOptions: FetchMessagesOptions = { limit: PAGE_LIMIT };
-
-      if (query.after) {
-        fetchOptions.after = query.after;
-      } else {
-        const starterMessage = await thread
-          .fetchStarterMessage()
-          .catch(() => null);
-        if (starterMessage) fetchOptions.after = starterMessage.id;
-      }
-
-      const allMessages = await thread.messages.fetch(fetchOptions);
-
-      const filteredMessages = Array.from(allMessages.values()).filter(
-        (msg) => msg.id !== thread.id,
+    async ({ params, query }) => {
+      const { messages, hasMore, nextCursor } = await ThreadService.getReplies(
+        params.threadId,
+        { after: query.after, limit: PAGE_LIMIT },
       );
-      const authors = await parseMultipleUsersWithRoles(
-        [...new Set(filteredMessages.map((msg) => msg.author.id))],
-        guild,
-      );
-
-      const messages = filteredMessages
-        .map((message) => ({
-          ...parseMessage(message),
-          author: authors.find((a) => a.id === message.author.id)!,
-        }))
-        .sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        );
-
       return {
-        messages,
-        hasMore: messages.length === PAGE_LIMIT,
-        nextCursor: messages.at(-1)?.id ?? null,
+        messages: formatRepliesFromDb(messages, params.guildId),
+        hasMore,
+        nextCursor,
       };
     },
     {

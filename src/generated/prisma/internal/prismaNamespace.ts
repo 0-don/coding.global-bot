@@ -394,7 +394,12 @@ export const ModelName = {
   MemberCommandHistory: 'MemberCommandHistory',
   MemberDeletedMessages: 'MemberDeletedMessages',
   VerificationProgress: 'VerificationProgress',
-  MemberUpdateQueue: 'MemberUpdateQueue'
+  MemberUpdateQueue: 'MemberUpdateQueue',
+  Thread: 'Thread',
+  Tag: 'Tag',
+  ThreadTag: 'ThreadTag',
+  ThreadReply: 'ThreadReply',
+  SyncProgress: 'SyncProgress'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -410,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "guild" | "guildVoiceEvents" | "member" | "memberMessages" | "memberGuild" | "memberHelper" | "memberRole" | "memberCommandHistory" | "memberDeletedMessages" | "verificationProgress" | "memberUpdateQueue"
+    modelProps: "guild" | "guildVoiceEvents" | "member" | "memberMessages" | "memberGuild" | "memberHelper" | "memberRole" | "memberCommandHistory" | "memberDeletedMessages" | "verificationProgress" | "memberUpdateQueue" | "thread" | "tag" | "threadTag" | "threadReply" | "syncProgress"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1228,6 +1233,376 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Thread: {
+      payload: Prisma.$ThreadPayload<ExtArgs>
+      fields: Prisma.ThreadFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ThreadFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ThreadFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        findFirst: {
+          args: Prisma.ThreadFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ThreadFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        findMany: {
+          args: Prisma.ThreadFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>[]
+        }
+        create: {
+          args: Prisma.ThreadCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        createMany: {
+          args: Prisma.ThreadCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ThreadCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>[]
+        }
+        delete: {
+          args: Prisma.ThreadDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        update: {
+          args: Prisma.ThreadUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        deleteMany: {
+          args: Prisma.ThreadDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ThreadUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ThreadUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>[]
+        }
+        upsert: {
+          args: Prisma.ThreadUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadPayload>
+        }
+        aggregate: {
+          args: Prisma.ThreadAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateThread>
+        }
+        groupBy: {
+          args: Prisma.ThreadGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ThreadGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ThreadCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ThreadCountAggregateOutputType> | number
+        }
+      }
+    }
+    Tag: {
+      payload: Prisma.$TagPayload<ExtArgs>
+      fields: Prisma.TagFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TagFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TagFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        findFirst: {
+          args: Prisma.TagFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TagFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        findMany: {
+          args: Prisma.TagFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[]
+        }
+        create: {
+          args: Prisma.TagCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        createMany: {
+          args: Prisma.TagCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TagCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[]
+        }
+        delete: {
+          args: Prisma.TagDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        update: {
+          args: Prisma.TagUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        deleteMany: {
+          args: Prisma.TagDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TagUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TagUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>[]
+        }
+        upsert: {
+          args: Prisma.TagUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TagPayload>
+        }
+        aggregate: {
+          args: Prisma.TagAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTag>
+        }
+        groupBy: {
+          args: Prisma.TagGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TagGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TagCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TagCountAggregateOutputType> | number
+        }
+      }
+    }
+    ThreadTag: {
+      payload: Prisma.$ThreadTagPayload<ExtArgs>
+      fields: Prisma.ThreadTagFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ThreadTagFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadTagPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ThreadTagFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadTagPayload>
+        }
+        findFirst: {
+          args: Prisma.ThreadTagFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadTagPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ThreadTagFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadTagPayload>
+        }
+        findMany: {
+          args: Prisma.ThreadTagFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadTagPayload>[]
+        }
+        create: {
+          args: Prisma.ThreadTagCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadTagPayload>
+        }
+        createMany: {
+          args: Prisma.ThreadTagCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ThreadTagCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadTagPayload>[]
+        }
+        delete: {
+          args: Prisma.ThreadTagDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadTagPayload>
+        }
+        update: {
+          args: Prisma.ThreadTagUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadTagPayload>
+        }
+        deleteMany: {
+          args: Prisma.ThreadTagDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ThreadTagUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ThreadTagUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadTagPayload>[]
+        }
+        upsert: {
+          args: Prisma.ThreadTagUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadTagPayload>
+        }
+        aggregate: {
+          args: Prisma.ThreadTagAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateThreadTag>
+        }
+        groupBy: {
+          args: Prisma.ThreadTagGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ThreadTagGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ThreadTagCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ThreadTagCountAggregateOutputType> | number
+        }
+      }
+    }
+    ThreadReply: {
+      payload: Prisma.$ThreadReplyPayload<ExtArgs>
+      fields: Prisma.ThreadReplyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ThreadReplyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadReplyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ThreadReplyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadReplyPayload>
+        }
+        findFirst: {
+          args: Prisma.ThreadReplyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadReplyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ThreadReplyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadReplyPayload>
+        }
+        findMany: {
+          args: Prisma.ThreadReplyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadReplyPayload>[]
+        }
+        create: {
+          args: Prisma.ThreadReplyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadReplyPayload>
+        }
+        createMany: {
+          args: Prisma.ThreadReplyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ThreadReplyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadReplyPayload>[]
+        }
+        delete: {
+          args: Prisma.ThreadReplyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadReplyPayload>
+        }
+        update: {
+          args: Prisma.ThreadReplyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadReplyPayload>
+        }
+        deleteMany: {
+          args: Prisma.ThreadReplyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ThreadReplyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ThreadReplyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadReplyPayload>[]
+        }
+        upsert: {
+          args: Prisma.ThreadReplyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ThreadReplyPayload>
+        }
+        aggregate: {
+          args: Prisma.ThreadReplyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateThreadReply>
+        }
+        groupBy: {
+          args: Prisma.ThreadReplyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ThreadReplyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ThreadReplyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ThreadReplyCountAggregateOutputType> | number
+        }
+      }
+    }
+    SyncProgress: {
+      payload: Prisma.$SyncProgressPayload<ExtArgs>
+      fields: Prisma.SyncProgressFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SyncProgressFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncProgressPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SyncProgressFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncProgressPayload>
+        }
+        findFirst: {
+          args: Prisma.SyncProgressFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncProgressPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SyncProgressFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncProgressPayload>
+        }
+        findMany: {
+          args: Prisma.SyncProgressFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncProgressPayload>[]
+        }
+        create: {
+          args: Prisma.SyncProgressCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncProgressPayload>
+        }
+        createMany: {
+          args: Prisma.SyncProgressCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SyncProgressCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncProgressPayload>[]
+        }
+        delete: {
+          args: Prisma.SyncProgressDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncProgressPayload>
+        }
+        update: {
+          args: Prisma.SyncProgressUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncProgressPayload>
+        }
+        deleteMany: {
+          args: Prisma.SyncProgressDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SyncProgressUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SyncProgressUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncProgressPayload>[]
+        }
+        upsert: {
+          args: Prisma.SyncProgressUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SyncProgressPayload>
+        }
+        aggregate: {
+          args: Prisma.SyncProgressAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSyncProgress>
+        }
+        groupBy: {
+          args: Prisma.SyncProgressGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SyncProgressGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SyncProgressCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SyncProgressCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1441,6 +1816,82 @@ export const MemberUpdateQueueScalarFieldEnum = {
 } as const
 
 export type MemberUpdateQueueScalarFieldEnum = (typeof MemberUpdateQueueScalarFieldEnum)[keyof typeof MemberUpdateQueueScalarFieldEnum]
+
+
+export const ThreadScalarFieldEnum = {
+  id: 'id',
+  guildId: 'guildId',
+  parentId: 'parentId',
+  authorId: 'authorId',
+  name: 'name',
+  boardType: 'boardType',
+  content: 'content',
+  imageUrl: 'imageUrl',
+  messageCount: 'messageCount',
+  memberCount: 'memberCount',
+  locked: 'locked',
+  archived: 'archived',
+  archivedAt: 'archivedAt',
+  autoArchiveDuration: 'autoArchiveDuration',
+  invitable: 'invitable',
+  rateLimitPerUser: 'rateLimitPerUser',
+  flags: 'flags',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ThreadScalarFieldEnum = (typeof ThreadScalarFieldEnum)[keyof typeof ThreadScalarFieldEnum]
+
+
+export const TagScalarFieldEnum = {
+  id: 'id',
+  guildId: 'guildId',
+  name: 'name',
+  emojiId: 'emojiId',
+  emojiName: 'emojiName'
+} as const
+
+export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
+
+
+export const ThreadTagScalarFieldEnum = {
+  threadId: 'threadId',
+  tagId: 'tagId'
+} as const
+
+export type ThreadTagScalarFieldEnum = (typeof ThreadTagScalarFieldEnum)[keyof typeof ThreadTagScalarFieldEnum]
+
+
+export const ThreadReplyScalarFieldEnum = {
+  id: 'id',
+  threadId: 'threadId',
+  authorId: 'authorId',
+  guildId: 'guildId',
+  content: 'content',
+  createdAt: 'createdAt',
+  editedAt: 'editedAt',
+  pinned: 'pinned',
+  tts: 'tts',
+  type: 'type',
+  attachments: 'attachments',
+  embeds: 'embeds',
+  mentions: 'mentions',
+  reactions: 'reactions',
+  reference: 'reference'
+} as const
+
+export type ThreadReplyScalarFieldEnum = (typeof ThreadReplyScalarFieldEnum)[keyof typeof ThreadReplyScalarFieldEnum]
+
+
+export const SyncProgressScalarFieldEnum = {
+  guildId: 'guildId',
+  processedThreads: 'processedThreads',
+  failedThreads: 'failedThreads',
+  currentChannel: 'currentChannel',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SyncProgressScalarFieldEnum = (typeof SyncProgressScalarFieldEnum)[keyof typeof SyncProgressScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1686,6 +2137,11 @@ export type GlobalOmitConfig = {
   memberDeletedMessages?: Prisma.MemberDeletedMessagesOmit
   verificationProgress?: Prisma.VerificationProgressOmit
   memberUpdateQueue?: Prisma.MemberUpdateQueueOmit
+  thread?: Prisma.ThreadOmit
+  tag?: Prisma.TagOmit
+  threadTag?: Prisma.ThreadTagOmit
+  threadReply?: Prisma.ThreadReplyOmit
+  syncProgress?: Prisma.SyncProgressOmit
 }
 
 /* Types for Logging */

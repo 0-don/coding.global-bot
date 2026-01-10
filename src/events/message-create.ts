@@ -10,6 +10,7 @@ import { MessagesService } from "../lib/messages/messages.service";
 import { HelperService } from "../lib/roles/helper.service";
 import { checkDuplicateSpam } from "../lib/spam/duplicate-spam.service";
 import { SpamDetectionService } from "../lib/spam/spam-detection.service";
+import { ThreadService } from "../lib/threads/thread.service";
 import { prisma } from "../prisma";
 
 @Discord()
@@ -39,6 +40,11 @@ export class MessageCreate {
 
     // add Message to Database for statistics
     await MessagesService.addMessageDb(message);
+
+    // Save thread reply to database if in a forum thread
+    if (message.channel.isThread()) {
+      await ThreadService.upsertReply(message);
+    }
 
     //Leveling System
     await MessagesService.levelUpMessage(message);

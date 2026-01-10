@@ -1,6 +1,7 @@
 import { AnyThreadChannel, ForumChannel, Guild, Message } from "discord.js";
 import { Static, status, t } from "elysia";
 import { Prisma } from "../generated/prisma/client";
+import { ThreadService } from "../lib/threads/thread.service";
 import { StatsService } from "../lib/stats/stats.service";
 import { prisma } from "../prisma";
 
@@ -417,4 +418,116 @@ export async function getTopStatsWithUsers(
         sum: user.sum,
       })),
   };
+}
+
+// ============================================
+// Database Thread/Reply Formatting
+// ============================================
+
+type DbThread = Awaited<ReturnType<typeof ThreadService.getThread>>;
+type DbThreadList = Awaited<ReturnType<typeof ThreadService.getThreadsByBoard>>;
+type DbReplies = Awaited<ReturnType<typeof ThreadService.getReplies>>;
+
+function formatAuthorFromDb(
+  author: NonNullable<DbThread>["author"],
+  guildId: string,
+) {
+  const memberGuild = author.guilds.find((g) => g.guildId === guildId);
+  const roles = author.roles
+    .filter((r) => r.guildId === guildId)
+    .map((r) => ({ name: r.name || "", position: r.position || 0 }))
+    .sort((a, b) => b.position - a.position);
+
+  return {
+    id: author.memberId,
+    username: author.username,
+    globalName: author.globalName,
+    nickname: memberGuild?.nickname || null,
+    displayName:
+      memberGuild?.displayName || author.globalName || author.username,
+    avatarUrl: memberGuild?.avatarUrl || author.avatarUrl,
+    bannerUrl: memberGuild?.bannerUrl || author.bannerUrl,
+    accentColor: author.accentColor,
+    displayHexColor: memberGuild?.displayHexColor || null,
+    flags: author.flags ? author.flags.toString() : null,
+    collectibles: author.collectibles,
+    primaryGuild: author.primaryGuild,
+    roles,
+    highestRolePosition: memberGuild?.highestRolePosition || 0,
+    status: memberGuild?.presenceStatus || null,
+    activity: memberGuild?.presenceActivity || null,
+    presenceUpdatedAt: memberGuild?.presenceUpdatedAt?.toISOString() || null,
+    premiumSince: memberGuild?.premiumSince?.toISOString() || null,
+    communicationDisabledUntil:
+      memberGuild?.communicationDisabledUntil?.toISOString() || null,
+    joinedAt: memberGuild?.joinedAt?.toISOString() || null,
+    createdAt: author.createdAt?.toISOString() || null,
+    updatedAt: author.updatedAt?.toISOString() || null,
+  };
+}
+
+export function formatThreadFromDb(
+  thread: NonNullable<DbThread>,
+  guildId: string,
+) {
+  return {
+    id: thread.id,
+    name: thread.name,
+    boardType: thread.boardType,
+    parentId: thread.parentId,
+    author: formatAuthorFromDb(thread.author, guildId),
+    createdAt: thread.createdAt?.toISOString() || null,
+    tags: thread.tags.map((tt) => ({
+      id: tt.tag.id,
+      name: tt.tag.name,
+      emoji: {
+        id: tt.tag.emojiId || null,
+        name: tt.tag.emojiName || null,
+      },
+    })),
+    content: thread.content,
+    imageUrl: thread.imageUrl,
+    messageCount: thread.messageCount,
+    totalMessageSent: thread.messageCount,
+    memberCount: thread.memberCount,
+    locked: thread.locked,
+    archived: thread.archived,
+    archivedAt: thread.archivedAt?.toISOString() || null,
+    autoArchiveDuration: thread.autoArchiveDuration?.toString() || null,
+    invitable: thread.invitable,
+    rateLimitPerUser: thread.rateLimitPerUser,
+    flags: thread.flags,
+  };
+}
+
+export function formatThreadsFromDb(threads: DbThreadList, guildId: string) {
+  return threads.map((thread) => formatThreadFromDb(thread, guildId));
+}
+
+export function formatReplyFromDb(
+  reply: DbReplies["messages"][number],
+  guildId: string,
+) {
+  return {
+    id: reply.id,
+    content: reply.content,
+    createdAt: reply.createdAt.toISOString(),
+    editedAt: reply.editedAt?.toISOString() || null,
+    pinned: reply.pinned,
+    tts: reply.tts,
+    type: reply.type,
+    attachments: reply.attachments || [],
+    embeds: reply.embeds || [],
+    mentions: reply.mentions || { users: [], roles: [], everyone: false },
+    reactions: reply.reactions || [],
+    reference: reply.reference || null,
+    author: formatAuthorFromDb(reply.author, guildId),
+  };
+}
+
+export function formatRepliesFromDb(
+  replies: DbReplies["messages"],
+  guildId: string,
+) {
+  return replies.map((reply) => formatReplyFromDb(reply, guildId));
 }
