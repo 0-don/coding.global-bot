@@ -14,10 +14,38 @@ import "chartjs-adapter-date-fns";
 import { log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
-import { Agent, RetryAgent } from "undici";
 import "./elysia";
 import { ConfigValidator } from "./lib/config-validator";
 import { startMemberUpdateQueue } from "./lib/members/member-update-queue.service";
+
+// // Global error handlers to prevent crashes from Discord API errors
+// process.on("unhandledRejection", (error) => {
+//   if (error instanceof Error) {
+//     // Ignore known transient Discord API errors
+//     if (
+//       error.message.includes("arrayBuffer") ||
+//       error.message.includes("Connect Timeout") ||
+//       error.message.includes("Unknown interaction") ||
+//       error.name === "ConnectTimeoutError"
+//     ) {
+//       return;
+//     }
+//   }
+//   console.error("Unhandled rejection:", error);
+// });
+
+// process.on("uncaughtException", (error) => {
+//   // Ignore known transient Discord API errors
+//   if (
+//     error.message.includes("arrayBuffer") ||
+//     error.message.includes("Connect Timeout") ||
+//     error.message.includes("Unknown interaction") ||
+//     error.name === "ConnectTimeoutError"
+//   ) {
+//     return;
+//   }
+//   console.error("Uncaught exception:", error);
+// });
 
 Chart.register(
   LineController,
@@ -32,30 +60,6 @@ Chart.register(
 ConfigValidator.validateConfig();
 
 const token = process.env.TOKEN;
-
-// Custom agent with longer timeouts and automatic retries on network errors
-const agent = new RetryAgent(
-  new Agent({
-    connect: { timeout: 30_000 },
-    bodyTimeout: 60_000,
-    headersTimeout: 60_000,
-  }),
-  {
-    maxRetries: 3,
-    minTimeout: 1000,
-    maxTimeout: 30_000,
-    errorCodes: [
-      "ECONNRESET",
-      "ECONNREFUSED",
-      "ENOTFOUND",
-      "ENETDOWN",
-      "ENETUNREACH",
-      "EHOSTDOWN",
-      "UND_ERR_SOCKET",
-      "UND_ERR_CONNECT_TIMEOUT",
-    ],
-  },
-);
 
 // discord client config
 export const bot = new Client({
@@ -84,7 +88,6 @@ export const bot = new Client({
   rest: {
     timeout: 30_000, // 30 seconds request timeout
     retries: 3, // Retry failed requests up to 3 times
-    agent, // Use custom agent with longer connect timeout
   },
 });
 
