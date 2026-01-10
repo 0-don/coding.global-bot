@@ -56,6 +56,10 @@ export const bot = new Client({
   simpleCommand: {
     // prefix: "/",
   },
+  rest: {
+    timeout: 30_000, // 30 seconds instead of default 10
+    retries: 3, // Retry failed requests up to 3 times
+  },
 });
 
 bot.once("clientReady", async () => {
