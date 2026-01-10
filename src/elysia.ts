@@ -41,6 +41,11 @@ export const app = new Elysia({ adapter: node() })
   )
   .use(cors())
   .onError(({ error }) => {
+    // Ignore Discord API transient errors
+    if (error instanceof Error && error.name === "ConnectTimeoutError") {
+      log("[Elysia] ConnectTimeoutError ignored");
+      return;
+    }
     // Log Prisma-specific errors only
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       console.error("Prisma Error:", error.code, error.message, error.meta);
