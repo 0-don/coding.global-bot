@@ -18,18 +18,6 @@ import "./elysia";
 import { ConfigValidator } from "./lib/config-validator";
 import { startMemberUpdateQueue } from "./lib/members/member-update-queue.service";
 
-Error.stackTraceLimit = 50;
-
-process.on("unhandledRejection", (error, promise) => {
-  if (error instanceof Error && error.name === "ConnectTimeoutError") {
-    log("[ConnectTimeout]", error.message);
-    log("[ConnectTimeout] Stack:", error.stack);
-    log("[ConnectTimeout] Promise:", promise);
-    return;
-  }
-  throw error;
-});
-
 Chart.register(
   LineController,
   LineElement,
