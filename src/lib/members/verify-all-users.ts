@@ -40,6 +40,13 @@ export async function verifyAllUsers(
 
     logTs("info", guildName, "Fetching members...");
     const allMembers = await guild.members.fetch();
+
+    // Mark all members as left, then upserts will restore those still present
+    await prisma.memberGuild.updateMany({
+      where: { guildId: guild.id },
+      data: { status: false },
+    });
+
     const members = Array.from(allMembers.values())
       .filter((m) => !m.user.bot)
       .sort((a, b) => a.id.localeCompare(b.id));
