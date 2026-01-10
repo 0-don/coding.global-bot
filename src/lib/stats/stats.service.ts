@@ -332,6 +332,108 @@ export class StatsService {
     };
   }
 
+  // Returns raw user stats data for API usage (no embed)
+  static async getUserStats(memberId: string, guildId: string) {
+    const memberGuild = await prisma.memberGuild.findFirst({
+      where: { guildId, memberId },
+      include: {
+        member: {
+          include: {
+            roles: {
+              where: { guildId },
+              orderBy: { position: "desc" },
+            },
+          },
+        },
+      },
+    });
+
+    if (!memberGuild) return null;
+
+    // Execute all queries in parallel
+    const [lastVoice, lastMessage, helpCount, helpReceivedCount] =
+      await Promise.all([
+        prisma.guildVoiceEvents.findMany({
+          where: { guildId, memberId },
+          orderBy: { id: "desc" },
+          take: 1,
+        }),
+        prisma.memberMessages.findMany({
+          where: { guildId, memberId },
+          orderBy: { id: "desc" },
+          take: 1,
+        }),
+        prisma.memberHelper.count({
+          where: { guildId, memberId },
+        }),
+        prisma.memberHelper.count({
+          where: { guildId, threadOwnerId: memberId },
+        }),
+      ]);
+
+    // Execute stats queries in parallel
+    const [messagesStats, voiceStats] = await Promise.all([
+      StatsService.messagesStats(memberId, guildId, memberGuild.lookback),
+      StatsService.voiceStats(memberId, guildId, memberGuild.lookback),
+    ]);
+
+    return {
+      user: {
+        id: memberId,
+        username: memberGuild.member.username,
+        globalName: memberGuild.member.globalName,
+        displayName:
+          memberGuild.displayName ||
+          memberGuild.member.globalName ||
+          memberGuild.member.username,
+        avatarUrl:
+          memberGuild.avatarUrl ||
+          memberGuild.member.avatarUrl ||
+          `https://cdn.discordapp.com/embed/avatars/${parseInt(memberId) % 5}.png`,
+        bannerUrl: memberGuild.bannerUrl || memberGuild.member.bannerUrl,
+        displayHexColor: memberGuild.displayHexColor || "#000000",
+        roles: memberGuild.member.roles.map((role) => ({
+          id: role.roleId,
+          name: role.name || "",
+          position: role.position || 0,
+        })),
+        joinedAt: memberGuild.joinedAt?.toISOString() || null,
+        createdAt: memberGuild.member.createdAt?.toISOString() || null,
+        status: memberGuild.status,
+        presenceStatus: memberGuild.presenceStatus || "offline",
+      },
+      stats: {
+        messages: {
+          total: messagesStats.lookbackDaysCount,
+          last7Days: messagesStats.sevenDaysCount,
+          last24Hours: messagesStats.oneDayCount,
+          mostActiveChannel: {
+            id: messagesStats.mostActiveTextChannelId || null,
+            count: messagesStats.mostActiveTextChannelMessageCount,
+          },
+        },
+        voice: {
+          totalHours: voiceStats.lookbackVoiceSum,
+          last7DaysHours: voiceStats.sevenDayVoiceSum,
+          last24HoursHours: voiceStats.oneDayVoiceSum,
+          mostActiveChannel: {
+            id: voiceStats.mostActiveVoice?.channelId || null,
+            hours: voiceStats.mostActiveVoice?.sum || 0,
+          },
+        },
+        help: {
+          given: helpCount,
+          received: helpReceivedCount,
+        },
+        lastActivity: {
+          lastVoice: lastVoice[0]?.join?.toISOString() || null,
+          lastMessage: lastMessage[0]?.createdAt?.toISOString() || null,
+        },
+      },
+      lookback: memberGuild.lookback,
+    };
+  }
+
   static async messagesStats(
     memberId: string,
     guildId: string,

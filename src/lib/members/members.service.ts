@@ -182,10 +182,8 @@ export class MembersService {
     }
   }
 
-  static async guildMemberCountChart(
-    guild: Guild,
-  ): Promise<GuildMemberCountChart> {
-    // get guild data
+  // Shared logic for computing member stats and generating chart
+  private static async computeMemberStats(guild: Guild) {
     const guildId = guild.id;
     const guildName = guild.name;
 
@@ -201,8 +199,8 @@ export class MembersService {
       .map((member) => member.joinedAt || new Date())
       .sort((a, b) => a.getTime() - b.getTime());
 
-    // if no dates, return
-    if (!dates[0]) return { error: "No members found" };
+    // if no dates, return null
+    if (!dates[0]) return null;
 
     // create date array from first to today for each day
     const startEndDateArray = getDaysArray(
@@ -216,22 +214,42 @@ export class MembersService {
       y: dates.filter((d) => dayjs(d) <= dayjs(date)).length,
     }));
 
-    let thirtyDaysCount = data[data.length - 1]?.y;
-    let sevedDaysCount = data[data.length - 1]?.y;
-    let oneDayCount = data[data.length - 1]?.y;
+    let thirtyDaysCount = data[data.length - 1]?.y ?? 0;
+    let sevenDaysCount = data[data.length - 1]?.y ?? 0;
+    let oneDayCount = data[data.length - 1]?.y ?? 0;
 
     // count total members for date ranges
     if (data.length > 31)
       thirtyDaysCount = data[data.length - 1]!.y - data[data.length - 30]!.y;
     if (data.length > 8)
-      sevedDaysCount = data[data.length - 1]!.y - data[data.length - 7]!.y;
+      sevenDaysCount = data[data.length - 1]!.y - data[data.length - 7]!.y;
     if (data.length > 3)
       oneDayCount = data[data.length - 1]!.y - data[data.length - 2]!.y;
 
-    // create chartjs config
+    return {
+      guildId,
+      guildName,
+      lookback,
+      data,
+      thirtyDaysCount,
+      sevenDaysCount,
+      oneDayCount,
+      memberCount: data[data.length - 1]?.y ?? 0,
+    };
+  }
+
+  // Generate chart and return buffer + optional file path
+  private static generateChart(
+    data: ChartDataset[],
+    lookback: number,
+    guildId: string,
+    options: { saveToFile?: boolean; suffix?: string } = {},
+  ): { buffer: Buffer; fileName?: string; imgPath?: string } {
+    const { saveToFile = true, suffix = "" } = options;
+
     const config = chartConfig(
       data.slice(
-        // splice only the lookback range if it fits. 2 values minium needed for chart
+        // splice only the lookback range if it fits. 2 values minimum needed for chart
         data.length - 2 < lookback ? 0 : lookback * -1,
       ) as any,
     );
@@ -243,21 +261,83 @@ export class MembersService {
     );
     ChartManager.setChart(chart);
 
-    // crete local img file
-    const fileName = `${guildId}.png`;
-    const imgPath = path.join(path.resolve(), fileName);
-    writeFileSync(fileName, GLOBAL_CANVAS.toBuffer("image/png"));
+    const buffer = GLOBAL_CANVAS.toBuffer("image/png");
 
-    log(`Created guild member count ${guildName}`);
+    if (saveToFile) {
+      const fileName = `${guildId}${suffix}.png`;
+      const imgPath = path.join(path.resolve(), fileName);
+      writeFileSync(fileName, buffer);
+      return { buffer, fileName, imgPath };
+    }
 
-    // return chart data
+    return { buffer };
+  }
+
+  static async guildMemberCountChart(
+    guild: Guild,
+  ): Promise<GuildMemberCountChart> {
+    const stats = await this.computeMemberStats(guild);
+
+    if (!stats) return { error: "No members found" };
+
+    const { fileName, imgPath } = this.generateChart(
+      stats.data,
+      stats.lookback,
+      stats.guildId,
+      { saveToFile: true },
+    );
+
+    log(`Created guild member count ${stats.guildName}`);
+
     return {
-      fileName,
-      imgPath,
-      thirtyDaysCount,
-      sevedDaysCount,
-      oneDayCount,
-      lookback,
+      fileName: fileName!,
+      imgPath: imgPath!,
+      thirtyDaysCount: stats.thirtyDaysCount,
+      sevedDaysCount: stats.sevenDaysCount,
+      oneDayCount: stats.oneDayCount,
+      lookback: stats.lookback,
+    };
+  }
+
+  // Returns member stats with base64 chart for API usage
+  static async getMembersStatsForApi(guild: Guild) {
+    const stats = await this.computeMemberStats(guild);
+
+    if (!stats) {
+      const { lookback } = (await prisma.guild.findUnique({
+        where: { guildId: guild.id },
+        select: { lookback: true },
+      })) ?? { lookback: 9999 };
+
+      return {
+        thirtyDaysCount: 0,
+        sevenDaysCount: 0,
+        oneDayCount: 0,
+        lookback,
+        memberCount: 0,
+        chart: "",
+      };
+    }
+
+    // Generate chart without saving to file
+    const { buffer } = this.generateChart(
+      stats.data,
+      stats.lookback,
+      stats.guildId,
+      { saveToFile: false },
+    );
+
+    const base64Chart = `data:image/png;base64,${buffer.toString("base64")}`;
+
+    log(`Created guild member count for API ${stats.guildName}`);
+
+    return {
+      thirtyDaysCount: stats.thirtyDaysCount,
+      sevenDaysCount: stats.sevenDaysCount,
+      oneDayCount: stats.oneDayCount,
+      lookback: stats.lookback,
+      memberCount: stats.memberCount,
+      chart: base64Chart,
     };
   }
 }

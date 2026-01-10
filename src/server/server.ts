@@ -3,6 +3,7 @@ import { Static, status, t } from "elysia";
 import { Prisma } from "../generated/prisma/client";
 import { ThreadService } from "../lib/threads/thread.service";
 import { StatsService } from "../lib/stats/stats.service";
+import { MembersService } from "../lib/members/members.service";
 import { prisma } from "../prisma";
 
 export const PAGE_LIMIT = 100;
@@ -531,3 +532,53 @@ export function formatRepliesFromDb(
 ) {
   return replies.map((reply) => formatReplyFromDb(reply, guildId));
 }
+
+export async function searchUsers(
+  guildId: string,
+  query: string,
+  limit: number = 10,
+) {
+  const members = await prisma.memberGuild.findMany({
+    where: {
+      guildId,
+      status: true,
+      member: {
+        OR: [
+          { username: { contains: query, mode: "insensitive" } },
+          { globalName: { contains: query, mode: "insensitive" } },
+        ],
+      },
+    },
+    include: {
+      member: {
+        include: {
+          roles: {
+            where: { guildId },
+            orderBy: { position: "desc" },
+          },
+        },
+      },
+    },
+    orderBy: { highestRolePosition: "desc" },
+    take: Math.min(limit, 50),
+  });
+
+  return members.map((memberGuild) => formatMemberGuild(memberGuild, guildId));
+}
+
+export async function getUserStatsForApi(memberId: string, guildId: string) {
+  // Check if user is in the server
+  const memberGuild = await prisma.memberGuild.findUnique({
+    where: {
+      member_guild: { memberId, guildId },
+    },
+  });
+
+  if (!memberGuild || !memberGuild.status) {
+    return null;
+  }
+
+  return StatsService.getUserStats(memberId, guildId);
+}
+
+export { MembersService };
