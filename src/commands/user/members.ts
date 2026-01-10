@@ -19,9 +19,13 @@ export class Members {
     dmPermission: false,
   })
   async members(interaction: CommandInteraction) {
-    // deferReply first to avoid interaction timeout (skip if already acknowledged)
-    if (!interaction.deferred && !interaction.replied) {
-      await interaction.deferReply();
+    // deferReply first to avoid interaction timeout (wrapped in try-catch for safety)
+    try {
+      if (!interaction.deferred && !interaction.replied) {
+        await interaction.deferReply();
+      }
+    } catch {
+      // Already acknowledged, continue
     }
 
     // get text channel
