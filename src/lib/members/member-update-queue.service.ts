@@ -7,7 +7,7 @@ import { isVerificationRunning } from "./verify-all-users";
 let processorInterval: NodeJS.Timeout | null = null;
 let isProcessing = false;
 
-const PROCESS_INTERVAL_MS = 100;
+const PROCESS_INTERVAL_MS = 1000;
 
 export function queueMemberUpdate(
   memberId: string,
