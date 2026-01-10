@@ -207,6 +207,9 @@ export type GuildWhereInput = {
   memberHelper?: Prisma.MemberHelperListRelationFilter
   memberCommandHistory?: Prisma.MemberCommandHistoryListRelationFilter
   memberDeletedMessages?: Prisma.MemberDeletedMessagesListRelationFilter
+  threads?: Prisma.ThreadListRelationFilter
+  tags?: Prisma.TagListRelationFilter
+  threadReplies?: Prisma.ThreadReplyListRelationFilter
 }
 
 export type GuildOrderByWithRelationInput = {
@@ -220,6 +223,9 @@ export type GuildOrderByWithRelationInput = {
   memberHelper?: Prisma.MemberHelperOrderByRelationAggregateInput
   memberCommandHistory?: Prisma.MemberCommandHistoryOrderByRelationAggregateInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesOrderByRelationAggregateInput
+  threads?: Prisma.ThreadOrderByRelationAggregateInput
+  tags?: Prisma.TagOrderByRelationAggregateInput
+  threadReplies?: Prisma.ThreadReplyOrderByRelationAggregateInput
 }
 
 export type GuildWhereUniqueInput = Prisma.AtLeast<{
@@ -236,6 +242,9 @@ export type GuildWhereUniqueInput = Prisma.AtLeast<{
   memberHelper?: Prisma.MemberHelperListRelationFilter
   memberCommandHistory?: Prisma.MemberCommandHistoryListRelationFilter
   memberDeletedMessages?: Prisma.MemberDeletedMessagesListRelationFilter
+  threads?: Prisma.ThreadListRelationFilter
+  tags?: Prisma.TagListRelationFilter
+  threadReplies?: Prisma.ThreadReplyListRelationFilter
 }, "guildId" | "guildId">
 
 export type GuildOrderByWithAggregationInput = {
@@ -269,6 +278,9 @@ export type GuildCreateInput = {
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutGuildInput
 }
 
 export type GuildUncheckedCreateInput = {
@@ -282,6 +294,9 @@ export type GuildUncheckedCreateInput = {
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagUncheckedCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutGuildInput
 }
 
 export type GuildUpdateInput = {
@@ -295,6 +310,9 @@ export type GuildUpdateInput = {
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildUncheckedUpdateInput = {
@@ -308,6 +326,9 @@ export type GuildUncheckedUpdateInput = {
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUncheckedUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildCreateManyInput = {
@@ -469,6 +490,48 @@ export type GuildUpdateOneRequiredWithoutMemberDeletedMessagesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.GuildUpdateToOneWithWhereWithoutMemberDeletedMessagesInput, Prisma.GuildUpdateWithoutMemberDeletedMessagesInput>, Prisma.GuildUncheckedUpdateWithoutMemberDeletedMessagesInput>
 }
 
+export type GuildCreateNestedOneWithoutThreadsInput = {
+  create?: Prisma.XOR<Prisma.GuildCreateWithoutThreadsInput, Prisma.GuildUncheckedCreateWithoutThreadsInput>
+  connectOrCreate?: Prisma.GuildCreateOrConnectWithoutThreadsInput
+  connect?: Prisma.GuildWhereUniqueInput
+}
+
+export type GuildUpdateOneRequiredWithoutThreadsNestedInput = {
+  create?: Prisma.XOR<Prisma.GuildCreateWithoutThreadsInput, Prisma.GuildUncheckedCreateWithoutThreadsInput>
+  connectOrCreate?: Prisma.GuildCreateOrConnectWithoutThreadsInput
+  upsert?: Prisma.GuildUpsertWithoutThreadsInput
+  connect?: Prisma.GuildWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GuildUpdateToOneWithWhereWithoutThreadsInput, Prisma.GuildUpdateWithoutThreadsInput>, Prisma.GuildUncheckedUpdateWithoutThreadsInput>
+}
+
+export type GuildCreateNestedOneWithoutTagsInput = {
+  create?: Prisma.XOR<Prisma.GuildCreateWithoutTagsInput, Prisma.GuildUncheckedCreateWithoutTagsInput>
+  connectOrCreate?: Prisma.GuildCreateOrConnectWithoutTagsInput
+  connect?: Prisma.GuildWhereUniqueInput
+}
+
+export type GuildUpdateOneRequiredWithoutTagsNestedInput = {
+  create?: Prisma.XOR<Prisma.GuildCreateWithoutTagsInput, Prisma.GuildUncheckedCreateWithoutTagsInput>
+  connectOrCreate?: Prisma.GuildCreateOrConnectWithoutTagsInput
+  upsert?: Prisma.GuildUpsertWithoutTagsInput
+  connect?: Prisma.GuildWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GuildUpdateToOneWithWhereWithoutTagsInput, Prisma.GuildUpdateWithoutTagsInput>, Prisma.GuildUncheckedUpdateWithoutTagsInput>
+}
+
+export type GuildCreateNestedOneWithoutThreadRepliesInput = {
+  create?: Prisma.XOR<Prisma.GuildCreateWithoutThreadRepliesInput, Prisma.GuildUncheckedCreateWithoutThreadRepliesInput>
+  connectOrCreate?: Prisma.GuildCreateOrConnectWithoutThreadRepliesInput
+  connect?: Prisma.GuildWhereUniqueInput
+}
+
+export type GuildUpdateOneRequiredWithoutThreadRepliesNestedInput = {
+  create?: Prisma.XOR<Prisma.GuildCreateWithoutThreadRepliesInput, Prisma.GuildUncheckedCreateWithoutThreadRepliesInput>
+  connectOrCreate?: Prisma.GuildCreateOrConnectWithoutThreadRepliesInput
+  upsert?: Prisma.GuildUpsertWithoutThreadRepliesInput
+  connect?: Prisma.GuildWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GuildUpdateToOneWithWhereWithoutThreadRepliesInput, Prisma.GuildUpdateWithoutThreadRepliesInput>, Prisma.GuildUncheckedUpdateWithoutThreadRepliesInput>
+}
+
 export type GuildCreateWithoutGuildVoiceEventsInput = {
   guildId: string
   guildName: string
@@ -479,6 +542,9 @@ export type GuildCreateWithoutGuildVoiceEventsInput = {
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutGuildInput
 }
 
 export type GuildUncheckedCreateWithoutGuildVoiceEventsInput = {
@@ -491,6 +557,9 @@ export type GuildUncheckedCreateWithoutGuildVoiceEventsInput = {
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagUncheckedCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutGuildInput
 }
 
 export type GuildCreateOrConnectWithoutGuildVoiceEventsInput = {
@@ -519,6 +588,9 @@ export type GuildUpdateWithoutGuildVoiceEventsInput = {
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildUncheckedUpdateWithoutGuildVoiceEventsInput = {
@@ -531,6 +603,9 @@ export type GuildUncheckedUpdateWithoutGuildVoiceEventsInput = {
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUncheckedUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildCreateWithoutMemberMessagesInput = {
@@ -543,6 +618,9 @@ export type GuildCreateWithoutMemberMessagesInput = {
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutGuildInput
 }
 
 export type GuildUncheckedCreateWithoutMemberMessagesInput = {
@@ -555,6 +633,9 @@ export type GuildUncheckedCreateWithoutMemberMessagesInput = {
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagUncheckedCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutGuildInput
 }
 
 export type GuildCreateOrConnectWithoutMemberMessagesInput = {
@@ -583,6 +664,9 @@ export type GuildUpdateWithoutMemberMessagesInput = {
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildUncheckedUpdateWithoutMemberMessagesInput = {
@@ -595,6 +679,9 @@ export type GuildUncheckedUpdateWithoutMemberMessagesInput = {
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUncheckedUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildCreateWithoutMemberGuildInput = {
@@ -607,6 +694,9 @@ export type GuildCreateWithoutMemberGuildInput = {
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutGuildInput
 }
 
 export type GuildUncheckedCreateWithoutMemberGuildInput = {
@@ -619,6 +709,9 @@ export type GuildUncheckedCreateWithoutMemberGuildInput = {
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagUncheckedCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutGuildInput
 }
 
 export type GuildCreateOrConnectWithoutMemberGuildInput = {
@@ -647,6 +740,9 @@ export type GuildUpdateWithoutMemberGuildInput = {
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildUncheckedUpdateWithoutMemberGuildInput = {
@@ -659,6 +755,9 @@ export type GuildUncheckedUpdateWithoutMemberGuildInput = {
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUncheckedUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildCreateWithoutMemberHelperInput = {
@@ -671,6 +770,9 @@ export type GuildCreateWithoutMemberHelperInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutGuildInput
 }
 
 export type GuildUncheckedCreateWithoutMemberHelperInput = {
@@ -683,6 +785,9 @@ export type GuildUncheckedCreateWithoutMemberHelperInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagUncheckedCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutGuildInput
 }
 
 export type GuildCreateOrConnectWithoutMemberHelperInput = {
@@ -711,6 +816,9 @@ export type GuildUpdateWithoutMemberHelperInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildUncheckedUpdateWithoutMemberHelperInput = {
@@ -723,6 +831,9 @@ export type GuildUncheckedUpdateWithoutMemberHelperInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUncheckedUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildCreateWithoutMemberRoleInput = {
@@ -735,6 +846,9 @@ export type GuildCreateWithoutMemberRoleInput = {
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutGuildInput
 }
 
 export type GuildUncheckedCreateWithoutMemberRoleInput = {
@@ -747,6 +861,9 @@ export type GuildUncheckedCreateWithoutMemberRoleInput = {
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagUncheckedCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutGuildInput
 }
 
 export type GuildCreateOrConnectWithoutMemberRoleInput = {
@@ -775,6 +892,9 @@ export type GuildUpdateWithoutMemberRoleInput = {
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildUncheckedUpdateWithoutMemberRoleInput = {
@@ -787,6 +907,9 @@ export type GuildUncheckedUpdateWithoutMemberRoleInput = {
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUncheckedUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildCreateWithoutMemberCommandHistoryInput = {
@@ -799,6 +922,9 @@ export type GuildCreateWithoutMemberCommandHistoryInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutGuildInput
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutGuildInput
 }
 
 export type GuildUncheckedCreateWithoutMemberCommandHistoryInput = {
@@ -811,6 +937,9 @@ export type GuildUncheckedCreateWithoutMemberCommandHistoryInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutGuildInput
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutGuildInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagUncheckedCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutGuildInput
 }
 
 export type GuildCreateOrConnectWithoutMemberCommandHistoryInput = {
@@ -839,6 +968,9 @@ export type GuildUpdateWithoutMemberCommandHistoryInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutGuildNestedInput
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildUncheckedUpdateWithoutMemberCommandHistoryInput = {
@@ -851,6 +983,9 @@ export type GuildUncheckedUpdateWithoutMemberCommandHistoryInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutGuildNestedInput
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutGuildNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUncheckedUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildCreateWithoutMemberDeletedMessagesInput = {
@@ -863,6 +998,9 @@ export type GuildCreateWithoutMemberDeletedMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutGuildInput
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutGuildInput
 }
 
 export type GuildUncheckedCreateWithoutMemberDeletedMessagesInput = {
@@ -875,6 +1013,9 @@ export type GuildUncheckedCreateWithoutMemberDeletedMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutGuildInput
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutGuildInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagUncheckedCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutGuildInput
 }
 
 export type GuildCreateOrConnectWithoutMemberDeletedMessagesInput = {
@@ -903,6 +1044,9 @@ export type GuildUpdateWithoutMemberDeletedMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutGuildNestedInput
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutGuildNestedInput
 }
 
 export type GuildUncheckedUpdateWithoutMemberDeletedMessagesInput = {
@@ -915,6 +1059,237 @@ export type GuildUncheckedUpdateWithoutMemberDeletedMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutGuildNestedInput
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutGuildNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUncheckedUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutGuildNestedInput
+}
+
+export type GuildCreateWithoutThreadsInput = {
+  guildId: string
+  guildName: string
+  lookback?: number
+  memberGuild?: Prisma.MemberGuildCreateNestedManyWithoutGuildInput
+  memberRole?: Prisma.MemberRoleCreateNestedManyWithoutGuildInput
+  memberMessages?: Prisma.MemberMessagesCreateNestedManyWithoutGuildInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutGuildInput
+  memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutGuildInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutGuildInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutGuildInput
+}
+
+export type GuildUncheckedCreateWithoutThreadsInput = {
+  guildId: string
+  guildName: string
+  lookback?: number
+  memberGuild?: Prisma.MemberGuildUncheckedCreateNestedManyWithoutGuildInput
+  memberRole?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutGuildInput
+  memberMessages?: Prisma.MemberMessagesUncheckedCreateNestedManyWithoutGuildInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutGuildInput
+  memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutGuildInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutGuildInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagUncheckedCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutGuildInput
+}
+
+export type GuildCreateOrConnectWithoutThreadsInput = {
+  where: Prisma.GuildWhereUniqueInput
+  create: Prisma.XOR<Prisma.GuildCreateWithoutThreadsInput, Prisma.GuildUncheckedCreateWithoutThreadsInput>
+}
+
+export type GuildUpsertWithoutThreadsInput = {
+  update: Prisma.XOR<Prisma.GuildUpdateWithoutThreadsInput, Prisma.GuildUncheckedUpdateWithoutThreadsInput>
+  create: Prisma.XOR<Prisma.GuildCreateWithoutThreadsInput, Prisma.GuildUncheckedCreateWithoutThreadsInput>
+  where?: Prisma.GuildWhereInput
+}
+
+export type GuildUpdateToOneWithWhereWithoutThreadsInput = {
+  where?: Prisma.GuildWhereInput
+  data: Prisma.XOR<Prisma.GuildUpdateWithoutThreadsInput, Prisma.GuildUncheckedUpdateWithoutThreadsInput>
+}
+
+export type GuildUpdateWithoutThreadsInput = {
+  guildId?: Prisma.StringFieldUpdateOperationsInput | string
+  guildName?: Prisma.StringFieldUpdateOperationsInput | string
+  lookback?: Prisma.IntFieldUpdateOperationsInput | number
+  memberGuild?: Prisma.MemberGuildUpdateManyWithoutGuildNestedInput
+  memberRole?: Prisma.MemberRoleUpdateManyWithoutGuildNestedInput
+  memberMessages?: Prisma.MemberMessagesUpdateManyWithoutGuildNestedInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutGuildNestedInput
+  memberHelper?: Prisma.MemberHelperUpdateManyWithoutGuildNestedInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutGuildNestedInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutGuildNestedInput
+}
+
+export type GuildUncheckedUpdateWithoutThreadsInput = {
+  guildId?: Prisma.StringFieldUpdateOperationsInput | string
+  guildName?: Prisma.StringFieldUpdateOperationsInput | string
+  lookback?: Prisma.IntFieldUpdateOperationsInput | number
+  memberGuild?: Prisma.MemberGuildUncheckedUpdateManyWithoutGuildNestedInput
+  memberRole?: Prisma.MemberRoleUncheckedUpdateManyWithoutGuildNestedInput
+  memberMessages?: Prisma.MemberMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutGuildNestedInput
+  memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutGuildNestedInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutGuildNestedInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUncheckedUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutGuildNestedInput
+}
+
+export type GuildCreateWithoutTagsInput = {
+  guildId: string
+  guildName: string
+  lookback?: number
+  memberGuild?: Prisma.MemberGuildCreateNestedManyWithoutGuildInput
+  memberRole?: Prisma.MemberRoleCreateNestedManyWithoutGuildInput
+  memberMessages?: Prisma.MemberMessagesCreateNestedManyWithoutGuildInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutGuildInput
+  memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutGuildInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutGuildInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutGuildInput
+}
+
+export type GuildUncheckedCreateWithoutTagsInput = {
+  guildId: string
+  guildName: string
+  lookback?: number
+  memberGuild?: Prisma.MemberGuildUncheckedCreateNestedManyWithoutGuildInput
+  memberRole?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutGuildInput
+  memberMessages?: Prisma.MemberMessagesUncheckedCreateNestedManyWithoutGuildInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutGuildInput
+  memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutGuildInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutGuildInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutGuildInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutGuildInput
+}
+
+export type GuildCreateOrConnectWithoutTagsInput = {
+  where: Prisma.GuildWhereUniqueInput
+  create: Prisma.XOR<Prisma.GuildCreateWithoutTagsInput, Prisma.GuildUncheckedCreateWithoutTagsInput>
+}
+
+export type GuildUpsertWithoutTagsInput = {
+  update: Prisma.XOR<Prisma.GuildUpdateWithoutTagsInput, Prisma.GuildUncheckedUpdateWithoutTagsInput>
+  create: Prisma.XOR<Prisma.GuildCreateWithoutTagsInput, Prisma.GuildUncheckedCreateWithoutTagsInput>
+  where?: Prisma.GuildWhereInput
+}
+
+export type GuildUpdateToOneWithWhereWithoutTagsInput = {
+  where?: Prisma.GuildWhereInput
+  data: Prisma.XOR<Prisma.GuildUpdateWithoutTagsInput, Prisma.GuildUncheckedUpdateWithoutTagsInput>
+}
+
+export type GuildUpdateWithoutTagsInput = {
+  guildId?: Prisma.StringFieldUpdateOperationsInput | string
+  guildName?: Prisma.StringFieldUpdateOperationsInput | string
+  lookback?: Prisma.IntFieldUpdateOperationsInput | number
+  memberGuild?: Prisma.MemberGuildUpdateManyWithoutGuildNestedInput
+  memberRole?: Prisma.MemberRoleUpdateManyWithoutGuildNestedInput
+  memberMessages?: Prisma.MemberMessagesUpdateManyWithoutGuildNestedInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutGuildNestedInput
+  memberHelper?: Prisma.MemberHelperUpdateManyWithoutGuildNestedInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutGuildNestedInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutGuildNestedInput
+}
+
+export type GuildUncheckedUpdateWithoutTagsInput = {
+  guildId?: Prisma.StringFieldUpdateOperationsInput | string
+  guildName?: Prisma.StringFieldUpdateOperationsInput | string
+  lookback?: Prisma.IntFieldUpdateOperationsInput | number
+  memberGuild?: Prisma.MemberGuildUncheckedUpdateManyWithoutGuildNestedInput
+  memberRole?: Prisma.MemberRoleUncheckedUpdateManyWithoutGuildNestedInput
+  memberMessages?: Prisma.MemberMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutGuildNestedInput
+  memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutGuildNestedInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutGuildNestedInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutGuildNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutGuildNestedInput
+}
+
+export type GuildCreateWithoutThreadRepliesInput = {
+  guildId: string
+  guildName: string
+  lookback?: number
+  memberGuild?: Prisma.MemberGuildCreateNestedManyWithoutGuildInput
+  memberRole?: Prisma.MemberRoleCreateNestedManyWithoutGuildInput
+  memberMessages?: Prisma.MemberMessagesCreateNestedManyWithoutGuildInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutGuildInput
+  memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutGuildInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutGuildInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagCreateNestedManyWithoutGuildInput
+}
+
+export type GuildUncheckedCreateWithoutThreadRepliesInput = {
+  guildId: string
+  guildName: string
+  lookback?: number
+  memberGuild?: Prisma.MemberGuildUncheckedCreateNestedManyWithoutGuildInput
+  memberRole?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutGuildInput
+  memberMessages?: Prisma.MemberMessagesUncheckedCreateNestedManyWithoutGuildInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutGuildInput
+  memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutGuildInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutGuildInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutGuildInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutGuildInput
+  tags?: Prisma.TagUncheckedCreateNestedManyWithoutGuildInput
+}
+
+export type GuildCreateOrConnectWithoutThreadRepliesInput = {
+  where: Prisma.GuildWhereUniqueInput
+  create: Prisma.XOR<Prisma.GuildCreateWithoutThreadRepliesInput, Prisma.GuildUncheckedCreateWithoutThreadRepliesInput>
+}
+
+export type GuildUpsertWithoutThreadRepliesInput = {
+  update: Prisma.XOR<Prisma.GuildUpdateWithoutThreadRepliesInput, Prisma.GuildUncheckedUpdateWithoutThreadRepliesInput>
+  create: Prisma.XOR<Prisma.GuildCreateWithoutThreadRepliesInput, Prisma.GuildUncheckedCreateWithoutThreadRepliesInput>
+  where?: Prisma.GuildWhereInput
+}
+
+export type GuildUpdateToOneWithWhereWithoutThreadRepliesInput = {
+  where?: Prisma.GuildWhereInput
+  data: Prisma.XOR<Prisma.GuildUpdateWithoutThreadRepliesInput, Prisma.GuildUncheckedUpdateWithoutThreadRepliesInput>
+}
+
+export type GuildUpdateWithoutThreadRepliesInput = {
+  guildId?: Prisma.StringFieldUpdateOperationsInput | string
+  guildName?: Prisma.StringFieldUpdateOperationsInput | string
+  lookback?: Prisma.IntFieldUpdateOperationsInput | number
+  memberGuild?: Prisma.MemberGuildUpdateManyWithoutGuildNestedInput
+  memberRole?: Prisma.MemberRoleUpdateManyWithoutGuildNestedInput
+  memberMessages?: Prisma.MemberMessagesUpdateManyWithoutGuildNestedInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutGuildNestedInput
+  memberHelper?: Prisma.MemberHelperUpdateManyWithoutGuildNestedInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutGuildNestedInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUpdateManyWithoutGuildNestedInput
+}
+
+export type GuildUncheckedUpdateWithoutThreadRepliesInput = {
+  guildId?: Prisma.StringFieldUpdateOperationsInput | string
+  guildName?: Prisma.StringFieldUpdateOperationsInput | string
+  lookback?: Prisma.IntFieldUpdateOperationsInput | number
+  memberGuild?: Prisma.MemberGuildUncheckedUpdateManyWithoutGuildNestedInput
+  memberRole?: Prisma.MemberRoleUncheckedUpdateManyWithoutGuildNestedInput
+  memberMessages?: Prisma.MemberMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutGuildNestedInput
+  memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutGuildNestedInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutGuildNestedInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutGuildNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutGuildNestedInput
+  tags?: Prisma.TagUncheckedUpdateManyWithoutGuildNestedInput
 }
 
 
@@ -930,6 +1305,9 @@ export type GuildCountOutputType = {
   memberHelper: number
   memberCommandHistory: number
   memberDeletedMessages: number
+  threads: number
+  tags: number
+  threadReplies: number
 }
 
 export type GuildCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -940,6 +1318,9 @@ export type GuildCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   memberHelper?: boolean | GuildCountOutputTypeCountMemberHelperArgs
   memberCommandHistory?: boolean | GuildCountOutputTypeCountMemberCommandHistoryArgs
   memberDeletedMessages?: boolean | GuildCountOutputTypeCountMemberDeletedMessagesArgs
+  threads?: boolean | GuildCountOutputTypeCountThreadsArgs
+  tags?: boolean | GuildCountOutputTypeCountTagsArgs
+  threadReplies?: boolean | GuildCountOutputTypeCountThreadRepliesArgs
 }
 
 /**
@@ -1001,6 +1382,27 @@ export type GuildCountOutputTypeCountMemberDeletedMessagesArgs<ExtArgs extends r
   where?: Prisma.MemberDeletedMessagesWhereInput
 }
 
+/**
+ * GuildCountOutputType without action
+ */
+export type GuildCountOutputTypeCountThreadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ThreadWhereInput
+}
+
+/**
+ * GuildCountOutputType without action
+ */
+export type GuildCountOutputTypeCountTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TagWhereInput
+}
+
+/**
+ * GuildCountOutputType without action
+ */
+export type GuildCountOutputTypeCountThreadRepliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ThreadReplyWhereInput
+}
+
 
 export type GuildSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   guildId?: boolean
@@ -1013,6 +1415,9 @@ export type GuildSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   memberHelper?: boolean | Prisma.Guild$memberHelperArgs<ExtArgs>
   memberCommandHistory?: boolean | Prisma.Guild$memberCommandHistoryArgs<ExtArgs>
   memberDeletedMessages?: boolean | Prisma.Guild$memberDeletedMessagesArgs<ExtArgs>
+  threads?: boolean | Prisma.Guild$threadsArgs<ExtArgs>
+  tags?: boolean | Prisma.Guild$tagsArgs<ExtArgs>
+  threadReplies?: boolean | Prisma.Guild$threadRepliesArgs<ExtArgs>
   _count?: boolean | Prisma.GuildCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["guild"]>
 
@@ -1043,6 +1448,9 @@ export type GuildInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   memberHelper?: boolean | Prisma.Guild$memberHelperArgs<ExtArgs>
   memberCommandHistory?: boolean | Prisma.Guild$memberCommandHistoryArgs<ExtArgs>
   memberDeletedMessages?: boolean | Prisma.Guild$memberDeletedMessagesArgs<ExtArgs>
+  threads?: boolean | Prisma.Guild$threadsArgs<ExtArgs>
+  tags?: boolean | Prisma.Guild$tagsArgs<ExtArgs>
+  threadReplies?: boolean | Prisma.Guild$threadRepliesArgs<ExtArgs>
   _count?: boolean | Prisma.GuildCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type GuildIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1058,6 +1466,9 @@ export type $GuildPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     memberHelper: Prisma.$MemberHelperPayload<ExtArgs>[]
     memberCommandHistory: Prisma.$MemberCommandHistoryPayload<ExtArgs>[]
     memberDeletedMessages: Prisma.$MemberDeletedMessagesPayload<ExtArgs>[]
+    threads: Prisma.$ThreadPayload<ExtArgs>[]
+    tags: Prisma.$TagPayload<ExtArgs>[]
+    threadReplies: Prisma.$ThreadReplyPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     guildId: string
@@ -1464,6 +1875,9 @@ export interface Prisma__GuildClient<T, Null = never, ExtArgs extends runtime.Ty
   memberHelper<T extends Prisma.Guild$memberHelperArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guild$memberHelperArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MemberHelperPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   memberCommandHistory<T extends Prisma.Guild$memberCommandHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guild$memberCommandHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MemberCommandHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   memberDeletedMessages<T extends Prisma.Guild$memberDeletedMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guild$memberDeletedMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MemberDeletedMessagesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  threads<T extends Prisma.Guild$threadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guild$threadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ThreadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  tags<T extends Prisma.Guild$tagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guild$tagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  threadReplies<T extends Prisma.Guild$threadRepliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Guild$threadRepliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ThreadReplyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2049,6 +2463,78 @@ export type Guild$memberDeletedMessagesArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.MemberDeletedMessagesScalarFieldEnum | Prisma.MemberDeletedMessagesScalarFieldEnum[]
+}
+
+/**
+ * Guild.threads
+ */
+export type Guild$threadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Thread
+   */
+  select?: Prisma.ThreadSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Thread
+   */
+  omit?: Prisma.ThreadOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ThreadInclude<ExtArgs> | null
+  where?: Prisma.ThreadWhereInput
+  orderBy?: Prisma.ThreadOrderByWithRelationInput | Prisma.ThreadOrderByWithRelationInput[]
+  cursor?: Prisma.ThreadWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ThreadScalarFieldEnum | Prisma.ThreadScalarFieldEnum[]
+}
+
+/**
+ * Guild.tags
+ */
+export type Guild$tagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Tag
+   */
+  select?: Prisma.TagSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Tag
+   */
+  omit?: Prisma.TagOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TagInclude<ExtArgs> | null
+  where?: Prisma.TagWhereInput
+  orderBy?: Prisma.TagOrderByWithRelationInput | Prisma.TagOrderByWithRelationInput[]
+  cursor?: Prisma.TagWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TagScalarFieldEnum | Prisma.TagScalarFieldEnum[]
+}
+
+/**
+ * Guild.threadReplies
+ */
+export type Guild$threadRepliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ThreadReply
+   */
+  select?: Prisma.ThreadReplySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ThreadReply
+   */
+  omit?: Prisma.ThreadReplyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ThreadReplyInclude<ExtArgs> | null
+  where?: Prisma.ThreadReplyWhereInput
+  orderBy?: Prisma.ThreadReplyOrderByWithRelationInput | Prisma.ThreadReplyOrderByWithRelationInput[]
+  cursor?: Prisma.ThreadReplyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ThreadReplyScalarFieldEnum | Prisma.ThreadReplyScalarFieldEnum[]
 }
 
 /**

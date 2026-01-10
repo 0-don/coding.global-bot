@@ -72,3 +72,28 @@ export type VerificationProgress = Prisma.VerificationProgressModel
  * 
  */
 export type MemberUpdateQueue = Prisma.MemberUpdateQueueModel
+/**
+ * Model Thread
+ * 
+ */
+export type Thread = Prisma.ThreadModel
+/**
+ * Model Tag
+ * 
+ */
+export type Tag = Prisma.TagModel
+/**
+ * Model ThreadTag
+ * 
+ */
+export type ThreadTag = Prisma.ThreadTagModel
+/**
+ * Model ThreadReply
+ * 
+ */
+export type ThreadReply = Prisma.ThreadReplyModel
+/**
+ * Model SyncProgress
+ * 
+ */
+export type SyncProgress = Prisma.SyncProgressModel

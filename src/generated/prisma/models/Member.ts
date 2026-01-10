@@ -310,6 +310,8 @@ export type MemberWhereInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsListRelationFilter
   memberHelper?: Prisma.MemberHelperListRelationFilter
   memberCommandHistory?: Prisma.MemberCommandHistoryListRelationFilter
+  threads?: Prisma.ThreadListRelationFilter
+  threadReplies?: Prisma.ThreadReplyListRelationFilter
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesListRelationFilter
   memberDeletedMessages?: Prisma.MemberDeletedMessagesListRelationFilter
 }
@@ -338,6 +340,8 @@ export type MemberOrderByWithRelationInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsOrderByRelationAggregateInput
   memberHelper?: Prisma.MemberHelperOrderByRelationAggregateInput
   memberCommandHistory?: Prisma.MemberCommandHistoryOrderByRelationAggregateInput
+  threads?: Prisma.ThreadOrderByRelationAggregateInput
+  threadReplies?: Prisma.ThreadReplyOrderByRelationAggregateInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesOrderByRelationAggregateInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesOrderByRelationAggregateInput
 }
@@ -369,6 +373,8 @@ export type MemberWhereUniqueInput = Prisma.AtLeast<{
   guildVoiceEvents?: Prisma.GuildVoiceEventsListRelationFilter
   memberHelper?: Prisma.MemberHelperListRelationFilter
   memberCommandHistory?: Prisma.MemberCommandHistoryListRelationFilter
+  threads?: Prisma.ThreadListRelationFilter
+  threadReplies?: Prisma.ThreadReplyListRelationFilter
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesListRelationFilter
   memberDeletedMessages?: Prisma.MemberDeletedMessagesListRelationFilter
 }, "memberId" | "memberId">
@@ -445,6 +451,8 @@ export type MemberCreateInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutMessageMemberInput
 }
@@ -473,6 +481,8 @@ export type MemberUncheckedCreateInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutMessageMemberInput
 }
@@ -501,6 +511,8 @@ export type MemberUpdateInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutMessageMemberNestedInput
 }
@@ -529,6 +541,8 @@ export type MemberUncheckedUpdateInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutMessageMemberNestedInput
 }
@@ -798,6 +812,34 @@ export type MemberUpdateOneRequiredWithoutMemberDeletedMessagesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutMemberDeletedMessagesInput, Prisma.MemberUpdateWithoutMemberDeletedMessagesInput>, Prisma.MemberUncheckedUpdateWithoutMemberDeletedMessagesInput>
 }
 
+export type MemberCreateNestedOneWithoutThreadsInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutThreadsInput, Prisma.MemberUncheckedCreateWithoutThreadsInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutThreadsInput
+  connect?: Prisma.MemberWhereUniqueInput
+}
+
+export type MemberUpdateOneRequiredWithoutThreadsNestedInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutThreadsInput, Prisma.MemberUncheckedCreateWithoutThreadsInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutThreadsInput
+  upsert?: Prisma.MemberUpsertWithoutThreadsInput
+  connect?: Prisma.MemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutThreadsInput, Prisma.MemberUpdateWithoutThreadsInput>, Prisma.MemberUncheckedUpdateWithoutThreadsInput>
+}
+
+export type MemberCreateNestedOneWithoutThreadRepliesInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutThreadRepliesInput, Prisma.MemberUncheckedCreateWithoutThreadRepliesInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutThreadRepliesInput
+  connect?: Prisma.MemberWhereUniqueInput
+}
+
+export type MemberUpdateOneRequiredWithoutThreadRepliesNestedInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutThreadRepliesInput, Prisma.MemberUncheckedCreateWithoutThreadRepliesInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutThreadRepliesInput
+  upsert?: Prisma.MemberUpsertWithoutThreadRepliesInput
+  connect?: Prisma.MemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutThreadRepliesInput, Prisma.MemberUpdateWithoutThreadRepliesInput>, Prisma.MemberUncheckedUpdateWithoutThreadRepliesInput>
+}
+
 export type MemberCreateWithoutGuildVoiceEventsInput = {
   memberId: string
   username: string
@@ -821,6 +863,8 @@ export type MemberCreateWithoutGuildVoiceEventsInput = {
   memberMessages?: Prisma.MemberMessagesCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutMessageMemberInput
 }
@@ -848,6 +892,8 @@ export type MemberUncheckedCreateWithoutGuildVoiceEventsInput = {
   memberMessages?: Prisma.MemberMessagesUncheckedCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutMessageMemberInput
 }
@@ -891,6 +937,8 @@ export type MemberUpdateWithoutGuildVoiceEventsInput = {
   memberMessages?: Prisma.MemberMessagesUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutMessageMemberNestedInput
 }
@@ -918,6 +966,8 @@ export type MemberUncheckedUpdateWithoutGuildVoiceEventsInput = {
   memberMessages?: Prisma.MemberMessagesUncheckedUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutMessageMemberNestedInput
 }
@@ -945,6 +995,8 @@ export type MemberCreateWithoutMemberMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutMessageMemberInput
 }
@@ -972,6 +1024,8 @@ export type MemberUncheckedCreateWithoutMemberMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutMessageMemberInput
 }
@@ -1015,6 +1069,8 @@ export type MemberUpdateWithoutMemberMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutMessageMemberNestedInput
 }
@@ -1042,6 +1098,8 @@ export type MemberUncheckedUpdateWithoutMemberMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutMessageMemberNestedInput
 }
@@ -1069,6 +1127,8 @@ export type MemberCreateWithoutGuildsInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutMessageMemberInput
 }
@@ -1096,6 +1156,8 @@ export type MemberUncheckedCreateWithoutGuildsInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutMessageMemberInput
 }
@@ -1139,6 +1201,8 @@ export type MemberUpdateWithoutGuildsInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutMessageMemberNestedInput
 }
@@ -1166,6 +1230,8 @@ export type MemberUncheckedUpdateWithoutGuildsInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutMessageMemberNestedInput
 }
@@ -1193,6 +1259,8 @@ export type MemberCreateWithoutMemberHelperInput = {
   memberMessages?: Prisma.MemberMessagesCreateNestedManyWithoutMemberInput
   guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutMessageMemberInput
 }
@@ -1220,6 +1288,8 @@ export type MemberUncheckedCreateWithoutMemberHelperInput = {
   memberMessages?: Prisma.MemberMessagesUncheckedCreateNestedManyWithoutMemberInput
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutMessageMemberInput
 }
@@ -1263,6 +1333,8 @@ export type MemberUpdateWithoutMemberHelperInput = {
   memberMessages?: Prisma.MemberMessagesUpdateManyWithoutMemberNestedInput
   guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutMessageMemberNestedInput
 }
@@ -1290,6 +1362,8 @@ export type MemberUncheckedUpdateWithoutMemberHelperInput = {
   memberMessages?: Prisma.MemberMessagesUncheckedUpdateManyWithoutMemberNestedInput
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutMessageMemberNestedInput
 }
@@ -1317,6 +1391,8 @@ export type MemberCreateWithoutRolesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutMessageMemberInput
 }
@@ -1344,6 +1420,8 @@ export type MemberUncheckedCreateWithoutRolesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutMessageMemberInput
 }
@@ -1387,6 +1465,8 @@ export type MemberUpdateWithoutRolesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutMessageMemberNestedInput
 }
@@ -1414,6 +1494,8 @@ export type MemberUncheckedUpdateWithoutRolesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutMessageMemberNestedInput
 }
@@ -1441,6 +1523,8 @@ export type MemberCreateWithoutMemberCommandHistoryInput = {
   memberMessages?: Prisma.MemberMessagesCreateNestedManyWithoutMemberInput
   guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutMessageMemberInput
 }
@@ -1468,6 +1552,8 @@ export type MemberUncheckedCreateWithoutMemberCommandHistoryInput = {
   memberMessages?: Prisma.MemberMessagesUncheckedCreateNestedManyWithoutMemberInput
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutDeletedByMemberInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutMessageMemberInput
 }
@@ -1511,6 +1597,8 @@ export type MemberUpdateWithoutMemberCommandHistoryInput = {
   memberMessages?: Prisma.MemberMessagesUpdateManyWithoutMemberNestedInput
   guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutMessageMemberNestedInput
 }
@@ -1538,6 +1626,8 @@ export type MemberUncheckedUpdateWithoutMemberCommandHistoryInput = {
   memberMessages?: Prisma.MemberMessagesUncheckedUpdateManyWithoutMemberNestedInput
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutDeletedByMemberNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutMessageMemberNestedInput
 }
@@ -1566,6 +1656,8 @@ export type MemberCreateWithoutDeletedByMemberMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutAuthorInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutMessageMemberInput
 }
 
@@ -1593,6 +1685,8 @@ export type MemberUncheckedCreateWithoutDeletedByMemberMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutAuthorInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutMessageMemberInput
 }
 
@@ -1625,6 +1719,8 @@ export type MemberCreateWithoutMemberDeletedMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutDeletedByMemberInput
 }
 
@@ -1652,6 +1748,8 @@ export type MemberUncheckedCreateWithoutMemberDeletedMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutMemberInput
   memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutMemberInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutAuthorInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutAuthorInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutDeletedByMemberInput
 }
 
@@ -1695,6 +1793,8 @@ export type MemberUpdateWithoutDeletedByMemberMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutAuthorNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutMessageMemberNestedInput
 }
 
@@ -1722,6 +1822,8 @@ export type MemberUncheckedUpdateWithoutDeletedByMemberMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutAuthorNestedInput
   memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutMessageMemberNestedInput
 }
 
@@ -1760,6 +1862,8 @@ export type MemberUpdateWithoutMemberDeletedMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutDeletedByMemberNestedInput
 }
 
@@ -1787,7 +1891,273 @@ export type MemberUncheckedUpdateWithoutMemberDeletedMessagesInput = {
   guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutMemberNestedInput
   memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutMemberNestedInput
   memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutAuthorNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutAuthorNestedInput
   deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutDeletedByMemberNestedInput
+}
+
+export type MemberCreateWithoutThreadsInput = {
+  memberId: string
+  username: string
+  globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
+  avatarUrl?: string | null
+  bannerUrl?: string | null
+  accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string | null
+  updatedAt?: Date | string
+  roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
+  guilds?: Prisma.MemberGuildCreateNestedManyWithoutMemberInput
+  memberMessages?: Prisma.MemberMessagesCreateNestedManyWithoutMemberInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutMemberInput
+  memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutMemberInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutMemberInput
+  threadReplies?: Prisma.ThreadReplyCreateNestedManyWithoutAuthorInput
+  deletedByMemberMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutDeletedByMemberInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutMessageMemberInput
+}
+
+export type MemberUncheckedCreateWithoutThreadsInput = {
+  memberId: string
+  username: string
+  globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
+  avatarUrl?: string | null
+  bannerUrl?: string | null
+  accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string | null
+  updatedAt?: Date | string
+  roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
+  guilds?: Prisma.MemberGuildUncheckedCreateNestedManyWithoutMemberInput
+  memberMessages?: Prisma.MemberMessagesUncheckedCreateNestedManyWithoutMemberInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutMemberInput
+  memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutMemberInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutMemberInput
+  threadReplies?: Prisma.ThreadReplyUncheckedCreateNestedManyWithoutAuthorInput
+  deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutDeletedByMemberInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutMessageMemberInput
+}
+
+export type MemberCreateOrConnectWithoutThreadsInput = {
+  where: Prisma.MemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.MemberCreateWithoutThreadsInput, Prisma.MemberUncheckedCreateWithoutThreadsInput>
+}
+
+export type MemberUpsertWithoutThreadsInput = {
+  update: Prisma.XOR<Prisma.MemberUpdateWithoutThreadsInput, Prisma.MemberUncheckedUpdateWithoutThreadsInput>
+  create: Prisma.XOR<Prisma.MemberCreateWithoutThreadsInput, Prisma.MemberUncheckedCreateWithoutThreadsInput>
+  where?: Prisma.MemberWhereInput
+}
+
+export type MemberUpdateToOneWithWhereWithoutThreadsInput = {
+  where?: Prisma.MemberWhereInput
+  data: Prisma.XOR<Prisma.MemberUpdateWithoutThreadsInput, Prisma.MemberUncheckedUpdateWithoutThreadsInput>
+}
+
+export type MemberUpdateWithoutThreadsInput = {
+  memberId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
+  guilds?: Prisma.MemberGuildUpdateManyWithoutMemberNestedInput
+  memberMessages?: Prisma.MemberMessagesUpdateManyWithoutMemberNestedInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutMemberNestedInput
+  memberHelper?: Prisma.MemberHelperUpdateManyWithoutMemberNestedInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutMemberNestedInput
+  threadReplies?: Prisma.ThreadReplyUpdateManyWithoutAuthorNestedInput
+  deletedByMemberMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutDeletedByMemberNestedInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutMessageMemberNestedInput
+}
+
+export type MemberUncheckedUpdateWithoutThreadsInput = {
+  memberId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
+  guilds?: Prisma.MemberGuildUncheckedUpdateManyWithoutMemberNestedInput
+  memberMessages?: Prisma.MemberMessagesUncheckedUpdateManyWithoutMemberNestedInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutMemberNestedInput
+  memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutMemberNestedInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutMemberNestedInput
+  threadReplies?: Prisma.ThreadReplyUncheckedUpdateManyWithoutAuthorNestedInput
+  deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutDeletedByMemberNestedInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutMessageMemberNestedInput
+}
+
+export type MemberCreateWithoutThreadRepliesInput = {
+  memberId: string
+  username: string
+  globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
+  avatarUrl?: string | null
+  bannerUrl?: string | null
+  accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string | null
+  updatedAt?: Date | string
+  roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
+  guilds?: Prisma.MemberGuildCreateNestedManyWithoutMemberInput
+  memberMessages?: Prisma.MemberMessagesCreateNestedManyWithoutMemberInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsCreateNestedManyWithoutMemberInput
+  memberHelper?: Prisma.MemberHelperCreateNestedManyWithoutMemberInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadCreateNestedManyWithoutAuthorInput
+  deletedByMemberMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutDeletedByMemberInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesCreateNestedManyWithoutMessageMemberInput
+}
+
+export type MemberUncheckedCreateWithoutThreadRepliesInput = {
+  memberId: string
+  username: string
+  globalName?: string | null
+  discriminator?: string | null
+  bot?: boolean
+  system?: boolean
+  avatarUrl?: string | null
+  bannerUrl?: string | null
+  accentColor?: number | null
+  avatarDecorationUrl?: string | null
+  flags?: bigint | number | null
+  hexAccentColor?: string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string | null
+  updatedAt?: Date | string
+  roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
+  guilds?: Prisma.MemberGuildUncheckedCreateNestedManyWithoutMemberInput
+  memberMessages?: Prisma.MemberMessagesUncheckedCreateNestedManyWithoutMemberInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedCreateNestedManyWithoutMemberInput
+  memberHelper?: Prisma.MemberHelperUncheckedCreateNestedManyWithoutMemberInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedCreateNestedManyWithoutMemberInput
+  threads?: Prisma.ThreadUncheckedCreateNestedManyWithoutAuthorInput
+  deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutDeletedByMemberInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedCreateNestedManyWithoutMessageMemberInput
+}
+
+export type MemberCreateOrConnectWithoutThreadRepliesInput = {
+  where: Prisma.MemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.MemberCreateWithoutThreadRepliesInput, Prisma.MemberUncheckedCreateWithoutThreadRepliesInput>
+}
+
+export type MemberUpsertWithoutThreadRepliesInput = {
+  update: Prisma.XOR<Prisma.MemberUpdateWithoutThreadRepliesInput, Prisma.MemberUncheckedUpdateWithoutThreadRepliesInput>
+  create: Prisma.XOR<Prisma.MemberCreateWithoutThreadRepliesInput, Prisma.MemberUncheckedCreateWithoutThreadRepliesInput>
+  where?: Prisma.MemberWhereInput
+}
+
+export type MemberUpdateToOneWithWhereWithoutThreadRepliesInput = {
+  where?: Prisma.MemberWhereInput
+  data: Prisma.XOR<Prisma.MemberUpdateWithoutThreadRepliesInput, Prisma.MemberUncheckedUpdateWithoutThreadRepliesInput>
+}
+
+export type MemberUpdateWithoutThreadRepliesInput = {
+  memberId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
+  guilds?: Prisma.MemberGuildUpdateManyWithoutMemberNestedInput
+  memberMessages?: Prisma.MemberMessagesUpdateManyWithoutMemberNestedInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUpdateManyWithoutMemberNestedInput
+  memberHelper?: Prisma.MemberHelperUpdateManyWithoutMemberNestedInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUpdateManyWithoutAuthorNestedInput
+  deletedByMemberMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutDeletedByMemberNestedInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUpdateManyWithoutMessageMemberNestedInput
+}
+
+export type MemberUncheckedUpdateWithoutThreadRepliesInput = {
+  memberId?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  globalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  discriminator?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bot?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  system?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bannerUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accentColor?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  avatarDecorationUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+  hexAccentColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarDecorationData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  collectibles?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  primaryGuild?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
+  guilds?: Prisma.MemberGuildUncheckedUpdateManyWithoutMemberNestedInput
+  memberMessages?: Prisma.MemberMessagesUncheckedUpdateManyWithoutMemberNestedInput
+  guildVoiceEvents?: Prisma.GuildVoiceEventsUncheckedUpdateManyWithoutMemberNestedInput
+  memberHelper?: Prisma.MemberHelperUncheckedUpdateManyWithoutMemberNestedInput
+  memberCommandHistory?: Prisma.MemberCommandHistoryUncheckedUpdateManyWithoutMemberNestedInput
+  threads?: Prisma.ThreadUncheckedUpdateManyWithoutAuthorNestedInput
+  deletedByMemberMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutDeletedByMemberNestedInput
+  memberDeletedMessages?: Prisma.MemberDeletedMessagesUncheckedUpdateManyWithoutMessageMemberNestedInput
 }
 
 
@@ -1802,6 +2172,8 @@ export type MemberCountOutputType = {
   guildVoiceEvents: number
   memberHelper: number
   memberCommandHistory: number
+  threads: number
+  threadReplies: number
   deletedByMemberMessages: number
   memberDeletedMessages: number
 }
@@ -1813,6 +2185,8 @@ export type MemberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   guildVoiceEvents?: boolean | MemberCountOutputTypeCountGuildVoiceEventsArgs
   memberHelper?: boolean | MemberCountOutputTypeCountMemberHelperArgs
   memberCommandHistory?: boolean | MemberCountOutputTypeCountMemberCommandHistoryArgs
+  threads?: boolean | MemberCountOutputTypeCountThreadsArgs
+  threadReplies?: boolean | MemberCountOutputTypeCountThreadRepliesArgs
   deletedByMemberMessages?: boolean | MemberCountOutputTypeCountDeletedByMemberMessagesArgs
   memberDeletedMessages?: boolean | MemberCountOutputTypeCountMemberDeletedMessagesArgs
 }
@@ -1872,6 +2246,20 @@ export type MemberCountOutputTypeCountMemberCommandHistoryArgs<ExtArgs extends r
 /**
  * MemberCountOutputType without action
  */
+export type MemberCountOutputTypeCountThreadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ThreadWhereInput
+}
+
+/**
+ * MemberCountOutputType without action
+ */
+export type MemberCountOutputTypeCountThreadRepliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ThreadReplyWhereInput
+}
+
+/**
+ * MemberCountOutputType without action
+ */
 export type MemberCountOutputTypeCountDeletedByMemberMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.MemberDeletedMessagesWhereInput
 }
@@ -1908,6 +2296,8 @@ export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   guildVoiceEvents?: boolean | Prisma.Member$guildVoiceEventsArgs<ExtArgs>
   memberHelper?: boolean | Prisma.Member$memberHelperArgs<ExtArgs>
   memberCommandHistory?: boolean | Prisma.Member$memberCommandHistoryArgs<ExtArgs>
+  threads?: boolean | Prisma.Member$threadsArgs<ExtArgs>
+  threadReplies?: boolean | Prisma.Member$threadRepliesArgs<ExtArgs>
   deletedByMemberMessages?: boolean | Prisma.Member$deletedByMemberMessagesArgs<ExtArgs>
   memberDeletedMessages?: boolean | Prisma.Member$memberDeletedMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.MemberCountOutputTypeDefaultArgs<ExtArgs>
@@ -1981,6 +2371,8 @@ export type MemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   guildVoiceEvents?: boolean | Prisma.Member$guildVoiceEventsArgs<ExtArgs>
   memberHelper?: boolean | Prisma.Member$memberHelperArgs<ExtArgs>
   memberCommandHistory?: boolean | Prisma.Member$memberCommandHistoryArgs<ExtArgs>
+  threads?: boolean | Prisma.Member$threadsArgs<ExtArgs>
+  threadReplies?: boolean | Prisma.Member$threadRepliesArgs<ExtArgs>
   deletedByMemberMessages?: boolean | Prisma.Member$deletedByMemberMessagesArgs<ExtArgs>
   memberDeletedMessages?: boolean | Prisma.Member$memberDeletedMessagesArgs<ExtArgs>
   _count?: boolean | Prisma.MemberCountOutputTypeDefaultArgs<ExtArgs>
@@ -1997,6 +2389,8 @@ export type $MemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     guildVoiceEvents: Prisma.$GuildVoiceEventsPayload<ExtArgs>[]
     memberHelper: Prisma.$MemberHelperPayload<ExtArgs>[]
     memberCommandHistory: Prisma.$MemberCommandHistoryPayload<ExtArgs>[]
+    threads: Prisma.$ThreadPayload<ExtArgs>[]
+    threadReplies: Prisma.$ThreadReplyPayload<ExtArgs>[]
     deletedByMemberMessages: Prisma.$MemberDeletedMessagesPayload<ExtArgs>[]
     memberDeletedMessages: Prisma.$MemberDeletedMessagesPayload<ExtArgs>[]
   }
@@ -2418,6 +2812,8 @@ export interface Prisma__MemberClient<T, Null = never, ExtArgs extends runtime.T
   guildVoiceEvents<T extends Prisma.Member$guildVoiceEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$guildVoiceEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GuildVoiceEventsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   memberHelper<T extends Prisma.Member$memberHelperArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$memberHelperArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MemberHelperPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   memberCommandHistory<T extends Prisma.Member$memberCommandHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$memberCommandHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MemberCommandHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  threads<T extends Prisma.Member$threadsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$threadsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ThreadPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  threadReplies<T extends Prisma.Member$threadRepliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$threadRepliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ThreadReplyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   deletedByMemberMessages<T extends Prisma.Member$deletedByMemberMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$deletedByMemberMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MemberDeletedMessagesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   memberDeletedMessages<T extends Prisma.Member$memberDeletedMessagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$memberDeletedMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MemberDeletedMessagesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2995,6 +3391,54 @@ export type Member$memberCommandHistoryArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.MemberCommandHistoryScalarFieldEnum | Prisma.MemberCommandHistoryScalarFieldEnum[]
+}
+
+/**
+ * Member.threads
+ */
+export type Member$threadsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Thread
+   */
+  select?: Prisma.ThreadSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Thread
+   */
+  omit?: Prisma.ThreadOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ThreadInclude<ExtArgs> | null
+  where?: Prisma.ThreadWhereInput
+  orderBy?: Prisma.ThreadOrderByWithRelationInput | Prisma.ThreadOrderByWithRelationInput[]
+  cursor?: Prisma.ThreadWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ThreadScalarFieldEnum | Prisma.ThreadScalarFieldEnum[]
+}
+
+/**
+ * Member.threadReplies
+ */
+export type Member$threadRepliesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ThreadReply
+   */
+  select?: Prisma.ThreadReplySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ThreadReply
+   */
+  omit?: Prisma.ThreadReplyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ThreadReplyInclude<ExtArgs> | null
+  where?: Prisma.ThreadReplyWhereInput
+  orderBy?: Prisma.ThreadReplyOrderByWithRelationInput | Prisma.ThreadReplyOrderByWithRelationInput[]
+  cursor?: Prisma.ThreadReplyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ThreadReplyScalarFieldEnum | Prisma.ThreadReplyScalarFieldEnum[]
 }
 
 /**

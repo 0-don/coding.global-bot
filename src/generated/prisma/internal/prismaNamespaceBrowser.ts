@@ -61,7 +61,12 @@ export const ModelName = {
   MemberCommandHistory: 'MemberCommandHistory',
   MemberDeletedMessages: 'MemberDeletedMessages',
   VerificationProgress: 'VerificationProgress',
-  MemberUpdateQueue: 'MemberUpdateQueue'
+  MemberUpdateQueue: 'MemberUpdateQueue',
+  Thread: 'Thread',
+  Tag: 'Tag',
+  ThreadTag: 'ThreadTag',
+  ThreadReply: 'ThreadReply',
+  SyncProgress: 'SyncProgress'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -254,6 +259,82 @@ export const MemberUpdateQueueScalarFieldEnum = {
 } as const
 
 export type MemberUpdateQueueScalarFieldEnum = (typeof MemberUpdateQueueScalarFieldEnum)[keyof typeof MemberUpdateQueueScalarFieldEnum]
+
+
+export const ThreadScalarFieldEnum = {
+  id: 'id',
+  guildId: 'guildId',
+  parentId: 'parentId',
+  authorId: 'authorId',
+  name: 'name',
+  boardType: 'boardType',
+  content: 'content',
+  imageUrl: 'imageUrl',
+  messageCount: 'messageCount',
+  memberCount: 'memberCount',
+  locked: 'locked',
+  archived: 'archived',
+  archivedAt: 'archivedAt',
+  autoArchiveDuration: 'autoArchiveDuration',
+  invitable: 'invitable',
+  rateLimitPerUser: 'rateLimitPerUser',
+  flags: 'flags',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ThreadScalarFieldEnum = (typeof ThreadScalarFieldEnum)[keyof typeof ThreadScalarFieldEnum]
+
+
+export const TagScalarFieldEnum = {
+  id: 'id',
+  guildId: 'guildId',
+  name: 'name',
+  emojiId: 'emojiId',
+  emojiName: 'emojiName'
+} as const
+
+export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
+
+
+export const ThreadTagScalarFieldEnum = {
+  threadId: 'threadId',
+  tagId: 'tagId'
+} as const
+
+export type ThreadTagScalarFieldEnum = (typeof ThreadTagScalarFieldEnum)[keyof typeof ThreadTagScalarFieldEnum]
+
+
+export const ThreadReplyScalarFieldEnum = {
+  id: 'id',
+  threadId: 'threadId',
+  authorId: 'authorId',
+  guildId: 'guildId',
+  content: 'content',
+  createdAt: 'createdAt',
+  editedAt: 'editedAt',
+  pinned: 'pinned',
+  tts: 'tts',
+  type: 'type',
+  attachments: 'attachments',
+  embeds: 'embeds',
+  mentions: 'mentions',
+  reactions: 'reactions',
+  reference: 'reference'
+} as const
+
+export type ThreadReplyScalarFieldEnum = (typeof ThreadReplyScalarFieldEnum)[keyof typeof ThreadReplyScalarFieldEnum]
+
+
+export const SyncProgressScalarFieldEnum = {
+  guildId: 'guildId',
+  processedThreads: 'processedThreads',
+  failedThreads: 'failedThreads',
+  currentChannel: 'currentChannel',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SyncProgressScalarFieldEnum = (typeof SyncProgressScalarFieldEnum)[keyof typeof SyncProgressScalarFieldEnum]
 
 
 export const SortOrder = {

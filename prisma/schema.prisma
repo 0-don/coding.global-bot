@@ -22,6 +22,9 @@ model Guild {
   memberHelper          MemberHelper[]
   memberCommandHistory  MemberCommandHistory[]
   memberDeletedMessages MemberDeletedMessages[]
+  threads               Thread[]
+  tags                  Tag[]
+  threadReplies         ThreadReply[]
 }
 
 model GuildVoiceEvents {
@@ -67,6 +70,8 @@ model Member {
   guildVoiceEvents     GuildVoiceEvents[]
   memberHelper         MemberHelper[]
   memberCommandHistory MemberCommandHistory[]
+  threads              Thread[]
+  threadReplies        ThreadReply[]
 
   deletedByMemberMessages MemberDeletedMessages[] @relation("deletedByMemberMessages")
   memberDeletedMessages   MemberDeletedMessages[] @relation("memberDeletedMessages")
@@ -226,4 +231,112 @@ model MemberUpdateQueue {
   createdAt DateTime @default(now())
 
   @@unique([memberId, guildId])
+}
+
+// ============================================
+// Thread/Forum Models
+// ============================================
+
+model Thread {
+  id        String  @id // Discord thread ID
+  guildId   String
+  parentId  String? // Forum channel ID
+  authorId  String
+  name      String
+  boardType String // job-board, dev-board, showcase, etc.
+
+  // Content
+  content  String? @db.Text
+  imageUrl String?
+
+  // Statistics
+  messageCount Int @default(0)
+  memberCount  Int @default(0)
+
+  // Settings
+  locked              Boolean   @default(false)
+  archived            Boolean   @default(false)
+  archivedAt          DateTime?
+  autoArchiveDuration Int?
+  invitable           Boolean?
+  rateLimitPerUser    Int?
+  flags               BigInt?
+
+  // Timestamps
+  createdAt DateTime?
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  guild    Guild       @relation(fields: [guildId], references: [guildId])
+  author   Member      @relation(fields: [authorId], references: [memberId])
+  tags     ThreadTag[]
+  messages ThreadReply[]
+
+  @@index([guildId])
+  @@index([parentId])
+  @@index([boardType])
+}
+
+model Tag {
+  id        String  @id // Discord tag ID
+  guildId   String
+  name      String
+  emojiId   String?
+  emojiName String?
+
+  threads ThreadTag[]
+  guild   Guild       @relation(fields: [guildId], references: [guildId])
+
+  @@index([guildId])
+}
+
+model ThreadTag {
+  threadId String
+  tagId    String
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([threadId, tagId])
+}
+
+model ThreadReply {
+  id       String @id // Discord message ID
+  threadId String
+  authorId String
+  guildId  String
+
+  // Content
+  content String @db.Text
+
+  // Metadata
+  createdAt DateTime
+  editedAt  DateTime?
+  pinned    Boolean   @default(false)
+  tts       Boolean   @default(false)
+  type      String    @default("DEFAULT")
+
+  // Rich content (stored as JSON)
+  attachments Json? // Array of attachment objects
+  embeds      Json? // Array of embed objects
+  mentions    Json? // {users: [], roles: [], everyone: boolean}
+  reactions   Json? // Array of {emoji, count}
+  reference   Json? // {messageId, channelId, guildId}
+
+  // Relations
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author Member @relation(fields: [authorId], references: [memberId])
+  guild  Guild  @relation(fields: [guildId], references: [guildId])
+
+  @@index([threadId])
+  @@index([authorId])
+  @@index([guildId])
+}
+
+model SyncProgress {
+  guildId          String   @id
+  processedThreads String[] @default([])
+  failedThreads    String[] @default([])
+  currentChannel   String?
+  updatedAt        DateTime @default(now()) @updatedAt
 }
