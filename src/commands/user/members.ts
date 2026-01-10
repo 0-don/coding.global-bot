@@ -44,7 +44,7 @@ export class Members {
     if (chart?.error) return await interaction.editReply(chart.error);
 
     const attachment = {
-      attachment: chart.imgPath!,
+      attachment: chart.buffer!,
       name: chart.fileName!,
     };
 
