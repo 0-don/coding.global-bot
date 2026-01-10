@@ -11,7 +11,7 @@ import {
   TimeSeriesScale,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
-import { log } from "console";
+import { error, log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
 import "./elysia";
@@ -100,7 +100,7 @@ const main = async () => {
 setInterval(
   () =>
     fetch("https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api").catch(
-      () => {},
+      (e) => error("Ping error:", e),
     ),
   300000,
 );
