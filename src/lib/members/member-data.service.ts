@@ -4,8 +4,21 @@ import { EVERYONE } from "../constants";
 
 export async function updateCompleteMemberData(member: GuildMember) {
   try {
-    const user = await member.user.fetch(true);
-    const guildMember = await member.fetch(true);
+    let user: User;
+    try {
+      user = await member.user.fetch(true);
+    } catch {
+      // Fallback to cached user data if fetch fails (e.g., arrayBuffer error)
+      user = member.user;
+    }
+
+    let guildMember: GuildMember;
+    try {
+      guildMember = await member.fetch(true);
+    } catch {
+      // Fallback to cached member data if fetch fails
+      guildMember = member;
+    }
 
     const memberData = prepareMemberData(user);
     const memberGuildData = prepareMemberGuildData(guildMember);
