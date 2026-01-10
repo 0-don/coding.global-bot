@@ -29,7 +29,14 @@ export class Me {
           "Please use this command in the bot channel",
         );
     }
-    const userStats = await StatsService.userStatsEmbed(interaction);
+    const memberId = interaction.member?.user.id;
+    const guildId = interaction.guild?.id;
+
+    if (!memberId || !guildId) {
+      return await interaction.editReply("Could not get user or guild info");
+    }
+
+    const userStats = await StatsService.getUserStatsEmbed(memberId, guildId);
 
     if (typeof userStats?.embed === "string")
       return await interaction.editReply(userStats?.embed);

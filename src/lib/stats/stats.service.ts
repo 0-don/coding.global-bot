@@ -1,14 +1,32 @@
 import dayjs from "dayjs";
-import { CacheType, CommandInteraction, User } from "discord.js";
-import { bot } from "../../main";
 import { prisma } from "../../prisma";
 import { ChartDataset } from "../../types/index";
 import { topStatsExampleEmbed, userStatsExampleEmbed } from "../embeds";
 import { getDaysArray } from "../helpers";
 
+const sumSeconds = (items: { sum: number }[]) =>
+  items.reduce((acc, curr) => acc + Number(curr.sum), 0);
+
+const secondsToHours = (seconds: number) =>
+  Number((seconds / 60 / 60).toFixed(2));
+
+const bigintToNumber = <T extends { count: bigint }>(item: T) => ({
+  ...item,
+  count: Number(item.count),
+});
+
+const sumToHours = <T extends { sum: number }>(item: T) => ({
+  ...item,
+  sum: secondsToHours(item.sum),
+});
+
 export class StatsService {
   // Returns raw data for API usage
-  static async getTopStats(guildId: string, lastDaysCount: number = 9999, limit: number = 10) {
+  static async getTopStats(
+    guildId: string,
+    lastDaysCount: number = 9999,
+    limit: number = 10,
+  ) {
     // Execute all queries in parallel
     const [
       mostActiveMessageUsers,
@@ -104,144 +122,58 @@ export class StatsService {
     ]);
 
     return {
-      mostActiveMessageUsers: mostActiveMessageUsers.map((user) => ({
-        ...user,
-        count: Number(user.count),
-      })),
-      mostHelpfulUsers: mostHelpfulUsers.map((user) => ({
-        ...user,
-        count: Number(user.count),
-      })),
-      mostActiveMessageChannels: mostActiveMessageChannels.map((channel) => ({
-        ...channel,
-        count: Number(channel.count),
-      })),
-      mostActiveVoiceUsers: mostActiveVoiceUsers.map((user) => ({
-        ...user,
-        sum: Number((user.sum / 60 / 60).toFixed(2)),
-      })),
-      mostActiveVoiceChannels: mostActiveVoiceChannels.map((channel) => ({
-        ...channel,
-        sum: Number((channel.sum / 60 / 60).toFixed(2)),
-      })),
+      mostActiveMessageUsers: mostActiveMessageUsers.map(bigintToNumber),
+      mostHelpfulUsers: mostHelpfulUsers.map(bigintToNumber),
+      mostActiveMessageChannels: mostActiveMessageChannels.map(bigintToNumber),
+      mostActiveVoiceUsers: mostActiveVoiceUsers.map(sumToHours),
+      mostActiveVoiceChannels: mostActiveVoiceChannels.map(sumToHours),
       totalMessages: Number(totalMessagesResult[0]?.total ?? 0),
-      totalVoiceHours: Number(
-        ((totalVoiceHoursResult[0]?.total ?? 0) / 60 / 60).toFixed(0),
+      totalVoiceHours: Math.round(
+        secondsToHours(totalVoiceHoursResult[0]?.total ?? 0),
       ),
       lookback: lastDaysCount,
     };
   }
 
-  // Returns embed for Discord bot usage
   static async topStatsEmbed(guildId: string, lastDaysCount: number = 9999) {
     const data = await this.getTopStats(guildId, lastDaysCount);
     return topStatsExampleEmbed(data);
   }
 
-  static async userStatsEmbed(
-    interaction: CommandInteraction<CacheType>,
-    user?: User | null,
-  ) {
-    const memberId = user?.id ?? interaction.member?.user.id;
-    const guildId = interaction.guild?.id;
-
-    if (!memberId || !guildId) return null;
-
-    const embed = await StatsService.getUserStatsEmbed(memberId, guildId);
-
-    if (!embed) return null;
-
-    return embed;
-  }
-
   static async getUserStatsEmbed(memberId: string, guildId: string) {
-    const memberGuild = await prisma.memberGuild.findFirst({
-      where: { guildId, memberId },
-      include: { member: true },
-    });
-
-    if (!memberGuild) return null;
-
-    // Fetch Discord user and guild member data
-    const [user, guild] = await Promise.all([
-      bot.users.fetch(memberId).catch(() => null),
-      bot.guilds.fetch(guildId).catch(() => null),
-    ]);
-
-    const member = guild
-      ? await guild.members.fetch(memberId).catch(() => null)
-      : null;
-
-    // Execute all initial queries in parallel
-    const [lastVoice, lastMessage, helpCount, helpReceivedCount, userRoles] =
-      await Promise.all([
-        prisma.guildVoiceEvents.findMany({
-          where: { guildId, memberId },
-          orderBy: { id: "desc" },
-          take: 1,
-        }),
-        prisma.memberMessages.findMany({
-          where: { guildId, memberId },
-          orderBy: { id: "desc" },
-          take: 1,
-        }),
-        prisma.memberHelper.count({
-          where: { guildId, memberId },
-        }),
-        prisma.memberHelper.count({
-          where: { guildId, threadOwnerId: memberId },
-        }),
-        prisma.memberRole.findMany({
-          where: { memberId, guildId },
-          select: { name: true, roleId: true },
-        }),
-      ]);
-
-    // Execute stats queries in parallel
-    const [messagesStats, voiceStats] = await Promise.all([
-      StatsService.messagesStats(memberId, guildId, memberGuild.lookback),
-      StatsService.voiceStats(memberId, guildId, memberGuild.lookback),
-    ]);
-
-    const {
-      lookbackDaysCount,
-      oneDayCount,
-      sevenDaysCount,
-      mostActiveTextChannelId,
-      mostActiveTextChannelMessageCount,
-    } = messagesStats;
-
-    const {
-      mostActiveVoice,
-      lookbackVoiceSum,
-      sevenDayVoiceSum,
-      oneDayVoiceSum,
-    } = voiceStats;
+    const statsData = await StatsService.getUserStats(memberId, guildId);
+    if (!statsData) return null;
 
     const embed = userStatsExampleEmbed({
       id: memberId,
-      helpCount,
-      helpReceivedCount,
-      userGlobalName: memberGuild.member.username,
-      userServerName:
-        member?.toString() ?? user?.toString() ?? memberGuild.member.username,
-      lookback: memberGuild.lookback,
-      createdAt: user!.createdAt,
-      joinedAt: member!.joinedAt,
-      lookbackDaysCount,
-      oneDayCount,
-      sevenDaysCount,
-      mostActiveTextChannelId,
-      mostActiveTextChannelMessageCount,
-      lastVoice,
-      lastMessage,
-      mostActiveVoice,
-      lookbackVoiceSum,
-      sevenDayVoiceSum,
-      oneDayVoiceSum,
+      helpCount: statsData.stats.help.given,
+      helpReceivedCount: statsData.stats.help.received,
+      userGlobalName: statsData.user.username,
+      userServerName: `<@${memberId}>`,
+      lookback: statsData.lookback,
+      createdAt: new Date(statsData.user.createdAt ?? Date.now()),
+      joinedAt: statsData.user.joinedAt
+        ? new Date(statsData.user.joinedAt)
+        : null,
+      lookbackDaysCount: statsData.stats.messages.total,
+      oneDayCount: statsData.stats.messages.last24Hours,
+      sevenDaysCount: statsData.stats.messages.last7Days,
+      mostActiveTextChannelId:
+        statsData.stats.messages.mostActiveChannel.id ?? undefined,
+      mostActiveTextChannelMessageCount:
+        statsData.stats.messages.mostActiveChannel.count,
+      lastMessageAt: statsData.stats.lastActivity.lastMessage,
+      lastVoiceAt: statsData.stats.lastActivity.lastVoice,
+      mostActiveVoice: {
+        channelId: statsData.stats.voice.mostActiveChannel.id ?? "",
+        sum: statsData.stats.voice.mostActiveChannel.hours,
+      },
+      lookbackVoiceSum: statsData.stats.voice.totalHours,
+      sevenDayVoiceSum: statsData.stats.voice.last7DaysHours,
+      oneDayVoiceSum: statsData.stats.voice.last24HoursHours,
     });
 
-    return { embed, roles: userRoles.map((role) => role.name) };
+    return { embed, roles: statsData.user.roles.map((role) => role.name) };
   }
 
   static async voiceStats(memberId: string, guildId: string, lookback: number) {
@@ -293,36 +225,11 @@ export class StatsService {
 
     const mostActiveVoice = {
       ...voiceStatsLookback?.[0],
-      sum: Number((Number(voiceStatsLookback?.[0]?.sum) / 60 / 60).toFixed(2)),
+      sum: secondsToHours(Number(voiceStatsLookback?.[0]?.sum ?? 0)),
     };
-    const lookbackVoiceSum = Number(
-      (
-        voiceStatsLookback.reduce((acc, curr) => acc + Number(curr.sum), 0) /
-        60 /
-        60
-      ).toFixed(2),
-    );
-
-    const sevenDayVoiceSum = Number(
-      (
-        voiceStatsSevenDays.reduce(
-          (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)),
-          0,
-        ) /
-        60 /
-        60
-      ).toFixed(2),
-    );
-    const oneDayVoiceSum = Number(
-      (
-        voiceStatsOneDay.reduce(
-          (acc, curr) => Number(acc) + Number(Number(curr.sum).toFixed(0)),
-          0,
-        ) /
-        60 /
-        60
-      ).toFixed(2),
-    );
+    const lookbackVoiceSum = secondsToHours(sumSeconds(voiceStatsLookback));
+    const sevenDayVoiceSum = secondsToHours(sumSeconds(voiceStatsSevenDays));
+    const oneDayVoiceSum = secondsToHours(sumSeconds(voiceStatsOneDay));
 
     return {
       mostActiveVoice,

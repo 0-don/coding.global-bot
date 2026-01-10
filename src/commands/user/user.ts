@@ -45,7 +45,13 @@ export class UserCommand {
         );
     }
 
-    const userStats = await StatsService.userStatsEmbed(interaction, user);
+    const guildId = interaction.guild?.id;
+
+    if (!guildId) {
+      return await interaction.editReply("Could not get guild info");
+    }
+
+    const userStats = await StatsService.getUserStatsEmbed(user.id, guildId);
 
     if (typeof userStats?.embed === "string")
       return await interaction.editReply(userStats?.embed);
