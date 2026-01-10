@@ -19,12 +19,12 @@ export class Members {
     dmPermission: false,
   })
   async members(interaction: CommandInteraction) {
+    // deferReply first to avoid interaction timeout
+    await interaction.deferReply();
+
     // get text channel
     LogService.logCommandHistory(interaction, "members");
     const channel = (await interaction.channel?.fetch()) as TextChannel;
-
-    // deferReply if it takes longer then usual
-    await interaction.deferReply();
 
     if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
       // if not bot channel, return
