@@ -1,5 +1,5 @@
-import { AnyThreadChannel, ForumChannel, Guild, Message } from "discord.js";
-import { Static, status, t } from "elysia";
+import { Guild, Message } from "discord.js";
+import { t } from "elysia";
 import { Prisma } from "../generated/prisma/client";
 import { MembersService } from "../lib/members/members.service";
 import { StatsService } from "../lib/stats/stats.service";
@@ -35,9 +35,6 @@ export const BoardType = t.Union([
   t.Literal("zig"),
   t.Literal("other"),
 ]);
-
-// TypeScript type for BoardType
-export type BoardTypeValue = Static<typeof BoardType>;
 
 // Type definitions for JSON fields from database
 type DbAttachment = {
@@ -181,36 +178,6 @@ function formatMemberGuild(
       memberGuild.member.createdAt?.toISOString() || new Date().toISOString(),
     updatedAt: memberGuild.member.updatedAt?.toISOString() || null,
   };
-}
-
-export async function parseUserWithRoles(
-  userId: string,
-  guildId: string | Guild,
-) {
-  const resolvedGuildId = typeof guildId === "string" ? guildId : guildId.id;
-
-  const memberGuild = await prisma.memberGuild.findUnique({
-    where: {
-      member_guild: {
-        memberId: userId,
-        guildId: resolvedGuildId,
-      },
-    },
-    include: {
-      member: {
-        include: {
-          roles: {
-            where: { guildId: resolvedGuildId },
-            orderBy: { position: "desc" },
-          },
-        },
-      },
-    },
-  });
-
-  if (!memberGuild) return null;
-
-  return formatMemberGuild(memberGuild, resolvedGuildId);
 }
 
 export async function parseMultipleUsersWithRoles(
@@ -365,99 +332,6 @@ export function parseMessage(message: Message) {
   };
 }
 
-export async function fetchThreadFromGuild(
-  guild: Guild,
-  threadId: string,
-): Promise<AnyThreadChannel> {
-  let thread = guild.channels.cache.get(threadId);
-
-  // Try to fetch the thread from Discord API if not in cache
-  if (!thread?.isThread()) {
-    try {
-      const fetchedThread = await guild.channels.fetch(threadId);
-      if (!fetchedThread?.isThread()) {
-        throw status("Not Found", "Thread not found");
-      }
-      thread = fetchedThread;
-    } catch (err) {
-      throw status("Not Found", "Thread not found or was deleted");
-    }
-  }
-
-  return thread;
-}
-
-export async function extractThreadDetails(
-  thread: AnyThreadChannel,
-  boardChannel: ForumChannel,
-  guild: Guild,
-  boardType: Static<typeof BoardType>,
-) {
-  const author = await parseUserWithRoles(thread.ownerId, guild);
-
-  if (!author) return null!;
-
-  const tags = thread.appliedTags
-    .map((tagId) => {
-      const tag = boardChannel.availableTags.find((t) => t.id === tagId);
-      return {
-        id: tag!.id,
-        name: tag!.name,
-        emoji: {
-          id: tag?.emoji?.id || null,
-          name: tag?.emoji?.name || null,
-        },
-      };
-    })
-    .filter(Boolean);
-
-  let imageUrl: string | null = null;
-  let content: string | null = null;
-  try {
-    const starterMessage = await thread.fetchStarterMessage();
-    if (starterMessage) {
-      const imageAttachment = starterMessage.attachments.find((attachment) =>
-        attachment.contentType?.startsWith("image/"),
-      );
-      imageUrl = imageAttachment?.url || null;
-      content = starterMessage.content || null;
-    }
-  } catch (error) {}
-
-  return {
-    // Basic info
-    id: thread.id,
-    name: thread.name,
-    boardType,
-    parentId: thread.parentId,
-
-    // Author & metadata
-    author,
-    createdAt: thread.createdAt?.toISOString() || null,
-    tags,
-
-    // Content preview
-    content,
-    imageUrl,
-
-    // Statistics
-    messageCount: thread.messageCount || 0,
-    totalMessageSent: thread.totalMessageSent || 0,
-    memberCount: thread.memberCount || 0,
-
-    // Thread settings
-    locked: !!thread.locked,
-    archived: !!thread.archived,
-    archivedAt: thread.archiveTimestamp
-      ? new Date(thread.archiveTimestamp).toISOString()
-      : null,
-    autoArchiveDuration: thread.autoArchiveDuration?.toString() || null,
-    invitable: thread.invitable,
-    rateLimitPerUser: thread.rateLimitPerUser,
-    flags: thread.flags.bitfield,
-  };
-}
-
 export async function getTopStatsWithUsers(
   guildId: string,
   days: number,
@@ -524,7 +398,7 @@ function formatAuthorFromDb(
       `https://cdn.discordapp.com/embed/avatars/${parseInt(author.memberId) % 5}.png`,
     bannerUrl: memberGuild?.bannerUrl || author.bannerUrl,
     accentColor: author.accentColor,
-    displayHexColor: memberGuild?.displayHexColor || null,
+    displayHexColor: memberGuild?.displayHexColor || "#000000",
     flags: author.flags ? author.flags.toString() : null,
     collectibles: author.collectibles
       ? JSON.stringify(author.collectibles)
@@ -547,17 +421,17 @@ function formatAuthorFromDb(
 }
 
 export function formatThreadFromDb(
-  thread: NonNullable<DbThread>,
+  dbThread: NonNullable<DbThread>,
   guildId: string,
 ) {
+  const author = formatAuthorFromDb(dbThread.author, guildId);
   return {
-    id: thread.id,
-    name: thread.name,
-    boardType: thread.boardType as BoardTypeValue,
-    parentId: thread.parentId,
-    author: formatAuthorFromDb(thread.author, guildId),
-    createdAt: thread.createdAt?.toISOString() || null,
-    tags: thread.tags.map((tt) => ({
+    id: dbThread.id,
+    name: dbThread.name,
+    parentId: dbThread.parentId,
+    author,
+    createdAt: dbThread.createdAt?.toISOString() || null,
+    tags: dbThread.tags.map((tt) => ({
       id: tt.tag.id,
       name: tt.tag.name,
       emoji: {
@@ -565,18 +439,18 @@ export function formatThreadFromDb(
         name: tt.tag.emojiName || null,
       },
     })),
-    content: thread.content,
-    imageUrl: thread.imageUrl,
-    messageCount: thread.messageCount,
-    totalMessageSent: thread.messageCount,
-    memberCount: thread.memberCount,
-    locked: thread.locked,
-    archived: thread.archived,
-    archivedAt: thread.archivedAt?.toISOString() || null,
-    autoArchiveDuration: thread.autoArchiveDuration?.toString() || null,
-    invitable: thread.invitable,
-    rateLimitPerUser: thread.rateLimitPerUser,
-    flags: thread.flags?.toString() ?? null,
+    content: dbThread.content,
+    imageUrl: dbThread.imageUrl,
+    messageCount: dbThread.messageCount,
+    totalMessageSent: dbThread.messageCount,
+    memberCount: dbThread.memberCount,
+    locked: dbThread.locked,
+    archived: dbThread.archived,
+    archivedAt: dbThread.archivedAt?.toISOString() || null,
+    autoArchiveDuration: dbThread.autoArchiveDuration?.toString() || null,
+    invitable: dbThread.invitable,
+    rateLimitPerUser: dbThread.rateLimitPerUser,
+    flags: dbThread.flags?.toString() ?? null,
   };
 }
 
