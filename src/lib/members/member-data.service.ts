@@ -45,6 +45,12 @@ export async function updateCompleteMemberData(member: GuildMember) {
       }
     });
   } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.includes("Connect Timeout Error")
+    ) {
+      return;
+    }
     console.error(
       `Failed to update complete member data for ${member.id} ${member.user.username}:`,
       error,

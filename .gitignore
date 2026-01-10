@@ -15,3 +15,5 @@ bun.lock*
 messages.json
 backdoor
 test
+.claude
+CLAUDE.md
