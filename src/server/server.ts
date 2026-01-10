@@ -429,6 +429,7 @@ export function formatThreadFromDb(
     id: dbThread.id,
     name: dbThread.name,
     parentId: dbThread.parentId,
+    boardType: dbThread.boardType,
     author,
     createdAt: dbThread.createdAt?.toISOString() || null,
     tags: dbThread.tags.map((tt) => ({
