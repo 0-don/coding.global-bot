@@ -156,8 +156,12 @@ export class MembersService {
   static async updateMemberCount(member: GuildMember | PartialGuildMember) {
     if (member.user.bot || !SHOULD_COUNT_MEMBERS) return;
 
-    // await member count
-    await member.guild.members.fetch();
+    // await member count - use cache if fetch fails due to rate limit
+    try {
+      await member.guild.members.fetch();
+    } catch {
+      // Rate limited, continue with cached members
+    }
 
     for (const channelName of MEMBERS_COUNT_CHANNELS) {
       // find member: channel
@@ -192,8 +196,15 @@ export class MembersService {
       update: { guildName },
     });
 
-    // get member join dates and sort ascending
-    const dates = (await guild.members.fetch())
+    // get member join dates and sort ascending - use cache if fetch fails due to rate limit
+    let members;
+    try {
+      members = await guild.members.fetch();
+    } catch {
+      // Rate limited, use cached members
+      members = guild.members.cache;
+    }
+    const dates = members
       .map((member) => member.joinedAt || new Date())
       .sort((a, b) => a.getTime() - b.getTime());
 
