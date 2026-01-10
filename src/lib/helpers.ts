@@ -1,7 +1,8 @@
 import { error, log } from "console";
-import { ChartConfiguration, ChartDataset } from "chart.js";
+import { ChartConfiguration } from "chart.js";
 import dayjs from "dayjs";
 import { enUS } from "date-fns/locale";
+import { ChartDataPoint } from "../types";
 import { ConfigValidator } from "./config-validator";
 import { TRANSLATOR } from "./constants";
 
@@ -67,7 +68,7 @@ export const translate = async (text: string) => {
   return translated?.text;
 };
 
-export const chartConfig = (data: ChartDataset[]) => {
+export const chartConfig = (data: ChartDataPoint[]) => {
   return {
     type: "line",
     data: {
@@ -128,5 +129,5 @@ export const chartConfig = (data: ChartDataset[]) => {
         },
       },
     },
-  } as ChartConfiguration<"line", ChartDataset[]>;
+  } as ChartConfiguration<"line", ChartDataPoint[]>;
 };

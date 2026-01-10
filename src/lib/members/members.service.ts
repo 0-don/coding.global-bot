@@ -1,4 +1,3 @@
-import { Chart } from "chart.js";
 import { log } from "console";
 import dayjs from "dayjs";
 import {
@@ -12,7 +11,6 @@ import { prisma } from "../../prisma";
 import { ChartDataset, GuildMemberCountChart } from "../../types/index";
 import { ConfigValidator } from "../config-validator";
 import {
-  CHARTJS_NODE_CANVAS,
   ChartManager,
   GLOBAL_CANVAS,
   JOIN_EVENT_CHANNELS,
@@ -217,11 +215,25 @@ export class MembersService {
       dayjs().add(1, "day").toDate(),
     );
 
-    // get member count for each day and format it for chartjs
-    const data: ChartDataset[] = startEndDateArray.map((date) => ({
-      x: dayjs(date).toDate(),
-      y: dates.filter((d) => dayjs(d) <= dayjs(date)).length,
-    }));
+    // O(n) algorithm: use sorted dates with a running pointer instead of O(n²) filter
+    const datesArray = Array.from(dates);
+    let datePointer = 0;
+    const data: ChartDataset[] = [];
+
+    for (const date of startEndDateArray) {
+      const currentDay = dayjs(date);
+      // Move pointer forward while dates are <= current day
+      while (
+        datePointer < datesArray.length &&
+        dayjs(datesArray[datePointer]) <= currentDay
+      ) {
+        datePointer++;
+      }
+      data.push({
+        x: currentDay.toDate(),
+        y: datePointer,
+      });
+    }
 
     let thirtyDaysCount = data[data.length - 1]?.y ?? 0;
     let sevenDaysCount = data[data.length - 1]?.y ?? 0;
@@ -247,22 +259,10 @@ export class MembersService {
     };
   }
 
-  // Generate chart and return buffer
+  // Generate chart and return buffer - reuses chart instance for performance
   private static generateChart(data: ChartDataset[], lookback: number): Buffer {
-    const config = chartConfig(
-      data.slice(
-        // splice only the lookback range if it fits. 2 values minimum needed for chart
-        data.length - 2 < lookback ? 0 : lookback * -1,
-      ) as any,
-    );
-
-    ChartManager.destroyChart();
-    const chart = new Chart(
-      CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D,
-      config,
-    );
-    ChartManager.setChart(chart);
-
+    const sliceStart = data.length - 2 < lookback ? 0 : -lookback;
+    ChartManager.initializeOrUpdate(chartConfig(data.slice(sliceStart)));
     return GLOBAL_CANVAS.toBuffer("image/png");
   }
 

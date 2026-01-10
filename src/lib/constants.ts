@@ -1,6 +1,7 @@
 import { createCanvas } from "canvas";
-import { Chart } from "chart.js";
+import { Chart, ChartConfiguration } from "chart.js";
 import * as deepl from "deepl-node";
+import { ChartDataPoint } from "../types";
 import { ConfigValidator } from "./config-validator";
 
 export const GLOBAL_CANVAS = createCanvas(1200, 400);
@@ -9,20 +10,51 @@ export const TRANSLATOR = ConfigValidator.isFeatureEnabled("DEEPL")
   ? new deepl.Translator(process.env.DEEPL!)
   : null;
 
-let _GLOBAL_CHART: Chart | null = null;
+let _GLOBAL_CHART: Chart<"line", ChartDataPoint[]> | null = null;
+let _CHART_INITIALIZED = false;
 
 export const ChartManager = {
   getChart: () => _GLOBAL_CHART,
-  setChart: (chart: Chart<any, any> | null) => {
+  isInitialized: () => _CHART_INITIALIZED,
+
+  // Initialize chart once, reuse for subsequent renders
+  initializeOrUpdate: (
+    config: ChartConfiguration<"line", ChartDataPoint[]>,
+  ): Chart<"line", ChartDataPoint[]> => {
+    if (_GLOBAL_CHART && _CHART_INITIALIZED) {
+      // Reuse existing chart - just update data and options
+      _GLOBAL_CHART.data = config.data;
+      if (config.options) {
+        _GLOBAL_CHART.options = config.options;
+      }
+      _GLOBAL_CHART.update("none"); // "none" skips animations for faster render
+      return _GLOBAL_CHART;
+    }
+
+    // First time - create the chart
+    if (_GLOBAL_CHART) {
+      _GLOBAL_CHART.destroy();
+    }
+    _GLOBAL_CHART = new Chart(
+      CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D,
+      config,
+    );
+    _CHART_INITIALIZED = true;
+    return _GLOBAL_CHART;
+  },
+
+  setChart: (chart: Chart<"line", ChartDataPoint[]> | null) => {
     if (_GLOBAL_CHART) {
       _GLOBAL_CHART.destroy();
     }
     _GLOBAL_CHART = chart;
+    _CHART_INITIALIZED = chart !== null;
   },
   destroyChart: () => {
     if (_GLOBAL_CHART) {
       _GLOBAL_CHART.destroy();
       _GLOBAL_CHART = null;
+      _CHART_INITIALIZED = false;
     }
   },
 };
