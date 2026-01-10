@@ -135,9 +135,12 @@ export const app = new Elysia({ adapter: node() })
         );
       }
 
-      // Try cache first, only fetch if cache is empty or insufficient
-      let messages = Array.from(newsChannel.messages.cache.values());
-      if (messages.length < PAGE_LIMIT) {
+      // Try cache first, only fetch if cache is empty
+      let messages = Array.from(newsChannel.messages.cache.values())
+        .sort((a, b) => b.createdTimestamp - a.createdTimestamp)
+        .slice(0, PAGE_LIMIT);
+
+      if (messages.length === 0) {
         messages = Array.from(
           (await newsChannel.messages.fetch({ limit: PAGE_LIMIT })).values(),
         );
