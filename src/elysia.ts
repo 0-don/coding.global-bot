@@ -187,8 +187,6 @@ export const app = new Elysia({ adapter: node() })
         bannerURL: guild.bannerURL({ extension: "webp", size: 1024 }),
       };
 
-      console.log("Widget Data Fetched for Guild ID:", params.guildId, widget);
-
       return { ...widget, members };
     },
     { params: t.Object({ guildId: t.String() }) },
