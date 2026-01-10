@@ -25,9 +25,9 @@ export class Members {
         await interaction.deferReply();
       }
 
-      // get text channel
+      // get text channel (use cached channel - no need to fetch)
       LogService.logCommandHistory(interaction, "members");
-      const channel = (await interaction.channel?.fetch()) as TextChannel;
+      const channel = interaction.channel as TextChannel;
 
       if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
         // if not bot channel, return
@@ -55,11 +55,16 @@ export class Members {
         name: chart.fileName!,
       };
 
-      const count = interaction.guild.members.cache.size;
-      const memberCount = interaction.guild.members.cache.filter(
-        (member) => !member.user.bot,
-      ).size;
-      const botCount = count - memberCount;
+      // Single-pass member counting
+      let memberCount = 0;
+      let botCount = 0;
+      for (const member of interaction.guild.members.cache.values()) {
+        if (member.user.bot) {
+          botCount++;
+        } else {
+          memberCount++;
+        }
+      }
 
       const thirtyDaysPercent = (chart.thirtyDaysCount! * 100) / memberCount;
       const sevenDaysPercent = (chart.sevedDaysCount! * 100) / memberCount;

@@ -3,7 +3,10 @@ import type { STATUS_ROLES } from "../lib/constants";
 
 export type StatusRoles = (typeof STATUS_ROLES)[number];
 
-export type ChartDataset = { x: Date; y: number };
+export type ChartDataPoint = { x: Date; y: number };
+
+// Keep ChartDataset as alias for backwards compatibility
+export type ChartDataset = ChartDataPoint;
 
 export type GuildMemberCountChart = {
   buffer?: Buffer;
