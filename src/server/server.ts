@@ -454,7 +454,7 @@ function formatAuthorFromDb(
     primaryGuild: author.primaryGuild,
     roles,
     highestRolePosition: memberGuild?.highestRolePosition || 0,
-    status: memberGuild?.presenceStatus || null,
+    status: memberGuild?.presenceStatus || "offline",
     activity: memberGuild?.presenceActivity || null,
     presenceUpdatedAt: memberGuild?.presenceUpdatedAt?.toISOString() || null,
     premiumSince: memberGuild?.premiumSince?.toISOString() || null,
@@ -496,7 +496,7 @@ export function formatThreadFromDb(
     autoArchiveDuration: thread.autoArchiveDuration?.toString() || null,
     invitable: thread.invitable,
     rateLimitPerUser: thread.rateLimitPerUser,
-    flags: thread.flags,
+    flags: thread.flags?.toString() ?? null,
   };
 }
 
