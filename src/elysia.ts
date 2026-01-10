@@ -16,9 +16,12 @@ import {
   formatThreadFromDb,
   formatThreadsFromDb,
   getTopStatsWithUsers,
+  getUserStatsForApi,
+  MembersService,
   PAGE_LIMIT,
   parseMessage,
   parseMultipleUsersWithRoles,
+  searchUsers,
   ThreadParams,
 } from "./server/server";
 
@@ -193,21 +196,6 @@ export const app = new Elysia({ adapter: node() })
   )
 
   .get(
-    "/api/:guildId/top-stats",
-    async ({ params, query }) => {
-      const limit = query.limit ? Math.min(Math.max(1, query.limit), 10) : 5;
-      const days = query.days ?? 9999;
-      return getTopStatsWithUsers(params.guildId, days, limit);
-    },
-    {
-      params: t.Object({ guildId: t.String() }),
-      query: t.Object({
-        limit: t.Optional(t.Number()),
-        days: t.Optional(t.Number()),
-      }),
-    },
-  )
-  .get(
     "/api/:guildId/board/:boardType",
     async ({ params }) => {
       const boardType = params.boardType.toLowerCase();
@@ -246,6 +234,62 @@ export const app = new Elysia({ adapter: node() })
     {
       params: ThreadParams,
       query: t.Object({ after: t.Optional(t.String()) }),
+    },
+  )
+
+  .get(
+    "/api/:guildId/top",
+    async ({ params, query }) => {
+      return getTopStatsWithUsers(
+        params.guildId,
+        query.days ?? 9999,
+        query.limit ?? 5,
+      );
+    },
+    {
+      params: t.Object({ guildId: t.String() }),
+      query: t.Object({
+        limit: t.Optional(t.Number({ default: 5, minimum: 1, maximum: 10 })),
+        days: t.Optional(
+          t.Number({ default: 9999, minimum: 1, maximum: 9999 }),
+        ),
+      }),
+    },
+  )
+  .get(
+    "/api/:guildId/members",
+    async ({ guild }) => {
+      return MembersService.getMembersStatsForApi(guild);
+    },
+    { params: t.Object({ guildId: t.String() }) },
+  )
+  .get(
+    "/api/:guildId/user/search",
+    async ({ params, query }) => {
+      if (!query.q || query.q.trim().length === 0) {
+        throw status("Bad Request", "Query parameter 'q' is required");
+      }
+      return searchUsers(params.guildId, query.q.trim(), query.limit ?? 10);
+    },
+    {
+      params: t.Object({ guildId: t.String() }),
+      query: t.Object({
+        q: t.String(),
+        limit: t.Optional(t.Number({ default: 10, minimum: 1, maximum: 50 })),
+      }),
+    },
+  )
+  .get(
+    "/api/:guildId/user/:userId",
+    async ({ params }) => {
+      const stats = await getUserStatsForApi(params.userId, params.guildId);
+      if (!stats) {
+        throw status("Not Found", "User not found or has left the server");
+      }
+      return stats;
+    },
+    {
+      params: t.Object({ guildId: t.String(), userId: t.String() }),
     },
   )
   .listen(4000);
