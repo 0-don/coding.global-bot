@@ -19,8 +19,10 @@ export class Members {
     dmPermission: false,
   })
   async members(interaction: CommandInteraction) {
-    // deferReply first to avoid interaction timeout
-    await interaction.deferReply();
+    // deferReply first to avoid interaction timeout (skip if already acknowledged)
+    if (!interaction.deferred && !interaction.replied) {
+      await interaction.deferReply();
+    }
 
     // get text channel
     LogService.logCommandHistory(interaction, "members");
