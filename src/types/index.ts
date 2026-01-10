@@ -1,4 +1,3 @@
-import { GuildVoiceEvents, MemberMessages } from "../generated/prisma/client";
 import type { STATUS_ROLES } from "../lib/constants";
 
 export type StatusRoles = (typeof STATUS_ROLES)[number];
@@ -32,8 +31,8 @@ export type UserStatsExampleEmbed = {
   oneDayCount: number;
   mostActiveTextChannelId?: string;
   mostActiveTextChannelMessageCount: number;
-  lastVoice: GuildVoiceEvents[];
-  lastMessage: MemberMessages[];
+  lastVoiceAt: string | null;
+  lastMessageAt: string | null;
   mostActiveVoice: {
     channelId: string;
     sum: number;

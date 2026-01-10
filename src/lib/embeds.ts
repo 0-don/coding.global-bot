@@ -214,12 +214,8 @@ export const userStatsExampleEmbed = (
 
   const joinedAtUnix = dayjs(args.joinedAt).unix();
   const createdAtUnix = dayjs(args.createdAt).unix();
-  const lastMessageUnix =
-    args.lastMessage?.length > 0 &&
-    dayjs(args.lastMessage[0]?.createdAt).unix();
-  const lastVoiceUnix =
-    args.lastVoice?.length > 0 &&
-    dayjs(args.lastVoice?.[0]?.leave ?? new Date()).unix();
+  const lastMessageUnix = args.lastMessageAt && dayjs(args.lastMessageAt).unix();
+  const lastVoiceUnix = args.lastVoiceAt && dayjs(args.lastVoiceAt).unix();
   const lastMessageString = lastMessageUnix
     ? `__<t:${lastMessageUnix}:D>__ (<t:${lastMessageUnix}:R>)`
     : codeString("None");
