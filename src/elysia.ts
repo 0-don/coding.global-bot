@@ -112,8 +112,8 @@ export const app = new Elysia({ adapter: node() })
     "/api/:guildId/news",
     async ({ guild }) => {
       // Try cache first, only fetch from API if not found
-      let newsChannel = guild.channels.cache.find(
-        (ch) => ch?.name.toLowerCase().includes("news"),
+      let newsChannel = guild.channels.cache.find((ch) =>
+        ch?.name.toLowerCase().includes("news"),
       );
 
       if (!newsChannel) {
@@ -135,9 +135,14 @@ export const app = new Elysia({ adapter: node() })
         );
       }
 
-      const messages = Array.from(
-        (await newsChannel.messages.fetch({ limit: PAGE_LIMIT })).values(),
-      );
+      // Try cache first, only fetch if cache is empty or insufficient
+      let messages = Array.from(newsChannel.messages.cache.values());
+      if (messages.length < PAGE_LIMIT) {
+        messages = Array.from(
+          (await newsChannel.messages.fetch({ limit: PAGE_LIMIT })).values(),
+        );
+      }
+
       const authorIds = [...new Set(messages.map((msg) => msg.author.id))];
       const authors = await parseMultipleUsersWithRoles(authorIds, guild);
 
