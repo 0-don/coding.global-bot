@@ -214,9 +214,13 @@ export const app = new Elysia({ adapter: node() })
       if (!thread) {
         throw status("Not Found", "Thread not found");
       }
-      return formatThreadFromDb(thread, params.guildId);
+      const formatedThread = formatThreadFromDb(thread, params.guildId);
+      return formatedThread;
     },
-    { params: ThreadParams },
+    {
+      params: ThreadParams,
+      query: t.Object({ boardType: t.Optional(BoardType) }),
+    },
   )
   .get(
     "/api/:guildId/board/:boardType/:threadId/messages",
