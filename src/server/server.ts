@@ -1,9 +1,9 @@
 import { AnyThreadChannel, ForumChannel, Guild, Message } from "discord.js";
 import { Static, status, t } from "elysia";
 import { Prisma } from "../generated/prisma/client";
-import { ThreadService } from "../lib/threads/thread.service";
-import { StatsService } from "../lib/stats/stats.service";
 import { MembersService } from "../lib/members/members.service";
+import { StatsService } from "../lib/stats/stats.service";
+import { ThreadService } from "../lib/threads/thread.service";
 import { prisma } from "../prisma";
 
 export const PAGE_LIMIT = 100;
@@ -35,6 +35,86 @@ export const BoardType = t.Union([
   t.Literal("zig"),
   t.Literal("other"),
 ]);
+
+// TypeScript type for BoardType
+export type BoardTypeValue = Static<typeof BoardType>;
+
+// Type definitions for JSON fields from database
+type DbAttachment = {
+  id: string;
+  url: string;
+  proxyURL: string;
+  name: string;
+  description: string | null;
+  contentType: string | null;
+  size: number;
+  width: number | null;
+  height: number | null;
+  ephemeral: boolean;
+  duration: number | null;
+  waveform: string | null;
+  flags: string | null;
+};
+
+type DbEmbed = {
+  title: string | null;
+  description: string | null;
+  url: string | null;
+  color: number | null;
+  timestamp: string | null;
+  fields: { name: string; value: string; inline: boolean }[];
+  author: {
+    name: string;
+    url: string | null;
+    iconURL: string | null;
+    proxyIconURL: string | null;
+  } | null;
+  thumbnail: {
+    url: string;
+    proxyURL: string | null;
+    width: number | null;
+    height: number | null;
+  } | null;
+  image: {
+    url: string;
+    proxyURL: string | null;
+    width: number | null;
+    height: number | null;
+  } | null;
+  video: {
+    url: string | null;
+    proxyURL: string | null;
+    width: number | null;
+    height: number | null;
+  } | null;
+  footer: {
+    text: string;
+    iconURL: string | null;
+    proxyIconURL: string | null;
+  } | null;
+  provider: { name: string | null; url: string | null } | null;
+};
+
+type DbMentions = {
+  users: { id: string; username: string; globalName: string | null }[];
+  roles: { id: string; name: string }[];
+  everyone: boolean;
+};
+
+type DbReaction = {
+  emoji: { id: string | null; name: string | null };
+  count: number;
+};
+
+type DbReference = {
+  messageId: string | null;
+  channelId: string;
+  guildId: string | null;
+} | null;
+
+type DbThread = Awaited<ReturnType<typeof ThreadService.getThread>>;
+type DbThreadList = Awaited<ReturnType<typeof ThreadService.getThreadsByBoard>>;
+type DbReplies = Awaited<ReturnType<typeof ThreadService.getReplies>>;
 
 export const ThreadParams = t.Object({
   guildId: t.String(),
@@ -421,14 +501,6 @@ export async function getTopStatsWithUsers(
   };
 }
 
-// ============================================
-// Database Thread/Reply Formatting
-// ============================================
-
-type DbThread = Awaited<ReturnType<typeof ThreadService.getThread>>;
-type DbThreadList = Awaited<ReturnType<typeof ThreadService.getThreadsByBoard>>;
-type DbReplies = Awaited<ReturnType<typeof ThreadService.getReplies>>;
-
 function formatAuthorFromDb(
   author: NonNullable<DbThread>["author"],
   guildId: string,
@@ -446,13 +518,20 @@ function formatAuthorFromDb(
     nickname: memberGuild?.nickname || null,
     displayName:
       memberGuild?.displayName || author.globalName || author.username,
-    avatarUrl: memberGuild?.avatarUrl || author.avatarUrl,
+    avatarUrl:
+      memberGuild?.avatarUrl ||
+      author.avatarUrl ||
+      `https://cdn.discordapp.com/embed/avatars/${parseInt(author.memberId) % 5}.png`,
     bannerUrl: memberGuild?.bannerUrl || author.bannerUrl,
     accentColor: author.accentColor,
     displayHexColor: memberGuild?.displayHexColor || null,
     flags: author.flags ? author.flags.toString() : null,
-    collectibles: author.collectibles,
-    primaryGuild: author.primaryGuild,
+    collectibles: author.collectibles
+      ? JSON.stringify(author.collectibles)
+      : null,
+    primaryGuild: author.primaryGuild
+      ? JSON.stringify(author.primaryGuild)
+      : null,
     roles,
     highestRolePosition: memberGuild?.highestRolePosition || 0,
     status: memberGuild?.presenceStatus || "offline",
@@ -474,7 +553,7 @@ export function formatThreadFromDb(
   return {
     id: thread.id,
     name: thread.name,
-    boardType: thread.boardType,
+    boardType: thread.boardType as BoardTypeValue,
     parentId: thread.parentId,
     author: formatAuthorFromDb(thread.author, guildId),
     createdAt: thread.createdAt?.toISOString() || null,
@@ -517,11 +596,15 @@ export function formatReplyFromDb(
     pinned: reply.pinned,
     tts: reply.tts,
     type: reply.type,
-    attachments: reply.attachments || [],
-    embeds: reply.embeds || [],
-    mentions: reply.mentions || { users: [], roles: [], everyone: false },
-    reactions: reply.reactions || [],
-    reference: reply.reference || null,
+    attachments: (reply.attachments || []) as DbAttachment[],
+    embeds: (reply.embeds || []) as DbEmbed[],
+    mentions: (reply.mentions || {
+      users: [],
+      roles: [],
+      everyone: false,
+    }) as DbMentions,
+    reactions: (reply.reactions || []) as DbReaction[],
+    reference: (reply.reference || null) as DbReference,
     author: formatAuthorFromDb(reply.author, guildId),
   };
 }
