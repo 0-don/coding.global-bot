@@ -1,5 +1,3 @@
-import { error, log } from "console";
-import dayjs from "dayjs";
 import {
   ChannelType,
   ForumChannel,
@@ -9,46 +7,8 @@ import {
   type GuildTextBasedChannel,
 } from "discord.js";
 import { prisma } from "../../prisma";
+import { logTs } from "../helpers";
 import { ThreadService } from "./thread.service";
-
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 2000;
-const TIMEOUT_MS = 30000;
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-const logTs = (
-  level: "info" | "error" | "warn",
-  guild: string,
-  msg: string,
-) => {
-  const ts = dayjs().format("HH:mm:ss.SSS");
-  const fn = level === "error" ? error : log;
-  fn(`[${ts}] [${level.toUpperCase()}] [${guild}] ${msg}`);
-};
-
-async function withRetry<T>(
-  fn: () => Promise<T>,
-  label: string,
-  guild: string,
-): Promise<T> {
-  for (let i = 1; i <= MAX_RETRIES; i++) {
-    try {
-      return await Promise.race([
-        fn(),
-        new Promise<never>((_, rej) =>
-          setTimeout(() => rej(new Error("Timeout")), TIMEOUT_MS),
-        ),
-      ]);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      logTs("warn", guild, `${label} failed (${i}/${MAX_RETRIES}): ${msg}`);
-      if (i === MAX_RETRIES) throw err;
-      await sleep(RETRY_DELAY_MS * i);
-    }
-  }
-  throw new Error("Unreachable");
-}
 
 const runningGuilds = new Set<string>();
 
@@ -79,11 +39,7 @@ export async function syncAllThreads(
 
     // Fetch all channels
     logTs("info", guildName, "Fetching channels...");
-    const allChannels = await withRetry(
-      () => guild.channels.fetch(),
-      "Fetch channels",
-      guildName,
-    );
+    const allChannels = await guild.channels.fetch();
 
     // Filter to forum channels
     const forumChannels = allChannels.filter(
@@ -125,24 +81,12 @@ export async function syncAllThreads(
 
       try {
         // Fetch active threads
-        const activeResult = await withRetry(
-          () => forum.threads.fetchActive(true),
-          `Fetch active threads (${forum.name})`,
-          guildName,
-        );
+        const activeResult = await forum.threads.fetchActive(true);
 
         // Fetch archived threads
-        const archivedPublic = await withRetry(
-          () => forum.threads.fetchArchived({ type: "public", limit: 100 }),
-          `Fetch archived public (${forum.name})`,
-          guildName,
-        );
+        const archivedPublic = await forum.threads.fetchArchived({ type: "public", limit: 100 });
 
-        const archivedPrivate = await withRetry(
-          () => forum.threads.fetchArchived({ type: "private", limit: 100 }),
-          `Fetch archived private (${forum.name})`,
-          guildName,
-        );
+        const archivedPrivate = await forum.threads.fetchArchived({ type: "private", limit: 100 });
 
         // Combine all threads
         for (const [, thread] of activeResult.threads) {
@@ -183,17 +127,11 @@ export async function syncAllThreads(
       const tag = `${thread.name.slice(0, 30)} (${thread.id})`;
 
       try {
-        await withRetry(
-          async () => {
-            // Upsert thread
-            await ThreadService.upsertThread(thread, boardType);
+        // Upsert thread
+        await ThreadService.upsertThread(thread, boardType);
 
-            // Fetch and save all messages
-            await syncThreadMessages(thread, guild.id);
-          },
-          `Process ${tag}`,
-          guildName,
-        );
+        // Fetch and save all messages
+        await syncThreadMessages(thread, guild.id);
 
         processedThreads.add(thread.id);
         logTs(

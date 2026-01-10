@@ -1,39 +1,9 @@
-import { error, log } from "console";
-import dayjs from "dayjs";
 import { Collection, Guild, GuildMember, type GuildTextBasedChannel } from "discord.js";
 import { prisma } from "../../prisma";
 import { STATUS_ROLES, VERIFIED } from "../constants";
+import { logTs } from "../helpers";
 import { RolesService } from "../roles/roles.service";
 import { updateCompleteMemberData } from "./member-data.service";
-
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 2000;
-const TIMEOUT_MS = 30000;
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-const logTs = (level: "info" | "error" | "warn", guild: string, msg: string) => {
-  const ts = dayjs().format("HH:mm:ss.SSS");
-  const fn = level === "error" ? error : log;
-  fn(`[${ts}] [${level.toUpperCase()}] [${guild}] ${msg}`);
-};
-
-async function withRetry<T>(fn: () => Promise<T>, label: string, guild: string): Promise<T> {
-  for (let i = 1; i <= MAX_RETRIES; i++) {
-    try {
-      return await Promise.race([
-        fn(),
-        new Promise<never>((_, rej) => setTimeout(() => rej(new Error("Timeout")), TIMEOUT_MS)),
-      ]);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      logTs("warn", guild, `${label} failed (${i}/${MAX_RETRIES}): ${msg}`);
-      if (i === MAX_RETRIES) throw err;
-      await sleep(RETRY_DELAY_MS * i);
-    }
-  }
-  throw new Error("Unreachable");
-}
 
 const runningGuilds = new Set<string>();
 
@@ -69,7 +39,7 @@ export async function verifyAllUsers(
     }
 
     logTs("info", guildName, "Fetching members...");
-    const allMembers = await withRetry(() => guild.members.fetch(), "Fetch members", guildName);
+    const allMembers = await guild.members.fetch();
     const members = Array.from(allMembers.values())
       .filter((m) => !m.user.bot)
       .sort((a, b) => a.id.localeCompare(b.id));
@@ -93,16 +63,14 @@ export async function verifyAllUsers(
       const tag = `${member.user.username} (${member.id})`;
 
       try {
-        await withRetry(async () => {
-          await updateCompleteMemberData(member);
-          if (statusRoles[VERIFIED]) {
-            const roleId = statusRoles[VERIFIED]!.id;
-            if (!member.roles.cache.has(roleId)) {
-              const role = guild.roles.cache.get(roleId);
-              if (role?.editable) await member.roles.add(roleId);
-            }
+        await updateCompleteMemberData(member);
+        if (statusRoles[VERIFIED]) {
+          const roleId = statusRoles[VERIFIED]!.id;
+          if (!member.roles.cache.has(roleId)) {
+            const role = guild.roles.cache.get(roleId);
+            if (role?.editable) await member.roles.add(roleId);
           }
-        }, `Process ${tag}`, guildName);
+        }
         processedIds.add(member.id);
         logTs("info", guildName, `✓ ${tag} (${alreadyDone + i + 1}/${total})`);
       } catch {

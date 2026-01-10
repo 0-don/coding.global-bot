@@ -1,7 +1,15 @@
+import { error, log } from "console";
 import { ChartConfiguration, ChartDataset } from "chart.js";
+import dayjs from "dayjs";
 import { enUS } from "date-fns/locale";
 import { ConfigValidator } from "./config-validator";
 import { TRANSLATOR } from "./constants";
+
+export const logTs = (level: "info" | "error" | "warn", guild: string, msg: string) => {
+  const ts = dayjs().format("HH:mm:ss.SSS");
+  const fn = level === "error" ? error : log;
+  fn(`[${ts}] [${level.toUpperCase()}] [${guild}] ${msg}`);
+};
 
 export const JOB_POST_REGEX =
   /Project Title:[\s\S]*?(?=Project Description:|$)Project Description:[\s\S]*?(?=Required Skills:|$)Required Skills:[\s\S]*?(?=Budget Range:|$)Budget Range:[\s\S]*?(?=Timeline:|$)Timeline:[\s\S]*?(?=Contact Method:|$)Contact Method:[\s\S]*?(?=Additional Details:|$)Additional Details:[\s\S]*$/;
