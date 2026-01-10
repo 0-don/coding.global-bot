@@ -18,34 +18,17 @@ import "./elysia";
 import { ConfigValidator } from "./lib/config-validator";
 import { startMemberUpdateQueue } from "./lib/members/member-update-queue.service";
 
-// // Global error handlers to prevent crashes from Discord API errors
-// process.on("unhandledRejection", (error) => {
-//   if (error instanceof Error) {
-//     // Ignore known transient Discord API errors
-//     if (
-//       error.message.includes("arrayBuffer") ||
-//       error.message.includes("Connect Timeout") ||
-//       error.message.includes("Unknown interaction") ||
-//       error.name === "ConnectTimeoutError"
-//     ) {
-//       return;
-//     }
-//   }
-//   console.error("Unhandled rejection:", error);
-// });
+Error.stackTraceLimit = 50;
 
-// process.on("uncaughtException", (error) => {
-//   // Ignore known transient Discord API errors
-//   if (
-//     error.message.includes("arrayBuffer") ||
-//     error.message.includes("Connect Timeout") ||
-//     error.message.includes("Unknown interaction") ||
-//     error.name === "ConnectTimeoutError"
-//   ) {
-//     return;
-//   }
-//   console.error("Uncaught exception:", error);
-// });
+process.on("unhandledRejection", (error, promise) => {
+  if (error instanceof Error && error.name === "ConnectTimeoutError") {
+    log("[ConnectTimeout]", error.message);
+    log("[ConnectTimeout] Stack:", error.stack);
+    log("[ConnectTimeout] Promise:", promise);
+    return;
+  }
+  throw error;
+});
 
 Chart.register(
   LineController,
