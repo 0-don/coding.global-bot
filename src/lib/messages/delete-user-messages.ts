@@ -129,39 +129,33 @@ export const deleteUserMessages = async (params: {
     await deleteMessages(thread);
   };
 
-  const promises: Promise<void>[] = [];
-  for (const channel of params.guild.channels.cache.values()) {
-    if (channel.type === ChannelType.GuildForum) {
-      promises.push(
-        (channel as ForumChannel).threads
-          .fetchActive()
-          .then(
-            (t) =>
-              Promise.all(t.threads.map(processThread)) as Promise<unknown>,
-          )
-          .catch(error) as Promise<void>,
-      );
-    } else if (
-      [
-        ChannelType.GuildText,
-        ChannelType.GuildAnnouncement,
-        ChannelType.GuildVoice,
-        ChannelType.GuildStageVoice,
-        ChannelType.GuildMedia,
-      ].includes(channel.type)
-    ) {
-      promises.push(
-        deleteMessages(channel as MessageChannel).catch(error) as Promise<void>,
-      );
-    } else if (
-      [ChannelType.PublicThread, ChannelType.PrivateThread, ChannelType.AnnouncementThread].includes(
-        channel.type,
-      )
-    ) {
-      promises.push(
-        processThread(channel as ThreadChannel).catch(error) as Promise<void>,
-      );
+  // Process sequentially in background to avoid rate limits
+  (async () => {
+    for (const channel of params.guild.channels.cache.values()) {
+      if (channel.type === ChannelType.GuildForum) {
+        const threads = await (channel as ForumChannel).threads.fetchActive().catch(error);
+        if (threads) {
+          for (const thread of threads.threads.values()) {
+            await processThread(thread).catch(error);
+          }
+        }
+      } else if (
+        [
+          ChannelType.GuildText,
+          ChannelType.GuildAnnouncement,
+          ChannelType.GuildVoice,
+          ChannelType.GuildStageVoice,
+          ChannelType.GuildMedia,
+        ].includes(channel.type)
+      ) {
+        await deleteMessages(channel as MessageChannel).catch(error);
+      } else if (
+        [ChannelType.PublicThread, ChannelType.PrivateThread, ChannelType.AnnouncementThread].includes(
+          channel.type,
+        )
+      ) {
+        await processThread(channel as ThreadChannel).catch(error);
+      }
     }
-  }
-  await Promise.all(promises);
+  })();
 };
