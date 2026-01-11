@@ -1,9 +1,9 @@
 import type { APIEmbed, CommandInteraction, TextChannel } from "discord.js";
 import { Discord, Slash } from "discordx";
+import { ConfigValidator } from "../../lib/config-validator";
 import {
   BOT_CHANNELS,
   BOT_ICON,
-  IS_CONSTRAINED_TO_BOT_CHANNEL,
   MEMBERS_TEMPLATE,
   RED_COLOR,
 } from "../../lib/constants";
@@ -20,34 +20,39 @@ export class Members {
   })
   async members(interaction: CommandInteraction) {
     try {
-      // deferReply first to avoid interaction timeout
       if (!interaction.deferred && !interaction.replied) {
         await interaction.deferReply();
       }
 
-      // get text channel (use cached channel - no need to fetch)
       LogService.logCommandHistory(interaction, "members");
       const channel = interaction.channel as TextChannel;
 
-      if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
-        // if not bot channel, return
-        if (!BOT_CHANNELS.includes(channel.name))
+      if (ConfigValidator.isFeatureEnabled("IS_CONSTRAINED_TO_BOT_CHANNEL")) {
+        if (!ConfigValidator.isFeatureEnabled("BOT_CHANNELS")) {
+          ConfigValidator.logFeatureDisabled(
+            "Bot Channel Restrictions",
+            "BOT_CHANNELS",
+          );
+          return await interaction.editReply(
+            "Bot channel restrictions are enabled but no bot channels are configured.",
+          );
+        }
+        if (!BOT_CHANNELS.includes(channel.name)) {
           return await interaction.editReply(
             "Please use this command in the bot channel",
           );
+        }
       }
-      // if somehow no guild, return
+
       if (!interaction.guild)
         return await interaction.editReply(
           "Please use this command in a server",
         );
 
-      // get guild member chart data from specifc guild
       const chart = await MembersService.guildMemberCountChart(
         interaction.guild,
       );
 
-      // if error occured, return
       if (chart?.error) return await interaction.editReply(chart.error);
 
       const attachment = {
@@ -55,7 +60,6 @@ export class Members {
         name: chart.fileName!,
       };
 
-      // Single-pass member counting
       let memberCount = 0;
       let botCount = 0;
       for (const member of interaction.guild.members.cache.values()) {
@@ -70,7 +74,6 @@ export class Members {
       const sevenDaysPercent = (chart.sevedDaysCount! * 100) / memberCount;
       const oneDayPercent = (chart.oneDayCount! * 100) / memberCount;
 
-      // create chart embed
       const embed: APIEmbed = {
         color: RED_COLOR,
         title: `🛡️ ${interaction.guild?.name}'s Member Count Overview`,
@@ -90,7 +93,6 @@ export class Members {
        **Memberflow 24 Hours**
        Change: \`${(chart.oneDayCount!<0?'':'+') + chart.oneDayCount} members (${(oneDayPercent!<0?'':'+')+ oneDayPercent.toFixed(2)}%)\`
        `,
-        // prettier-ignore
         timestamp: new Date().toISOString(),
         image: { url: `attachment://${chart.fileName}` },
         footer: {
@@ -99,14 +101,12 @@ export class Members {
         },
       };
 
-      // return embed with chart img
       return await interaction.editReply({
         embeds: [embed],
         files: [attachment],
       });
     } catch (error) {
       console.error("Members command error:", error);
-      // Don't crash - try to respond if possible
       try {
         if (interaction.deferred || interaction.replied) {
           await interaction.editReply(
