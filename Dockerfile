@@ -1,42 +1,24 @@
-# Install dependencies only when needed
-# Stage 0
-FROM imbios/bun-node:latest-24-debian  AS deps
+# Install dependencies
+FROM oven/bun:latest AS deps
 WORKDIR /app
-
-# Install native dependencies required for canvas
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libcairo2-dev \
-    libpango1.0-dev \
-    libjpeg-dev \
-    libgif-dev \
-    librsvg2-dev \
-    && rm -rf /var/lib/apt/lists/*
 
 COPY package.json ./
 COPY /prisma ./prisma
 
 RUN bun install
-#############################################
 
 
-# Rebuild the source code only when needed
-# Stage 1
-FROM imbios/bun-node:latest-24-debian AS builder
+# Build
+FROM oven/bun:latest AS builder
 WORKDIR /app
 
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
-RUN bun run build 
-#############################################
+RUN bun run build
 
 
-# Production image, copy only production files
-# Stage 2
-FROM imbios/bun-node:latest-24-debian  AS prod
-
-USER root
-
+# Production
+FROM oven/bun:latest AS prod
 WORKDIR /app
 
 COPY --from=builder /app/dist ./dist
@@ -48,5 +30,4 @@ COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
 ENV DOCKER=true
 
-CMD bun start
-#############################################
+CMD ["bun", "start"]
