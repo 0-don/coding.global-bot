@@ -6,7 +6,8 @@ import {
 } from "discord.js";
 import { prisma } from "@/prisma";
 import { ConfigValidator } from "@/shared/config/validator";
-import { JAIL, LEVEL_LIST, LEVEL_MESSAGES, VOICE_ONLY } from "@/shared/config";
+import { JAIL, VOICE_ONLY } from "@/shared/config/roles";
+import { LEVEL_LIST, LEVEL_MESSAGES } from "@/shared/config/levels";
 
 export class MessagesService {
   private static _levelSystemWarningLogged = false;

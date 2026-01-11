@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import { prisma } from "@/prisma";
-import { topStatsExampleEmbed, userStatsExampleEmbed } from "@/bot/embeds";
+import { topStatsExampleEmbed } from "@/bot/embeds/top-stats.embed";
+import { userStatsExampleEmbed } from "@/bot/embeds/user-stats.embed";
 import { mapMemberGuild } from "@/shared/mappers/discord.mapper";
 
 const sumSeconds = (items: { sum: number }[]) =>

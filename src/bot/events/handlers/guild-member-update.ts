@@ -1,6 +1,6 @@
 import type { ArgsOf } from "discordx";
 import { Discord, On } from "discordx";
-import { EVERYONE } from "@/shared/config";
+import { EVERYONE } from "@/shared/config/roles";
 import { queueMemberUpdate } from "@/core/services/members/member-update-queue.service";
 import { updateNickname } from "@/core/services/members/save-nickname";
 import { RolesService } from "@/core/services/roles/roles.service";

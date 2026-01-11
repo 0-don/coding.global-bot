@@ -1,7 +1,7 @@
 import { Collection, Guild, GuildMember, type GuildTextBasedChannel } from "discord.js";
 import { prisma } from "@/prisma";
-import { STATUS_ROLES, VERIFIED } from "@/shared/config";
-import { logTs } from "@/shared/utils/index";
+import { STATUS_ROLES, VERIFIED } from "@/shared/config/roles";
+import { logTs } from "@/shared/utils/date.utils";
 import { RolesService } from "@/core/services/roles/roles.service";
 import { updateCompleteMemberData } from "@/core/services/members/member-data.service";
 

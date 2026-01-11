@@ -1,7 +1,7 @@
 import { GuildMember } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { SHOULD_LOG_VOICE_EVENTS } from "@/shared/config";
+import { SHOULD_LOG_VOICE_EVENTS } from "@/shared/config/features";
 import { joinSettings } from "@/core/services/members/join-nickname";
 import { moveMemberToChannel } from "@/core/services/members/move-member-to-channel";
 import { VoiceService } from "@/core/services/voice/voice.service";

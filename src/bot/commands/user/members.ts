@@ -1,13 +1,9 @@
 import type { APIEmbed, CommandInteraction, TextChannel } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { ConfigValidator } from "@/shared/config/validator";
-import {
-  BOT_CHANNELS,
-  BOT_ICON,
-  MEMBERS_TEMPLATE,
-  RED_COLOR,
-} from "@/shared/config";
-import { codeString } from "@/shared/utils/index";
+import { BOT_CHANNELS } from "@/shared/config/channels";
+import { BOT_ICON, MEMBERS_TEMPLATE, RED_COLOR } from "@/shared/config/branding";
+import { codeString } from "@/shared/utils/format.utils";
 import { LogService } from "@/core/services/logs/log.service";
 import { MembersService } from "@/core/services/members/members.service";
 

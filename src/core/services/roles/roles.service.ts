@@ -14,13 +14,13 @@ import { prisma } from "@/prisma";
 import { StatusRoles } from "@/types";
 import {
   JAIL,
-  LEVEL_LIST,
   LEVEL_ROLES,
   STATUS_ROLES,
   VERIFIED,
-  VERIFY_TEMPLATE,
   VOICE_ONLY,
-} from "@/shared/config";
+} from "@/shared/config/roles";
+import { LEVEL_LIST } from "@/shared/config/levels";
+import { VERIFY_TEMPLATE } from "@/shared/config/branding";
 
 export type UpdateDbRolesArgs = {
   oldRoles: Role[];

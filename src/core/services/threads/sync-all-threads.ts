@@ -7,7 +7,7 @@ import {
   type GuildTextBasedChannel,
 } from "discord.js";
 import { prisma } from "@/prisma";
-import { logTs } from "@/shared/utils/index";
+import { logTs } from "@/shared/utils/date.utils";
 import { ThreadService } from "@/core/services/threads/thread.service";
 
 const runningGuilds = new Set<string>();

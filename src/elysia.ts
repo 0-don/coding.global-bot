@@ -1,30 +1,17 @@
-import {
-  parseMessage,
-  parseMultipleUsersWithRoles,
-  searchUsers,
-} from "@/api/mappers/member.mapper";
-import {
-  getTopStatsWithUsers,
-  getUserStatsForApi,
-} from "@/api/mappers/stats.mapper";
-import {
-  formatRepliesFromDb,
-  formatThreadFromDb,
-  formatThreadsFromDb,
-} from "@/api/mappers/thread.mapper";
-import { cache, PAGE_LIMIT } from "@/api/middleware/cache";
-import { BoardType, ThreadParams } from "@/api/middleware/validators";
-import { MembersService } from "@/core/services/members/members.service";
-import { ThreadService } from "@/core/services/threads/thread.service";
+import { cache } from "@/api/middleware/cache";
+import { boardRoutes } from "@/api/routes/board.routes";
+import { newsRoutes } from "@/api/routes/news.routes";
+import { staffRoutes } from "@/api/routes/staff.routes";
+import { statsRoutes } from "@/api/routes/stats.routes";
+import { userRoutes } from "@/api/routes/user.routes";
+import { widgetRoutes } from "@/api/routes/widget.routes";
 import { Prisma } from "@/generated/prisma/client";
 import { bot } from "@/main";
-import { prisma } from "@/prisma";
 import { cors } from "@elysiajs/cors";
 import { node } from "@elysiajs/node";
 import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
-import { ChannelType, PermissionsBitField } from "discord.js";
-import { Elysia, status, t } from "elysia";
+import { Elysia, status } from "elysia";
 
 export const app = new Elysia({ adapter: node() })
   .use(
@@ -66,230 +53,13 @@ export const app = new Elysia({ adapter: node() })
   .onAfterHandle(({ cacheKey, responseValue }) => {
     if (cacheKey) cache.set(cacheKey, responseValue as object);
   })
-  .get(
-    "/api/:guildId/staff",
-    async ({ guild, params }) => {
-      const memberGuids = await prisma.memberGuild.findMany({
-        where: { guildId: params.guildId, status: true },
-        include: {
-          member: {
-            include: { roles: { where: { guildId: params.guildId } } },
-          },
-        },
-      });
-
-      const staffUserIds = memberGuids
-        .filter((mg) =>
-          mg.member.roles.some((role) => {
-            const discordRole = guild.roles.cache.get(role.roleId);
-            return (
-              discordRole?.permissions.has(
-                PermissionsBitField.Flags.MuteMembers,
-              ) ||
-              discordRole?.permissions.has(
-                PermissionsBitField.Flags.ChangeNickname,
-              )
-            );
-          }),
-        )
-        .map((mg) => mg.memberId);
-
-      const users = await parseMultipleUsersWithRoles(staffUserIds, guild);
-      return users.sort(
-        (a, b) => b.highestRolePosition - a.highestRolePosition,
-      );
-    },
-    { params: t.Object({ guildId: t.String() }) },
-  )
-
-  .get(
-    "/api/:guildId/news",
-    async ({ guild }) => {
-      // Try cache first, only fetch from API if not found
-      let newsChannel = guild.channels.cache.find((ch) =>
-        ch?.name.toLowerCase().includes("news"),
-      );
-
-      if (!newsChannel) {
-        const channels = await guild.channels.fetch();
-        const found = channels.find((ch) =>
-          ch?.name.toLowerCase().includes("news"),
-        );
-        if (found) newsChannel = found;
-      }
-
-      if (!newsChannel) throw status("Not Found", "News channel not found");
-      if (
-        newsChannel.type !== ChannelType.GuildText &&
-        newsChannel.type !== ChannelType.GuildAnnouncement
-      ) {
-        throw status(
-          "Bad Request",
-          "News channel must be a text or announcement channel",
-        );
-      }
-
-      // Try cache first, only fetch if cache is empty
-      let messages = Array.from(newsChannel.messages.cache.values())
-        .sort((a, b) => b.createdTimestamp - a.createdTimestamp)
-        .slice(0, PAGE_LIMIT);
-
-      if (messages.length === 0) {
-        messages = Array.from(
-          (await newsChannel.messages.fetch({ limit: PAGE_LIMIT })).values(),
-        );
-      }
-
-      const authorIds = [...new Set(messages.map((msg) => msg.author.id))];
-      const authors = await parseMultipleUsersWithRoles(authorIds, guild);
-
-      return messages.map((message) => ({
-        ...parseMessage(message),
-        author: authors.find((a) => a.id === message.author.id)!,
-      }));
-    },
-    { params: t.Object({ guildId: t.String() }) },
-  )
-
-  .get(
-    "/api/:guildId/widget",
-    async ({ guild, params }) => {
-      const onlineMembers = await prisma.memberGuild.findMany({
-        where: {
-          guildId: params.guildId,
-          status: true,
-          presenceStatus: { in: ["online", "idle", "dnd"] },
-        },
-        orderBy: { highestRolePosition: "desc" },
-        take: 100,
-      });
-
-      const users = await parseMultipleUsersWithRoles(
-        onlineMembers.map((m) => m.memberId),
-        guild,
-      );
-      const presenceCount = await prisma.memberGuild.count({
-        where: {
-          guildId: params.guildId,
-          status: true,
-          presenceStatus: { in: ["online", "idle", "dnd"] },
-        },
-      });
-
-      return {
-        id: guild.id,
-        name: guild.name,
-        presenceCount,
-        memberCount: guild.memberCount,
-        iconURL: guild.iconURL({ extension: "webp", size: 256 }),
-        bannerURL: guild.bannerURL({ extension: "webp", size: 1024 }),
-        members: users,
-      };
-    },
-    { params: t.Object({ guildId: t.String() }) },
-  )
-
-  .get(
-    "/api/:guildId/board/:boardType",
-    async ({ params }) => {
-      const boardType = params.boardType.toLowerCase();
-      const threads = await ThreadService.getThreadsByBoard(
-        params.guildId,
-        boardType,
-      );
-      return formatThreadsFromDb(threads, params.guildId);
-    },
-    { params: t.Object({ guildId: t.String(), boardType: BoardType }) },
-  )
-  .get(
-    "/api/:guildId/board/:boardType/:threadId",
-    async ({ params }) => {
-      const thread = await ThreadService.getThread(params.threadId);
-      if (!thread) {
-        throw status("Not Found", "Thread not found");
-      }
-      const formatedThread = formatThreadFromDb(thread, params.guildId);
-      return formatedThread;
-    },
-    {
-      params: ThreadParams,
-      query: t.Object({ boardType: t.Optional(BoardType) }),
-    },
-  )
-  .get(
-    "/api/:guildId/board/:boardType/:threadId/messages",
-    async ({ params, query }) => {
-      const { messages, hasMore, nextCursor } = await ThreadService.getReplies(
-        params.threadId,
-        { after: query.after, limit: PAGE_LIMIT },
-      );
-      return {
-        messages: formatRepliesFromDb(messages, params.guildId),
-        hasMore,
-        nextCursor,
-      };
-    },
-    {
-      params: ThreadParams,
-      query: t.Object({ after: t.Optional(t.String()) }),
-    },
-  )
-
-  .get(
-    "/api/:guildId/top",
-    async ({ params, query }) => {
-      return getTopStatsWithUsers(
-        params.guildId,
-        query.days ?? 9999,
-        query.limit ?? 5,
-      );
-    },
-    {
-      params: t.Object({ guildId: t.String() }),
-      query: t.Object({
-        limit: t.Optional(t.Number({ default: 5, minimum: 1, maximum: 10 })),
-        days: t.Optional(
-          t.Number({ default: 9999, minimum: 1, maximum: 9999 }),
-        ),
-      }),
-    },
-  )
-  .get(
-    "/api/:guildId/members",
-    async ({ guild }) => {
-      return MembersService.getMembersStatsForApi(guild);
-    },
-    { params: t.Object({ guildId: t.String() }) },
-  )
-  .get(
-    "/api/:guildId/user/search",
-    async ({ params, query }) => {
-      if (!query.q || query.q.trim().length === 0) {
-        throw status("Bad Request", "Query parameter 'q' is required");
-      }
-      return searchUsers(params.guildId, query.q.trim(), query.limit ?? 10);
-    },
-    {
-      params: t.Object({ guildId: t.String() }),
-      query: t.Object({
-        q: t.String(),
-        limit: t.Optional(t.Number({ default: 10, minimum: 1, maximum: 50 })),
-      }),
-    },
-  )
-  .get(
-    "/api/:guildId/user/:userId",
-    async ({ params }) => {
-      const stats = await getUserStatsForApi(params.userId, params.guildId);
-      if (!stats) {
-        throw status("Not Found", "User not found or has left the server");
-      }
-      return stats;
-    },
-    {
-      params: t.Object({ guildId: t.String(), userId: t.String() }),
-    },
-  )
+  // Routes
+  .use(staffRoutes)
+  .use(newsRoutes)
+  .use(widgetRoutes)
+  .use(boardRoutes)
+  .use(statsRoutes)
+  .use(userRoutes)
   .listen(4000);
 
 log("Server started on port 4000");
