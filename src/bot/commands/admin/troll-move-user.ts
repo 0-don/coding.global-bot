@@ -1,17 +1,13 @@
 import {
   ApplicationCommandOptionType,
-  ChannelType,
-  GuildMember,
   MessageFlags,
   PermissionFlagsBits,
   User,
-  VoiceChannel,
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
+import { executeTrollMoveUser } from "@/core/handlers/command-handlers/admin/troll-move-user.handler";
 import { LogService } from "@/core/services/logs/log.service";
-import { moveMemberToChannel } from "@/core/services/members/move-member-to-channel";
-import { prisma } from "@/prisma";
 
 @Discord()
 export class TrollMoveUser {
@@ -51,46 +47,16 @@ export class TrollMoveUser {
     interaction: CommandInteraction,
   ) {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-
     LogService.logCommandHistory(interaction, "troll-move-user");
 
-    if (
-      user.id === "1302775229923332119" &&
-      interaction.user.id !== "1302775229923332119"
-    )
-      return interaction.editReply(`You can't troll me`);
-
-    if (interaction.user.id === user.id && user.id !== "1302775229923332119")
-      return interaction.editReply(`You can't troll yourself`);
-
-    await prisma.memberGuild.update({
-      where: {
-        member_guild: {
-          guildId: interaction.guildId as string,
-          memberId: user.id,
-        },
-      },
-      data: { moveCounter: count, moveTimeout: timeout },
-    });
-
-    const allVoiceChannels = (await interaction.guild!.channels.fetch()).filter(
-      (c) => c?.type === ChannelType.GuildVoice,
+    const result = await executeTrollMoveUser(
+      user,
+      count,
+      timeout,
+      interaction.user.id,
+      interaction.guild!,
     );
 
-    for (const [id, channel] of allVoiceChannels) {
-      const voiceChannel = channel as VoiceChannel;
-      try {
-        await voiceChannel.permissionOverwrites.delete(user.id);
-      } catch (_) {}
-    }
-
-    const guildMember = (await interaction.guild?.members.fetch(
-      user.id,
-    )) as GuildMember;
-
-    if (count > 0) moveMemberToChannel(guildMember);
-
-    // send success message
-    return await interaction.editReply(`Trolling begins`);
+    return interaction.editReply(result);
   }
 }

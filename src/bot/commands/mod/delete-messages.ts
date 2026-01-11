@@ -1,12 +1,12 @@
-import type { CommandInteraction, Message, TextChannel } from "discord.js";
+import type { CommandInteraction, TextChannel } from "discord.js";
 import {
   ApplicationCommandOptionType,
   MessageFlags,
   PermissionFlagsBits,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
+import { executeDeleteMessages } from "@/core/handlers/command-handlers/mod/delete-messages.handler";
 import { LogService } from "@/core/services/logs/log.service";
-import { fetchMessages } from "@/core/services/messages/fetch-messages";
 
 @Discord()
 export class DeleteMessages {
@@ -29,32 +29,13 @@ export class DeleteMessages {
     interaction: CommandInteraction,
   ) {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-
     LogService.logCommandHistory(interaction, "delete-messages");
+
     const channel = interaction.channel as TextChannel;
-    const guildId = interaction.guild?.id;
+    if (!interaction.guild?.id || !channel) return;
 
-    if (!guildId || !channel) return;
+    await executeDeleteMessages(channel, amount);
 
-    const messages = await fetchMessages(channel, amount);
-
-    const messageList = messages.reduce(
-      (acc, message) => {
-        const last = acc[acc.length - 1];
-        if (last!.length === 100) {
-          acc.push([message!]);
-        } else {
-          last!.push(message);
-        }
-        return acc;
-      },
-      [[]] as Message<boolean>[][],
-    );
-
-    for (const message of messageList) {
-      await channel.bulkDelete(message, true);
-    }
-
-    return await interaction.editReply({ content: "messages are deleted" });
+    return interaction.editReply({ content: "messages are deleted" });
   }
 }

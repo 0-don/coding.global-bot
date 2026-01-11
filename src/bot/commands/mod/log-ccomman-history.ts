@@ -1,9 +1,8 @@
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { commandHistoryEmbed } from "@/bot/embeds/command-history.embed";
+import { executeLogCommandHistory } from "@/core/handlers/command-handlers/mod/log-command-history.handler";
 import { LogService } from "@/core/services/logs/log.service";
-import { prisma } from "@/prisma";
 
 @Discord()
 export class LogCommandHistory {
@@ -25,19 +24,11 @@ export class LogCommandHistory {
     interaction: CommandInteraction,
   ) {
     await interaction.deferReply();
-
     LogService.logCommandHistory(interaction, "log-command-history");
-    const guildId = interaction.guild?.id;
 
-    const history = await prisma.memberCommandHistory.findMany({
-      where: { guildId },
-      take: count,
-      orderBy: { createdAt: "desc" },
-    });
+    const embed = await executeLogCommandHistory(interaction.guild!.id, count);
 
-    const embed = commandHistoryEmbed(history);
-
-    return await interaction.editReply({
+    return interaction.editReply({
       embeds: [embed],
       allowedMentions: { users: [], roles: [] },
     });
