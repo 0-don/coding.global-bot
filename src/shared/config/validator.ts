@@ -44,11 +44,6 @@ export class ConfigValidator {
       feature: "Bot Channel Restrictions",
     },
     {
-      key: "VERIFY_CHANNELS",
-      required: false,
-      feature: "Verification System",
-    },
-    {
       key: "VOICE_EVENT_CHANNELS",
       required: false,
       feature: "Voice Event Logging",

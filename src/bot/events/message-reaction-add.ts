@@ -1,20 +1,9 @@
 import { MessageReaction, User } from "discord.js";
-import type { ArgsOf, Client } from "discordx";
-import { Discord, On, Reaction } from "discordx";
+import { Discord, Reaction } from "discordx";
 import { HelperService } from "@/core/services/roles/helper.service";
-import { RolesService } from "@/core/services/roles/roles.service";
 
 @Discord()
 export class MessageReactionAdd {
-  @On()
-  async messageReactionAdd(
-    [reaction, user]: ArgsOf<"messageReactionAdd">,
-    client: Client,
-  ) {
-    await reaction.fetch();
-    await RolesService.verifyReaction(reaction, user);
-  }
-
   @Reaction({ emoji: "✅" })
   async helperEmojiAdd(reaction: MessageReaction, user: User): Promise<void> {
     try {

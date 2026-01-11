@@ -25,7 +25,6 @@ interface FeatureBotEnvironment {
   // Channel Configuration Features
   GENERAL_CHANNELS: string;
   BOT_CHANNELS: string;
-  VERIFY_CHANNELS: string;
   VOICE_EVENT_CHANNELS: string;
   JOIN_EVENT_CHANNELS: string;
   MEMBERS_COUNT_CHANNELS: string;
