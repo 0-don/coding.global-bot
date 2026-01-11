@@ -1,11 +1,11 @@
-import { dirname, importx } from "@discordx/importer";
+import { startMemberUpdateQueue } from "@/core/services/members/member-update-queue.service";
+import { ConfigValidator } from "@/shared/config/validator";
 import "@dotenvx/dotenvx/config";
 import { log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
+import "./bot";
 import "./elysia";
-import { ConfigValidator } from "@/shared/config/validator";
-import { startMemberUpdateQueue } from "@/core/services/members/member-update-queue.service";
 
 ConfigValidator.validateConfig();
 
@@ -65,8 +65,6 @@ bot.on(
 );
 
 const main = async () => {
-  await importx(`${dirname(import.meta.url)}/bot/{events,commands}/**/*.{ts,js}`);
-
   // Let's start the bot
   if (!token) {
     throw Error("Could not find TOKEN in your environment");
