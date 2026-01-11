@@ -1,4 +1,4 @@
-import { createCanvas, CanvasRenderingContext2D } from "canvas";
+import { createCanvas } from "canvas";
 import { Chart, ChartConfiguration } from "chart.js";
 import { enUS } from "date-fns/locale";
 import { ChartDataPoint } from "@/types";
@@ -28,10 +28,7 @@ export const ChartManager = {
     if (_GLOBAL_CHART) {
       _GLOBAL_CHART.destroy();
     }
-    _GLOBAL_CHART = new Chart(
-      CHARTJS_NODE_CANVAS as unknown as CanvasRenderingContext2D,
-      config,
-    );
+    _GLOBAL_CHART = new Chart(CHARTJS_NODE_CANVAS as any, config);
     _CHART_INITIALIZED = true;
     return _GLOBAL_CHART;
   },
