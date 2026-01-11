@@ -129,33 +129,34 @@ export const deleteUserMessages = async (params: {
     await deleteMessages(thread);
   };
 
-  // Process sequentially in background to avoid rate limits
-  (async () => {
-    for (const channel of params.guild.channels.cache.values()) {
-      if (channel.type === ChannelType.GuildForum) {
-        const threads = await (channel as ForumChannel).threads.fetchActive().catch(error);
-        if (threads) {
-          for (const thread of threads.threads.values()) {
-            await processThread(thread).catch(error);
-          }
+  for (const channel of params.guild.channels.cache.values()) {
+    if (channel.type === ChannelType.GuildForum) {
+      const threads = await (channel as ForumChannel).threads
+        .fetchActive()
+        .catch(error);
+      if (threads) {
+        for (const thread of threads.threads.values()) {
+          await processThread(thread).catch(error);
         }
-      } else if (
-        [
-          ChannelType.GuildText,
-          ChannelType.GuildAnnouncement,
-          ChannelType.GuildVoice,
-          ChannelType.GuildStageVoice,
-          ChannelType.GuildMedia,
-        ].includes(channel.type)
-      ) {
-        await deleteMessages(channel as MessageChannel).catch(error);
-      } else if (
-        [ChannelType.PublicThread, ChannelType.PrivateThread, ChannelType.AnnouncementThread].includes(
-          channel.type,
-        )
-      ) {
-        await processThread(channel as ThreadChannel).catch(error);
       }
+    } else if (
+      [
+        ChannelType.GuildText,
+        ChannelType.GuildAnnouncement,
+        ChannelType.GuildVoice,
+        ChannelType.GuildStageVoice,
+        ChannelType.GuildMedia,
+      ].includes(channel.type)
+    ) {
+      await deleteMessages(channel as MessageChannel).catch(error);
+    } else if (
+      [
+        ChannelType.PublicThread,
+        ChannelType.PrivateThread,
+        ChannelType.AnnouncementThread,
+      ].includes(channel.type)
+    ) {
+      await processThread(channel as ThreadChannel).catch(error);
     }
-  })();
+  }
 };
