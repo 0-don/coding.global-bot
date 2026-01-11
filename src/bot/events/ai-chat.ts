@@ -1,10 +1,10 @@
+import { AiChatService } from "@/core/services/ai/ai-chat.service";
+import { AI_TOOLS, CODING_GLOBAL_PATTERN } from "@/shared/ai/ai-tools";
+import { ConfigValidator } from "@/shared/config/validator";
 import { error } from "console";
 import { Message, TextChannel } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { ConfigValidator } from "@/shared/config/validator";
-import { AiChatService } from "@/core/services/ai/ai-chat.service";
-import { AI_TOOLS, CODING_GLOBAL_PATTERN } from "@/shared/ai/ai-tools";
 
 @Discord()
 export class AiChat {
@@ -14,7 +14,7 @@ export class AiChat {
     client: Client,
   ): Promise<void> {
     if (!this.shouldRespond(message, client)) return;
-
+    console.log("AI Chat message received");
     await message.channel.sendTyping();
 
     if (this.isEmptyMessage(message)) {
