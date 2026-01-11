@@ -139,10 +139,18 @@ export class SyncAllThreadsService {
           await this.syncThreadMessages(thread, guild.id);
 
           processedThreads.add(thread.id);
-          logTs("info", guildName, `✓ ${tag} (${alreadyDone + i + 1}/${total})`);
+          logTs(
+            "info",
+            guildName,
+            `✓ ${tag} (${alreadyDone + i + 1}/${total})`,
+          );
         } catch {
           failedThreads.add(thread.id);
-          logTs("error", guildName, `✗ ${tag} (${alreadyDone + i + 1}/${total})`);
+          logTs(
+            "error",
+            guildName,
+            `✗ ${tag} (${alreadyDone + i + 1}/${total})`,
+          );
         }
 
         const done = alreadyDone + i + 1;

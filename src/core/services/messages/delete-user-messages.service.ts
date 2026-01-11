@@ -17,8 +17,8 @@ import { error } from "node:console";
 export class DeleteUserMessagesService {
   static async deleteUserMessages(params: DeleteUserMessagesParams) {
     if (params.jail) {
-      const jailRoleId =
-        RolesService.getGuildStatusRoles(params.guild)[JAIL]?.id;
+      const jailRoleId = RolesService.getGuildStatusRoles(params.guild)[JAIL]
+        ?.id;
       if (!jailRoleId) return;
 
       // Check if user already has jail role - skip notification if they do

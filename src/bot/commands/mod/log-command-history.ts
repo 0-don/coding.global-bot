@@ -25,14 +25,16 @@ export class LogCommandHistory {
   ) {
     await interaction.deferReply();
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory.create({
-        data: {
-          channelId: interaction.channelId,
-          memberId: interaction.member.user.id,
-          guildId: interaction.guildId,
-          command: "log-command-history",
-        },
-      }).catch(() => {});
+      prisma.memberCommandHistory
+        .create({
+          data: {
+            channelId: interaction.channelId,
+            memberId: interaction.member.user.id,
+            guildId: interaction.guildId,
+            command: "log-command-history",
+          },
+        })
+        .catch(() => {});
     }
 
     const history = await prisma.memberCommandHistory.findMany({

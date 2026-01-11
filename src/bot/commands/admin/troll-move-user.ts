@@ -48,14 +48,16 @@ export class TrollMoveUser {
   ) {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory.create({
-        data: {
-          channelId: interaction.channelId,
-          memberId: interaction.member.user.id,
-          guildId: interaction.guildId,
-          command: "troll-move-user",
-        },
-      }).catch(() => {});
+      prisma.memberCommandHistory
+        .create({
+          data: {
+            channelId: interaction.channelId,
+            memberId: interaction.member.user.id,
+            guildId: interaction.guildId,
+            command: "troll-move-user",
+          },
+        })
+        .catch(() => {});
     }
 
     const result = await executeTrollMoveUser(

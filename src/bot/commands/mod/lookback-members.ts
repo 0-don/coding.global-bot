@@ -25,14 +25,16 @@ export class LookbackMembers {
     interaction: CommandInteraction,
   ) {
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory.create({
-        data: {
-          channelId: interaction.channelId,
-          memberId: interaction.member.user.id,
-          guildId: interaction.guildId,
-          command: "lookback-members",
-        },
-      }).catch(() => {});
+      prisma.memberCommandHistory
+        .create({
+          data: {
+            channelId: interaction.channelId,
+            memberId: interaction.member.user.id,
+            guildId: interaction.guildId,
+            command: "lookback-members",
+          },
+        })
+        .catch(() => {});
     }
 
     const result = await executeLookbackMembers(interaction, lookback);

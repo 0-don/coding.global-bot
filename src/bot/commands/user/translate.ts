@@ -25,14 +25,16 @@ export class Translate {
   ) {
     await interaction.deferReply();
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory.create({
-        data: {
-          channelId: interaction.channelId,
-          memberId: interaction.member.user.id,
-          guildId: interaction.guildId,
-          command: "translate",
-        },
-      }).catch(() => {});
+      prisma.memberCommandHistory
+        .create({
+          data: {
+            channelId: interaction.channelId,
+            memberId: interaction.member.user.id,
+            guildId: interaction.guildId,
+            command: "translate",
+          },
+        })
+        .catch(() => {});
     }
 
     const result = await executeTranslateCommand(txt);

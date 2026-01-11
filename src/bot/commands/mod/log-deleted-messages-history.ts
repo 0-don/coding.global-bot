@@ -25,14 +25,16 @@ export class LogDeletedMessagesHistory {
   ) {
     await interaction.deferReply();
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory.create({
-        data: {
-          channelId: interaction.channelId,
-          memberId: interaction.member.user.id,
-          guildId: interaction.guildId,
-          command: "log-deleted-messages-history",
-        },
-      }).catch(() => {});
+      prisma.memberCommandHistory
+        .create({
+          data: {
+            channelId: interaction.channelId,
+            memberId: interaction.member.user.id,
+            guildId: interaction.guildId,
+            command: "log-deleted-messages-history",
+          },
+        })
+        .catch(() => {});
     }
 
     const history = await prisma.memberDeletedMessages.findMany({

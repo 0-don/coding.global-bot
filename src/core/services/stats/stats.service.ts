@@ -104,7 +104,10 @@ export class StatsService {
       LIMIT ${limit}` as Promise<{ channelId: string; sum: number }[]>;
   }
 
-  private static async getTotalMessages(guildId: string, lastDaysCount: number) {
+  private static async getTotalMessages(
+    guildId: string,
+    lastDaysCount: number,
+  ) {
     return prisma.$queryRaw`
       SELECT count(*) as total
       FROM "MemberMessages"
@@ -114,7 +117,10 @@ export class StatsService {
     >;
   }
 
-  private static async getTotalVoiceHours(guildId: string, lastDaysCount: number) {
+  private static async getTotalVoiceHours(
+    guildId: string,
+    lastDaysCount: number,
+  ) {
     return prisma.$queryRaw`
       SELECT COALESCE(SUM(difference), 0) AS total
       FROM (
@@ -149,7 +155,10 @@ export class StatsService {
       ORDER BY "sum" DESC` as Promise<{ channelId: string; sum: number }[]>;
   }
 
-  private static async getUserMostActiveTextChannel(memberId: string, guildId: string) {
+  private static async getUserMostActiveTextChannel(
+    memberId: string,
+    guildId: string,
+  ) {
     return prisma.$queryRaw`
       SELECT "channelId", count(*)
       FROM "MemberMessages"
@@ -307,10 +316,7 @@ export class StatsService {
   }
 
   static async getUserStats(memberId: string, guildId: string) {
-    const memberGuild = await StatsService.getMemberGuild(
-      memberId,
-      guildId,
-    );
+    const memberGuild = await StatsService.getMemberGuild(memberId, guildId);
     if (!memberGuild) return null;
 
     const [

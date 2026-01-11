@@ -36,12 +36,16 @@ export class MoveMemberToChannelService {
 
     const voiceChannels = allVoiceChannels.filter(
       (c) =>
-        c && c?.members.size === 0 && guildMember.permissionsIn(c).has("Connect"),
+        c &&
+        c?.members.size === 0 &&
+        guildMember.permissionsIn(c).has("Connect"),
     );
 
     for (const [id, channel] of voiceChannelsWithUsers) {
       const voiceChannel = channel as VoiceChannel;
-      await voiceChannel.permissionOverwrites.edit(member.id, { Connect: false });
+      await voiceChannel.permissionOverwrites.edit(member.id, {
+        Connect: false,
+      });
     }
 
     const exit = async () => {
