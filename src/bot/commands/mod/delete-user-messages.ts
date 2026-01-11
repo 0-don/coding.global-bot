@@ -1,3 +1,5 @@
+import { executeDeleteUserMessages } from "@/core/handlers/command-handlers/mod/delete-user-messages.handler";
+import { LogService } from "@/core/services/logs/log.service";
 import type { CommandInteraction, User } from "discord.js";
 import {
   ApplicationCommandOptionType,
@@ -5,18 +7,16 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { LogService } from "@/core/services/logs/log.service";
-import { deleteUserMessages } from "@/core/services/messages/delete-user-messages";
 
 @Discord()
-export class DeleteMessages {
+export class DeleteUserMessages {
   @Slash({
     name: "delete-user-messages",
     description: "Deletes messages from a channel",
     defaultMemberPermissions: PermissionFlagsBits.ManageRoles,
     dmPermission: false,
   })
-  async deleteMessages(
+  async deleteUserMessages(
     @SlashOption({
       name: "user",
       description: "Select existing user",
@@ -44,23 +44,19 @@ export class DeleteMessages {
     reason: string | undefined,
     interaction: CommandInteraction,
   ) {
-    const memberId = user?.id ?? userId;
-    const guildId = interaction.guild?.id;
-
-    if (!memberId || !guildId) return;
-
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-
     LogService.logCommandHistory(interaction, "delete-user-messages");
 
-    await deleteUserMessages({
-      guild: interaction.guild,
-      memberId,
-      jail,
+    const result = await executeDeleteUserMessages(
+      interaction,
       user,
-      reason: reason ?? "Manual moderation",
-    });
+      userId,
+      jail,
+      reason,
+    );
 
-    await interaction.editReply({ content: "user messages are deleted" });
+    if (result.error) return interaction.editReply(result.error);
+
+    return interaction.editReply({ content: "user messages are deleted" });
   }
 }

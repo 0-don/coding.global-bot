@@ -1,3 +1,4 @@
+import type { CommandInteraction } from "discord.js";
 import { prisma } from "@/prisma";
 
 export type DeleteMemberDbResult = {
@@ -6,15 +7,22 @@ export type DeleteMemberDbResult = {
 };
 
 export async function executeDeleteMemberDb(
+  interaction: CommandInteraction,
   userId: string,
-  guildId: string,
 ): Promise<DeleteMemberDbResult> {
+  if (!interaction.guildId) {
+    return {
+      success: false,
+      message: "This command can only be used in a server",
+    };
+  }
+
   try {
     await prisma.memberGuild.delete({
       where: {
         member_guild: {
           memberId: userId,
-          guildId: guildId,
+          guildId: interaction.guildId,
         },
       },
     });

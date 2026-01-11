@@ -1,3 +1,5 @@
+import { executeDeleteMemberDb } from "@/core/handlers/command-handlers/mod/delete-member-db.handler";
+import { LogService } from "@/core/services/logs/log.service";
 import type { CommandInteraction, User } from "discord.js";
 import {
   ApplicationCommandOptionType,
@@ -5,8 +7,6 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { executeDeleteMemberDb } from "@/core/handlers/command-handlers/mod/delete-member-db.handler";
-import { LogService } from "@/core/services/logs/log.service";
 
 @Discord()
 export class DeleteMemberDb {
@@ -26,16 +26,9 @@ export class DeleteMemberDb {
     user: User,
     interaction: CommandInteraction,
   ) {
-    if (!interaction.guildId) {
-      return interaction.reply({
-        flags: [MessageFlags.Ephemeral],
-        content: "This command can only be used in a server",
-      });
-    }
-
     LogService.logCommandHistory(interaction, "delete-member-db");
 
-    const result = await executeDeleteMemberDb(user.id, interaction.guildId);
+    const result = await executeDeleteMemberDb(interaction, user.id);
 
     return interaction.reply({
       flags: [MessageFlags.Ephemeral],

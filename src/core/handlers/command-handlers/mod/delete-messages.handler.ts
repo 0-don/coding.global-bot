@@ -1,10 +1,20 @@
-import type { Message, TextChannel } from "discord.js";
+import type { CommandInteraction, Message, TextChannel } from "discord.js";
 import { fetchMessages } from "@/core/services/messages/fetch-messages";
 
+export type DeleteMessagesResult = {
+  success: boolean;
+  error?: string;
+};
+
 export async function executeDeleteMessages(
-  channel: TextChannel,
+  interaction: CommandInteraction,
   amount: number,
-): Promise<void> {
+): Promise<DeleteMessagesResult> {
+  const channel = interaction.channel as TextChannel | null;
+  if (!channel || !interaction.guildId) {
+    return { success: false, error: "Invalid channel" };
+  }
+
   const messages = await fetchMessages(channel, amount);
 
   const messageList = messages.reduce(
@@ -21,6 +31,10 @@ export async function executeDeleteMessages(
   );
 
   for (const batch of messageList) {
-    await channel.bulkDelete(batch, true);
+    if ("bulkDelete" in channel) {
+      await channel.bulkDelete(batch, true);
+    }
   }
+
+  return { success: true };
 }

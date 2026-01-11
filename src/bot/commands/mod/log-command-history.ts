@@ -1,8 +1,8 @@
+import { executeLogCommandHistory } from "@/core/handlers/command-handlers/mod/log-command-history.handler";
+import { LogService } from "@/core/services/logs/log.service";
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { executeLogCommandHistory } from "@/core/handlers/command-handlers/mod/log-command-history.handler";
-import { LogService } from "@/core/services/logs/log.service";
 
 @Discord()
 export class LogCommandHistory {

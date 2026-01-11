@@ -1,8 +1,8 @@
+import { executeLookbackMembers } from "@/core/handlers/command-handlers/mod/lookback-members.handler";
+import { LogService } from "@/core/services/logs/log.service";
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { LogService } from "@/core/services/logs/log.service";
-import { LookbackService } from "@/core/services/members/lookback.service";
 
 @Discord()
 export class LookbackMembers {
@@ -26,14 +26,10 @@ export class LookbackMembers {
   ) {
     LogService.logCommandHistory(interaction, "lookback-members");
 
-    const guildId = interaction.guild?.id;
-    const guildName = interaction.guild?.name;
+    const result = await executeLookbackMembers(interaction, lookback);
 
-    if (!guildId || !guildName)
-      return interaction.reply("Please use this command in a server");
+    if ("error" in result) return interaction.reply(result.error);
 
-    await LookbackService.setGuildLookback(guildId, guildName, lookback);
-
-    return interaction.reply(`Lookback set to ${lookback} days for ${guildName}`);
+    return interaction.reply(result.message);
   }
 }

@@ -22,7 +22,7 @@ import "./commands/admin/troll-move-user";
 import "./commands/mod/delete-member-db";
 import "./commands/mod/delete-messages";
 import "./commands/mod/delete-user-messages";
-import "./commands/mod/log-ccomman-history";
+import "./commands/mod/log-command-history";
 import "./commands/mod/log-deleted-messages-history";
 import "./commands/mod/lookback-members";
 import "./commands/mod/sync-threads";

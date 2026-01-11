@@ -4,11 +4,16 @@ import type {
   Message,
   PrivateThreadChannel,
   PublicThreadChannel,
+  TextBasedChannel,
   TextChannel,
 } from "discord.js";
 
 export async function fetchMessages(
-  channel: TextChannel | PrivateThreadChannel | PublicThreadChannel<boolean>,
+  channel:
+    | TextBasedChannel
+    | TextChannel
+    | PrivateThreadChannel
+    | PublicThreadChannel<boolean>,
   limit: number = 100,
 ): Promise<Message[]> {
   let out: Message[] = [];

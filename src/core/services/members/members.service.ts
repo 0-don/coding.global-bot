@@ -192,7 +192,7 @@ export class MembersService {
       create: { guildId, guildName },
       update: { guildName },
     });
-    
+
     // get member join dates and sort ascending - use cache if fetch fails due to rate limit
     let members;
     try {

@@ -1,6 +1,10 @@
 import { APIEmbed } from "discord.js";
 import { ToptatsExampleEmbed } from "@/types";
-import { BOT_ICON, RED_COLOR, TOP_STATS_TEMPLATE } from "@/shared/config/branding";
+import {
+  BOT_ICON,
+  RED_COLOR,
+  TOP_STATS_TEMPLATE,
+} from "@/shared/config/branding";
 import { codeString, placementSuffix } from "@/shared/utils/format.utils";
 
 export const topStatsExampleEmbed = (args: ToptatsExampleEmbed): APIEmbed => {

@@ -1,3 +1,5 @@
+import { executeTrollMoveUser } from "@/core/handlers/command-handlers/admin/troll-move-user.handler";
+import { LogService } from "@/core/services/logs/log.service";
 import {
   ApplicationCommandOptionType,
   MessageFlags,
@@ -6,8 +8,6 @@ import {
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { executeTrollMoveUser } from "@/core/handlers/command-handlers/admin/troll-move-user.handler";
-import { LogService } from "@/core/services/logs/log.service";
 
 @Discord()
 export class TrollMoveUser {
@@ -50,11 +50,10 @@ export class TrollMoveUser {
     LogService.logCommandHistory(interaction, "troll-move-user");
 
     const result = await executeTrollMoveUser(
+      interaction,
       user,
       count,
       timeout,
-      interaction.user.id,
-      interaction.guild!,
     );
 
     return interaction.editReply(result);
