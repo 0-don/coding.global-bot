@@ -74,7 +74,6 @@ export async function handleCheckThreadHelpLike(
 
   if (!channel.isThread()) return;
 
-  const thread = await channel.fetch();
   const messages = await fetchMessages(channel, 500);
   const previousMessage = messages
     .reverse()
@@ -83,8 +82,8 @@ export async function handleCheckThreadHelpLike(
   if (!previousMessage || previousMessage.author.bot) return;
 
   await HelperService.handleHelperReaction({
-    threadId: thread.id,
-    threadOwnerId: thread.ownerId,
+    threadId: channel.id,
+    threadOwnerId: channel.ownerId,
     helperId: previousMessage.author.id,
     thankerUserId: message.author.id,
     guildId: message.guildId!,
@@ -102,7 +101,9 @@ export async function handleTranslateReply(
 
   const message = command.message;
   if (message.type === MessageType.Reply && message.reference?.messageId) {
-    const channel = (await message.channel.fetch()) as TextChannel;
+    const channel = (message.channel.partial
+      ? await message.channel.fetch()
+      : message.channel) as TextChannel;
 
     const replyMsg = await channel.messages.fetch(message.reference?.messageId);
 
