@@ -1,3 +1,4 @@
+import type { Prisma } from "@/generated/prisma/client";
 import type {
   Attachment,
   Embed,
@@ -5,8 +6,8 @@ import type {
   MessageReaction,
   MessageReference,
 } from "discord.js";
-import type { Prisma } from "@/generated/prisma/client";
 
+// Type for MemberGuild-first queries (e.g., member search)
 export type MemberGuildWithRelations = Prisma.MemberGuildGetPayload<{
   include: {
     member: {
@@ -17,43 +18,77 @@ export type MemberGuildWithRelations = Prisma.MemberGuildGetPayload<{
   };
 }>;
 
-export const mapMemberGuild = (
-  memberGuild: MemberGuildWithRelations,
-  guildId: string,
-) => {
-  const roles = memberGuild.member.roles
-    .filter((role) => role.roleId !== guildId)
-    .map((role) => ({ name: role.name ?? "", position: role.position ?? 0 }));
-
-  return {
-    id: memberGuild.memberId,
-    username: memberGuild.member.username,
-    globalName: memberGuild.member.globalName,
-    nickname: memberGuild.nickname,
-    displayName: memberGuild.displayName,
-    avatarUrl:
-      memberGuild.avatarUrl ??
-      memberGuild.member.avatarUrl ??
-      `https://cdn.discordapp.com/embed/avatars/${parseInt(memberGuild.memberId) % 5}.png`,
-    bannerUrl: memberGuild.bannerUrl ?? memberGuild.member.bannerUrl ?? null,
-    accentColor: memberGuild.member.accentColor,
-    displayHexColor: memberGuild.displayHexColor ?? "#000000",
-    flags: memberGuild.member.flags?.toString() ?? null,
-    collectibles: JSON.stringify(memberGuild.member.collectibles) ?? null,
-    primaryGuild: JSON.stringify(memberGuild.member.primaryGuild) ?? null,
-    roles,
-    highestRolePosition: memberGuild.highestRolePosition ?? 0,
-    status: memberGuild.presenceStatus ?? "offline",
-    activity: memberGuild.presenceActivity ?? null,
-    presenceUpdatedAt: memberGuild.presenceUpdatedAt?.toISOString() ?? null,
-    premiumSince: memberGuild.premiumSince?.toISOString() ?? null,
-    communicationDisabledUntil:
-      memberGuild.communicationDisabledUntil?.toISOString() ?? null,
-    joinedAt: memberGuild.joinedAt?.toISOString() ?? null,
-    createdAt:
-      memberGuild.member.createdAt?.toISOString() ?? new Date().toISOString(),
-    updatedAt: memberGuild.member.updatedAt?.toISOString() ?? null,
+// Type for Member-first queries (e.g., thread author)
+export type MemberWithGuildsAndRoles = Prisma.MemberGetPayload<{
+  include: {
+    guilds: true;
+    roles: true;
   };
+}>;
+
+type MemberGuild =
+  | MemberGuildWithRelations
+  | MemberWithGuildsAndRoles["guilds"][number]
+  | null;
+type Member = MemberGuildWithRelations["member"] | MemberWithGuildsAndRoles;
+type MemberRole = { name: string | null; position: number | null };
+
+// Core mapper - builds response from member + guild data
+const buildMemberResponse = (
+  member: Member,
+  guild: MemberGuild,
+  roles: MemberRole[],
+) => ({
+  id: member.memberId,
+  username: member.username,
+  globalName: member.globalName,
+  nickname: guild?.nickname ?? null,
+  displayName: guild?.displayName ?? member.globalName ?? member.username,
+  avatarUrl:
+    guild?.avatarUrl ??
+    member.avatarUrl ??
+    `https://cdn.discordapp.com/embed/avatars/${parseInt(member.memberId) % 5}.png`,
+  bannerUrl: guild?.bannerUrl ?? member.bannerUrl ?? null,
+  accentColor: member.accentColor,
+  displayHexColor: guild?.displayHexColor ?? "#000000",
+  flags: member.flags?.toString() ?? null,
+  collectibles: member.collectibles
+    ? JSON.stringify(member.collectibles)
+    : null,
+  primaryGuild: member.primaryGuild
+    ? JSON.stringify(member.primaryGuild)
+    : null,
+  roles: roles.map((r) => ({ name: r.name ?? "", position: r.position ?? 0 })),
+  highestRolePosition: guild?.highestRolePosition ?? 0,
+  status: guild?.presenceStatus ?? "offline",
+  activity: guild?.presenceActivity ?? null,
+  presenceUpdatedAt: guild?.presenceUpdatedAt?.toISOString() ?? null,
+  premiumSince: guild?.premiumSince?.toISOString() ?? null,
+  communicationDisabledUntil:
+    guild?.communicationDisabledUntil?.toISOString() ?? null,
+  joinedAt: guild?.joinedAt?.toISOString() ?? null,
+  createdAt: member.createdAt?.toISOString() ?? new Date().toISOString(),
+  updatedAt: member.updatedAt?.toISOString() ?? null,
+});
+
+// MemberGuild-first queries (member search, stats)
+export const mapMemberGuild = (
+  data: MemberGuildWithRelations,
+  guildId: string,
+) =>
+  buildMemberResponse(
+    data.member,
+    data,
+    data.member.roles.filter((r) => r.roleId !== guildId),
+  );
+
+// Member-first queries (thread authors)
+export const mapMember = (data: MemberWithGuildsAndRoles, guildId: string) => {
+  const guild = data.guilds.find((g) => g.guildId === guildId);
+  const roles = data.roles
+    .filter((r) => r.guildId === guildId && r.roleId !== guildId)
+    .sort((a, b) => (b.position ?? 0) - (a.position ?? 0));
+  return buildMemberResponse(data, guild ?? null, roles);
 };
 
 export const mapAttachment = (a: Attachment) => ({
