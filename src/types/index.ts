@@ -1,5 +1,15 @@
-import type { APIEmbed } from "discord.js";
+import type {
+  APIEmbed,
+  Collection,
+  Guild,
+  GuildMember,
+  Message,
+  PartialGuildMember,
+  Role,
+  User,
+} from "discord.js";
 import type { STATUS_ROLES } from "@/shared/config/roles";
+import type { MemberRole } from "@/generated/prisma/client";
 
 export type StatusRoles = (typeof STATUS_ROLES)[number];
 
@@ -107,4 +117,48 @@ export interface MessageContext {
 export interface ReplyContext {
   replyContext: string;
   repliedImages: string[];
+}
+
+// Embed types
+export interface UserJailedEmbedParams {
+  memberId: string;
+  displayName: string;
+  username: string;
+  reason?: string;
+}
+
+// Service types
+export interface DeleteUserMessagesParams {
+  guild: Guild;
+  user: User | null;
+  memberId: string;
+  jail: string | number | boolean;
+  reason?: string;
+}
+
+// Roles service types
+export type UpdateDbRolesArgs = {
+  oldRoles: Role[];
+  newRoles: Role[];
+  oldMember: GuildMember | PartialGuildMember;
+  newMember: GuildMember | PartialGuildMember;
+  guildRoles: Collection<string, Role>;
+  memberDbRoles: MemberRole[];
+};
+
+export interface HandleHelperReactionParams {
+  threadId: string;
+  threadOwnerId: string | null;
+  helperId: string;
+  thankerUserId: string;
+  guildId: string;
+  message: Message;
+}
+
+// Spam service types
+export interface UserSpamState {
+  count: number;
+  lastContent: string;
+  lastAttachmentHashes: string[];
+  recentChannels: Array<{ channelId: string; timestamp: number }>;
 }

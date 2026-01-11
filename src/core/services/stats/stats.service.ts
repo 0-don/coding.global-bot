@@ -2,24 +2,13 @@ import dayjs from "dayjs";
 import { topStatsExampleEmbed } from "@/core/embeds/top-stats.embed";
 import { userStatsExampleEmbed } from "@/core/embeds/user-stats.embed";
 import { mapMemberGuild } from "@/shared/mappers/discord.mapper";
+import {
+  bigintToNumber,
+  secondsToHours,
+  sumSeconds,
+  sumToHours,
+} from "@/shared/utils/format.utils";
 import { prisma } from "@/prisma";
-
-// Utility functions
-const sumSeconds = (items: { sum: number }[]) =>
-  items.reduce((acc, curr) => acc + Number(curr.sum), 0);
-
-const secondsToHours = (seconds: number) =>
-  Number((seconds / 60 / 60).toFixed(2));
-
-const bigintToNumber = <T extends { count: bigint }>(item: T) => ({
-  ...item,
-  count: Number(item.count),
-});
-
-const sumToHours = <T extends { sum: number }>(item: T) => ({
-  ...item,
-  sum: secondsToHours(item.sum),
-});
 
 export class StatsService {
   // Query methods

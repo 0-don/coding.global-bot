@@ -1,12 +1,5 @@
-import {
-  ChannelType,
-  ForumChannel,
-  GuildForumTag,
-  Message,
-  ThreadChannel,
-} from "discord.js";
-import { prisma } from "@/prisma";
 import type { Prisma } from "@/generated/prisma/client";
+import { prisma } from "@/prisma";
 import {
   mapAttachment,
   mapEmbed,
@@ -14,22 +7,23 @@ import {
   mapReactions,
   mapReference,
 } from "@/shared/mappers/discord.mapper";
+import {
+  ChannelType,
+  ForumChannel,
+  GuildForumTag,
+  Message,
+  ThreadChannel,
+} from "discord.js";
 
 export class ThreadService {
-  // ============================================
-  // Thread Operations
-  // ============================================
-
   static async upsertThread(
     thread: ThreadChannel,
     boardType: string,
   ): Promise<void> {
     const guildId = thread.guildId;
     const authorId = thread.ownerId;
-
     if (!guildId || !authorId) return;
 
-    // Fetch starter message for content and image
     let content: string | null = null;
     let imageUrl: string | null = null;
 
@@ -37,14 +31,14 @@ export class ThreadService {
       const starterMessage = await thread.fetchStarterMessage();
       if (starterMessage) {
         content = starterMessage.content || null;
-        const imageAttachment = starterMessage.attachments.find((attachment) =>
-          attachment.contentType?.startsWith("image/"),
+        const imageAttachment = starterMessage.attachments.find((a) =>
+          a.contentType?.startsWith("image/"),
         );
         imageUrl = imageAttachment?.url || null;
       }
     } catch (_) {}
 
-    const threadData: Prisma.ThreadUpsertArgs["create"] = {
+    const data: Prisma.ThreadUpsertArgs["create"] = {
       id: thread.id,
       guildId,
       parentId: thread.parentId,
@@ -70,24 +64,23 @@ export class ThreadService {
     try {
       await prisma.thread.upsert({
         where: { id: thread.id },
-        create: threadData,
+        create: data,
         update: {
-          name: threadData.name,
-          content: threadData.content,
-          imageUrl: threadData.imageUrl,
-          messageCount: threadData.messageCount,
-          memberCount: threadData.memberCount,
-          locked: threadData.locked,
-          archived: threadData.archived,
-          archivedAt: threadData.archivedAt,
-          autoArchiveDuration: threadData.autoArchiveDuration,
-          invitable: threadData.invitable,
-          rateLimitPerUser: threadData.rateLimitPerUser,
-          flags: threadData.flags,
+          name: data.name,
+          content: data.content,
+          imageUrl: data.imageUrl,
+          messageCount: data.messageCount,
+          memberCount: data.memberCount,
+          locked: data.locked,
+          archived: data.archived,
+          archivedAt: data.archivedAt,
+          autoArchiveDuration: data.autoArchiveDuration,
+          invitable: data.invitable,
+          rateLimitPerUser: data.rateLimitPerUser,
+          flags: data.flags,
         },
       });
 
-      // Sync tags if parent is a forum channel
       if (thread.parent?.type === ChannelType.GuildForum) {
         await this.syncThreadTags(thread.id, thread.appliedTags);
       }
@@ -95,111 +88,71 @@ export class ThreadService {
   }
 
   static async deleteThread(threadId: string): Promise<void> {
-    try {
-      await prisma.thread.delete({
-        where: { id: threadId },
-      });
-    } catch (_) {}
+    await prisma.thread.delete({ where: { id: threadId } }).catch(() => {});
   }
 
   static async getThread(threadId: string) {
     return prisma.thread.findUnique({
       where: { id: threadId },
       include: {
-        author: {
-          include: {
-            guilds: true,
-            roles: true,
-          },
-        },
-        tags: {
-          include: {
-            tag: true,
-          },
-        },
+        author: { include: { guilds: true, roles: true } },
+        tags: { include: { tag: true } },
       },
     });
   }
 
   static async getThreadsByBoard(guildId: string, boardType: string) {
     return prisma.thread.findMany({
-      where: {
-        guildId,
-        boardType,
-      },
+      where: { guildId, boardType },
       include: {
         author: {
           include: {
-            guilds: {
-              where: { guildId },
-            },
-            roles: {
-              where: { guildId },
-            },
+            guilds: { where: { guildId } },
+            roles: { where: { guildId } },
           },
         },
-        tags: {
-          include: {
-            tag: true,
-          },
-        },
+        tags: { include: { tag: true } },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
   }
 
-  // ============================================
-  // Reply Operations (Thread Messages)
-  // ============================================
-
   static async upsertReply(message: Message): Promise<void> {
     const channel = message.channel;
-
-    // Only handle messages in threads
     if (!channel.isThread()) return;
 
     const threadId = channel.id;
     const guildId = message.guildId;
     const authorId = message.author.id;
-
     if (!guildId || !authorId) return;
 
-    // Check if thread exists in database
-    const thread = await prisma.thread.findUnique({
-      where: { id: threadId },
-    });
-
-    // Skip if thread is not tracked
+    const thread = await prisma.thread.findUnique({ where: { id: threadId } });
     if (!thread) return;
 
-    const replyData = this.parseReplyToDb(message, threadId, guildId);
+    const data = this.parseReplyToDb(message, threadId, guildId);
 
     try {
       await prisma.threadReply.upsert({
         where: { id: message.id },
-        create: replyData,
+        create: data,
         update: {
-          content: replyData.content,
-          editedAt: replyData.editedAt,
-          pinned: replyData.pinned,
-          attachments: replyData.attachments,
-          embeds: replyData.embeds,
-          mentions: replyData.mentions,
-          reactions: replyData.reactions,
-          reference: replyData.reference,
+          content: data.content,
+          editedAt: data.editedAt,
+          pinned: data.pinned,
+          attachments: data.attachments,
+          embeds: data.embeds,
+          mentions: data.mentions,
+          reactions: data.reactions,
+          reference: data.reference,
         },
       });
     } catch (_) {}
   }
 
   static async deleteReply(messageId: string): Promise<void> {
-    try {
-      await prisma.threadReply.delete({
-        where: { id: messageId },
-      });
-    } catch (_) {}
+    await prisma.threadReply
+      .delete({ where: { id: messageId } })
+      .catch(() => {});
   }
 
   static async getReplies(
@@ -211,22 +164,11 @@ export class ThreadService {
     const replies = await prisma.threadReply.findMany({
       where: {
         threadId,
-        ...(options.after && {
-          id: { gt: options.after },
-        }),
+        ...(options.after && { id: { gt: options.after } }),
       },
-      include: {
-        author: {
-          include: {
-            guilds: true,
-            roles: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "asc",
-      },
-      take: limit + 1, // Fetch one extra to check if there are more
+      include: { author: { include: { guilds: true, roles: true } } },
+      orderBy: { createdAt: "asc" },
+      take: limit + 1,
     });
 
     const hasMore = replies.length > limit;
@@ -238,10 +180,6 @@ export class ThreadService {
       nextCursor: messages[messages.length - 1]?.id ?? null,
     };
   }
-
-  // ============================================
-  // Tag Operations
-  // ============================================
 
   static async upsertTags(
     guildId: string,
@@ -273,27 +211,15 @@ export class ThreadService {
     tagIds: string[],
   ): Promise<void> {
     try {
-      // Remove old tags
-      await prisma.threadTag.deleteMany({
-        where: { threadId },
-      });
-
-      // Add new tags
+      await prisma.threadTag.deleteMany({ where: { threadId } });
       if (tagIds.length > 0) {
         await prisma.threadTag.createMany({
-          data: tagIds.map((tagId) => ({
-            threadId,
-            tagId,
-          })),
+          data: tagIds.map((tagId) => ({ threadId, tagId })),
           skipDuplicates: true,
         });
       }
     } catch (_) {}
   }
-
-  // ============================================
-  // Parsing Helpers
-  // ============================================
 
   static parseReplyToDb(
     message: Message,
@@ -321,7 +247,6 @@ export class ThreadService {
 
   static getBoardTypeFromChannel(channel: ForumChannel): string {
     const name = channel.name.toLowerCase();
-    // Extract the board type from channel name (e.g., "💬│job-board" -> "job-board")
     const match = name.match(/[^a-z0-9]*([a-z0-9-]+)$/i);
     return match?.[1] || name;
   }

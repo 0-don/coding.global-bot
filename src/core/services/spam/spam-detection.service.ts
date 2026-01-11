@@ -1,4 +1,4 @@
-import { deleteUserMessages } from "@/core/services/messages/delete-user-messages";
+import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
 import { prisma } from "@/prisma";
 import { extractImageUrls } from "@/shared/ai/attachment-processor";
 import { SPAM_SYSTEM_PROMPT } from "@/shared/ai/system-prompt";
@@ -178,7 +178,7 @@ Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached
     reason?: string,
   ): Promise<void> {
     try {
-      await deleteUserMessages({
+      await DeleteUserMessagesService.deleteUserMessages({
         jail: true,
         memberId: message.author.id,
         user: message.author,
