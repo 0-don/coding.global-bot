@@ -1,16 +1,15 @@
 import { generateText, ModelMessage } from "ai";
 import { Message } from "discord.js";
+import { LRUCache } from "lru-cache";
 import { googleClient } from "@/shared/integrations/google-ai";
 import { getChatSystemPrompt } from "@/shared/config/prompts";
 import {
   extractCodeFromAttachments,
   extractImageUrls,
 } from "@/shared/ai/attachment-processor";
-import {
-  addToChannelHistory,
-  getChannelHistory,
-} from "@/shared/ai/message-history";
 import { AiContextService } from "./ai-context.service";
+
+const channelMessages = new LRUCache<string, ModelMessage[]>({ max: 1000 });
 
 export interface AiChatResponse {
   text: string;
@@ -44,7 +43,7 @@ export class AiChatService {
     const allImages = [...messageImages, ...repliedImages];
 
     const userMessage = this.buildUserMessage(fullMessage, allImages);
-    const messages = getChannelHistory(message.channel.id);
+    const messages = channelMessages.get(message.channel.id) || [];
     messages.push(userMessage);
 
     const result = await googleClient.executeWithRotation(async () => {
@@ -62,11 +61,9 @@ export class AiChatService {
     const { text, steps } = result;
     const responseText = text?.trim() || "";
 
-    addToChannelHistory(message.channel.id, userMessage);
-    addToChannelHistory(message.channel.id, {
-      role: "assistant",
-      content: responseText,
-    });
+    const history = channelMessages.get(message.channel.id) || [];
+    history.push(userMessage, { role: "assistant", content: responseText });
+    channelMessages.set(message.channel.id, history);
 
     return {
       text: responseText,
