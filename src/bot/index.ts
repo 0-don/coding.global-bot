@@ -1,5 +1,5 @@
 // Events
-import "./events/_ready";
+// import "./events/_ready";
 import "./events/ai-chat";
 import "./events/guild-member-add";
 import "./events/guild-member-remove";
