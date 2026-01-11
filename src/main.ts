@@ -32,13 +32,6 @@ export const bot = new Client({
     Partials.User,
   ],
   silent: true,
-  simpleCommand: {
-    // prefix: "/",
-  },
-  rest: {
-    timeout: 30_000, // 30 seconds request timeout
-    retries: 3, // Retry failed requests up to 3 times
-  },
 });
 
 bot.once("clientReady", async () => {
