@@ -1,4 +1,4 @@
-import { executeMeCommand } from "@/core/handlers/command-handlers/user/me.handler";
+import { executeUserStatsCommand } from "@/core/handlers/command-handlers/user/user.handler";
 import { LogService } from "@/core/services/logs/log.service";
 import type { CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
@@ -14,7 +14,7 @@ export class MeCommand {
     await interaction.deferReply();
     LogService.logCommandHistory(interaction, "me");
 
-    const result = await executeMeCommand(interaction);
+    const result = await executeUserStatsCommand(interaction);
 
     if ("error" in result) return interaction.editReply(result.error);
 

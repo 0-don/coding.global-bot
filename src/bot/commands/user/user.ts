@@ -4,7 +4,7 @@ import {
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { executeUserCommand } from "@/core/handlers/command-handlers/user/user.handler";
+import { executeUserStatsCommand } from "@/core/handlers/command-handlers/user/user.handler";
 import { LogService } from "@/core/services/logs/log.service";
 
 @Discord()
@@ -27,7 +27,7 @@ export class UserCommand {
     await interaction.deferReply();
     LogService.logCommandHistory(interaction, "user");
 
-    const result = await executeUserCommand(interaction, user.id);
+    const result = await executeUserStatsCommand(interaction, user.id);
 
     if ("error" in result) return interaction.editReply(result.error);
 
