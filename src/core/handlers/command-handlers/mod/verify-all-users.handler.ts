@@ -9,8 +9,7 @@ export async function executeVerifyAllUsers(
   const message = command.message;
   if (!message.guild) return { success: false, error: "Use in a server" };
 
-  const member = await message.guild.members.fetch(message.author.id);
-  if (!member.permissions.has(PermissionFlagsBits.ManageRoles)) {
+  if (!message.member?.permissions.has(PermissionFlagsBits.ManageRoles)) {
     return {
       success: false,
       error: "You don't have permission to use this command.",

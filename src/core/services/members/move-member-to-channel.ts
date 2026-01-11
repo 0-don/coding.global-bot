@@ -15,7 +15,7 @@ export const moveMemberToChannel = async (
 
   if (!guildMemberDb || count === 0) return;
 
-  let guildMember = await member.guild.members.fetch(member.id);
+  let guildMember = member;
   const allVoiceChannels = (await member.guild.channels.fetch()).filter(
     (c) => c?.type === ChannelType.GuildVoice,
   );
