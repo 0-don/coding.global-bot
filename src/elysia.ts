@@ -1,34 +1,30 @@
+import {
+  parseMessage,
+  parseMultipleUsersWithRoles,
+  searchUsers,
+} from "@/api/mappers/member.mapper";
+import {
+  getTopStatsWithUsers,
+  getUserStatsForApi,
+} from "@/api/mappers/stats.mapper";
+import {
+  formatRepliesFromDb,
+  formatThreadFromDb,
+  formatThreadsFromDb,
+} from "@/api/mappers/thread.mapper";
+import { cache, PAGE_LIMIT } from "@/api/middleware/cache";
+import { BoardType, ThreadParams } from "@/api/middleware/validators";
+import { MembersService } from "@/core/services/members/members.service";
+import { ThreadService } from "@/core/services/threads/thread.service";
+import { Prisma } from "@/generated/prisma/client";
+import { bot } from "@/main";
+import { prisma } from "@/prisma";
 import { cors } from "@elysiajs/cors";
 import { node } from "@elysiajs/node";
 import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
-import { LRUCache } from "lru-cache";
-import { Prisma } from "./generated/prisma/client";
-import { ThreadService } from "./lib/threads/thread.service";
-import { bot } from "./main";
-import { prisma } from "./prisma";
-import {
-  BoardType,
-  CACHE_TTL,
-  formatRepliesFromDb,
-  formatThreadFromDb,
-  formatThreadsFromDb,
-  getTopStatsWithUsers,
-  getUserStatsForApi,
-  MembersService,
-  PAGE_LIMIT,
-  parseMessage,
-  parseMultipleUsersWithRoles,
-  searchUsers,
-  ThreadParams,
-} from "./server/server";
-
-export const cache = new LRUCache<string, object>({
-  ttl: CACHE_TTL,
-  max: 1000,
-});
 
 export const app = new Elysia({ adapter: node() })
   .use(
