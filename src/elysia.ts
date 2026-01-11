@@ -4,7 +4,7 @@ import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
 import { ChannelType, PermissionsBitField } from "discord.js";
 import { Elysia, status, t } from "elysia";
-import { Cache } from "./cache";
+import { LRUCache } from "lru-cache";
 import { Prisma } from "./generated/prisma/client";
 import { ThreadService } from "./lib/threads/thread.service";
 import { bot } from "./main";
@@ -25,7 +25,7 @@ import {
   ThreadParams,
 } from "./server/server";
 
-export const cache = new Cache({
+export const cache = new LRUCache<string, object>({
   ttl: CACHE_TTL,
   max: 1000,
 });
@@ -68,7 +68,7 @@ export const app = new Elysia({ adapter: node() })
     return cache.get(cacheKey);
   })
   .onAfterHandle(({ cacheKey, responseValue }) => {
-    if (cacheKey) cache.set(cacheKey, responseValue);
+    if (cacheKey) cache.set(cacheKey, responseValue as object);
   })
   .get(
     "/api/:guildId/staff",
