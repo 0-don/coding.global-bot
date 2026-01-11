@@ -46,15 +46,20 @@ export const chartConfig = (data: ChartDataPoint[]) => {
 export async function generateChart(data: ChartDataPoint[]): Promise<Buffer> {
   const config = chartConfig(data);
 
-  const params = new URLSearchParams({
-    c: JSON.stringify(config),
-    w: "1200",
-    h: "400",
-    bkg: "#34363c",
-    f: "png",
+  const response = await fetch(QUICKCHART_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      version: "4",
+      chart: config,
+      width: 1200,
+      height: 400,
+      backgroundColor: "#34363c",
+      format: "png",
+    }),
   });
-
-  const response = await fetch(`${QUICKCHART_URL}?${params.toString()}`);
 
   if (!response.ok) {
     throw new Error(`QuickChart request failed: ${response.status}`);
