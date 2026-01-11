@@ -2,7 +2,7 @@ import { Message, MessageType, TextChannel, ThreadChannel } from "discord.js";
 import type { ArgsOf, Client, SimpleCommandMessage } from "discordx";
 import { Discord, On, SimpleCommand } from "discordx";
 import { ConfigValidator } from "@/shared/config/validator";
-import { simpleEmbedExample } from "@/bot/embeds";
+import { simpleEmbedExample } from "@/bot/embeds/simple.embed";
 import { translate } from "@/shared/integrations/deepl";
 import { checkWarnings } from "@/core/services/messages/check-warnings";
 import { fetchMessages } from "@/core/services/messages/fetch-messages";

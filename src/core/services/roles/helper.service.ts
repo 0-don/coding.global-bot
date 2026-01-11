@@ -1,6 +1,6 @@
 import { Message, TextChannel } from "discord.js";
 import { prisma } from "@/prisma";
-import { HELPER_RANKING, HELPER_ROLES } from "@/shared/config";
+import { HELPER_RANKING, HELPER_ROLES } from "@/shared/config/roles";
 import { ConfigValidator } from "@/shared/config/validator";
 
 export class HelperService {

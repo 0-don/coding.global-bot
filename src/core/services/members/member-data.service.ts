@@ -1,6 +1,6 @@
 import type { GuildMember, User } from "discord.js";
 import { prisma } from "@/prisma";
-import { EVERYONE } from "@/shared/config";
+import { EVERYONE } from "@/shared/config/roles";
 
 export async function updateCompleteMemberData(member: GuildMember) {
   try {

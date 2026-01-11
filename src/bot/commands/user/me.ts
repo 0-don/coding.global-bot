@@ -1,7 +1,7 @@
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { ConfigValidator } from "@/shared/config/validator";
-import { BOT_CHANNELS } from "@/shared/config";
+import { BOT_CHANNELS } from "@/shared/config/channels";
 import { LogService } from "@/core/services/logs/log.service";
 import { StatsService } from "@/core/services/stats/stats.service";
 

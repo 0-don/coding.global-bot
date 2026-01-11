@@ -10,7 +10,8 @@ import {
 } from "discord.js";
 import { error } from "node:console";
 import { prisma } from "@/prisma";
-import { BOT_ICON, JAIL, RED_COLOR } from "@/shared/config";
+import { BOT_ICON, RED_COLOR } from "@/shared/config/branding";
+import { JAIL } from "@/shared/config/roles";
 import { RolesService } from "@/core/services/roles/roles.service";
 
 type MessageChannel = TextChannel | NewsChannel | ThreadChannel;

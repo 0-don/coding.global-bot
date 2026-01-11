@@ -1,7 +1,7 @@
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { commandHistoryEmbed } from "@/bot/embeds";
+import { commandHistoryEmbed } from "@/bot/embeds/command-history.embed";
 import { LogService } from "@/core/services/logs/log.service";
 import { prisma } from "@/prisma";
 

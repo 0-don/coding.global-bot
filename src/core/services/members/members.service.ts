@@ -13,11 +13,11 @@ import { ConfigValidator } from "@/shared/config/validator";
 import {
   JOIN_EVENT_CHANNELS,
   MEMBERS_COUNT_CHANNELS,
-  SHOULD_COUNT_MEMBERS,
-} from "@/shared/config";
+} from "@/shared/config/channels";
+import { SHOULD_COUNT_MEMBERS } from "@/shared/config/features";
 import { ChartManager, GLOBAL_CANVAS, chartConfig } from "@/shared/utils/chart.utils";
 import { getDaysArray } from "@/shared/utils/date.utils";
-import { simpleEmbedExample } from "@/bot/embeds";
+import { simpleEmbedExample } from "@/bot/embeds/simple.embed";
 
 export class MembersService {
   private static _memberCountWarningLogged = false;
