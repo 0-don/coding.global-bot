@@ -1,4 +1,4 @@
-import type { STATUS_ROLES } from "../lib/constants";
+import type { STATUS_ROLES } from "@/shared/config/roles";
 
 export type StatusRoles = (typeof STATUS_ROLES)[number];
 
