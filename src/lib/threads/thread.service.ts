@@ -235,7 +235,7 @@ export class ThreadService {
     return {
       messages,
       hasMore,
-      nextCursor: messages.at(-1)?.id ?? null,
+      nextCursor: messages[messages.length - 1]?.id ?? null,
     };
   }
 

@@ -1,9 +1,7 @@
 import type { CommandInteraction, TextChannel } from "discord.js";
 import { Discord, Slash } from "discordx";
-import {
-  BOT_CHANNELS,
-  IS_CONSTRAINED_TO_BOT_CHANNEL,
-} from "../../lib/constants";
+import { ConfigValidator } from "../../lib/config-validator";
+import { BOT_CHANNELS } from "../../lib/constants";
 import { LogService } from "../../lib/logs/log.service";
 import { StatsService } from "../../lib/stats/stats.service";
 
@@ -15,20 +13,28 @@ export class Me {
     dmPermission: false,
   })
   async me(interaction: CommandInteraction) {
-    // get text channel
-    // deferReply if it takes longer then usual
     await interaction.deferReply();
 
     LogService.logCommandHistory(interaction, "me");
+    const channel = interaction.channel as TextChannel;
 
-    if (IS_CONSTRAINED_TO_BOT_CHANNEL) {
-      const channel = (await interaction.channel?.fetch()) as TextChannel;
-      // if not bot channel, return
-      if (!BOT_CHANNELS.includes(channel.name))
+    if (ConfigValidator.isFeatureEnabled("IS_CONSTRAINED_TO_BOT_CHANNEL")) {
+      if (!ConfigValidator.isFeatureEnabled("BOT_CHANNELS")) {
+        ConfigValidator.logFeatureDisabled(
+          "Bot Channel Restrictions",
+          "BOT_CHANNELS",
+        );
+        return await interaction.editReply(
+          "Bot channel restrictions are enabled but no bot channels are configured.",
+        );
+      }
+      if (!BOT_CHANNELS.includes(channel.name)) {
         return await interaction.editReply(
           "Please use this command in the bot channel",
         );
+      }
     }
+
     const memberId = interaction.member?.user.id;
     const guildId = interaction.guild?.id;
 
@@ -41,7 +47,6 @@ export class Me {
     if (typeof userStats?.embed === "string")
       return await interaction.editReply(userStats?.embed);
 
-    // return embed with chart img
     return await interaction.editReply({
       embeds: [userStats!.embed],
       allowedMentions: { users: [], roles: [] },
