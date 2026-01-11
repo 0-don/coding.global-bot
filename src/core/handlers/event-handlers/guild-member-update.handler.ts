@@ -1,7 +1,7 @@
 import type { GuildMember, PartialGuildMember } from "discord.js";
 import { EVERYONE } from "@/shared/config/roles";
 import { queueMemberUpdate } from "@/core/services/members/member-update-queue.service";
-import { updateNickname } from "@/core/services/members/save-nickname";
+import { MembersService } from "@/core/services/members/members.service";
 import { RolesService } from "@/core/services/roles/roles.service";
 import { prisma } from "@/prisma";
 
@@ -40,7 +40,7 @@ export async function handleGuildMemberUpdate(
     memberDbRoles,
   });
 
-  updateNickname(oldMember, newMember);
+  MembersService.updateNickname(oldMember, newMember);
 
   queueMemberUpdate(newMember.id, newMember.guild.id);
 }

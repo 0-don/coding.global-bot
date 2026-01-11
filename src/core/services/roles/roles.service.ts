@@ -2,17 +2,22 @@ import { MemberRole, Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/prisma";
 import { LEVEL_LIST } from "@/shared/config/levels";
 import {
+  HELPER_RANKING,
+  HELPER_ROLES,
   JAIL,
   LEVEL_ROLES,
   STATUS_ROLES,
   VOICE_ONLY,
 } from "@/shared/config/roles";
+import { ConfigValidator } from "@/shared/config/validator";
 import {
   Collection,
   Guild,
   GuildMember,
+  Message,
   PartialGuildMember,
   Role,
+  TextChannel,
 } from "discord.js";
 
 export type UpdateDbRolesArgs = {
@@ -24,7 +29,17 @@ export type UpdateDbRolesArgs = {
   memberDbRoles: MemberRole[];
 };
 
+export interface HandleHelperReactionParams {
+  threadId: string;
+  threadOwnerId: string | null;
+  helperId: string;
+  thankerUserId: string;
+  guildId: string;
+  message: Message;
+}
+
 export class RolesService {
+  private static _helperSystemWarningLogged = false;
   static async updateDbRoles(args: UpdateDbRolesArgs) {
     // check if new role was added
     if (
@@ -220,5 +235,81 @@ export class RolesService {
         ({ name }) => name === role,
       );
     return guildStatusRoles;
+  }
+
+  static async handleHelperReaction(
+    params: HandleHelperReactionParams,
+  ): Promise<boolean> {
+    if (params.threadOwnerId !== params.thankerUserId) return false;
+    if (params.helperId === params.thankerUserId) return false;
+
+    const isHelpedThread = await prisma.memberHelper.findFirst({
+      where: { threadId: params.threadId, threadOwnerId: params.threadOwnerId },
+    });
+    if (isHelpedThread) return false;
+
+    await prisma.memberHelper.create({
+      data: {
+        memberId: params.helperId,
+        guildId: params.guildId,
+        threadId: params.threadId,
+        threadOwnerId: params.threadOwnerId,
+      },
+    });
+
+    await RolesService.helperRoleChecker(params.message);
+    return true;
+  }
+
+  static async helperRoleChecker(message: Message<boolean>) {
+    if (!ConfigValidator.isFeatureEnabled("HELPER_ROLES")) {
+      if (!this._helperSystemWarningLogged) {
+        ConfigValidator.logFeatureDisabled(
+          "Helper Role System",
+          "HELPER_ROLES",
+        );
+        this._helperSystemWarningLogged = true;
+      }
+      return;
+    }
+
+    const guildMember = message.member!.partial
+      ? await message.member!.fetch()
+      : message.member!;
+    const memberRoles = guildMember.roles.cache;
+    const helpCount = await prisma.memberHelper.count({
+      where: { memberId: guildMember.id },
+    });
+
+    //check if user has helper role
+    const hasHelperRole = memberRoles.some((role) =>
+      HELPER_ROLES.includes(role.name as (typeof HELPER_ROLES)[number]),
+    );
+    if (!hasHelperRole) return;
+
+    //remove roles
+    for (const role of memberRoles.values()) {
+      if (HELPER_ROLES.includes(role.name as (typeof HELPER_ROLES)[number])) {
+        try {
+          await guildMember.roles.remove(role);
+        } catch (_) {}
+      }
+    }
+
+    //add role
+    const helperRole = HELPER_RANKING.find((role) => role.points <= helpCount);
+    if (helperRole) {
+      try {
+        const roleToAdd = memberRoles.get(helperRole.name);
+        if (!roleToAdd || !roleToAdd.editable) return;
+
+        await guildMember.roles.add(helperRole.name);
+      } catch (_) {}
+      (message.channel as TextChannel).send(
+        `Congratulations ${guildMember.toString()} you are now ${
+          helperRole.name
+        } 🎉`,
+      );
+    }
   }
 }

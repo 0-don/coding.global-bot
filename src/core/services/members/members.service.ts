@@ -17,6 +17,7 @@ import {
   GuildMember,
   PartialGuildMember,
   TextChannel,
+  VoiceState,
 } from "discord.js";
 
 export class MembersService {
@@ -321,5 +322,84 @@ export class MembersService {
       memberCount: stats.memberCount,
       chart: base64Chart,
     };
+  }
+
+  // Lookback methods
+  static async setMemberLookback(
+    memberId: string,
+    guildId: string,
+    lookback: number,
+  ): Promise<void> {
+    await prisma.memberGuild.upsert({
+      where: { member_guild: { guildId, memberId } },
+      create: { guildId, lookback, memberId, status: true },
+      update: { guildId, lookback, memberId, status: true },
+    });
+  }
+
+  static async setGuildLookback(
+    guildId: string,
+    guildName: string,
+    lookback: number,
+  ): Promise<void> {
+    await prisma.guild.upsert({
+      where: { guildId },
+      create: { guildId, guildName, lookback },
+      update: { guildName, lookback },
+    });
+  }
+
+  // Nickname methods
+  static async updateNickname(
+    oldMember: GuildMember | PartialGuildMember,
+    newMember: GuildMember | PartialGuildMember,
+  ) {
+    if (oldMember.user.bot) return;
+
+    if (oldMember.nickname !== newMember.nickname) {
+      const memberGuild = await prisma.memberGuild.findFirst({
+        where: {
+          guildId: newMember.guild.id,
+          memberId: newMember.id,
+        },
+      });
+      if (memberGuild) {
+        await prisma.memberGuild.update({
+          where: { id: memberGuild.id },
+          data: { nickname: newMember.nickname },
+        });
+      }
+    }
+  }
+
+  static async joinSettings(
+    member: GuildMember | PartialGuildMember,
+    voiceState?: VoiceState,
+  ) {
+    // dont add bots to the list
+    if (member && member?.user?.bot) return;
+
+    const guildMember = await prisma.memberGuild.findFirst({
+      where: {
+        guildId: voiceState?.guild.id || member?.guild.id,
+        memberId: member?.id || voiceState?.member?.id,
+      },
+    });
+
+    if (guildMember && member) {
+      member = member.partial ? await member.fetch() : member;
+
+      if (guildMember.nickname && guildMember.nickname !== member.nickname) {
+        await member.setNickname(guildMember.nickname);
+      }
+
+      if (voiceState?.channelId) {
+        if (member.voice.serverMute !== guildMember.muted)
+          await member.voice.setMute(guildMember.muted);
+
+        if (member.voice.serverDeaf !== guildMember.deafened)
+          await member.voice.setDeaf(guildMember.deafened);
+      }
+    }
   }
 }

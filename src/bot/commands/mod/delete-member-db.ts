@@ -1,5 +1,5 @@
 import { executeDeleteMemberDb } from "@/core/handlers/command-handlers/mod/delete-member-db.handler";
-import { LogService } from "@/core/services/logs/log.service";
+import { prisma } from "@/prisma";
 import type { CommandInteraction, User } from "discord.js";
 import {
   ApplicationCommandOptionType,
@@ -26,7 +26,16 @@ export class DeleteMemberDb {
     user: User,
     interaction: CommandInteraction,
   ) {
-    LogService.logCommandHistory(interaction, "delete-member-db");
+    if (interaction.member?.user.id && interaction.guildId) {
+      prisma.memberCommandHistory.create({
+        data: {
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "delete-member-db",
+        },
+      }).catch(() => {});
+    }
 
     const result = await executeDeleteMemberDb(interaction, user.id);
 

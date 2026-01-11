@@ -1,5 +1,5 @@
 import { executeLookbackMe } from "@/core/handlers/command-handlers/user/lookback-me.handler";
-import { LogService } from "@/core/services/logs/log.service";
+import { prisma } from "@/prisma";
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
@@ -23,7 +23,16 @@ export class LookbackMe {
     lookback: number,
     interaction: CommandInteraction,
   ) {
-    LogService.logCommandHistory(interaction, "lookback-me");
+    if (interaction.member?.user.id && interaction.guildId) {
+      prisma.memberCommandHistory.create({
+        data: {
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "lookback-me",
+        },
+      }).catch(() => {});
+    }
 
     const result = await executeLookbackMe(interaction, lookback);
 

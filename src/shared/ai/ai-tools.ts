@@ -2,9 +2,46 @@ import { tool } from "ai";
 import { log } from "console";
 import { z } from "zod/v4";
 import { ConfigValidator } from "@/shared/config/validator";
-import { GifService } from "@/core/services/gif/gif.service";
 import { StatsService } from "@/core/services/stats/stats.service";
 import { bot } from "@/main";
+
+const TENOR_API_KEY = process.env.TENOR_API_KEY;
+const TENOR_BASE_URL = "https://tenor.googleapis.com/v2/search";
+
+async function searchGifs(query: string, limit: number = 5): Promise<string[]> {
+  if (!TENOR_API_KEY) {
+    console.warn("TENOR_API_KEY not configured - GIF search disabled");
+    return [];
+  }
+
+  try {
+    const params = new URLSearchParams({
+      q: query,
+      key: TENOR_API_KEY,
+      limit: limit.toString(),
+      contentfilter: "off",
+      media_filter: "gif",
+      random: "true",
+    });
+
+    const response = await fetch(`${TENOR_BASE_URL}?${params}`);
+
+    if (!response.ok) {
+      throw new Error(`Tenor API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return (
+      data.results
+        ?.map((result: any) => result.media_formats?.gif?.url)
+        .filter(Boolean) || []
+    );
+  } catch (error) {
+    console.error("Error fetching GIFs:", error);
+    return [];
+  }
+}
 
 export const gatherChannelContext = tool({
   description:
@@ -110,7 +147,7 @@ export const searchMemeGifs = tool({
       return { success: false, error: "GIF search not available" };
     }
 
-    const gifs = await GifService.searchGifs(query, 10);
+    const gifs = await searchGifs(query, 10);
     for (const gif of gifs) {
       try {
         const response = await fetch(gif, { method: "HEAD" });

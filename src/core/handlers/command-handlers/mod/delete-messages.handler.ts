@@ -1,5 +1,5 @@
 import type { CommandInteraction, Message, TextChannel } from "discord.js";
-import { fetchMessages } from "@/core/services/messages/fetch-messages";
+import { MessagesService } from "@/core/services/messages/messages.service";
 import type { CommandResult } from "@/types";
 
 export async function executeDeleteMessages(
@@ -11,7 +11,7 @@ export async function executeDeleteMessages(
     return { success: false, error: "Invalid channel" };
   }
 
-  const messages = await fetchMessages(channel, amount);
+  const messages = await MessagesService.fetchMessages(channel, amount);
 
   const messageList = messages.reduce(
     (acc, message) => {

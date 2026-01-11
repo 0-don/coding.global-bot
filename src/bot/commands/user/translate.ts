@@ -1,5 +1,5 @@
 import { executeTranslateCommand } from "@/core/handlers/command-handlers/user/translate.handler";
-import { LogService } from "@/core/services/logs/log.service";
+import { prisma } from "@/prisma";
 import {
   ApplicationCommandOptionType,
   type CommandInteraction,
@@ -24,7 +24,16 @@ export class Translate {
     interaction: CommandInteraction,
   ) {
     await interaction.deferReply();
-    LogService.logCommandHistory(interaction, "translate");
+    if (interaction.member?.user.id && interaction.guildId) {
+      prisma.memberCommandHistory.create({
+        data: {
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "translate",
+        },
+      }).catch(() => {});
+    }
 
     const result = await executeTranslateCommand(txt);
 

@@ -1,13 +1,19 @@
 import {
   AuditLogEvent,
+  Collection,
+  FetchMessagesOptions,
   Message,
   PartialMessage,
+  PrivateThreadChannel,
+  PublicThreadChannel,
+  TextBasedChannel,
   TextChannel,
 } from "discord.js";
 import { prisma } from "@/prisma";
 import { ConfigValidator } from "@/shared/config/validator";
 import { JAIL, VOICE_ONLY } from "@/shared/config/roles";
 import { LEVEL_LIST, LEVEL_MESSAGES } from "@/shared/config/levels";
+import { deleteUserMessages } from "@/core/services/messages/delete-user-messages";
 
 export class MessagesService {
   private static _levelSystemWarningLogged = false;
@@ -170,6 +176,97 @@ export class MessagesService {
             allowedMentions: { users: [], roles: [] },
           });
         }
+      }
+    }
+  }
+
+  // Fetch messages utility
+  static async fetchMessages(
+    channel:
+      | TextBasedChannel
+      | TextChannel
+      | PrivateThreadChannel
+      | PublicThreadChannel<boolean>,
+    limit: number = 100,
+  ): Promise<Message[]> {
+    let out: Message[] = [];
+    if (limit <= 100) {
+      let messages: Collection<string, Message> = await channel.messages.fetch({
+        limit: limit,
+      });
+      const messagesArray = Array.from(messages.values(), (value) => value);
+      out.push(...messagesArray);
+    } else {
+      const rounds = limit / 100 + (limit % 100 ? 1 : 0);
+      let lastId: string = "";
+      for (let x = 0; x < rounds; x++) {
+        const options: FetchMessagesOptions = {
+          limit: 100,
+        };
+
+        if (lastId.length > 0) options.before = lastId;
+
+        const messages: Collection<string, Message> =
+          await channel.messages.fetch(options);
+
+        const messagesArray = Array.from(messages.values(), (value) => value);
+        out.push(...messagesArray);
+
+        lastId = messagesArray[messagesArray.length - 1]?.id || "";
+      }
+    }
+    // remove duplicates
+    return out.filter(
+      (message, index, self) =>
+        self.findIndex((m) => m.id === message.id) === index,
+    );
+  }
+
+  // Check warnings utility
+  static async checkWarnings(message: Message<boolean>) {
+    const content = message.content;
+    const member = message.member;
+
+    if (!member || !message.guild) return;
+
+    const memberGuild = await prisma.memberGuild.findFirst({
+      where: { memberId: member.id },
+    });
+
+    if (!memberGuild) return;
+
+    if (
+      content.includes("discord.gg/") ||
+      content.includes("discordapp.com/invite") ||
+      content.includes("discord.com/invite")
+    ) {
+      await message.delete();
+
+      const currentWarnings = memberGuild.warnings + 1;
+
+      await prisma.memberGuild.update({
+        where: { id: memberGuild.id },
+        data: { warnings: currentWarnings },
+      });
+
+      if (currentWarnings < 4) {
+        try {
+          await member.send(
+            `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be muted at 3 warnings.`,
+          );
+        } catch (error) {}
+      } else {
+        await deleteUserMessages({
+          jail: true,
+          memberId: member.id,
+          user: member.user,
+          guild: message.guild,
+          reason: `Posted Discord invite links (${currentWarnings} warnings)`,
+        });
+
+        try {
+          await member.send(`You have been muted asks a mod to unmute you.`);
+        } catch (error) {}
       }
     }
   }
