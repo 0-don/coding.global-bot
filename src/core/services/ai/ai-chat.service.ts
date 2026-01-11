@@ -1,12 +1,12 @@
-import { generateText, ModelMessage } from "ai";
-import { Message } from "discord.js";
-import { LRUCache } from "lru-cache";
-import { googleClient } from "@/shared/integrations/google-ai";
-import { getChatSystemPrompt } from "@/shared/config/prompts";
 import {
   extractCodeFromAttachments,
   extractImageUrls,
 } from "@/shared/ai/attachment-processor";
+import { CHAT_SYSTEM_PROMPT } from "@/shared/ai/system-prompt";
+import { googleClient } from "@/shared/integrations/google-ai";
+import { generateText, ModelMessage } from "ai";
+import { Message } from "discord.js";
+import { LRUCache } from "lru-cache";
 import { AiContextService } from "./ai-context.service";
 
 const channelMessages = new LRUCache<string, ModelMessage[]>({ max: 1000 });
@@ -49,7 +49,7 @@ export class AiChatService {
     const result = await googleClient.executeWithRotation(async () => {
       return generateText({
         model: googleClient.getModel(),
-        system: getChatSystemPrompt(),
+        system: CHAT_SYSTEM_PROMPT,
         messages: [...messages],
         tools,
         maxOutputTokens: 500,

@@ -108,10 +108,3 @@ Provide your confidence level:
 
 Also provide a brief reason (1 sentence) explaining why you classified it as spam or not.`;
 
-export function getChatSystemPrompt(): string {
-  return CHAT_SYSTEM_PROMPT;
-}
-
-export function getSpamSystemPrompt(): string {
-  return SPAM_SYSTEM_PROMPT;
-}
