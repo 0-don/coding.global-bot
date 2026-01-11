@@ -1,10 +1,6 @@
 import type { CommandInteraction, User } from "discord.js";
 import { deleteUserMessages } from "@/core/services/messages/delete-user-messages";
-
-export type DeleteUserMessagesResult = {
-  success: boolean;
-  error?: string;
-};
+import type { CommandResult } from "@/types";
 
 export async function executeDeleteUserMessages(
   interaction: CommandInteraction,
@@ -12,7 +8,7 @@ export async function executeDeleteUserMessages(
   userId: string | undefined,
   jail: boolean,
   reason: string | undefined,
-): Promise<DeleteUserMessagesResult> {
+): Promise<CommandResult> {
   const memberId = user?.id ?? userId;
   if (!memberId || !interaction.guild) {
     return { success: false, error: "Invalid user or guild" };

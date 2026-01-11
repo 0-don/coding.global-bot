@@ -1,15 +1,11 @@
 import type { CommandInteraction, Message, TextChannel } from "discord.js";
 import { fetchMessages } from "@/core/services/messages/fetch-messages";
-
-export type DeleteMessagesResult = {
-  success: boolean;
-  error?: string;
-};
+import type { CommandResult } from "@/types";
 
 export async function executeDeleteMessages(
   interaction: CommandInteraction,
   amount: number,
-): Promise<DeleteMessagesResult> {
+): Promise<CommandResult> {
   const channel = interaction.channel as TextChannel | null;
   if (!channel || !interaction.guildId) {
     return { success: false, error: "Invalid channel" };

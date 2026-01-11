@@ -1,13 +1,12 @@
 import type { CommandInteraction } from "discord.js";
 import { LookbackService } from "@/core/services/members/lookback.service";
 import { extractIds } from "@/core/utils/command.utils";
-
-export type LookbackMeResult = { message: string } | { error: string };
+import type { MessageResult } from "@/types";
 
 export async function executeLookbackMe(
   interaction: CommandInteraction,
   lookback: number,
-): Promise<LookbackMeResult> {
+): Promise<MessageResult> {
   const { guildId, memberId } = extractIds(interaction);
   if (!guildId || !memberId)
     return { error: "Please use this command in a server" };

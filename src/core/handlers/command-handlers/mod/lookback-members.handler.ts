@@ -1,12 +1,11 @@
 import type { CommandInteraction } from "discord.js";
 import { LookbackService } from "@/core/services/members/lookback.service";
-
-export type LookbackMembersResult = { message: string } | { error: string };
+import type { MessageResult } from "@/types";
 
 export async function executeLookbackMembers(
   interaction: CommandInteraction,
   lookback: number,
-): Promise<LookbackMembersResult> {
+): Promise<MessageResult> {
   if (!interaction.guild) {
     return { error: "This command can only be used in a server" };
   }

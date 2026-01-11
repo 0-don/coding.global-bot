@@ -1,16 +1,15 @@
-import type { APIEmbed, CommandInteraction, TextChannel } from "discord.js";
+import type { CommandInteraction, TextChannel } from "discord.js";
 import { StatsService } from "@/core/services/stats/stats.service";
 import {
   checkBotChannelRestriction,
   extractIds,
 } from "@/core/utils/command.utils";
-
-export type TopCommandResult = { embed: APIEmbed } | { error: string };
+import type { EmbedResult } from "@/types";
 
 export async function executeTopCommand(
   interaction: CommandInteraction,
   lookback: number,
-): Promise<TopCommandResult> {
+): Promise<EmbedResult> {
   const channelName = (interaction.channel as TextChannel)?.name ?? "";
   const channelError = checkBotChannelRestriction(channelName);
   if (channelError) return { error: channelError };
