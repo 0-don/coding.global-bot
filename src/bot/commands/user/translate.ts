@@ -1,11 +1,10 @@
+import { executeTranslateCommand } from "@/core/handlers/command-handlers/user/translate.handler";
+import { LogService } from "@/core/services/logs/log.service";
 import {
   ApplicationCommandOptionType,
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { ConfigValidator } from "@/shared/config/validator";
-import { translate } from "@/shared/integrations/deepl";
-import { LogService } from "@/core/services/logs/log.service";
 
 @Discord()
 export class Translate {
@@ -24,27 +23,20 @@ export class Translate {
     txt: string,
     interaction: CommandInteraction,
   ) {
-    // Defer reply if it takes longer than usual
     await interaction.deferReply();
     LogService.logCommandHistory(interaction, "translate");
 
-    if (!ConfigValidator.isFeatureEnabled("DEEPL")) {
-      ConfigValidator.logFeatureDisabled("Translation", "DEEPL");
-      return await interaction.editReply({
-        content:
-          "Translation feature is not configured. Please contact an administrator.",
+    const result = await executeTranslateCommand(txt);
+
+    if ("error" in result) {
+      return interaction.editReply({
+        content: result.error,
         allowedMentions: { users: [], roles: [] },
       });
     }
 
-    // Get lookback days from input
-    const text = Buffer.from(txt, "utf-8").toString();
-
-    const translatedText = await translate(text);
-
-    // Send success message
-    return await interaction.editReply({
-      content: translatedText,
+    return interaction.editReply({
+      content: result.text,
       allowedMentions: { users: [], roles: [] },
     });
   }

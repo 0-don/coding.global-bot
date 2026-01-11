@@ -47,11 +47,7 @@ export async function checkThreadStart(message: Message): Promise<void> {
         const firstMessage = await channel.fetchStarterMessage();
         const messages = await channel.messages.fetch();
 
-        if (
-          message.author.bot ||
-          firstMessage?.author.bot ||
-          messages.size > 1
-        )
+        if (message.author.bot || firstMessage?.author.bot || messages.size > 1)
           return;
 
         if (firstMessage?.author.id === message.author.id) {
@@ -107,9 +103,7 @@ export async function handleTranslateReply(
   if (message.type === MessageType.Reply && message.reference?.messageId) {
     const channel = (await message.channel.fetch()) as TextChannel;
 
-    const replyMsg = await channel.messages.fetch(
-      message.reference?.messageId,
-    );
+    const replyMsg = await channel.messages.fetch(message.reference?.messageId);
 
     await message.delete();
 

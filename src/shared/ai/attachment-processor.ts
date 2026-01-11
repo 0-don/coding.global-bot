@@ -30,7 +30,8 @@ export async function extractCodeFromAttachments(
         const content = await response.text();
         const truncatedContent =
           content.length > MAX_CONTENT_LENGTH
-            ? content.substring(0, MAX_CONTENT_LENGTH) + "\n... (content truncated)"
+            ? content.substring(0, MAX_CONTENT_LENGTH) +
+              "\n... (content truncated)"
             : content;
 
         if (extractedCode) {

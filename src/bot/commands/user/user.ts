@@ -1,16 +1,11 @@
 import {
   ApplicationCommandOptionType,
-  TextChannel,
   User,
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
+import { executeUserCommand } from "@/core/handlers/command-handlers/user/user.handler";
 import { LogService } from "@/core/services/logs/log.service";
-import { StatsService } from "@/core/services/stats/stats.service";
-import {
-  checkBotChannelRestriction,
-  extractIds,
-} from "@/core/utils/command.utils";
 
 @Discord()
 export class UserCommand {
@@ -32,19 +27,12 @@ export class UserCommand {
     await interaction.deferReply();
     LogService.logCommandHistory(interaction, "user");
 
-    const channelError = checkBotChannelRestriction(
-      (interaction.channel as TextChannel).name,
-    );
-    if (channelError) return interaction.editReply(channelError);
+    const result = await executeUserCommand(interaction, user.id);
 
-    const { guildId } = extractIds(interaction);
-    if (!guildId) return interaction.editReply("Could not get guild info");
-
-    const userStats = await StatsService.getUserStatsEmbed(user.id, guildId);
-    if (!userStats) return interaction.editReply("No stats found");
+    if ("error" in result) return interaction.editReply(result.error);
 
     return interaction.editReply({
-      embeds: [userStats.embed],
+      embeds: [result.embed],
       allowedMentions: { users: [], roles: [] },
     });
   }

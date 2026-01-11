@@ -84,9 +84,15 @@ export async function syncAllThreads(
         const activeResult = await forum.threads.fetchActive(true);
 
         // Fetch archived threads
-        const archivedPublic = await forum.threads.fetchArchived({ type: "public", limit: 100 });
+        const archivedPublic = await forum.threads.fetchArchived({
+          type: "public",
+          limit: 100,
+        });
 
-        const archivedPrivate = await forum.threads.fetchArchived({ type: "private", limit: 100 });
+        const archivedPrivate = await forum.threads.fetchArchived({
+          type: "private",
+          limit: 100,
+        });
 
         // Combine all threads
         for (const [, thread] of activeResult.threads) {
@@ -106,18 +112,28 @@ export async function syncAllThreads(
         );
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        logTs("error", guildName, `Failed to fetch threads from ${forum.name}: ${msg}`);
+        logTs(
+          "error",
+          guildName,
+          `Failed to fetch threads from ${forum.name}: ${msg}`,
+        );
       }
     }
 
     // Filter out already processed threads
-    const remaining = allThreads.filter((t) => !processedThreads.has(t.thread.id));
+    const remaining = allThreads.filter(
+      (t) => !processedThreads.has(t.thread.id),
+    );
     const total = allThreads.length;
     const alreadyDone = processedThreads.size;
 
     const resumeMsg =
       alreadyDone > 0 ? ` (resuming: ${alreadyDone}/${total} done)` : "";
-    logTs("info", guildName, `Processing ${remaining.length} threads${resumeMsg}`);
+    logTs(
+      "info",
+      guildName,
+      `Processing ${remaining.length} threads${resumeMsg}`,
+    );
     const progressMsg = await channel.send(
       `Processing ${total} threads${resumeMsg}...`,
     );
@@ -134,18 +150,10 @@ export async function syncAllThreads(
         await syncThreadMessages(thread, guild.id);
 
         processedThreads.add(thread.id);
-        logTs(
-          "info",
-          guildName,
-          `✓ ${tag} (${alreadyDone + i + 1}/${total})`,
-        );
+        logTs("info", guildName, `✓ ${tag} (${alreadyDone + i + 1}/${total})`);
       } catch {
         failedThreads.add(thread.id);
-        logTs(
-          "error",
-          guildName,
-          `✗ ${tag} (${alreadyDone + i + 1}/${total})`,
-        );
+        logTs("error", guildName, `✗ ${tag} (${alreadyDone + i + 1}/${total})`);
       }
 
       const done = alreadyDone + i + 1;
@@ -174,7 +182,9 @@ export async function syncAllThreads(
     }
 
     // Clear progress on completion
-    await prisma.syncProgress.delete({ where: { guildId: guild.id } }).catch(() => {});
+    await prisma.syncProgress
+      .delete({ where: { guildId: guild.id } })
+      .catch(() => {});
 
     const result =
       failedThreads.size > 0

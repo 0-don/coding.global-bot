@@ -1,12 +1,12 @@
-import type { CommandInteraction, TextChannel } from "discord.js";
+import { executeDeleteMessages } from "@/core/handlers/command-handlers/mod/delete-messages.handler";
+import { LogService } from "@/core/services/logs/log.service";
+import type { CommandInteraction } from "discord.js";
 import {
   ApplicationCommandOptionType,
   MessageFlags,
   PermissionFlagsBits,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { executeDeleteMessages } from "@/core/handlers/command-handlers/mod/delete-messages.handler";
-import { LogService } from "@/core/services/logs/log.service";
 
 @Discord()
 export class DeleteMessages {
@@ -31,10 +31,9 @@ export class DeleteMessages {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
     LogService.logCommandHistory(interaction, "delete-messages");
 
-    const channel = interaction.channel as TextChannel;
-    if (!interaction.guild?.id || !channel) return;
+    const result = await executeDeleteMessages(interaction, amount);
 
-    await executeDeleteMessages(channel, amount);
+    if (result.error) return interaction.editReply(result.error);
 
     return interaction.editReply({ content: "messages are deleted" });
   }

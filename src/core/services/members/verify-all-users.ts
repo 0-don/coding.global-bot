@@ -1,4 +1,9 @@
-import { Collection, Guild, GuildMember, type GuildTextBasedChannel } from "discord.js";
+import {
+  Collection,
+  Guild,
+  GuildMember,
+  type GuildTextBasedChannel,
+} from "discord.js";
 import { prisma } from "@/prisma";
 import { STATUS_ROLES, VERIFIED } from "@/shared/config/roles";
 import { logTs } from "@/shared/utils/date.utils";
@@ -52,7 +57,9 @@ export async function verifyAllUsers(
       .sort((a, b) => a.id.localeCompare(b.id));
 
     // Load saved progress - track by member ID, not index
-    const saved = await prisma.verificationProgress.findUnique({ where: { guildId: guild.id } });
+    const saved = await prisma.verificationProgress.findUnique({
+      where: { guildId: guild.id },
+    });
     const processedIds = new Set(saved?.processedIds ?? []);
     const failedIds = new Set(saved?.failedIds ?? []);
 
@@ -61,9 +68,16 @@ export async function verifyAllUsers(
     const total = members.length;
     const alreadyDone = processedIds.size;
 
-    const resumeMsg = alreadyDone > 0 ? ` (resuming: ${alreadyDone}/${total} done)` : "";
-    logTs("info", guildName, `Processing ${remaining.length} members${resumeMsg}`);
-    const progressMsg = await channel.send(`Processing ${total} members${resumeMsg}...`);
+    const resumeMsg =
+      alreadyDone > 0 ? ` (resuming: ${alreadyDone}/${total} done)` : "";
+    logTs(
+      "info",
+      guildName,
+      `Processing ${remaining.length} members${resumeMsg}`,
+    );
+    const progressMsg = await channel.send(
+      `Processing ${total} members${resumeMsg}...`,
+    );
 
     for (let i = 0; i < remaining.length; i++) {
       const member = remaining[i];
@@ -89,23 +103,32 @@ export async function verifyAllUsers(
 
       await prisma.verificationProgress.upsert({
         where: { guildId: guild.id },
-        create: { guildId: guild.id, processedIds: [...processedIds], failedIds: [...failedIds] },
+        create: {
+          guildId: guild.id,
+          processedIds: [...processedIds],
+          failedIds: [...failedIds],
+        },
         update: { processedIds: [...processedIds], failedIds: [...failedIds] },
       });
 
       // Update Discord message
       if ((i + 1) % 25 === 0 || i + 1 === remaining.length) {
         const pct = Math.round((done / total) * 100);
-        await progressMsg.edit(`Verifying: ${done}/${total} (${pct}%)`).catch(() => {});
+        await progressMsg
+          .edit(`Verifying: ${done}/${total} (${pct}%)`)
+          .catch(() => {});
       }
     }
 
     // Clear progress on completion
-    await prisma.verificationProgress.delete({ where: { guildId: guild.id } }).catch(() => {});
+    await prisma.verificationProgress
+      .delete({ where: { guildId: guild.id } })
+      .catch(() => {});
 
-    const result = failedIds.size > 0
-      ? `Done! Processed ${total} members (${failedIds.size} failed)`
-      : `Done! Processed ${total} members`;
+    const result =
+      failedIds.size > 0
+        ? `Done! Processed ${total} members (${failedIds.size} failed)`
+        : `Done! Processed ${total} members`;
     await progressMsg.edit(result).catch(() => {});
     logTs("info", guildName, result);
 

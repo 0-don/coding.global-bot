@@ -1,27 +1,46 @@
-import type { APIEmbed, Guild } from "discord.js";
-import { BOT_ICON, MEMBERS_TEMPLATE, RED_COLOR } from "@/shared/config/branding";
+import type { APIEmbed, CommandInteraction, TextChannel } from "discord.js";
+import {
+  BOT_ICON,
+  MEMBERS_TEMPLATE,
+  RED_COLOR,
+} from "@/shared/config/branding";
 import { codeString } from "@/shared/utils/format.utils";
 import { MembersService } from "@/core/services/members/members.service";
+import { checkBotChannelRestriction } from "@/core/utils/command.utils";
 
-export type MembersCommandResult = {
-  embed: APIEmbed;
-  attachment: { attachment: Buffer; name: string };
-};
+export type MembersCommandResult =
+  | {
+      embed: APIEmbed;
+      attachment: { attachment: Buffer; name: string };
+    }
+  | { error: string };
 
 export async function executeMembersCommand(
-  guild: Guild,
-): Promise<MembersCommandResult | { error: string }> {
-  const chart = await MembersService.guildMemberCountChart(guild);
+  interaction: CommandInteraction,
+): Promise<MembersCommandResult> {
+  const channelName = (interaction.channel as TextChannel)?.name ?? "";
+  const channelError = checkBotChannelRestriction(channelName);
+  if (channelError) return { error: channelError };
+
+  if (!interaction.guild)
+    return { error: "Please use this command in a server" };
+
+  const chart = await MembersService.guildMemberCountChart(interaction.guild);
   if (chart?.error) return { error: chart.error };
 
-  const { memberCount, botCount } = countMembers(guild);
-  const embed = buildEmbed(guild.name, chart, memberCount, botCount);
+  const { memberCount, botCount } = countMembers(interaction.guild);
+  const embed = buildEmbed(
+    interaction.guild.name,
+    chart,
+    memberCount,
+    botCount,
+  );
   const attachment = { attachment: chart.buffer!, name: chart.fileName! };
 
   return { embed, attachment };
 }
 
-function countMembers(guild: Guild) {
+function countMembers(guild: NonNullable<CommandInteraction["guild"]>) {
   let memberCount = 0;
   let botCount = 0;
   for (const member of guild.members.cache.values()) {

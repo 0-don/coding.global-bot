@@ -1,9 +1,8 @@
+import { executeLookbackMe } from "@/core/handlers/command-handlers/user/lookback-me.handler";
+import { LogService } from "@/core/services/logs/log.service";
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { LogService } from "@/core/services/logs/log.service";
-import { LookbackService } from "@/core/services/members/lookback.service";
-import { extractIds } from "@/core/utils/command.utils";
 
 @Discord()
 export class LookbackMe {
@@ -26,14 +25,10 @@ export class LookbackMe {
   ) {
     LogService.logCommandHistory(interaction, "lookback-me");
 
-    const { guildId, memberId } = extractIds(interaction);
-    if (!guildId || !memberId)
-      return interaction.reply("Please use this command in a server");
+    const result = await executeLookbackMe(interaction, lookback);
 
-    await LookbackService.setMemberLookback(memberId, guildId, lookback);
+    if ("error" in result) return interaction.reply(result.error);
 
-    return interaction.reply(
-      `Lookback set to ${lookback} days for ${interaction.member?.user.username}`,
-    );
+    return interaction.reply(result.message);
   }
 }

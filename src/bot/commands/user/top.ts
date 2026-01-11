@@ -1,46 +1,37 @@
-import {
-  ApplicationCommandOptionType,
-  type CommandInteraction,
-  type TextChannel,
-} from "discord.js";
+import type { CommandInteraction } from "discord.js";
+import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
+import { executeTopCommand } from "@/core/handlers/command-handlers/user/top.handler";
 import { LogService } from "@/core/services/logs/log.service";
-import { StatsService } from "@/core/services/stats/stats.service";
-import {
-  checkBotChannelRestriction,
-  extractIds,
-} from "@/core/utils/command.utils";
 
 @Discord()
-export class Top {
-  @Slash({ name: "top", description: "Get top user stats", dmPermission: false })
+export class TopCommand {
+  @Slash({
+    name: "top",
+    description: "Get top stats for the guild",
+    dmPermission: false,
+  })
   async top(
     @SlashOption({
       name: "lookback",
-      description: "Number of days to look back",
+      description: "Lookback days",
       required: false,
-      type: ApplicationCommandOptionType.Integer,
       minValue: 1,
       maxValue: 9999,
+      type: ApplicationCommandOptionType.Integer,
     })
-    lookback: number = 9999,
+    lookback: number = 30,
     interaction: CommandInteraction,
   ) {
     await interaction.deferReply();
     LogService.logCommandHistory(interaction, "top");
 
-    const channelError = checkBotChannelRestriction(
-      (interaction.channel as TextChannel).name,
-    );
-    if (channelError) return interaction.editReply(channelError);
+    const result = await executeTopCommand(interaction, lookback);
 
-    const { guildId } = extractIds(interaction);
-    if (!guildId) return interaction.editReply("Could not get guild info");
-
-    const embed = await StatsService.topStatsEmbed(guildId, lookback);
+    if ("error" in result) return interaction.editReply(result.error);
 
     return interaction.editReply({
-      embeds: [embed],
+      embeds: [result.embed],
       allowedMentions: { users: [], roles: [] },
     });
   }
