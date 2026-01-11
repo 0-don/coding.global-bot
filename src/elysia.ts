@@ -6,12 +6,11 @@ import { statsRoutes } from "@/api/routes/stats.routes";
 import { userRoutes } from "@/api/routes/user.routes";
 import { widgetRoutes } from "@/api/routes/widget.routes";
 import { Prisma } from "@/generated/prisma/client";
-import { bot } from "@/main";
 import { cors } from "@elysiajs/cors";
 import { node } from "@elysiajs/node";
 import { fromTypes, openapi } from "@elysiajs/openapi";
 import { log } from "console";
-import { Elysia, status } from "elysia";
+import { Elysia } from "elysia";
 
 export const app = new Elysia({ adapter: node() })
   .use(
@@ -31,14 +30,6 @@ export const app = new Elysia({ adapter: node() })
     } else if (error instanceof Prisma.PrismaClientValidationError) {
       console.error("Prisma Validation Error:", error.message);
     }
-  })
-  .derive(({ path }) => {
-    const matches = path.match(/\/api\/(\d{17,19})/);
-    const guildId = matches?.[1];
-    const guild = guildId ? bot.guilds.cache.get(guildId) : null;
-
-    if (!guild) throw status("Not Found", "Guild not found");
-    return { guild };
   })
   .derive(({ request, path }) => {
     if (request.method !== "GET") return { cacheKey: null };

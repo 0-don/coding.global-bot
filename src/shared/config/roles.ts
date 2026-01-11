@@ -1,5 +1,8 @@
 // Role configurations parsed from environment variables
 
+export const STAFF_ROLES =
+  process.env.STAFF_ROLES?.split(",").map((s) => s.trim()) || [];
+
 export const HELPER_ROLES =
   process.env.HELPER_ROLES?.split(",").map((s) => s.trim()) || [];
 

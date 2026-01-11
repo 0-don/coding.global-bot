@@ -11,9 +11,7 @@ import { Elysia, status, t } from "elysia";
 export const boardRoutes = new Elysia()
   .get(
     "/api/:guildId/board/:boardType",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (ctx: any) => {
-      const params = ctx.params as { guildId: string; boardType: string };
+    async ({ params }) => {
       const boardType = params.boardType.toLowerCase();
       const threads = await ThreadService.getThreadsByBoard(
         params.guildId,
@@ -25,9 +23,7 @@ export const boardRoutes = new Elysia()
   )
   .get(
     "/api/:guildId/board/:boardType/:threadId",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (ctx: any) => {
-      const params = ctx.params as { guildId: string; boardType: string; threadId: string };
+    async ({ params }) => {
       const thread = await ThreadService.getThread(params.threadId);
       if (!thread) {
         throw status("Not Found", "Thread not found");
@@ -42,10 +38,7 @@ export const boardRoutes = new Elysia()
   )
   .get(
     "/api/:guildId/board/:boardType/:threadId/messages",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (ctx: any) => {
-      const params = ctx.params as { guildId: string; boardType: string; threadId: string };
-      const query = ctx.query as { after?: string };
+    async ({ params, query }) => {
       const { messages, hasMore, nextCursor } = await ThreadService.getReplies(
         params.threadId,
         { after: query.after, limit: PAGE_LIMIT },

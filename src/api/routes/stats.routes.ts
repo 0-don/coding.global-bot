@@ -1,15 +1,13 @@
+import { guildDerive } from "@/api/middleware/guild.derive";
 import { getTopStatsWithUsers } from "@/api/mappers/stats.mapper";
 import { MembersService } from "@/core/services/members/members.service";
-import type { Guild } from "discord.js";
 import { Elysia, t } from "elysia";
 
 export const statsRoutes = new Elysia()
+  .use(guildDerive)
   .get(
     "/api/:guildId/top",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (ctx: any) => {
-      const params = ctx.params as { guildId: string };
-      const query = ctx.query as { days?: number; limit?: number };
+    async ({ params, query }) => {
       return getTopStatsWithUsers(
         params.guildId,
         query.days ?? 9999,
@@ -28,9 +26,7 @@ export const statsRoutes = new Elysia()
   )
   .get(
     "/api/:guildId/members",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (ctx: any) => {
-      const guild = ctx.guild as Guild;
+    async ({ guild }) => {
       return MembersService.getMembersStatsForApi(guild);
     },
     { params: t.Object({ guildId: t.String() }) },
