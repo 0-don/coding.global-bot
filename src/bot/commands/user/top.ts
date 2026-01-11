@@ -2,7 +2,7 @@ import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { executeTopCommand } from "@/core/handlers/command-handlers/user/top.handler";
-import { LogService } from "@/core/services/logs/log.service";
+import { prisma } from "@/prisma";
 
 @Discord()
 export class TopCommand {
@@ -24,7 +24,16 @@ export class TopCommand {
     interaction: CommandInteraction,
   ) {
     await interaction.deferReply();
-    LogService.logCommandHistory(interaction, "top");
+    if (interaction.member?.user.id && interaction.guildId) {
+      prisma.memberCommandHistory.create({
+        data: {
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "top",
+        },
+      }).catch(() => {});
+    }
 
     const result = await executeTopCommand(interaction, lookback);
 

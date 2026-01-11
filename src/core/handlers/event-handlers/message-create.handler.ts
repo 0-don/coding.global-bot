@@ -1,8 +1,6 @@
 import { simpleEmbedExample } from "@/core/embeds/simple.embed";
-import { checkWarnings } from "@/core/services/messages/check-warnings";
-import { fetchMessages } from "@/core/services/messages/fetch-messages";
 import { MessagesService } from "@/core/services/messages/messages.service";
-import { HelperService } from "@/core/services/roles/helper.service";
+import { RolesService } from "@/core/services/roles/roles.service";
 import { checkDuplicateSpam } from "@/core/services/spam/duplicate-spam.service";
 import { SpamDetectionService } from "@/core/services/spam/spam-detection.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
@@ -24,7 +22,7 @@ export async function handleMessageCreate(message: Message): Promise<void> {
 
   await checkDuplicateSpam(message);
 
-  await checkWarnings(message);
+  await MessagesService.checkWarnings(message);
 
   await MessagesService.addMessageDb(message);
 
@@ -74,14 +72,14 @@ export async function handleCheckThreadHelpLike(
 
   if (!channel.isThread()) return;
 
-  const messages = await fetchMessages(channel, 500);
+  const messages = await MessagesService.fetchMessages(channel, 500);
   const previousMessage = messages
     .reverse()
     .find((msg) => msg.author.id !== message.author.id && !msg.author.bot);
 
   if (!previousMessage || previousMessage.author.bot) return;
 
-  await HelperService.handleHelperReaction({
+  await RolesService.handleHelperReaction({
     threadId: channel.id,
     threadOwnerId: channel.ownerId,
     helperId: previousMessage.author.id,

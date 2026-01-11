@@ -1,5 +1,5 @@
 import { executeTrollMoveUser } from "@/core/handlers/command-handlers/admin/troll-move-user.handler";
-import { LogService } from "@/core/services/logs/log.service";
+import { prisma } from "@/prisma";
 import {
   ApplicationCommandOptionType,
   MessageFlags,
@@ -47,7 +47,16 @@ export class TrollMoveUser {
     interaction: CommandInteraction,
   ) {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-    LogService.logCommandHistory(interaction, "troll-move-user");
+    if (interaction.member?.user.id && interaction.guildId) {
+      prisma.memberCommandHistory.create({
+        data: {
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "troll-move-user",
+        },
+      }).catch(() => {});
+    }
 
     const result = await executeTrollMoveUser(
       interaction,

@@ -1,5 +1,5 @@
 import type { CommandInteraction } from "discord.js";
-import { LookbackService } from "@/core/services/members/lookback.service";
+import { MembersService } from "@/core/services/members/members.service";
 import type { MessageResult } from "@/types";
 
 export async function executeLookbackMembers(
@@ -10,7 +10,7 @@ export async function executeLookbackMembers(
     return { error: "This command can only be used in a server" };
   }
 
-  await LookbackService.setGuildLookback(
+  await MembersService.setGuildLookback(
     interaction.guild.id,
     interaction.guild.name,
     lookback,

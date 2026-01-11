@@ -1,5 +1,5 @@
 import { executeUserStatsCommand } from "@/core/handlers/command-handlers/user/user.handler";
-import { LogService } from "@/core/services/logs/log.service";
+import { prisma } from "@/prisma";
 import type { CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
 
@@ -12,7 +12,16 @@ export class MeCommand {
   })
   async me(interaction: CommandInteraction) {
     await interaction.deferReply();
-    LogService.logCommandHistory(interaction, "me");
+    if (interaction.member?.user.id && interaction.guildId) {
+      prisma.memberCommandHistory.create({
+        data: {
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "me",
+        },
+      }).catch(() => {});
+    }
 
     const result = await executeUserStatsCommand(interaction);
 

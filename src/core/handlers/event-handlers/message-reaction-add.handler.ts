@@ -1,5 +1,5 @@
 import type { MessageReaction, User } from "discord.js";
-import { HelperService } from "@/core/services/roles/helper.service";
+import { RolesService } from "@/core/services/roles/roles.service";
 
 export async function handleHelperReaction(
   reaction: MessageReaction,
@@ -14,7 +14,7 @@ export async function handleHelperReaction(
 
     if (!channel.isThread()) return;
 
-    await HelperService.handleHelperReaction({
+    await RolesService.handleHelperReaction({
       threadId: channel.id,
       threadOwnerId: channel.ownerId,
       helperId: message.author!.id,

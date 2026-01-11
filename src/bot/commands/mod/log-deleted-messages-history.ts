@@ -1,5 +1,4 @@
 import { deletedMessagesHistoryEmbed } from "@/core/embeds/deleted-messages.embed";
-import { LogService } from "@/core/services/logs/log.service";
 import { prisma } from "@/prisma";
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
@@ -25,7 +24,16 @@ export class LogDeletedMessagesHistory {
     interaction: CommandInteraction,
   ) {
     await interaction.deferReply();
-    LogService.logCommandHistory(interaction, "log-deleted-messages-history");
+    if (interaction.member?.user.id && interaction.guildId) {
+      prisma.memberCommandHistory.create({
+        data: {
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "log-deleted-messages-history",
+        },
+      }).catch(() => {});
+    }
 
     const history = await prisma.memberDeletedMessages.findMany({
       where: { guildId: interaction.guild!.id },

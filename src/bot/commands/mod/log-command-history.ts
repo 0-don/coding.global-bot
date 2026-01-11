@@ -1,5 +1,4 @@
 import { commandHistoryEmbed } from "@/core/embeds/command-history.embed";
-import { LogService } from "@/core/services/logs/log.service";
 import { prisma } from "@/prisma";
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
@@ -25,7 +24,16 @@ export class LogCommandHistory {
     interaction: CommandInteraction,
   ) {
     await interaction.deferReply();
-    LogService.logCommandHistory(interaction, "log-command-history");
+    if (interaction.member?.user.id && interaction.guildId) {
+      prisma.memberCommandHistory.create({
+        data: {
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "log-command-history",
+        },
+      }).catch(() => {});
+    }
 
     const history = await prisma.memberCommandHistory.findMany({
       where: { guildId: interaction.guild!.id },

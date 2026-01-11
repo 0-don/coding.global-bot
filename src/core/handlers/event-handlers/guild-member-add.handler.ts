@@ -1,6 +1,5 @@
 import { error } from "console";
 import type { GuildMember } from "discord.js";
-import { joinSettings } from "@/core/services/members/join-nickname";
 import { queueMemberUpdate } from "@/core/services/members/member-update-queue.service";
 import { MembersService } from "@/core/services/members/members.service";
 
@@ -15,7 +14,7 @@ export async function handleGuildMemberAdd(member: GuildMember): Promise<void> {
 
     MembersService.updateMemberCount(member);
 
-    joinSettings(member);
+    MembersService.joinSettings(member);
   } catch (err) {
     error(`Failed to process guild member add for ${member.id}:`, err);
   }
