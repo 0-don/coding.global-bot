@@ -1,4 +1,4 @@
-import { createCanvas } from "canvas";
+import { createCanvas, CanvasRenderingContext2D } from "canvas";
 import { Chart, ChartConfiguration } from "chart.js";
 import { enUS } from "date-fns/locale";
 import { ChartDataPoint } from "@/types";
