@@ -1,3 +1,12 @@
+import { MemberRole, Prisma } from "@/generated/prisma/client";
+import { prisma } from "@/prisma";
+import { LEVEL_LIST } from "@/shared/config/levels";
+import {
+  JAIL,
+  LEVEL_ROLES,
+  STATUS_ROLES,
+  VOICE_ONLY,
+} from "@/shared/config/roles";
 import {
   Collection,
   Guild,
@@ -5,16 +14,6 @@ import {
   PartialGuildMember,
   Role,
 } from "discord.js";
-import { MemberRole, Prisma } from "@/generated/prisma/client";
-import { prisma } from "@/prisma";
-import { StatusRoles } from "@/types";
-import {
-  JAIL,
-  LEVEL_ROLES,
-  STATUS_ROLES,
-  VOICE_ONLY,
-} from "@/shared/config/roles";
-import { LEVEL_LIST } from "@/shared/config/levels";
 
 export type UpdateDbRolesArgs = {
   oldRoles: Role[];
@@ -221,19 +220,5 @@ export class RolesService {
         ({ name }) => name === role,
       );
     return guildStatusRoles;
-  }
-
-  static async verify(
-    member: GuildMember | PartialGuildMember,
-    role: StatusRoles,
-  ) {
-    // get icon reaction role
-    const guildStatusRoles = RolesService.getGuildStatusRoles(member.guild);
-
-    // if icon reaction role exist exist add role to user
-    const guildRole = guildStatusRoles[role];
-    if (guildRole && guildRole?.editable) {
-      await member.roles.add(guildRole);
-    }
   }
 }
