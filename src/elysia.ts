@@ -1,4 +1,4 @@
-import { cache } from "@/api/middleware/cache";
+import { cacheMiddleware } from "@/api/middleware/cache";
 import { boardRoutes } from "@/api/routes/board.routes";
 import { newsRoutes } from "@/api/routes/news.routes";
 import { staffRoutes } from "@/api/routes/staff.routes";
@@ -23,6 +23,7 @@ export const app = new Elysia({ adapter: node() })
     }),
   )
   .use(cors())
+  .use(cacheMiddleware)
   .onError(({ error }) => {
     // Log Prisma-specific errors only
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -30,19 +31,6 @@ export const app = new Elysia({ adapter: node() })
     } else if (error instanceof Prisma.PrismaClientValidationError) {
       console.error("Prisma Validation Error:", error.message);
     }
-  })
-  .derive(({ request, path }) => {
-    if (request.method !== "GET") return { cacheKey: null };
-    const url = new URL(request.url);
-    const cacheKey = url.search ? `${path}${url.search}` : path;
-    return { cacheKey };
-  })
-  .onBeforeHandle(({ cacheKey }) => {
-    if (!cacheKey) return;
-    return cache.get(cacheKey);
-  })
-  .onAfterHandle(({ cacheKey, responseValue }) => {
-    if (cacheKey) cache.set(cacheKey, responseValue as object);
   })
   // Routes
   .use(staffRoutes)
