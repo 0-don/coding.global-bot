@@ -1,7 +1,7 @@
-import type { ArgsOf, Client } from "discordx";
-import { Discord, On } from "discordx";
 import { MessagesService } from "@/core/services/messages/messages.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
+import type { ArgsOf, Client } from "discordx";
+import { Discord, On } from "discordx";
 
 @Discord()
 export class MessageDelete {
@@ -13,8 +13,6 @@ export class MessageDelete {
     if (message.channel.isThread()) {
       await ThreadService.deleteReply(message.id);
     }
-
-    if (!message.guild) return; // Make sure this is not a DM
 
     MessagesService.saveDeletedMessageHistory(message);
   }
