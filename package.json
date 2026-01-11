@@ -5,7 +5,7 @@
   "scripts": {
     "start": "prisma migrate deploy && NODE_ENV=production node dist/main.js",
     "dev": "tsx watch src/main.ts",
-    "build": "tsup src/main.ts --format esm --dts --clean",
+    "build": "tsup src/main.ts --format esm --dts --clean --external @dotenvx/dotenvx",
     "prettier": "prettier -w .",
     "prisma": "prisma migrate dev --name init && prisma generate",
     "postinstall": "prisma generate"
