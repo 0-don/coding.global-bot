@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "lib": ["dom"],
+    "lib": ["ESNext", "dom"],
     "moduleResolution": "bundler",
     "outDir": "dist",
     "rootDir": "src",
