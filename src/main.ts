@@ -1,32 +1,11 @@
 import { dirname, importx } from "@discordx/importer";
 import "@dotenvx/dotenvx/config";
-import {
-  CategoryScale,
-  Chart,
-  Filler,
-  LineController,
-  LineElement,
-  LinearScale,
-  PointElement,
-  TimeSeriesScale,
-} from "chart.js";
-import "chartjs-adapter-date-fns";
 import { log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
 import "./elysia";
 import { ConfigValidator } from "@/shared/config/validator";
 import { startMemberUpdateQueue } from "@/core/services/members/member-update-queue.service";
-
-Chart.register(
-  LineController,
-  LineElement,
-  LinearScale,
-  CategoryScale,
-  PointElement,
-  TimeSeriesScale,
-  Filler,
-);
 
 ConfigValidator.validateConfig();
 

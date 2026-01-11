@@ -15,7 +15,7 @@ import {
   MEMBERS_COUNT_CHANNELS,
 } from "@/shared/config/channels";
 import { SHOULD_COUNT_MEMBERS } from "@/shared/config/features";
-import { ChartManager, GLOBAL_CANVAS, chartConfig } from "@/shared/utils/chart.utils";
+import { generateChart } from "@/shared/utils/chart.utils";
 import { getDaysArray } from "@/shared/utils/date.utils";
 import { simpleEmbedExample } from "@/bot/embeds/simple.embed";
 
@@ -258,11 +258,13 @@ export class MembersService {
     };
   }
 
-  // Generate chart and return buffer - reuses chart instance for performance
-  private static generateChart(data: ChartDataset[], lookback: number): Buffer {
+  // Generate chart and return buffer
+  private static async generateChartBuffer(
+    data: ChartDataset[],
+    lookback: number,
+  ): Promise<Buffer> {
     const sliceStart = data.length - 2 < lookback ? 0 : -lookback;
-    ChartManager.initializeOrUpdate(chartConfig(data.slice(sliceStart)));
-    return GLOBAL_CANVAS.toBuffer("image/png");
+    return generateChart(data.slice(sliceStart));
   }
 
   static async guildMemberCountChart(
@@ -272,7 +274,7 @@ export class MembersService {
 
     if (!stats) return { error: "No members found" };
 
-    const buffer = this.generateChart(stats.data, stats.lookback);
+    const buffer = await this.generateChartBuffer(stats.data, stats.lookback);
 
     log(`Created guild member count ${stats.guildName}`);
 
@@ -306,7 +308,7 @@ export class MembersService {
       };
     }
 
-    const buffer = this.generateChart(stats.data, stats.lookback);
+    const buffer = await this.generateChartBuffer(stats.data, stats.lookback);
     const base64Chart = `data:image/png;base64,${buffer.toString("base64")}`;
 
     log(`Created guild member count for API ${stats.guildName}`);
