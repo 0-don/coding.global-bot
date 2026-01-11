@@ -26,14 +26,16 @@ export class UserCommand {
   ) {
     await interaction.deferReply();
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory.create({
-        data: {
-          channelId: interaction.channelId,
-          memberId: interaction.member.user.id,
-          guildId: interaction.guildId,
-          command: "user",
-        },
-      }).catch(() => {});
+      prisma.memberCommandHistory
+        .create({
+          data: {
+            channelId: interaction.channelId,
+            memberId: interaction.member.user.id,
+            guildId: interaction.guildId,
+            command: "user",
+          },
+        })
+        .catch(() => {});
     }
 
     const result = await executeUserStatsCommand(interaction, user.id);

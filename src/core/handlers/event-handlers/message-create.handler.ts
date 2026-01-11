@@ -99,9 +99,9 @@ export async function handleTranslateReply(
 
   const message = command.message;
   if (message.type === MessageType.Reply && message.reference?.messageId) {
-    const channel = (message.channel.partial
-      ? await message.channel.fetch()
-      : message.channel) as TextChannel;
+    const channel = (
+      message.channel.partial ? await message.channel.fetch() : message.channel
+    ) as TextChannel;
 
     const replyMsg = await channel.messages.fetch(message.reference?.messageId);
 

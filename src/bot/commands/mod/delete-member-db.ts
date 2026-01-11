@@ -27,14 +27,16 @@ export class DeleteMemberDb {
     interaction: CommandInteraction,
   ) {
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory.create({
-        data: {
-          channelId: interaction.channelId,
-          memberId: interaction.member.user.id,
-          guildId: interaction.guildId,
-          command: "delete-member-db",
-        },
-      }).catch(() => {});
+      prisma.memberCommandHistory
+        .create({
+          data: {
+            channelId: interaction.channelId,
+            memberId: interaction.member.user.id,
+            guildId: interaction.guildId,
+            command: "delete-member-db",
+          },
+        })
+        .catch(() => {});
     }
 
     const result = await executeDeleteMemberDb(interaction, user.id);

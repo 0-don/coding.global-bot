@@ -25,14 +25,16 @@ export class TopCommand {
   ) {
     await interaction.deferReply();
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory.create({
-        data: {
-          channelId: interaction.channelId,
-          memberId: interaction.member.user.id,
-          guildId: interaction.guildId,
-          command: "top",
-        },
-      }).catch(() => {});
+      prisma.memberCommandHistory
+        .create({
+          data: {
+            channelId: interaction.channelId,
+            memberId: interaction.member.user.id,
+            guildId: interaction.guildId,
+            command: "top",
+          },
+        })
+        .catch(() => {});
     }
 
     const result = await executeTopCommand(interaction, lookback);

@@ -30,14 +30,16 @@ export class DeleteMessages {
   ) {
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory.create({
-        data: {
-          channelId: interaction.channelId,
-          memberId: interaction.member.user.id,
-          guildId: interaction.guildId,
-          command: "delete-messages",
-        },
-      }).catch(() => {});
+      prisma.memberCommandHistory
+        .create({
+          data: {
+            channelId: interaction.channelId,
+            memberId: interaction.member.user.id,
+            guildId: interaction.guildId,
+            command: "delete-messages",
+          },
+        })
+        .catch(() => {});
     }
 
     const result = await executeDeleteMessages(interaction, amount);

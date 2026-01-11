@@ -25,12 +25,17 @@ export async function handleVoiceStateUpdate(
   if (memberGuild?.moving && memberGuild.moveCounter > 0) return;
 
   if (!oldVoiceState.channelId)
-    await MembersService.joinSettings(newVoiceState.member as GuildMember, newVoiceState);
+    await MembersService.joinSettings(
+      newVoiceState.member as GuildMember,
+      newVoiceState,
+    );
 
   await VoiceService.updateUserVoiceState(newVoiceState);
 
   if (!oldVoiceState.channelId && newVoiceState.channelId)
-    MoveMemberToChannelService.moveMemberToChannel(newVoiceState.member as GuildMember);
+    MoveMemberToChannelService.moveMemberToChannel(
+      newVoiceState.member as GuildMember,
+    );
 
   await VoiceService.logVoiceEventsDb(oldVoiceState, newVoiceState);
 

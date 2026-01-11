@@ -8,6 +8,10 @@ export class PresenceUpdate {
   async presenceUpdate([oldPresence, newPresence]: ArgsOf<"presenceUpdate">) {
     if (!newPresence.member || !newPresence.guild) return;
 
-    MemberUpdateQueueService.queueMemberUpdate(newPresence.member.id, newPresence.guild.id, -1);
+    MemberUpdateQueueService.queueMemberUpdate(
+      newPresence.member.id,
+      newPresence.guild.id,
+      -1,
+    );
   }
 }

@@ -13,14 +13,16 @@ export class Members {
   async members(interaction: CommandInteraction) {
     await interaction.deferReply();
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory.create({
-        data: {
-          channelId: interaction.channelId,
-          memberId: interaction.member.user.id,
-          guildId: interaction.guildId,
-          command: "members",
-        },
-      }).catch(() => {});
+      prisma.memberCommandHistory
+        .create({
+          data: {
+            channelId: interaction.channelId,
+            memberId: interaction.member.user.id,
+            guildId: interaction.guildId,
+            command: "members",
+          },
+        })
+        .catch(() => {});
     }
 
     const result = await executeMembersCommand(interaction);

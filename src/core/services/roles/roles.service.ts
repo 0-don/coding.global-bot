@@ -10,16 +10,8 @@ import {
   VOICE_ONLY,
 } from "@/shared/config/roles";
 import { ConfigValidator } from "@/shared/config/validator";
-import type {
-  HandleHelperReactionParams,
-  UpdateDbRolesArgs,
-} from "@/types";
-import {
-  Guild,
-  Message,
-  Role,
-  TextChannel,
-} from "discord.js";
+import type { HandleHelperReactionParams, UpdateDbRolesArgs } from "@/types";
+import { Guild, Message, Role, TextChannel } from "discord.js";
 
 export class RolesService {
   private static _helperSystemWarningLogged = false;
