@@ -6,16 +6,17 @@ export async function handleHelperReaction(
   user: User,
 ): Promise<void> {
   try {
-    const message = await reaction.message.fetch();
+    const message = reaction.message.partial
+      ? await reaction.message.fetch()
+      : reaction.message;
+
     const channel = message.channel;
 
     if (!channel.isThread()) return;
 
-    const thread = await channel.fetch();
-
     await HelperService.handleHelperReaction({
-      threadId: thread.id,
-      threadOwnerId: thread.ownerId,
+      threadId: channel.id,
+      threadOwnerId: channel.ownerId,
       helperId: message.author!.id,
       thankerUserId: user.id,
       guildId: message.guildId!,
