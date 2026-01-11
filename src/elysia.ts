@@ -25,7 +25,6 @@ export const app = new Elysia({ adapter: node() })
   .use(cors())
   .use(cacheMiddleware)
   .onError(({ error }) => {
-    // Log Prisma-specific errors only
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       console.error("Prisma Error:", error.code, error.message, error.meta);
     } else if (error instanceof Prisma.PrismaClientValidationError) {

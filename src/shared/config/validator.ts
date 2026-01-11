@@ -1,7 +1,5 @@
 import { log, warn } from "console";
 
-type FeatureBotEnvironment = typeof process.env;
-
 interface ConfigCheck {
   key: keyof FeatureBotEnvironment;
   required: boolean;
