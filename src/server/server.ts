@@ -2,16 +2,16 @@ import { Guild, Message } from "discord.js";
 import { t } from "elysia";
 import {
   mapAttachment,
+  mapAttachmentsFromDb,
   mapEmbed,
+  mapEmbedsFromDb,
   mapMemberGuild,
   mapMentions,
+  mapMentionsFromDb,
   mapReactions,
+  mapReactionsFromDb,
   mapReference,
-  type DbAttachment,
-  type DbEmbed,
-  type DbMentions,
-  type DbReaction,
-  type DbReference,
+  mapReferenceFromDb,
 } from "../lib/discord/message-mappers";
 import { MembersService } from "../lib/members/members.service";
 import { StatsService } from "../lib/stats/stats.service";
@@ -247,15 +247,11 @@ export function formatReplyFromDb(
     pinned: reply.pinned,
     tts: reply.tts,
     type: reply.type,
-    attachments: (reply.attachments || []) as DbAttachment[],
-    embeds: (reply.embeds || []) as DbEmbed[],
-    mentions: (reply.mentions || {
-      users: [],
-      roles: [],
-      everyone: false,
-    }) as DbMentions,
-    reactions: (reply.reactions || []) as DbReaction[],
-    reference: (reply.reference || null) as DbReference,
+    attachments: mapAttachmentsFromDb(reply.attachments),
+    embeds: mapEmbedsFromDb(reply.embeds),
+    mentions: mapMentionsFromDb(reply.mentions),
+    reactions: mapReactionsFromDb(reply.reactions),
+    reference: mapReferenceFromDb(reply.reference),
     author: formatAuthorFromDb(reply.author, guildId),
   };
 }
