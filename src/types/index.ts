@@ -1,3 +1,5 @@
+import type { MemberRole } from "@/generated/prisma/client";
+import type { STATUS_ROLES } from "@/shared/config/roles";
 import type {
   APIEmbed,
   Collection,
@@ -8,12 +10,9 @@ import type {
   Role,
   User,
 } from "discord.js";
-import type { STATUS_ROLES } from "@/shared/config/roles";
-import type { MemberRole } from "@/generated/prisma/client";
 
 export type StatusRoles = (typeof STATUS_ROLES)[number];
 
-// Shared handler result types
 export type CommandResult = {
   success: boolean;
   error?: string;
@@ -84,24 +83,6 @@ export type ToptatsExampleEmbed = {
   mostActiveVoiceChannels: { channelId: string; sum: number }[];
   lookback: number;
 };
-
-export type Commands =
-  | "troll-move-user"
-  | "create-verify-embed"
-  | "delete-member-db"
-  | "delete-messages"
-  | "delete-user-messages"
-  | "log-command-history"
-  | "log-deleted-messages-history"
-  | "lookback-members"
-  | "verify-all-users"
-  | "lookback-me"
-  | "me"
-  | "members"
-  | "top"
-  | "translate"
-  | "user"
-  | "ask";
 
 // AI Service types
 export interface AiChatResponse {
