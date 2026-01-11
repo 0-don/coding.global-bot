@@ -1,6 +1,6 @@
 import { GuildTextBasedChannel, PermissionFlagsBits } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
-import { verifyAllUsers } from "@/core/services/members/verify-all-users";
+import { VerifyAllUsersService } from "@/core/services/members/verify-all-users.service";
 import type { CommandResult } from "@/types";
 
 export async function executeVerifyAllUsers(
@@ -17,7 +17,7 @@ export async function executeVerifyAllUsers(
   }
 
   try {
-    await verifyAllUsers(
+    await VerifyAllUsersService.verifyAllUsers(
       message.guild,
       message.channel as GuildTextBasedChannel,
     );

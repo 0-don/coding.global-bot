@@ -92,3 +92,19 @@ export type Commands =
   | "translate"
   | "user"
   | "ask";
+
+// AI Service types
+export interface AiChatResponse {
+  text: string;
+  gifUrl: string | null;
+}
+
+export interface MessageContext {
+  context: string;
+  images: string[];
+}
+
+export interface ReplyContext {
+  replyContext: string;
+  repliedImages: string[];
+}

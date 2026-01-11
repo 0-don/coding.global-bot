@@ -1,77 +1,75 @@
 import { error, log } from "console";
 import { bot } from "@/main";
 import { prisma } from "@/prisma";
-import { updateCompleteMemberData } from "@/core/services/members/member-data.service";
-import { isVerificationRunning } from "@/core/services/members/verify-all-users";
-
-let processorInterval: NodeJS.Timeout | null = null;
-let isProcessing = false;
+import { MemberDataService } from "@/core/services/members/member-data.service";
+import { VerifyAllUsersService } from "@/core/services/members/verify-all-users.service";
 
 const PROCESS_INTERVAL_MS = 1000;
 
-export function queueMemberUpdate(
-  memberId: string,
-  guildId: string,
-  priority = 0,
-) {
-  prisma.memberUpdateQueue
-    .upsert({
-      where: { memberId_guildId: { memberId, guildId } },
-      create: { memberId, guildId, priority },
-      update: { priority },
-    })
-    .catch(() => {});
-}
+export class MemberUpdateQueueService {
+  private static processorInterval: NodeJS.Timeout | null = null;
+  private static isProcessing = false;
 
-export function startMemberUpdateQueue() {
-  if (processorInterval) return;
+  static queueMemberUpdate(memberId: string, guildId: string, priority = 0) {
+    prisma.memberUpdateQueue
+      .upsert({
+        where: { memberId_guildId: { memberId, guildId } },
+        create: { memberId, guildId, priority },
+        update: { priority },
+      })
+      .catch(() => {});
+  }
 
-  processorInterval = setInterval(() => {
-    processNextItem().catch((err) => {
-      error("Queue processor error:", err);
-    });
-  }, PROCESS_INTERVAL_MS);
+  static start() {
+    if (this.processorInterval) return;
 
-  log("Member update queue processor started");
-}
+    this.processorInterval = setInterval(() => {
+      this.processNextItem().catch((err) => {
+        error("Queue processor error:", err);
+      });
+    }, PROCESS_INTERVAL_MS);
 
-async function processNextItem() {
-  if (isProcessing) return;
-  isProcessing = true;
+    log("Member update queue processor started");
+  }
 
-  try {
-    const item = await prisma.memberUpdateQueue.findFirst({
-      orderBy: { createdAt: "asc" },
-    });
+  private static async processNextItem() {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
 
-    if (!item) return;
-
-    if (isVerificationRunning(item.guildId)) return;
-
-    const deleteItem = () =>
-      prisma.memberUpdateQueue
-        .delete({ where: { id: item.id } })
-        .catch(() => {});
-
-    const guild = bot.guilds.cache.get(item.guildId);
-    if (!guild) {
-      await deleteItem();
-      return;
-    }
-
-    let member;
     try {
-      member = await guild.members.fetch(item.memberId);
-    } catch {
-      await deleteItem();
-      return;
-    }
+      const item = await prisma.memberUpdateQueue.findFirst({
+        orderBy: { createdAt: "asc" },
+      });
 
-    await updateCompleteMemberData(member);
-    await deleteItem();
-  } catch (err) {
-    error(`Failed to process queue item:`, err);
-  } finally {
-    isProcessing = false;
+      if (!item) return;
+
+      if (VerifyAllUsersService.isVerificationRunning(item.guildId)) return;
+
+      const deleteItem = () =>
+        prisma.memberUpdateQueue
+          .delete({ where: { id: item.id } })
+          .catch(() => {});
+
+      const guild = bot.guilds.cache.get(item.guildId);
+      if (!guild) {
+        await deleteItem();
+        return;
+      }
+
+      let member;
+      try {
+        member = await guild.members.fetch(item.memberId);
+      } catch {
+        await deleteItem();
+        return;
+      }
+
+      await MemberDataService.updateCompleteMemberData(member);
+      await deleteItem();
+    } catch (err) {
+      error(`Failed to process queue item:`, err);
+    } finally {
+      this.isProcessing = false;
+    }
   }
 }

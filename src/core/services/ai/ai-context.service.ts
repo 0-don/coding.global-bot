@@ -4,16 +4,7 @@ import {
   extractCodeFromAttachments,
   extractImageUrls,
 } from "@/shared/ai/attachment-processor";
-
-export interface MessageContext {
-  context: string;
-  images: string[];
-}
-
-export interface ReplyContext {
-  replyContext: string;
-  repliedImages: string[];
-}
+import type { MessageContext, ReplyContext } from "@/types";
 
 export class AiContextService {
   static async getReplyContext(message: Message): Promise<ReplyContext> {

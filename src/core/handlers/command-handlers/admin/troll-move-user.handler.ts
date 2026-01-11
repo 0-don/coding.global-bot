@@ -1,4 +1,4 @@
-import { moveMemberToChannel } from "@/core/services/members/move-member-to-channel";
+import { MoveMemberToChannelService } from "@/core/services/members/move-member-to-channel.service";
 import { prisma } from "@/prisma";
 import { BOT_OWNER_ID } from "@/shared/config/roles";
 import type { CommandInteraction, User } from "discord.js";
@@ -47,7 +47,7 @@ export async function executeTrollMoveUser(
     interaction.guild.members.cache.get(user.id) ??
     (await interaction.guild.members.fetch(user.id));
 
-  if (count > 0) moveMemberToChannel(guildMember);
+  if (count > 0) MoveMemberToChannelService.moveMemberToChannel(guildMember);
 
   return "Trolling begins";
 }
