@@ -2,12 +2,8 @@ import {
   Collection,
   Guild,
   GuildMember,
-  MessageReaction,
   PartialGuildMember,
-  PartialMessageReaction,
-  PartialUser,
   Role,
-  User,
 } from "discord.js";
 import { MemberRole, Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/prisma";
@@ -16,11 +12,9 @@ import {
   JAIL,
   LEVEL_ROLES,
   STATUS_ROLES,
-  VERIFIED,
   VOICE_ONLY,
 } from "@/shared/config/roles";
 import { LEVEL_LIST } from "@/shared/config/levels";
-import { VERIFY_TEMPLATE } from "@/shared/config/branding";
 
 export type UpdateDbRolesArgs = {
   oldRoles: Role[];
@@ -240,53 +234,6 @@ export class RolesService {
     const guildRole = guildStatusRoles[role];
     if (guildRole && guildRole?.editable) {
       await member.roles.add(guildRole);
-    }
-  }
-
-  static async verifyReaction(
-    reaction: MessageReaction | PartialMessageReaction,
-    user: User | PartialUser,
-  ) {
-    // check if template
-    const isTemplate = reaction.message.embeds[0]?.footer?.text;
-
-    // check embed template a verify template
-    if (isTemplate !== VERIFY_TEMPLATE) return;
-    // check if reaction is from bot
-    if (user.bot) return;
-
-    // get member
-    const member = await reaction.message.guild?.members.cache
-      .get(user.id)
-      ?.fetch();
-
-    const memberDbRoles = await prisma.memberRole.findMany({
-      where: { memberId: user.id },
-    });
-
-    const guildRoles = reaction.message.guild?.roles.cache.filter((role) =>
-      memberDbRoles.some((dbRole) => dbRole.roleId === role.id),
-    );
-
-    // if jail role exist then exit
-    if (guildRoles?.find(({ name }) => name === JAIL)) return;
-
-    // if icon reaction role on user then exit
-    if (
-      member?.roles.cache.some((role) =>
-        [VERIFIED, JAIL, VOICE_ONLY].includes(role.name as any),
-      )
-    )
-      return;
-
-    // get icon reaction role
-    const guildStatusRoles = RolesService.getGuildStatusRoles(
-      reaction.message.guild!,
-    );
-
-    const guildRole = guildStatusRoles[VERIFIED];
-    if (guildRole && guildRole.editable) {
-      await member?.roles.add(guildStatusRoles[VERIFIED] as Role);
     }
   }
 }
