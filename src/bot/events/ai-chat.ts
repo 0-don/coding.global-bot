@@ -14,7 +14,7 @@ export class AiChat {
     client: Client,
   ): Promise<void> {
     if (!this.shouldRespond(message, client)) return;
-    console.log("AI Chat message received");
+
     await message.channel.sendTyping();
 
     if (this.isEmptyMessage(message)) {
