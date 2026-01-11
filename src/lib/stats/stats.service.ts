@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { prisma } from "../../prisma";
 import { topStatsExampleEmbed, userStatsExampleEmbed } from "../embeds";
-import { formatMemberGuild } from "../members/format-member";
+import { mapMemberGuild } from "../discord/message-mappers";
 
 const sumSeconds = (items: { sum: number }[]) =>
   items.reduce((acc, curr) => acc + Number(curr.sum), 0);
@@ -275,7 +275,7 @@ export class StatsService {
     ]);
 
     return {
-      user: formatMemberGuild(memberGuild, guildId),
+      user: mapMemberGuild(memberGuild, guildId),
       stats: {
         messages: {
           total: messagesStats.lookbackDaysCount,
