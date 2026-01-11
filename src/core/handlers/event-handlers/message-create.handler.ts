@@ -1,7 +1,4 @@
-import { Message, MessageType, TextChannel, ThreadChannel } from "discord.js";
-import type { SimpleCommandMessage } from "discordx";
 import { simpleEmbedExample } from "@/core/embeds/simple.embed";
-import { translate } from "@/shared/integrations/deepl";
 import { checkWarnings } from "@/core/services/messages/check-warnings";
 import { fetchMessages } from "@/core/services/messages/fetch-messages";
 import { MessagesService } from "@/core/services/messages/messages.service";
@@ -9,7 +6,12 @@ import { HelperService } from "@/core/services/roles/helper.service";
 import { checkDuplicateSpam } from "@/core/services/spam/duplicate-spam.service";
 import { SpamDetectionService } from "@/core/services/spam/spam-detection.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
+import { THREAD_QUESTION_RESPONSE } from "@/shared/config/branding";
+import { EXCLUDED_THREAD_BOARD_TYPES } from "@/shared/config/channels";
 import { ConfigValidator } from "@/shared/config/validator";
+import { translate } from "@/shared/integrations/deepl";
+import { Message, MessageType, TextChannel, ThreadChannel } from "discord.js";
+import type { SimpleCommandMessage } from "discordx";
 
 export async function handleMessageCreate(message: Message): Promise<void> {
   const isSpam =
@@ -39,9 +41,9 @@ export async function checkThreadStart(message: Message): Promise<void> {
     const parentChannel = message.guild?.channels.cache.get(channel.parentId!);
     if (
       parentChannel &&
-      !parentChannel.name.includes("job") &&
-      !parentChannel.name.includes("dev") &&
-      !parentChannel.name.includes("showcase")
+      !EXCLUDED_THREAD_BOARD_TYPES.some((boardType) =>
+        parentChannel.name.includes(boardType),
+      )
     ) {
       try {
         const firstMessage = await channel.fetchStarterMessage();
@@ -52,8 +54,7 @@ export async function checkThreadStart(message: Message): Promise<void> {
 
         if (firstMessage?.author.id === message.author.id) {
           const embed = simpleEmbedExample();
-          embed.description =
-            "Thanks for your question :clap:, if someone gives you an answer it would be great if you thanked them with a :white_check_mark: in response. This response will earn you both points for special roles on this server.";
+          embed.description = THREAD_QUESTION_RESPONSE;
 
           await channel.send({
             embeds: [embed],

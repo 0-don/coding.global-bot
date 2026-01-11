@@ -9,3 +9,7 @@ export const DELETED_MESSAGES_HISTORY_TEMPLATE = "deleted messages history";
 export const RED_COLOR = 0xff0000;
 export const BOT_ICON =
   process.env.BOT_ICON?.trim() || "https://via.placeholder.com/32";
+
+// Bot messages
+export const THREAD_QUESTION_RESPONSE =
+  "Thanks for your question :clap:, if someone gives you an answer it would be great if you thanked them with a :white_check_mark: in response. This response will earn you both points for special roles on this server.";
