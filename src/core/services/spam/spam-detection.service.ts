@@ -1,14 +1,14 @@
+import { deleteUserMessages } from "@/core/services/messages/delete-user-messages";
+import { prisma } from "@/prisma";
+import { extractImageUrls } from "@/shared/ai/attachment-processor";
+import { SPAM_SYSTEM_PROMPT } from "@/shared/ai/system-prompt";
+import { ConfigValidator } from "@/shared/config/validator";
+import { googleClient } from "@/shared/integrations/google-ai";
 import { generateText, Output } from "ai";
 import { log } from "console";
 import dayjs from "dayjs";
 import { Message, ThreadChannel } from "discord.js";
 import { z } from "zod";
-import { prisma } from "@/prisma";
-import { ConfigValidator } from "@/shared/config/validator";
-import { getSpamSystemPrompt } from "@/shared/config/prompts";
-import { extractImageUrls } from "@/shared/ai/attachment-processor";
-import { googleClient } from "@/shared/integrations/google-ai";
-import { deleteUserMessages } from "@/core/services/messages/delete-user-messages";
 
 export class SpamDetectionService {
   private static _spamDetectionWarningLogged = false;
@@ -128,7 +128,7 @@ Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached
       const result = await googleClient.executeWithRotation(async () => {
         return await generateText({
           model: googleClient.getModel(),
-          system: getSpamSystemPrompt(),
+          system: SPAM_SYSTEM_PROMPT,
           messages: [
             {
               role: "user",
