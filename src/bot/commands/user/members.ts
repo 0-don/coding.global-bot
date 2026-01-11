@@ -1,11 +1,10 @@
 import type { APIEmbed, CommandInteraction, TextChannel } from "discord.js";
 import { Discord, Slash } from "discordx";
-import { ConfigValidator } from "@/shared/config/validator";
-import { BOT_CHANNELS } from "@/shared/config/channels";
 import { BOT_ICON, MEMBERS_TEMPLATE, RED_COLOR } from "@/shared/config/branding";
 import { codeString } from "@/shared/utils/format.utils";
 import { LogService } from "@/core/services/logs/log.service";
 import { MembersService } from "@/core/services/members/members.service";
+import { checkBotChannelRestriction } from "@/bot/utils/command.utils";
 
 @Discord()
 export class Members {
@@ -15,103 +14,69 @@ export class Members {
     dmPermission: false,
   })
   async members(interaction: CommandInteraction) {
-    try {
-      if (!interaction.deferred && !interaction.replied) {
-        await interaction.deferReply();
-      }
+    await interaction.deferReply();
+    LogService.logCommandHistory(interaction, "members");
 
-      LogService.logCommandHistory(interaction, "members");
-      const channel = interaction.channel as TextChannel;
+    const channelError = checkBotChannelRestriction(
+      (interaction.channel as TextChannel).name,
+    );
+    if (channelError) return interaction.editReply(channelError);
 
-      if (ConfigValidator.isFeatureEnabled("IS_CONSTRAINED_TO_BOT_CHANNEL")) {
-        if (!ConfigValidator.isFeatureEnabled("BOT_CHANNELS")) {
-          ConfigValidator.logFeatureDisabled(
-            "Bot Channel Restrictions",
-            "BOT_CHANNELS",
-          );
-          return await interaction.editReply(
-            "Bot channel restrictions are enabled but no bot channels are configured.",
-          );
-        }
-        if (!BOT_CHANNELS.includes(channel.name)) {
-          return await interaction.editReply(
-            "Please use this command in the bot channel",
-          );
-        }
-      }
+    if (!interaction.guild)
+      return interaction.editReply("Please use this command in a server");
 
-      if (!interaction.guild)
-        return await interaction.editReply(
-          "Please use this command in a server",
-        );
+    const chart = await MembersService.guildMemberCountChart(interaction.guild);
+    if (chart?.error) return interaction.editReply(chart.error);
 
-      const chart = await MembersService.guildMemberCountChart(
-        interaction.guild,
-      );
+    const { memberCount, botCount } = this.countMembers(interaction.guild);
 
-      if (chart?.error) return await interaction.editReply(chart.error);
+    const embed = this.buildEmbed(interaction.guild.name, chart, memberCount, botCount);
+    const attachment = { attachment: chart.buffer!, name: chart.fileName! };
 
-      const attachment = {
-        attachment: chart.buffer!,
-        name: chart.fileName!,
-      };
+    return interaction.editReply({ embeds: [embed], files: [attachment] });
+  }
 
-      let memberCount = 0;
-      let botCount = 0;
-      for (const member of interaction.guild.members.cache.values()) {
-        if (member.user.bot) {
-          botCount++;
-        } else {
-          memberCount++;
-        }
-      }
-
-      const thirtyDaysPercent = (chart.thirtyDaysCount! * 100) / memberCount;
-      const sevenDaysPercent = (chart.sevedDaysCount! * 100) / memberCount;
-      const oneDayPercent = (chart.oneDayCount! * 100) / memberCount;
-
-      const embed: APIEmbed = {
-        color: RED_COLOR,
-        title: `🛡️ ${interaction.guild?.name}'s Member Count Overview`,
-        // prettier-ignore
-        description:
-       `
-       Memberflow and count in the past ${chart.lookback} Days. (Change with the ${codeString("/lookback-members")} command.)
-
-       **Members**
-       Users: ${codeString(memberCount)}
-       Bots: ${codeString(botCount)}
-
-       **Memberflow 30 Days**
-       Change: \`${(chart.thirtyDaysCount!<0?'':'+') + chart.thirtyDaysCount} members (${(thirtyDaysPercent!<0?'':'+')+ thirtyDaysPercent.toFixed(2)}%)\`
-       **Memberflow 7 Days**
-       Change: \`${(chart.sevedDaysCount!<0?'':'+') + chart.sevedDaysCount} members (${(sevenDaysPercent!<0?'':'+')+ sevenDaysPercent.toFixed(2)}%)\`
-       **Memberflow 24 Hours**
-       Change: \`${(chart.oneDayCount!<0?'':'+') + chart.oneDayCount} members (${(oneDayPercent!<0?'':'+')+ oneDayPercent.toFixed(2)}%)\`
-       `,
-        timestamp: new Date().toISOString(),
-        image: { url: `attachment://${chart.fileName}` },
-        footer: {
-          text: MEMBERS_TEMPLATE,
-          icon_url: BOT_ICON,
-        },
-      };
-
-      return await interaction.editReply({
-        embeds: [embed],
-        files: [attachment],
-      });
-    } catch (error) {
-      console.error("Members command error:", error);
-      try {
-        if (interaction.deferred || interaction.replied) {
-          await interaction.editReply(
-            "An error occurred while fetching member data.",
-          );
-        }
-      } catch {
-        // Ignore reply errors
-      }
+  private countMembers(guild: NonNullable<CommandInteraction["guild"]>) {
+    let memberCount = 0;
+    let botCount = 0;
+    for (const member of guild.members.cache.values()) {
+      if (member.user.bot) botCount++;
+      else memberCount++;
     }
+    return { memberCount, botCount };
+  }
+
+  private buildEmbed(
+    guildName: string,
+    chart: Awaited<ReturnType<typeof MembersService.guildMemberCountChart>>,
+    memberCount: number,
+    botCount: number,
+  ): APIEmbed {
+    const formatChange = (count: number, percent: number) =>
+      `\`${count >= 0 ? "+" : ""}${count} members (${percent >= 0 ? "+" : ""}${percent.toFixed(2)}%)\``;
+
+    const thirtyDaysPercent = (chart.thirtyDaysCount! * 100) / memberCount;
+    const sevenDaysPercent = (chart.sevedDaysCount! * 100) / memberCount;
+    const oneDayPercent = (chart.oneDayCount! * 100) / memberCount;
+
+    return {
+      color: RED_COLOR,
+      title: `${guildName}'s Member Count Overview`,
+      description: `Memberflow and count in the past ${chart.lookback} Days. (Change with ${codeString("/lookback-members")}.)
+
+**Members**
+Users: ${codeString(memberCount)}
+Bots: ${codeString(botCount)}
+
+**Memberflow 30 Days**
+Change: ${formatChange(chart.thirtyDaysCount!, thirtyDaysPercent)}
+**Memberflow 7 Days**
+Change: ${formatChange(chart.sevedDaysCount!, sevenDaysPercent)}
+**Memberflow 24 Hours**
+Change: ${formatChange(chart.oneDayCount!, oneDayPercent)}`,
+      timestamp: new Date().toISOString(),
+      image: { url: `attachment://${chart.fileName}` },
+      footer: { text: MEMBERS_TEMPLATE, icon_url: BOT_ICON },
+    };
   }
 }

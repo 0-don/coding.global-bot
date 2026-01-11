@@ -2,7 +2,8 @@ import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { LogService } from "@/core/services/logs/log.service";
-import { prisma } from "@/prisma";
+import { LookbackService } from "@/core/services/members/lookback.service";
+import { extractIds } from "@/bot/utils/command.utils";
 
 @Discord()
 export class LookbackMe {
@@ -24,22 +25,14 @@ export class LookbackMe {
     interaction: CommandInteraction,
   ) {
     LogService.logCommandHistory(interaction, "lookback-me");
-    // get guild data
-    const guildId = interaction.guild?.id;
-    const memberId = interaction.member?.user.id;
 
+    const { guildId, memberId } = extractIds(interaction);
     if (!guildId || !memberId)
-      return await interaction.reply("Please use this command in a server");
+      return interaction.reply("Please use this command in a server");
 
-    // create or update guild
-    await prisma.memberGuild.upsert({
-      where: { member_guild: { guildId, memberId } },
-      create: { guildId, lookback, memberId, status: true },
-      update: { guildId, lookback, memberId, status: true },
-    });
+    await LookbackService.setMemberLookback(memberId, guildId, lookback);
 
-    // send success message
-    return await interaction.reply(
+    return interaction.reply(
       `Lookback set to ${lookback} days for ${interaction.member?.user.username}`,
     );
   }

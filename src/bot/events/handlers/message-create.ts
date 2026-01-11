@@ -11,7 +11,6 @@ import { HelperService } from "@/core/services/roles/helper.service";
 import { checkDuplicateSpam } from "@/core/services/spam/duplicate-spam.service";
 import { SpamDetectionService } from "@/core/services/spam/spam-detection.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
-import { prisma } from "@/prisma";
 
 @Discord()
 export class MessageCreate {
@@ -94,42 +93,26 @@ export class MessageCreate {
   @SimpleCommand({ aliases: [""], prefix: ["✅", ":white_check_mark:"] })
   async checkThreadHelpLike(command: SimpleCommandMessage) {
     const message = command.message;
-
     const channel = message.channel;
-    if (channel.isThread()) {
-      const thread = await channel.fetch();
-      const members = await command.message.guild?.members.fetch();
-      const threadOwner = members?.get(thread.ownerId!);
 
-      if (threadOwner?.id !== message.author.id || threadOwner?.user.bot) {
-        return;
-      }
+    if (!channel.isThread()) return;
 
-      const messages = await fetchMessages(channel, 500);
-      const previousMessage = messages
-        .reverse()
-        .find((msg) => msg.author.id !== message.author.id && !msg.author.bot);
+    const thread = await channel.fetch();
+    const messages = await fetchMessages(channel, 500);
+    const previousMessage = messages
+      .reverse()
+      .find((msg) => msg.author.id !== message.author.id && !msg.author.bot);
 
-      if (!previousMessage) return;
-      if (previousMessage.author.bot) return;
+    if (!previousMessage || previousMessage.author.bot) return;
 
-      const isHelpedThread = await prisma.memberHelper.findFirst({
-        where: { threadId: thread.id, threadOwnerId: thread.ownerId },
-      });
-
-      if (isHelpedThread) return;
-
-      await prisma.memberHelper.create({
-        data: {
-          memberId: previousMessage.author.id,
-          guildId: message.guildId!,
-          threadId: thread.id,
-          threadOwnerId: thread.ownerId,
-        },
-      });
-
-      HelperService.helperRoleChecker(previousMessage);
-    }
+    await HelperService.handleHelperReaction({
+      threadId: thread.id,
+      threadOwnerId: thread.ownerId,
+      helperId: previousMessage.author.id,
+      thankerUserId: message.author.id,
+      guildId: message.guildId!,
+      message: previousMessage,
+    });
   }
 
   @SimpleCommand({ aliases: ["translate", "explain", "slate"], prefix: "/" })

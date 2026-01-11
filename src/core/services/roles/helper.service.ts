@@ -3,8 +3,44 @@ import { prisma } from "@/prisma";
 import { HELPER_RANKING, HELPER_ROLES } from "@/shared/config/roles";
 import { ConfigValidator } from "@/shared/config/validator";
 
+export interface HandleHelperReactionParams {
+  threadId: string;
+  threadOwnerId: string | null;
+  helperId: string;
+  thankerUserId: string;
+  guildId: string;
+  message: Message;
+}
+
 export class HelperService {
   private static _helperSystemWarningLogged = false;
+
+  static async handleHelperReaction(
+    params: HandleHelperReactionParams,
+  ): Promise<boolean> {
+    const { threadId, threadOwnerId, helperId, thankerUserId, guildId, message } =
+      params;
+
+    if (threadOwnerId !== thankerUserId) return false;
+    if (helperId === thankerUserId) return false;
+
+    const isHelpedThread = await prisma.memberHelper.findFirst({
+      where: { threadId, threadOwnerId },
+    });
+    if (isHelpedThread) return false;
+
+    await prisma.memberHelper.create({
+      data: {
+        memberId: helperId,
+        guildId,
+        threadId,
+        threadOwnerId,
+      },
+    });
+
+    await HelperService.helperRoleChecker(message);
+    return true;
+  }
 
   static async helperRoleChecker(message: Message<boolean>) {
     if (!ConfigValidator.isFeatureEnabled("HELPER_ROLES")) {

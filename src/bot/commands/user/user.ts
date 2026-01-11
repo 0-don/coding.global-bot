@@ -5,10 +5,12 @@ import {
   type CommandInteraction,
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { ConfigValidator } from "@/shared/config/validator";
-import { BOT_CHANNELS } from "@/shared/config/channels";
 import { LogService } from "@/core/services/logs/log.service";
 import { StatsService } from "@/core/services/stats/stats.service";
+import {
+  checkBotChannelRestriction,
+  extractIds,
+} from "@/bot/utils/command.utils";
 
 @Discord()
 export class UserCommand {
@@ -28,40 +30,21 @@ export class UserCommand {
     interaction: CommandInteraction,
   ) {
     await interaction.deferReply();
-
     LogService.logCommandHistory(interaction, "user");
-    const channel = interaction.channel as TextChannel;
 
-    if (ConfigValidator.isFeatureEnabled("IS_CONSTRAINED_TO_BOT_CHANNEL")) {
-      if (!ConfigValidator.isFeatureEnabled("BOT_CHANNELS")) {
-        ConfigValidator.logFeatureDisabled(
-          "Bot Channel Restrictions",
-          "BOT_CHANNELS",
-        );
-        return await interaction.editReply(
-          "Bot channel restrictions are enabled but no bot channels are configured.",
-        );
-      }
-      if (!BOT_CHANNELS.includes(channel.name)) {
-        return await interaction.editReply(
-          "Please use this command in the bot channel",
-        );
-      }
-    }
+    const channelError = checkBotChannelRestriction(
+      (interaction.channel as TextChannel).name,
+    );
+    if (channelError) return interaction.editReply(channelError);
 
-    const guildId = interaction.guild?.id;
-
-    if (!guildId) {
-      return await interaction.editReply("Could not get guild info");
-    }
+    const { guildId } = extractIds(interaction);
+    if (!guildId) return interaction.editReply("Could not get guild info");
 
     const userStats = await StatsService.getUserStatsEmbed(user.id, guildId);
+    if (!userStats) return interaction.editReply("No stats found");
 
-    if (typeof userStats?.embed === "string")
-      return await interaction.editReply(userStats?.embed);
-
-    return await interaction.editReply({
-      embeds: [userStats!.embed],
+    return interaction.editReply({
+      embeds: [userStats.embed],
       allowedMentions: { users: [], roles: [] },
     });
   }
