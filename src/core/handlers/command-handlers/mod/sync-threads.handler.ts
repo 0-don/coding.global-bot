@@ -1,15 +1,11 @@
 import { GuildTextBasedChannel, PermissionFlagsBits } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
 import { syncAllThreads } from "@/core/services/threads/sync-all-threads";
-
-export type SyncThreadsResult = {
-  success: boolean;
-  error?: string;
-};
+import type { CommandResult } from "@/types";
 
 export async function executeSyncThreads(
   command: SimpleCommandMessage,
-): Promise<SyncThreadsResult> {
+): Promise<CommandResult> {
   const message = command.message;
   if (!message.guild) return { success: false, error: "Use in a server" };
 

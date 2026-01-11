@@ -1,11 +1,10 @@
 import { ConfigValidator } from "@/shared/config/validator";
 import { translate } from "@/shared/integrations/deepl";
-
-export type TranslateCommandResult = { text: string } | { error: string };
+import type { TextResult } from "@/types";
 
 export async function executeTranslateCommand(
   text: string,
-): Promise<TranslateCommandResult> {
+): Promise<TextResult> {
   if (!ConfigValidator.isFeatureEnabled("DEEPL")) {
     ConfigValidator.logFeatureDisabled("Translation", "DEEPL");
     return {

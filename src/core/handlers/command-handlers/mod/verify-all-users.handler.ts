@@ -1,15 +1,11 @@
 import { GuildTextBasedChannel, PermissionFlagsBits } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
 import { verifyAllUsers } from "@/core/services/members/verify-all-users";
-
-export type VerifyAllUsersResult = {
-  success: boolean;
-  error?: string;
-};
+import type { CommandResult } from "@/types";
 
 export async function executeVerifyAllUsers(
   command: SimpleCommandMessage,
-): Promise<VerifyAllUsersResult> {
+): Promise<CommandResult> {
   const message = command.message;
   if (!message.guild) return { success: false, error: "Use in a server" };
 

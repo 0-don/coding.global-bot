@@ -1,6 +1,19 @@
+import type { APIEmbed } from "discord.js";
 import type { STATUS_ROLES } from "@/shared/config/roles";
 
 export type StatusRoles = (typeof STATUS_ROLES)[number];
+
+// Shared handler result types
+export type CommandResult = {
+  success: boolean;
+  error?: string;
+};
+
+export type EmbedResult = { embed: APIEmbed } | { error: string };
+
+export type MessageResult = { message: string } | { error: string };
+
+export type TextResult = { text: string } | { error: string };
 
 export type ChartDataPoint = { x: Date; y: number };
 
