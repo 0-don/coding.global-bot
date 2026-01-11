@@ -1,12 +1,21 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { log } from "console";
 
-function createGoogleProviders() {
-  const keys =
+function getApiKeys() {
+  return (
     process.env.GOOGLE_GENERATIVE_AI_API_KEY?.split(",").map((k) => k.trim()) ||
-    [];
+    []
+  );
+}
 
+function createGoogleProviders() {
+  const keys = getApiKeys();
   return keys.map((apiKey) => createGoogleGenerativeAI({ apiKey }));
+}
+
+function maskApiKey(key: string): string {
+  if (key.length <= 12) return "***";
+  return `${key.slice(0, 6)}...${key.slice(-6)}`;
 }
 
 class GoogleClientRotator {
@@ -56,6 +65,10 @@ class GoogleClientRotator {
         );
 
         if (this.shouldRotateOnError(error) && attempt < maxAttempts - 1) {
+          const expiredKey = getApiKeys()[this.currentIndex];
+          if (expiredKey) {
+            log(`API key expired/failed: ${maskApiKey(expiredKey)}`);
+          }
           this.rotate();
         }
       }
