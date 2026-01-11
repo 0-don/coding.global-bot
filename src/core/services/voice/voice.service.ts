@@ -5,7 +5,7 @@ import { GuildVoiceEvents } from "@/generated/prisma/client";
 import { prisma } from "@/prisma";
 import { ConfigValidator } from "@/shared/config/validator";
 import { VOICE_EVENT_CHANNELS } from "@/shared/config/channels";
-import { simpleEmbedExample } from "@/bot/embeds/simple.embed";
+import { simpleEmbedExample } from "@/core/embeds/simple.embed";
 import { getDaysArray } from "@/shared/utils/date.utils";
 
 dayjs.extend(utc);

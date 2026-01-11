@@ -1,4 +1,4 @@
-import { simpleEmbedExample } from "@/bot/embeds/simple.embed";
+import { simpleEmbedExample } from "@/core/embeds/simple.embed";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/prisma";
 import {

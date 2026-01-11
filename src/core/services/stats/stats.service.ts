@@ -1,5 +1,5 @@
-import { topStatsExampleEmbed } from "@/bot/embeds/top-stats.embed";
-import { userStatsExampleEmbed } from "@/bot/embeds/user-stats.embed";
+import { topStatsExampleEmbed } from "@/core/embeds/top-stats.embed";
+import { userStatsExampleEmbed } from "@/core/embeds/user-stats.embed";
 import { mapMemberGuild } from "@/shared/mappers/discord.mapper";
 import { StatsQueryService } from "./stats-query.service";
 import {

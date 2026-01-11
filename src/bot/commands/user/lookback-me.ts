@@ -3,7 +3,7 @@ import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { LogService } from "@/core/services/logs/log.service";
 import { LookbackService } from "@/core/services/members/lookback.service";
-import { extractIds } from "@/bot/utils/command.utils";
+import { extractIds } from "@/core/utils/command.utils";
 
 @Discord()
 export class LookbackMe {

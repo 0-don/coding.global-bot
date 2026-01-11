@@ -5,7 +5,7 @@ import { StatsService } from "@/core/services/stats/stats.service";
 import {
   checkBotChannelRestriction,
   extractIds,
-} from "@/bot/utils/command.utils";
+} from "@/core/utils/command.utils";
 
 @Discord()
 export class Me {
