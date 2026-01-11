@@ -4,7 +4,7 @@ import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { ConfigValidator } from "@/shared/config/validator";
 import { AiChatService } from "@/core/services/ai/ai-chat.service";
-import { CODING_GLOBAL_PATTERN, TOOLS } from "./utils";
+import { AI_TOOLS, CODING_GLOBAL_PATTERN } from "@/core/services/ai/ai-tools";
 
 @Discord()
 export class AiChat {
@@ -23,7 +23,7 @@ export class AiChat {
     }
 
     try {
-      const response = await AiChatService.generateResponse(message, TOOLS);
+      const response = await AiChatService.generateResponse(message, AI_TOOLS);
 
       if (!response) return;
 

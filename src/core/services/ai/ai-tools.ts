@@ -1,10 +1,10 @@
 import { tool } from "ai";
+import { log } from "console";
 import { z } from "zod/v4";
 import { ConfigValidator } from "@/shared/config/validator";
 import { GifService } from "@/core/services/gif/gif.service";
 import { StatsService } from "@/core/services/stats/stats.service";
 import { bot } from "@/main";
-import { log } from "console";
 
 export const gatherChannelContext = tool({
   description:
@@ -36,18 +36,15 @@ export const gatherChannelContext = tool({
         return { success: false, error: "Channel not found or not text-based" };
       }
 
-      // Fetch recent messages
       const messages = await channel.messages.fetch({ limit: messageCount });
       const sortedMessages = Array.from(messages.values())
         .sort((a, b) => a.createdTimestamp - b.createdTimestamp)
-        .filter((msg) => !msg.author.bot); // Filter out bot messages
+        .filter((msg) => !msg.author.bot);
 
-      // Gather context for each unique user
       const userContexts = new Map<string, any>();
       const messageContexts = [];
 
       for (const message of sortedMessages) {
-        // Get user context if we haven't already
         if (!userContexts.has(message.author.id)) {
           try {
             const userStats = await StatsService.getUserStatsEmbed(
@@ -55,7 +52,7 @@ export const gatherChannelContext = tool({
               guildId,
             );
             userContexts.set(message.author.id, userStats);
-          } catch (error) {
+          } catch {
             userContexts.set(message.author.id, null);
           }
         }
@@ -71,7 +68,6 @@ export const gatherChannelContext = tool({
             stats: userContext
               ? {
                   roles: userContext.roles?.filter(Boolean) || [],
-                  // Include key stats without overwhelming detail
                   messageCount:
                     userContext.embed?.fields?.[0]?.value || "Unknown",
                   voiceTime: userContext.embed?.fields?.[1]?.value || "Unknown",
@@ -129,3 +125,7 @@ export const searchMemeGifs = tool({
     return { success: false, error: "No suitable GIF found" };
   },
 });
+
+export const CODING_GLOBAL_PATTERN = /^coding\s?global/i;
+
+export const AI_TOOLS = { searchMemeGifs, gatherChannelContext };
