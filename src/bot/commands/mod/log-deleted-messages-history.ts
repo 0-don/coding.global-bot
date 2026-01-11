@@ -1,5 +1,6 @@
-import { executeLogDeletedMessagesHistory } from "@/core/handlers/command-handlers/mod/log-deleted-messages-history.handler";
+import { deletedMessagesHistoryEmbed } from "@/core/embeds/deleted-messages.embed";
 import { LogService } from "@/core/services/logs/log.service";
+import { prisma } from "@/prisma";
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
@@ -26,10 +27,13 @@ export class LogDeletedMessagesHistory {
     await interaction.deferReply();
     LogService.logCommandHistory(interaction, "log-deleted-messages-history");
 
-    const embed = await executeLogDeletedMessagesHistory(
-      interaction.guild!.id,
-      count,
-    );
+    const history = await prisma.memberDeletedMessages.findMany({
+      where: { guildId: interaction.guild!.id },
+      take: count,
+      orderBy: { createdAt: "desc" },
+    });
+
+    const embed = deletedMessagesHistoryEmbed(history);
 
     return interaction.editReply({
       embeds: [embed],
