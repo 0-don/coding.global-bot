@@ -32,7 +32,6 @@ export const app = new Elysia({ adapter: node() })
       console.error("Prisma Validation Error:", error.message);
     }
   })
-  // Routes
   .use(staffRoutes)
   .use(newsRoutes)
   .use(widgetRoutes)
