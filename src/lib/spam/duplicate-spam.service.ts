@@ -1,6 +1,5 @@
 import { createHash } from "crypto";
 import { Attachment, Message } from "discord.js";
-import { prisma } from "../../prisma";
 import { deleteUserMessages } from "../messages/delete-user-messages";
 
 const DUPLICATE_WARNING_THRESHOLD = 3; // Start warning at 3rd duplicate
@@ -48,10 +47,7 @@ async function hashAttachmentContent(attachment: Attachment): Promise<string> {
  * Checks if two sets of attachment hashes are similar.
  * Returns true if all hashes match (order-independent).
  */
-function areAttachmentsSimilar(
-  hashes1: string[],
-  hashes2: string[],
-): boolean {
+function areAttachmentsSimilar(hashes1: string[], hashes2: string[]): boolean {
   if (hashes1.length !== hashes2.length) return false;
   if (hashes1.length === 0) return true;
 
@@ -148,7 +144,9 @@ export async function checkDuplicateSpam(message: Message): Promise<boolean> {
       });
 
       try {
-        await message.author.send("You have been muted. Ask a mod to unmute you.");
+        await message.author.send(
+          "You have been muted. Ask a mod to unmute you.",
+        );
       } catch (error) {
         // User has DMs disabled, ignore
       }
@@ -187,7 +185,9 @@ export async function checkDuplicateSpam(message: Message): Promise<boolean> {
       });
 
       try {
-        await message.author.send("You have been muted. Ask a mod to unmute you.");
+        await message.author.send(
+          "You have been muted. Ask a mod to unmute you.",
+        );
       } catch (error) {
         // User has DMs disabled, ignore
       }

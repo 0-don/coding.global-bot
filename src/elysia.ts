@@ -180,17 +180,15 @@ export const app = new Elysia({ adapter: node() })
         },
       });
 
-      const { members, ...widget } = {
-        members: users,
+      return {
         id: guild.id,
         name: guild.name,
         presenceCount,
         memberCount: guild.memberCount,
         iconURL: guild.iconURL({ extension: "webp", size: 256 }),
         bannerURL: guild.bannerURL({ extension: "webp", size: 1024 }),
+        members: users,
       };
-
-      return { ...widget, members };
     },
     { params: t.Object({ guildId: t.String() }) },
   )

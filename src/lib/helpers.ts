@@ -1,19 +1,20 @@
-import { error, log } from "console";
 import { ChartConfiguration } from "chart.js";
-import dayjs from "dayjs";
+import { error, log } from "console";
 import { enUS } from "date-fns/locale";
+import dayjs from "dayjs";
 import { ChartDataPoint } from "../types";
 import { ConfigValidator } from "./config-validator";
 import { TRANSLATOR } from "./constants";
 
-export const logTs = (level: "info" | "error" | "warn", guild: string, msg: string) => {
+export const logTs = (
+  level: "info" | "error" | "warn",
+  guild: string,
+  msg: string,
+) => {
   const ts = dayjs().format("HH:mm:ss.SSS");
   const fn = level === "error" ? error : log;
   fn(`[${ts}] [${level.toUpperCase()}] [${guild}] ${msg}`);
 };
-
-export const JOB_POST_REGEX =
-  /Project Title:[\s\S]*?(?=Project Description:|$)Project Description:[\s\S]*?(?=Required Skills:|$)Required Skills:[\s\S]*?(?=Budget Range:|$)Budget Range:[\s\S]*?(?=Timeline:|$)Timeline:[\s\S]*?(?=Contact Method:|$)Contact Method:[\s\S]*?(?=Additional Details:|$)Additional Details:[\s\S]*$/;
 
 export function placementSuffix(i: number) {
   var j = i % 10,
@@ -40,17 +41,6 @@ export const getDaysArray = (s: Date, e: Date) => {
   }
   return a;
 };
-
-export function chunk<T>(array: T[], size: number): T[][] {
-  const chunks: T[][] = [];
-  for (let i = 0; i < array.length; i += size) {
-    chunks.push(array.slice(i, i + size));
-  }
-  return chunks;
-}
-
-export const sleep = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
 
 export const codeString = (text: string | number) => "`" + text + "`";
 

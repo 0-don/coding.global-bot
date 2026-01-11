@@ -7,6 +7,13 @@ import {
 } from "discord.js";
 import { prisma } from "../../prisma";
 import type { Prisma } from "../../generated/prisma/client";
+import {
+  mapAttachment,
+  mapEmbed,
+  mapMentions,
+  mapReactions,
+  mapReference,
+} from "../discord/message-mappers";
 
 export class ThreadService {
   // ============================================
@@ -300,110 +307,15 @@ export class ThreadService {
       guild: { connect: { guildId } },
       content: message.content,
       createdAt: message.createdAt,
-      editedAt: message.editedAt || null,
+      editedAt: message.editedAt ?? null,
       pinned: message.pinned,
       tts: message.tts,
       type: message.type.toString(),
-      attachments: Array.from(message.attachments.values()).map(
-        (attachment) => ({
-          id: attachment.id,
-          url: attachment.url,
-          proxyURL: attachment.proxyURL,
-          name: attachment.name,
-          description: attachment.description || null,
-          contentType: attachment.contentType || null,
-          size: attachment.size,
-          width: attachment.width || null,
-          height: attachment.height || null,
-          ephemeral: attachment.ephemeral,
-          duration: attachment.duration || null,
-          waveform: attachment.waveform || null,
-          flags: attachment.flags?.bitfield.toString() || null,
-        }),
-      ),
-      embeds: message.embeds.map((embed) => ({
-        title: embed.title || null,
-        description: embed.description || null,
-        url: embed.url || null,
-        color: embed.color || null,
-        timestamp: embed.timestamp || null,
-        fields: embed.fields.map((field) => ({
-          name: field.name,
-          value: field.value,
-          inline: field.inline,
-        })),
-        author: embed.author
-          ? {
-              name: embed.author.name,
-              url: embed.author.url || null,
-              iconURL: embed.author.iconURL || null,
-              proxyIconURL: embed.author.proxyIconURL || null,
-            }
-          : null,
-        thumbnail: embed.thumbnail
-          ? {
-              url: embed.thumbnail.url,
-              proxyURL: embed.thumbnail.proxyURL || null,
-              width: embed.thumbnail.width || null,
-              height: embed.thumbnail.height || null,
-            }
-          : null,
-        image: embed.image
-          ? {
-              url: embed.image.url,
-              proxyURL: embed.image.proxyURL || null,
-              width: embed.image.width || null,
-              height: embed.image.height || null,
-            }
-          : null,
-        video: embed.video
-          ? {
-              url: embed.video.url || null,
-              proxyURL: embed.video.proxyURL || null,
-              width: embed.video.width || null,
-              height: embed.video.height || null,
-            }
-          : null,
-        footer: embed.footer
-          ? {
-              text: embed.footer.text,
-              iconURL: embed.footer.iconURL || null,
-              proxyIconURL: embed.footer.proxyIconURL || null,
-            }
-          : null,
-        provider: embed.provider
-          ? {
-              name: embed.provider.name || null,
-              url: embed.provider.url || null,
-            }
-          : null,
-      })),
-      mentions: {
-        users: message.mentions.users.map((user) => ({
-          id: user.id,
-          username: user.username,
-          globalName: user.globalName,
-        })),
-        roles: message.mentions.roles.map((role) => ({
-          id: role.id,
-          name: role.name,
-        })),
-        everyone: message.mentions.everyone,
-      },
-      reactions: message.reactions.cache.map((reaction) => ({
-        emoji: {
-          id: reaction.emoji.id,
-          name: reaction.emoji.name,
-        },
-        count: reaction.count,
-      })),
-      reference: message.reference
-        ? {
-            messageId: message.reference.messageId || null,
-            channelId: message.reference.channelId,
-            guildId: message.reference.guildId || null,
-          }
-        : undefined,
+      attachments: Array.from(message.attachments.values()).map(mapAttachment),
+      embeds: message.embeds.map(mapEmbed),
+      mentions: mapMentions(message.mentions),
+      reactions: mapReactions(message.reactions.cache.values()),
+      reference: mapReference(message.reference) ?? undefined,
     };
   }
 
