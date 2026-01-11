@@ -1,14 +1,14 @@
+import { updateCompleteMemberData } from "@/core/services/members/member-data.service";
+import { RolesService } from "@/core/services/roles/roles.service";
+import { prisma } from "@/prisma";
+import { STATUS_ROLES, VERIFIED } from "@/shared/config/roles";
+import { logTs } from "@/shared/utils/date.utils";
 import {
   Collection,
   Guild,
   GuildMember,
   type GuildTextBasedChannel,
 } from "discord.js";
-import { prisma } from "@/prisma";
-import { STATUS_ROLES, VERIFIED } from "@/shared/config/roles";
-import { logTs } from "@/shared/utils/date.utils";
-import { RolesService } from "@/core/services/roles/roles.service";
-import { updateCompleteMemberData } from "@/core/services/members/member-data.service";
 
 const runningGuilds = new Set<string>();
 
@@ -46,12 +46,6 @@ export async function verifyAllUsers(
     logTs("info", guildName, "Fetching members...");
     const allMembers = await guild.members.fetch();
 
-    // Mark all members as left, then upserts will restore those still present
-    await prisma.memberGuild.updateMany({
-      where: { guildId: guild.id },
-      data: { status: false },
-    });
-
     const members = Array.from(allMembers.values())
       .filter((m) => !m.user.bot)
       .sort((a, b) => a.id.localeCompare(b.id));
@@ -62,6 +56,14 @@ export async function verifyAllUsers(
     });
     const processedIds = new Set(saved?.processedIds ?? []);
     const failedIds = new Set(saved?.failedIds ?? []);
+
+    // Only reset statuses when starting fresh (no saved progress)
+    if (!saved) {
+      await prisma.memberGuild.updateMany({
+        where: { guildId: guild.id },
+        data: { status: false },
+      });
+    }
 
     // Filter out already processed members
     const remaining = members.filter((m) => !processedIds.has(m.id));
