@@ -1,5 +1,5 @@
 import type { CommandInteraction, User } from "discord.js";
-import { deleteUserMessages } from "@/core/services/messages/delete-user-messages";
+import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
 import type { CommandResult } from "@/types";
 
 export async function executeDeleteUserMessages(
@@ -14,7 +14,7 @@ export async function executeDeleteUserMessages(
     return { success: false, error: "Invalid user or guild" };
   }
 
-  await deleteUserMessages({
+  await DeleteUserMessagesService.deleteUserMessages({
     guild: interaction.guild,
     memberId,
     jail,

@@ -1,7 +1,7 @@
 import { simpleEmbedExample } from "@/core/embeds/simple.embed";
 import { MessagesService } from "@/core/services/messages/messages.service";
 import { RolesService } from "@/core/services/roles/roles.service";
-import { checkDuplicateSpam } from "@/core/services/spam/duplicate-spam.service";
+import { DuplicateSpamService } from "@/core/services/spam/duplicate-spam.service";
 import { SpamDetectionService } from "@/core/services/spam/spam-detection.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
 import { THREAD_QUESTION_RESPONSE } from "@/shared/config/branding";
@@ -20,7 +20,7 @@ export async function handleMessageCreate(message: Message): Promise<void> {
 
   checkThreadStart(message);
 
-  await checkDuplicateSpam(message);
+  await DuplicateSpamService.checkDuplicateSpam(message);
 
   await MessagesService.checkWarnings(message);
 

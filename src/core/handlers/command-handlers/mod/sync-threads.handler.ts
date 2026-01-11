@@ -1,4 +1,4 @@
-import { syncAllThreads } from "@/core/services/threads/sync-all-threads";
+import { SyncAllThreadsService } from "@/core/services/threads/sync-all-threads.service";
 import type { CommandResult } from "@/types";
 import { GuildTextBasedChannel, PermissionFlagsBits } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
@@ -17,7 +17,7 @@ export async function executeSyncThreads(
   }
 
   try {
-    await syncAllThreads(
+    await SyncAllThreadsService.syncAllThreads(
       message.guild,
       message.channel as GuildTextBasedChannel,
     );

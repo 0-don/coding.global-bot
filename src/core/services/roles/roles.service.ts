@@ -1,4 +1,4 @@
-import { MemberRole, Prisma } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/prisma";
 import { LEVEL_LIST } from "@/shared/config/levels";
 import {
@@ -10,33 +10,16 @@ import {
   VOICE_ONLY,
 } from "@/shared/config/roles";
 import { ConfigValidator } from "@/shared/config/validator";
+import type {
+  HandleHelperReactionParams,
+  UpdateDbRolesArgs,
+} from "@/types";
 import {
-  Collection,
   Guild,
-  GuildMember,
   Message,
-  PartialGuildMember,
   Role,
   TextChannel,
 } from "discord.js";
-
-export type UpdateDbRolesArgs = {
-  oldRoles: Role[];
-  newRoles: Role[];
-  oldMember: GuildMember | PartialGuildMember;
-  newMember: GuildMember | PartialGuildMember;
-  guildRoles: Collection<string, Role>;
-  memberDbRoles: MemberRole[];
-};
-
-export interface HandleHelperReactionParams {
-  threadId: string;
-  threadOwnerId: string | null;
-  helperId: string;
-  thankerUserId: string;
-  guildId: string;
-  message: Message;
-}
 
 export class RolesService {
   private static _helperSystemWarningLogged = false;

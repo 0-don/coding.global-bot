@@ -13,7 +13,7 @@ import { prisma } from "@/prisma";
 import { ConfigValidator } from "@/shared/config/validator";
 import { JAIL, VOICE_ONLY } from "@/shared/config/roles";
 import { LEVEL_LIST, LEVEL_MESSAGES } from "@/shared/config/levels";
-import { deleteUserMessages } from "@/core/services/messages/delete-user-messages";
+import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
 
 export class MessagesService {
   private static _levelSystemWarningLogged = false;
@@ -256,7 +256,7 @@ export class MessagesService {
           );
         } catch (error) {}
       } else {
-        await deleteUserMessages({
+        await DeleteUserMessagesService.deleteUserMessages({
           jail: true,
           memberId: member.id,
           user: member.user,
