@@ -1,5 +1,5 @@
+import "@dotenvx/dotenvx/config";
 import { log, warn } from "console";
-
 interface ConfigCheck {
   key: keyof FeatureBotEnvironment;
   required: boolean;
