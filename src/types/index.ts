@@ -15,6 +15,13 @@ export type MessageResult = { message: string } | { error: string };
 
 export type TextResult = { text: string } | { error: string };
 
+export type MembersCommandResult =
+  | {
+      embed: APIEmbed;
+      attachment: { attachment: Buffer; name: string };
+    }
+  | { error: string };
+
 export type ChartDataPoint = { x: Date; y: number };
 
 export type GuildMemberCountChart = {
