@@ -58,12 +58,8 @@ bot.on(
 );
 
 const main = async () => {
-  // Let's start the bot
-  if (!token) {
-    throw Error("Could not find TOKEN in your environment");
-  }
+  if (!token) throw Error("Could not find TOKEN in your environment");
 
-  // Log in with your bot token
   await bot.login(token);
 
   bot.user?.setPresence({
