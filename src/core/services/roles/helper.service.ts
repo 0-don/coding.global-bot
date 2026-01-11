@@ -1,7 +1,7 @@
-import { Message, TextChannel } from "discord.js";
 import { prisma } from "@/prisma";
 import { HELPER_RANKING, HELPER_ROLES } from "@/shared/config/roles";
 import { ConfigValidator } from "@/shared/config/validator";
+import { Message, TextChannel } from "discord.js";
 
 export interface HandleHelperReactionParams {
   threadId: string;
@@ -18,27 +18,24 @@ export class HelperService {
   static async handleHelperReaction(
     params: HandleHelperReactionParams,
   ): Promise<boolean> {
-    const { threadId, threadOwnerId, helperId, thankerUserId, guildId, message } =
-      params;
-
-    if (threadOwnerId !== thankerUserId) return false;
-    if (helperId === thankerUserId) return false;
+    if (params.threadOwnerId !== params.thankerUserId) return false;
+    if (params.helperId === params.thankerUserId) return false;
 
     const isHelpedThread = await prisma.memberHelper.findFirst({
-      where: { threadId, threadOwnerId },
+      where: { threadId: params.threadId, threadOwnerId: params.threadOwnerId },
     });
     if (isHelpedThread) return false;
 
     await prisma.memberHelper.create({
       data: {
-        memberId: helperId,
-        guildId,
-        threadId,
-        threadOwnerId,
+        memberId: params.helperId,
+        guildId: params.guildId,
+        threadId: params.threadId,
+        threadOwnerId: params.threadOwnerId,
       },
     });
 
-    await HelperService.helperRoleChecker(message);
+    await HelperService.helperRoleChecker(params.message);
     return true;
   }
 
