@@ -1,3 +1,4 @@
+/// <reference path="../../types/env.d.ts" />
 import "@dotenvx/dotenvx/config";
 import { log, warn } from "console";
 interface ConfigCheck {
