@@ -31,12 +31,11 @@ export class Top {
     lookback: number = 9999,
     interaction: CommandInteraction,
   ) {
-    // get text channel
+    // deferReply MUST be called first before any async operations
+    await interaction.deferReply();
+
     LogService.logCommandHistory(interaction, "top");
     const channel = (await interaction.channel?.fetch()) as TextChannel;
-
-    // deferReply if it takes longer then usual
-    await interaction.deferReply();
 
     if (!interaction.guildId) return await interaction.editReply("No Guild");
 
