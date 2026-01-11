@@ -21,25 +21,23 @@ export class DeleteMessages {
       name: "amount",
       description: "Delete message amount",
       required: true,
-      type: ApplicationCommandOptionType.String,
+      type: ApplicationCommandOptionType.Integer,
+      minValue: 1,
+      maxValue: 1000,
     })
     amount: number,
     interaction: CommandInteraction,
   ) {
+    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+
     LogService.logCommandHistory(interaction, "delete-messages");
-    // get member from slash command input
     const channel = interaction.channel as TextChannel;
     const guildId = interaction.guild?.id;
 
     if (!guildId || !channel) return;
 
-    // deferReply if it takes longer then usual
-    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
-
-    // loop over all channels
     const messages = await fetchMessages(channel, amount);
 
-    // create list of messages 100 each
     const messageList = messages.reduce(
       (acc, message) => {
         const last = acc[acc.length - 1];
@@ -57,7 +55,6 @@ export class DeleteMessages {
       await channel.bulkDelete(message, true);
     }
 
-    // notify that messages were deleted
     return await interaction.editReply({ content: "messages are deleted" });
   }
 }

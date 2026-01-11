@@ -17,20 +17,21 @@ export class LogCommandHistory {
     @SlashOption({
       name: "count",
       description: "Amount of commands to show",
-      type: ApplicationCommandOptionType.String,
+      type: ApplicationCommandOptionType.Integer,
+      minValue: 1,
+      maxValue: 100,
     })
-    count: string,
+    count: number = 10,
     interaction: CommandInteraction,
   ) {
-    LogService.logCommandHistory(interaction, "log-command-history");
-    const c = count ? Number(count) : 10;
-    const guildId = interaction.guild?.id;
-
     await interaction.deferReply();
+
+    LogService.logCommandHistory(interaction, "log-command-history");
+    const guildId = interaction.guild?.id;
 
     const history = await prisma.memberCommandHistory.findMany({
       where: { guildId },
-      take: c,
+      take: count,
       orderBy: { createdAt: "desc" },
     });
 

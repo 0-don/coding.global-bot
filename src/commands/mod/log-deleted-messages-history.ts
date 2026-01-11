@@ -17,20 +17,21 @@ export class LogDeletedMessagesHistory {
     @SlashOption({
       name: "count",
       description: "Amount of messages to show",
-      type: ApplicationCommandOptionType.String,
+      type: ApplicationCommandOptionType.Integer,
+      minValue: 1,
+      maxValue: 100,
     })
-    count: string,
+    count: number = 10,
     interaction: CommandInteraction,
   ) {
-    LogService.logCommandHistory(interaction, "log-deleted-messages-history");
-    const c = count ? Number(count) : 10;
-    const guildId = interaction.guild?.id;
-
     await interaction.deferReply();
+
+    LogService.logCommandHistory(interaction, "log-deleted-messages-history");
+    const guildId = interaction.guild?.id;
 
     const history = await prisma.memberDeletedMessages.findMany({
       where: { guildId },
-      take: c,
+      take: count,
       orderBy: { createdAt: "desc" },
     });
 

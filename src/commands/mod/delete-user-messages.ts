@@ -44,13 +44,14 @@ export class DeleteMessages {
     reason: string | undefined,
     interaction: CommandInteraction,
   ) {
-    LogService.logCommandHistory(interaction, "delete-user-messages");
     const memberId = user?.id ?? userId;
     const guildId = interaction.guild?.id;
 
     if (!memberId || !guildId) return;
 
     await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+
+    LogService.logCommandHistory(interaction, "delete-user-messages");
 
     await deleteUserMessages({
       guild: interaction.guild,
@@ -60,7 +61,6 @@ export class DeleteMessages {
       reason: reason ?? "Manual moderation",
     });
 
-    // notify that messages were deleted
     await interaction.editReply({ content: "user messages are deleted" });
   }
 }
