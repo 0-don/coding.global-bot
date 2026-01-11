@@ -5,10 +5,7 @@ import { Elysia, status, t } from "elysia";
 export const userRoutes = new Elysia()
   .get(
     "/api/:guildId/user/search",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (ctx: any) => {
-      const params = ctx.params as { guildId: string };
-      const query = ctx.query as { q: string; limit?: number };
+    async ({ params, query }) => {
       if (!query.q || query.q.trim().length === 0) {
         throw status("Bad Request", "Query parameter 'q' is required");
       }
@@ -24,9 +21,7 @@ export const userRoutes = new Elysia()
   )
   .get(
     "/api/:guildId/user/:userId",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (ctx: any) => {
-      const params = ctx.params as { guildId: string; userId: string };
+    async ({ params }) => {
       const stats = await getUserStatsForApi(params.userId, params.guildId);
       if (!stats) {
         throw status("Not Found", "User not found or has left the server");
