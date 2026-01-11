@@ -1,5 +1,5 @@
 # Install dependencies
-FROM oven/bun:latest AS deps
+FROM oven/bun:alpine AS deps
 WORKDIR /app
 
 COPY package.json ./
@@ -9,7 +9,7 @@ RUN bun install
 
 
 # Build
-FROM oven/bun:latest AS builder
+FROM oven/bun:alpine AS builder
 WORKDIR /app
 
 COPY . .
@@ -18,7 +18,7 @@ RUN bun run build
 
 
 # Production
-FROM oven/bun:latest AS prod
+FROM oven/bun:alpine AS prod
 WORKDIR /app
 
 COPY --from=builder /app/dist ./dist
