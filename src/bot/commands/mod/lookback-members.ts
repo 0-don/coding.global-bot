@@ -2,7 +2,7 @@ import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { LogService } from "@/core/services/logs/log.service";
-import { prisma } from "@/prisma";
+import { LookbackService } from "@/core/services/members/lookback.service";
 
 @Discord()
 export class LookbackMembers {
@@ -25,23 +25,15 @@ export class LookbackMembers {
     interaction: CommandInteraction,
   ) {
     LogService.logCommandHistory(interaction, "lookback-members");
-    // get guild data
+
     const guildId = interaction.guild?.id;
     const guildName = interaction.guild?.name;
 
     if (!guildId || !guildName)
-      return await interaction.reply("Please use this command in a server");
+      return interaction.reply("Please use this command in a server");
 
-    // create or update guild
-    await prisma.guild.upsert({
-      where: { guildId },
-      create: { guildId, guildName, lookback },
-      update: { guildName, lookback },
-    });
+    await LookbackService.setGuildLookback(guildId, guildName, lookback);
 
-    // send success message
-    return await interaction.reply(
-      `Lookback set to ${lookback} days for ${guildName}`,
-    );
+    return interaction.reply(`Lookback set to ${lookback} days for ${guildName}`);
   }
 }

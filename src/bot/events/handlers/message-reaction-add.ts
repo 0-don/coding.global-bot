@@ -3,7 +3,6 @@ import type { ArgsOf, Client } from "discordx";
 import { Discord, On, Reaction } from "discordx";
 import { HelperService } from "@/core/services/roles/helper.service";
 import { RolesService } from "@/core/services/roles/roles.service";
-import { prisma } from "@/prisma";
 
 @Discord()
 export class MessageReactionAdd {
@@ -12,13 +11,8 @@ export class MessageReactionAdd {
     [reaction, user]: ArgsOf<"messageReactionAdd">,
     client: Client,
   ) {
-    // fetch reaction status and roles
     await reaction.fetch();
-
-    // add verify role on like reaction in verify template
     await RolesService.verifyReaction(reaction, user);
-
-    return;
   }
 
   @Reaction({ emoji: "✅" })
@@ -27,34 +21,18 @@ export class MessageReactionAdd {
       const message = await reaction.message.fetch();
       const channel = message.channel;
 
-      if (channel.isThread()) {
-        const thread = await channel.fetch();
-        const members = await message.guild?.members.fetch();
-        const threadOwner = members?.get(thread.ownerId!);
+      if (!channel.isThread()) return;
 
-        if (threadOwner?.id !== user?.id || threadOwner?.user.bot) {
-          return;
-        }
+      const thread = await channel.fetch();
 
-        if (threadOwner?.id === message.author?.id) return;
-
-        const isHelpedThread = await prisma.memberHelper.findFirst({
-          where: { threadId: thread.id, threadOwnerId: thread.ownerId },
-        });
-
-        if (isHelpedThread) return;
-
-        await prisma.memberHelper.create({
-          data: {
-            memberId: message.author!.id,
-            guildId: message.guildId!,
-            threadId: thread.id,
-            threadOwnerId: thread.ownerId,
-          },
-        });
-
-        HelperService.helperRoleChecker(message);
-      }
+      await HelperService.handleHelperReaction({
+        threadId: thread.id,
+        threadOwnerId: thread.ownerId,
+        helperId: message.author!.id,
+        thankerUserId: user.id,
+        guildId: message.guildId!,
+        message,
+      });
     } catch (error) {
       console.error("Error in helperEmojiAdd:", error);
     }

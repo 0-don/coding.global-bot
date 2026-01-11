@@ -3,48 +3,15 @@ import { log } from "console";
 import dayjs from "dayjs";
 import { Message, ThreadChannel } from "discord.js";
 import { z } from "zod";
-import { makeImageParts } from "@/bot/events/ai/utils";
 import { prisma } from "@/prisma";
 import { ConfigValidator } from "@/shared/config/validator";
+import { getSpamSystemPrompt } from "@/shared/config/prompts";
+import { extractImageUrls } from "@/shared/ai/attachment-processor";
 import { googleClient } from "@/shared/integrations/google-ai";
 import { deleteUserMessages } from "@/core/services/messages/delete-user-messages";
 
 export class SpamDetectionService {
   private static _spamDetectionWarningLogged = false;
-
-  private static readonly SYSTEM_PROMPT = `You are a spam detector for a programming Discord server.
-
-Analyze if the message is spam based on these criteria:
-
-SPAM INDICATORS (TEXT):
-- Job seeking: "available for work", "open to opportunities", "looking for projects"
-- Service promotion: offering paid services, listing skills for hire
-- Portfolio spam: promoting personal website/portfolio in first message
-- Business solicitation: "contact me for", "DM for services"
-- Generic intro + services: "I'm a developer who does X, Y, Z [contact info]"
-
-SPAM INDICATORS (IMAGES):
-- Portfolio screenshots showing "hire me" or "available for work"
-- Service price lists or package offerings
-- Business cards or promotional graphics
-- Screenshots of profiles on freelancing platforms
-- "Looking for clients" or similar promotional imagery
-- Resume or CV screenshots in first message
-
-LEGITIMATE CONTENT:
-- Asking programming questions
-- Casual introduction without business promotion
-- Sharing code/resources or screenshots for help
-- Technical discussion or error screenshots
-- Offering help (not services)
-- Memes or casual images
-
-Provide your confidence level:
-- high: clearly spam or clearly legitimate
-- medium: some indicators present but ambiguous
-- low: uncertain, edge case
-
-Also provide a brief reason (1 sentence) explaining why you classified it as spam or not.`;
 
   private static async isFirstMessage(
     memberId: string,
@@ -137,7 +104,7 @@ Also provide a brief reason (1 sentence) explaining why you classified it as spa
         .map((role) => role.name)
         .filter((name) => name !== "@everyone");
 
-      const messageImages = await makeImageParts(message);
+      const messageImages = await extractImageUrls(message);
       const imageCount = messageImages.length;
 
       const contextText = `User info:
@@ -161,7 +128,7 @@ Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached
       const result = await googleClient.executeWithRotation(async () => {
         return await generateText({
           model: googleClient.getModel(),
-          system: this.SYSTEM_PROMPT,
+          system: getSpamSystemPrompt(),
           messages: [
             {
               role: "user",
