@@ -51,7 +51,9 @@ export class HelperService {
       return;
     }
 
-    const guildMember = await message.member!.fetch();
+    const guildMember = message.member!.partial
+      ? await message.member!.fetch()
+      : message.member!;
     const memberRoles = guildMember.roles.cache;
     const helpCount = await prisma.memberHelper.count({
       where: { memberId: guildMember.id },

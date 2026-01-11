@@ -16,7 +16,7 @@ export const joinSettings = async (
   });
 
   if (guildMember && member) {
-    member = await member.fetch();
+    member = member.partial ? await member.fetch() : member;
 
     if (guildMember.nickname && guildMember.nickname !== member.nickname) {
       await member.setNickname(guildMember.nickname);
