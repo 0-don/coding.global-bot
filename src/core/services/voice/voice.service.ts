@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
+import utc from "dayjs/plugin/utc.js";
 import { TextChannel, VoiceState } from "discord.js";
 import { GuildVoiceEvents } from "@/generated/prisma/client";
 import { prisma } from "@/prisma";
