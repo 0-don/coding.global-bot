@@ -1,7 +1,7 @@
 import { GuildMember, VoiceState } from "discord.js";
 import { SHOULD_LOG_VOICE_EVENTS } from "@/shared/config/features";
 import { MembersService } from "@/core/services/members/members.service";
-import { moveMemberToChannel } from "@/core/services/members/move-member-to-channel";
+import { MoveMemberToChannelService } from "@/core/services/members/move-member-to-channel.service";
 import { VoiceService } from "@/core/services/voice/voice.service";
 import { prisma } from "@/prisma";
 
@@ -30,7 +30,7 @@ export async function handleVoiceStateUpdate(
   await VoiceService.updateUserVoiceState(newVoiceState);
 
   if (!oldVoiceState.channelId && newVoiceState.channelId)
-    moveMemberToChannel(newVoiceState.member as GuildMember);
+    MoveMemberToChannelService.moveMemberToChannel(newVoiceState.member as GuildMember);
 
   await VoiceService.logVoiceEventsDb(oldVoiceState, newVoiceState);
 

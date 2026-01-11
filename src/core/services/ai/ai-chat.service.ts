@@ -8,13 +8,9 @@ import { generateText, ModelMessage } from "ai";
 import { Message } from "discord.js";
 import { LRUCache } from "lru-cache";
 import { AiContextService } from "./ai-context.service";
+import type { AiChatResponse } from "@/types";
 
 const channelMessages = new LRUCache<string, ModelMessage[]>({ max: 1000 });
-
-export interface AiChatResponse {
-  text: string;
-  gifUrl: string | null;
-}
 
 export class AiChatService {
   static async generateResponse(
