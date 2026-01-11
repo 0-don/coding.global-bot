@@ -14,10 +14,7 @@ export const STATUS_ROLES =
 export const LEVEL_ROLES =
   process.env.LEVEL_ROLES?.split(",").map((s) => s.trim()) || [];
 
-export const MEMBER_ROLES = [
-  ...(process.env.MEMBER_ROLES?.split(",").map((s) => s.trim()) || []),
-  ...HELPER_ROLES,
-];
+export const MEMBER_ROLES = process.env.MEMBER_ROLES?.split(",").map((s) => s.trim()) || [];
 
 export const HELPER_RANKING = HELPER_ROLES.map((role, i) => ({
   name: role,

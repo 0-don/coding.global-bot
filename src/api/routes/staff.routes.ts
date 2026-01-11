@@ -6,10 +6,12 @@ import { Elysia, t } from "elysia";
 export const staffRoutes = new Elysia().get(
   "/api/:guildId/staff",
   async ({ params }) => {
+    const roles = [...STAFF_ROLES, "Booster"];
+    
     const staffMemberIds = await prisma.memberRole.findMany({
       where: {
         guildId: params.guildId,
-        name: { in: STAFF_ROLES, mode: "insensitive" },
+        name: { in: roles },
       },
       select: { memberId: true },
       distinct: ["memberId"],
