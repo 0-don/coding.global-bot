@@ -153,3 +153,21 @@ export type DbEmbed = ReturnType<typeof mapEmbed>;
 export type DbMentions = ReturnType<typeof mapMentions>;
 export type DbReaction = ReturnType<typeof mapReactions>[number];
 export type DbReference = ReturnType<typeof mapReference>;
+
+// Mappers for reading from database (ensures proper native JSON types)
+export const mapAttachmentsFromDb = (raw: unknown): DbAttachment[] =>
+  Array.isArray(raw) ? (raw as DbAttachment[]) : [];
+
+export const mapEmbedsFromDb = (raw: unknown): DbEmbed[] =>
+  Array.isArray(raw) ? (raw as DbEmbed[]) : [];
+
+export const mapMentionsFromDb = (raw: unknown): DbMentions =>
+  raw && typeof raw === "object"
+    ? (raw as DbMentions)
+    : { users: [], roles: [], everyone: false };
+
+export const mapReactionsFromDb = (raw: unknown): DbReaction[] =>
+  Array.isArray(raw) ? (raw as DbReaction[]) : [];
+
+export const mapReferenceFromDb = (raw: unknown): DbReference =>
+  raw && typeof raw === "object" ? (raw as DbReference) : null;
