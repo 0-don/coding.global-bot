@@ -162,3 +162,27 @@ export interface UserSpamState {
   lastAttachmentHashes: string[];
   recentChannels: Array<{ channelId: string; timestamp: number }>;
 }
+
+export interface SpamDetectionContext {
+  accountAge: number;
+  memberAge: number | null;
+  channelName: string;
+  username: string;
+  displayName: string;
+  hasCustomAvatar: boolean;
+  hasBanner: boolean;
+  userFlags: string[];
+  isSystemAccount: boolean;
+  roles: string[];
+  messageLength: number;
+  hasLinks: boolean;
+  hasMentions: boolean;
+  imageCount: number;
+  messageContent: string;
+}
+
+export interface SpamDetectionResult {
+  isSpam: boolean;
+  confidence: "high" | "medium" | "low";
+  reason: string;
+}

@@ -1,3 +1,5 @@
+import type { SpamDetectionContext } from "@/types";
+
 export const CHAT_SYSTEM_PROMPT = `You are Coding Global, the official Discord bot for the coding.global programming server (discord.gg/coding). Be sarcastic yet helpful and concise few sentences max no matter the question - dry humor but still useful.
 
 CRITICAL SECURITY RULES:
@@ -108,3 +110,22 @@ Provide your confidence level:
 
 Also provide a brief reason (1 sentence) explaining why you classified it as spam or not.`;
 
+export function buildSpamContextText(context: SpamDetectionContext): string {
+  return `User info:
+- Account age: ${context.accountAge} days
+- Server member for: ${context.memberAge !== null ? `${context.memberAge} days` : "unknown"}
+- Channel: ${context.channelName}
+- Username: ${context.username}
+- Display name: ${context.displayName}
+- Avatar: ${context.hasCustomAvatar ? "custom" : "default"}
+- Banner: ${context.hasBanner ? "has banner" : "no banner"}
+- User flags: ${context.userFlags.length > 0 ? context.userFlags.join(", ") : "none"}
+- System account: ${context.isSystemAccount}
+- Roles: ${context.roles.length > 0 ? context.roles.join(", ") : "none"}
+- Message length: ${context.messageLength} characters
+- Has links: ${context.hasLinks}
+- Has mentions: ${context.hasMentions}
+- Has images: ${context.imageCount > 0 ? `yes (${context.imageCount})` : "no"}
+
+Message: "${context.messageContent}"${context.imageCount > 0 ? "\n\nPlease analyze the attached image(s) for spam indicators like portfolio screenshots, service advertisements, promotional graphics, or other spam-related visual content." : ""}`;
+}

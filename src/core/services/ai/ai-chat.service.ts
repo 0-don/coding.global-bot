@@ -2,7 +2,7 @@ import {
   extractCodeFromAttachments,
   extractImageUrls,
 } from "@/shared/ai/attachment-processor";
-import { CHAT_SYSTEM_PROMPT } from "@/shared/ai/system-prompt";
+import { CHAT_SYSTEM_PROMPT } from "@/shared/ai/prompts";
 import { googleClient } from "@/shared/integrations/google-ai";
 import { generateText, ModelMessage } from "ai";
 import { Message } from "discord.js";

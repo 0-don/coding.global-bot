@@ -1,14 +1,12 @@
+import { AiSpamService } from "@/core/services/ai/ai-spam.service";
 import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
 import { prisma } from "@/prisma";
 import { extractImageUrls } from "@/shared/ai/attachment-processor";
-import { SPAM_SYSTEM_PROMPT } from "@/shared/ai/system-prompt";
 import { ConfigValidator } from "@/shared/config/validator";
-import { googleClient } from "@/shared/integrations/google-ai";
-import { generateText, Output } from "ai";
+import type { SpamDetectionContext } from "@/types";
 import { log } from "console";
 import dayjs from "dayjs";
 import { Message, ThreadChannel } from "discord.js";
-import { z } from "zod";
 
 export class SpamDetectionService {
   private static _spamDetectionWarningLogged = false;
@@ -87,106 +85,61 @@ export class SpamDetectionService {
     }
 
     try {
-      const accountAge = dayjs().diff(message.author.createdAt, "days");
-      const channelName = "name" in channel ? channel.name : "Unknown Channel";
-
       const userProfile = await this.getUserProfile(message);
-
-      const hasCustomAvatar =
-        message.author.displayAvatarURL() !== message.author.defaultAvatarURL;
-      const hasLinks = /https?:\/\//.test(message.content);
-      const hasMentions =
-        message.mentions.users.size > 0 || message.mentions.roles.size > 0;
-
-      const joinedAt = message.member.joinedAt;
-      const memberAge = joinedAt ? dayjs().diff(joinedAt, "days") : null;
-      const roles = message.member.roles.cache
-        .map((role) => role.name)
-        .filter((name) => name !== "@everyone");
-
       const messageImages = await extractImageUrls(message);
-      const imageCount = messageImages.length;
 
-      const contextText = `User info:
-- Account age: ${accountAge} days
-- Server member for: ${memberAge !== null ? `${memberAge} days` : "unknown"}
-- Channel: ${channelName}
-- Username: ${message.author.username}
-- Display name: ${message.author.globalName || message.member.displayName}
-- Avatar: ${hasCustomAvatar ? "custom" : "default"}
-- Banner: ${userProfile.banner ? "has banner" : "no banner"}
-- User flags: ${userProfile.flags.length > 0 ? userProfile.flags.join(", ") : "none"}
-- System account: ${userProfile.system}
-- Roles: ${roles.length > 0 ? roles.join(", ") : "none"}
-- Message length: ${message.content.length} characters
-- Has links: ${hasLinks}
-- Has mentions: ${hasMentions}
-- Has images: ${imageCount > 0 ? `yes (${imageCount})` : "no"}
+      const spamContext: SpamDetectionContext = {
+        accountAge: dayjs().diff(message.author.createdAt, "days"),
+        memberAge: message.member.joinedAt
+          ? dayjs().diff(message.member.joinedAt, "days")
+          : null,
+        channelName:
+          ("name" in channel ? channel.name : null) || "Unknown Channel",
+        username: message.author.username,
+        displayName: message.author.globalName || message.member.displayName,
+        hasCustomAvatar:
+          message.author.displayAvatarURL() !== message.author.defaultAvatarURL,
+        hasBanner: !!userProfile.banner,
+        userFlags: userProfile.flags,
+        isSystemAccount: userProfile.system,
+        roles: message.member.roles.cache
+          .map((role) => role.name)
+          .filter((name) => name !== "@everyone"),
+        messageLength: message.content.length,
+        hasLinks: /https?:\/\//.test(message.content),
+        hasMentions:
+          message.mentions.users.size > 0 || message.mentions.roles.size > 0,
+        imageCount: messageImages.length,
+        messageContent: message.content,
+      };
 
-Message: "${message.content}"${imageCount > 0 ? "\n\nPlease analyze the attached image(s) for spam indicators like portfolio screenshots, service advertisements, promotional graphics, or other spam-related visual content." : ""}`;
-
-      const result = await googleClient.executeWithRotation(async () => {
-        return await generateText({
-          model: googleClient.getModel(),
-          system: SPAM_SYSTEM_PROMPT,
-          messages: [
-            {
-              role: "user",
-              content: [
-                { type: "text", text: contextText },
-                ...messageImages.map((url) => ({
-                  type: "image" as const,
-                  image: url,
-                })),
-              ],
-            },
-          ],
-          output: Output.object({
-            schema: z.object({
-              isSpam: z.boolean(),
-              confidence: z.enum(["high", "medium", "low"]),
-              reason: z.string(),
-            }),
-          }),
-          temperature: 0.1,
-        });
-      });
+      const result = await AiSpamService.analyzeForSpam(
+        spamContext,
+        messageImages,
+      );
 
       if (!result) {
         return false;
       }
 
-      const object = result.output;
-
       log(
-        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Spam: ${object.isSpam} - Confidence: ${object.confidence} - Reason: ${object.reason}`,
+        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Spam: ${result.isSpam} - Confidence: ${result.confidence} - Reason: ${result.reason}`,
       );
 
-      if (object.isSpam && object.confidence !== "low") {
-        await this.handleSpam(message, object.reason);
+      if (result.isSpam && result.confidence !== "low") {
+        await DeleteUserMessagesService.deleteUserMessages({
+          jail: true,
+          memberId: message.author.id,
+          user: message.author,
+          guild: message.guild!,
+          reason: result.reason,
+        });
         return true;
       }
       return false;
     } catch (error) {
       console.error("Spam detection error:", error);
       return false;
-    }
-  }
-
-  public static async handleSpam(
-    message: Message,
-    reason?: string,
-  ): Promise<void> {
-    try {
-      await DeleteUserMessagesService.deleteUserMessages({
-        jail: true,
-        memberId: message.author.id,
-        user: message.author,
-        guild: message.guild!,
-        reason: reason ?? "AI detected spam in first message",
-      });
-    } catch (error) {
-      console.error("Error handling spam:", error);
     }
   }
 }
