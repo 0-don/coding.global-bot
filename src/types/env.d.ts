@@ -17,6 +17,7 @@ interface FeatureBotEnvironment {
   DEEPL: string;
 
   // Role System Features
+  STAFF_ROLES: string;
   HELPER_ROLES: string;
   STATUS_ROLES: string;
   MEMBER_ROLES: string;

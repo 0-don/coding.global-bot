@@ -27,6 +27,7 @@ jobs:
           echo GOOGLE_GENERATIVE_AI_API_KEY=${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }} >> .env
           echo DEEPL=${{ secrets.DEEPL }} >> .env
 
+          echo STAFF_ROLES=${{ secrets.STAFF_ROLES }} >> .env
           echo HELPER_ROLES=${{ secrets.HELPER_ROLES }} >> .env
           echo STATUS_ROLES=${{ secrets.STATUS_ROLES }} >> .env
           echo MEMBER_ROLES=${{ secrets.MEMBER_ROLES }} >> .env
