@@ -5,7 +5,7 @@
   "scripts": {
     "start": "prisma migrate deploy && NODE_ENV=production node dist/main.js",
     "dev": "tsx watch src/main.ts",
-    "build": "tsup",
+    "build": "tsup && tsc --emitDeclarationOnly",
     "prettier": "prettier -w .",
     "prisma": "prisma migrate dev --name init && prisma generate",
     "postinstall": "prisma generate"
@@ -24,8 +24,7 @@
     "discord.js": "14.25.1",
     "discordx": "11.13.3",
     "elysia": "1.4.21",
-    "lru-cache": "11.2.4",
-    "yaml": "^2.8.2"
+    "lru-cache": "11.2.4"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "1.51.4",
