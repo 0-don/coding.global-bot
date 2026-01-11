@@ -3,9 +3,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "prisma migrate deploy && NODE_ENV=production tsx dist/main.js",
+    "start": "prisma migrate deploy && NODE_ENV=production node dist/main.js",
     "dev": "tsx watch src/main.ts",
-    "build": "tsc",
+    "build": "tsup src/main.ts --format esm --dts --clean",
     "prettier": "prettier -w .",
     "prisma": "prisma migrate dev --name init && prisma generate",
     "postinstall": "prisma generate"
@@ -36,6 +36,7 @@
     "@types/node": "25.0.5",
     "prettier": "3.7.4",
     "prisma": "7.2.0",
+    "tsup": "^8.5.1",
     "tsx": "4.21.0",
     "typescript": "5.9.3"
   }
