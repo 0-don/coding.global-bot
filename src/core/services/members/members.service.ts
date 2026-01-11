@@ -1,3 +1,15 @@
+import { simpleEmbedExample } from "@/bot/embeds/simple.embed";
+import { Prisma } from "@/generated/prisma/client";
+import { prisma } from "@/prisma";
+import {
+  JOIN_EVENT_CHANNELS,
+  MEMBERS_COUNT_CHANNELS,
+} from "@/shared/config/channels";
+import { SHOULD_COUNT_MEMBERS } from "@/shared/config/features";
+import { ConfigValidator } from "@/shared/config/validator";
+import { generateChart } from "@/shared/utils/chart.utils";
+import { getDaysArray } from "@/shared/utils/date.utils";
+import { ChartDataPoint, GuildMemberCountChart } from "@/types";
 import { log } from "console";
 import dayjs from "dayjs";
 import {
@@ -6,18 +18,6 @@ import {
   PartialGuildMember,
   TextChannel,
 } from "discord.js";
-import { Prisma } from "@/generated/prisma/client";
-import { prisma } from "@/prisma";
-import { ChartDataset, GuildMemberCountChart } from "@/types";
-import { ConfigValidator } from "@/shared/config/validator";
-import {
-  JOIN_EVENT_CHANNELS,
-  MEMBERS_COUNT_CHANNELS,
-} from "@/shared/config/channels";
-import { SHOULD_COUNT_MEMBERS } from "@/shared/config/features";
-import { generateChart } from "@/shared/utils/chart.utils";
-import { getDaysArray } from "@/shared/utils/date.utils";
-import { simpleEmbedExample } from "@/bot/embeds/simple.embed";
 
 export class MembersService {
   private static _memberCountWarningLogged = false;
@@ -192,7 +192,7 @@ export class MembersService {
       create: { guildId, guildName },
       update: { guildName },
     });
-
+    
     // get member join dates and sort ascending - use cache if fetch fails due to rate limit
     let members;
     try {
@@ -217,7 +217,7 @@ export class MembersService {
     // O(n) algorithm: use sorted dates with a running pointer instead of O(n²) filter
     const datesArray = Array.from(dates);
     let datePointer = 0;
-    const data: ChartDataset[] = [];
+    const data: ChartDataPoint[] = [];
 
     for (const date of startEndDateArray) {
       const currentDay = dayjs(date);
@@ -260,7 +260,7 @@ export class MembersService {
 
   // Generate chart and return buffer
   private static async generateChartBuffer(
-    data: ChartDataset[],
+    data: ChartDataPoint[],
     lookback: number,
   ): Promise<Buffer> {
     const sliceStart = data.length - 2 < lookback ? 0 : -lookback;
