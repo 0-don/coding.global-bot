@@ -1,4 +1,4 @@
-import { executeSyncThreads as executeVerifyThreads } from "@/core/handlers/command-handlers/mod/sync-threads.handler";
+import { executeSyncThreads as executeVerifyThreads } from "@/core/handlers/command-handlers/mod/verify-threads.handler";
 import type { SimpleCommandMessage } from "discordx";
 import { Discord, SimpleCommand } from "discordx";
 
