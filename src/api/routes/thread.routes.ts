@@ -30,7 +30,6 @@ export const threadRoutes = new Elysia()
       let thread = await ThreadService.getThread(params.threadId);
 
       if (!thread) {
-        await guild.channels.fetch();
         const channel = await guild.channels
           .fetch(params.threadId)
           .catch(() => null);
