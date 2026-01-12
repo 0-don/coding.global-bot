@@ -18,7 +18,7 @@ import {
 export class ThreadService {
   static async upsertThread(
     thread: ThreadChannel,
-    boardType: string,
+    threadType: string,
   ): Promise<void> {
     const guildId = thread.guildId;
     const authorId = thread.ownerId;
@@ -44,7 +44,7 @@ export class ThreadService {
       parentId: thread.parentId,
       authorId,
       name: thread.name,
-      boardType,
+      boardType: threadType,
       content,
       imageUrl,
       messageCount: thread.messageCount || 0,
@@ -101,9 +101,9 @@ export class ThreadService {
     });
   }
 
-  static async getThreadsByBoard(guildId: string, boardType: string) {
+  static async getThreadsByType(guildId: string, threadType: string) {
     return prisma.thread.findMany({
-      where: { guildId, boardType },
+      where: { guildId, boardType: threadType },
       include: {
         author: {
           include: {
@@ -245,7 +245,7 @@ export class ThreadService {
     };
   }
 
-  static getBoardTypeFromChannel(channel: ForumChannel): string {
+  static getThreadTypeFromChannel(channel: ForumChannel): string {
     const name = channel.name.toLowerCase();
     const match = name.match(/[^a-z0-9]*([a-z0-9-]+)$/i);
     return match?.[1] || name;

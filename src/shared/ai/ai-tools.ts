@@ -30,7 +30,7 @@ async function searchGifs(query: string, limit: number = 5): Promise<string[]> {
       throw new Error(`Tenor API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as { results?: Array<{ media_formats?: { gif?: { url?: string } } }> };
 
     return (
       data.results

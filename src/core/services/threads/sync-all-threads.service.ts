@@ -63,12 +63,12 @@ export class SyncAllThreadsService {
 
       const allThreads: Array<{
         thread: AnyThreadChannel;
-        boardType: string;
+        threadType: string;
         forum: ForumChannel;
       }> = [];
 
       for (const [, forum] of forumChannels) {
-        const boardType = ThreadService.getBoardTypeFromChannel(forum);
+        const threadType = ThreadService.getThreadTypeFromChannel(forum);
 
         await ThreadService.upsertTags(guild.id, forum.availableTags);
 
@@ -88,13 +88,13 @@ export class SyncAllThreadsService {
           });
 
           for (const [, thread] of activeResult.threads) {
-            allThreads.push({ thread, boardType, forum });
+            allThreads.push({ thread, threadType, forum });
           }
           for (const [, thread] of archivedPublic.threads) {
-            allThreads.push({ thread, boardType, forum });
+            allThreads.push({ thread, threadType, forum });
           }
           for (const [, thread] of archivedPrivate.threads) {
-            allThreads.push({ thread, boardType, forum });
+            allThreads.push({ thread, threadType, forum });
           }
 
           logTs(
@@ -130,11 +130,11 @@ export class SyncAllThreadsService {
       );
 
       for (let i = 0; i < remaining.length; i++) {
-        const { thread, boardType } = remaining[i];
+        const { thread, threadType } = remaining[i];
         const tag = `${thread.name.slice(0, 30)} (${thread.id})`;
 
         try {
-          await ThreadService.upsertThread(thread, boardType);
+          await ThreadService.upsertThread(thread, threadType);
 
           await this.syncThreadMessages(thread, guild.id);
 

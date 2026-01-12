@@ -1,5 +1,5 @@
 import { cacheMiddleware } from "@/api/middleware/cache";
-import { boardRoutes } from "@/api/routes/board.routes";
+import { threadRoutes } from "@/api/routes/thread.routes";
 import { newsRoutes } from "@/api/routes/news.routes";
 import { staffRoutes } from "@/api/routes/staff.routes";
 import { statsRoutes } from "@/api/routes/stats.routes";
@@ -34,7 +34,7 @@ export const app = new Elysia({ adapter: node() })
   .use(staffRoutes)
   .use(newsRoutes)
   .use(widgetRoutes)
-  .use(boardRoutes)
+  .use(threadRoutes)
   .use(statsRoutes)
   .use(userRoutes)
   .listen(4000);

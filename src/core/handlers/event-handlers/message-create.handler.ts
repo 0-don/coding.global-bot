@@ -5,7 +5,7 @@ import { DuplicateSpamService } from "@/core/services/spam/duplicate-spam.servic
 import { SpamDetectionService } from "@/core/services/spam/spam-detection.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
 import { THREAD_QUESTION_RESPONSE } from "@/shared/config/branding";
-import { EXCLUDED_THREAD_BOARD_TYPES } from "@/shared/config/channels";
+import { EXCLUDED_THREAD_TYPES } from "@/shared/config/channels";
 import { ConfigValidator } from "@/shared/config/validator";
 import { translate } from "@/shared/integrations/deepl";
 import { Message, MessageType, TextChannel, ThreadChannel } from "discord.js";
@@ -39,8 +39,8 @@ export async function checkThreadStart(message: Message): Promise<void> {
     const parentChannel = message.guild?.channels.cache.get(channel.parentId!);
     if (
       parentChannel &&
-      !EXCLUDED_THREAD_BOARD_TYPES.some((boardType) =>
-        parentChannel.name.includes(boardType),
+      !EXCLUDED_THREAD_TYPES.some((threadType) =>
+        parentChannel.name.includes(threadType),
       )
     ) {
       try {

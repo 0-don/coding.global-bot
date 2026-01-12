@@ -1,5 +1,5 @@
 // Channel configurations parsed from environment variables
-import { BoardType } from "@/api/middleware/validators";
+import { ThreadType } from "@/api/middleware/validators";
 import { Static } from "elysia";
 
 export const GENERAL_CHANNELS =
@@ -17,7 +17,7 @@ export const JOIN_EVENT_CHANNELS =
 export const MEMBERS_COUNT_CHANNELS =
   process.env.MEMBERS_COUNT_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
 
-export const EXCLUDED_THREAD_BOARD_TYPES: Static<typeof BoardType>[] = [
+export const EXCLUDED_THREAD_TYPES: Static<typeof ThreadType>[] = [
   "job-board",
   "dev-board",
   "showcase",

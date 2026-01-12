@@ -1,6 +1,6 @@
 import { t } from "elysia";
 
-export const BoardType = t.Union([
+export const ThreadType = t.Union([
   // Marketplace & Showcase
   t.Literal("job-board"),
   t.Literal("dev-board"),
@@ -29,6 +29,6 @@ export const BoardType = t.Union([
 
 export const ThreadParams = t.Object({
   guildId: t.String(),
-  boardType: BoardType,
+  threadType: ThreadType,
   threadId: t.String(),
 });
