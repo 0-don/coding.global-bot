@@ -196,7 +196,7 @@ export class SyncAllThreadsService {
     }
   }
 
-  private static async syncThreadMessages(
+  static async syncThreadMessages(
     thread: AnyThreadChannel,
     guildId: string,
   ): Promise<void> {
@@ -231,7 +231,7 @@ export class SyncAllThreadsService {
     }
   }
 
-  private static async upsertMessageToDb(
+  static async upsertMessageToDb(
     message: Message,
     threadId: string,
     guildId: string,
