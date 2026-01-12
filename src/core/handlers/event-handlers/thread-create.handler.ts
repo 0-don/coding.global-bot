@@ -18,5 +18,5 @@ export async function handleThreadCreate(
 
   await ThreadService.upsertTags(thread.guildId, thread.parent.availableTags);
 
-  await ThreadService.upsertThread(thread, threadType);
+  await ThreadService.upsertThread(thread, threadType, { syncMessages: true });
 }

@@ -19,6 +19,7 @@ export class ThreadService {
   static async upsertThread(
     thread: ThreadChannel,
     threadType: string,
+    options: { syncMessages?: boolean } = {},
   ): Promise<void> {
     const guildId = thread.guildId;
     const authorId = thread.ownerId;
@@ -65,6 +66,19 @@ export class ThreadService {
 
       if (thread.parent?.type === ChannelType.GuildForum) {
         await this.syncThreadTags(thread.id, thread.appliedTags);
+      }
+
+      if (options.syncMessages) {
+        await this.syncThreadMessages(thread);
+      }
+    } catch (_) {}
+  }
+
+  static async syncThreadMessages(thread: ThreadChannel): Promise<void> {
+    try {
+      const messages = await thread.messages.fetch();
+      for (const message of messages.values()) {
+        await this.upsertThreadMessage(message);
       }
     } catch (_) {}
   }
@@ -124,7 +138,15 @@ export class ThreadService {
     if (!guildId || !authorId) return;
 
     const thread = await prisma.thread.findUnique({ where: { id: threadId } });
-    if (!thread) return;
+    if (!thread) {
+      const parentChannel = channel.parent;
+      if (parentChannel?.type === ChannelType.GuildForum) {
+        const threadType = this.getThreadTypeFromChannel(parentChannel);
+        await this.upsertThread(channel, threadType);
+      } else {
+        return;
+      }
+    }
 
     const data = this.parseThreadMessageToDb(message, threadId, guildId);
 
