@@ -24,20 +24,6 @@ export class ThreadService {
     const authorId = thread.ownerId;
     if (!guildId || !authorId) return;
 
-    let content: string | null = null;
-    let imageUrl: string | null = null;
-
-    try {
-      const starterMessage = await thread.fetchStarterMessage();
-      if (starterMessage) {
-        content = starterMessage.content || null;
-        const imageAttachment = starterMessage.attachments.find((a) =>
-          a.contentType?.startsWith("image/"),
-        );
-        imageUrl = imageAttachment?.url || null;
-      }
-    } catch (_) {}
-
     const data: Prisma.ThreadUpsertArgs["create"] = {
       id: thread.id,
       guildId,
@@ -45,8 +31,6 @@ export class ThreadService {
       authorId,
       name: thread.name,
       boardType: threadType,
-      content,
-      imageUrl,
       messageCount: thread.messageCount || 0,
       memberCount: thread.memberCount || 0,
       locked: !!thread.locked,
@@ -67,8 +51,6 @@ export class ThreadService {
         create: data,
         update: {
           name: data.name,
-          content: data.content,
-          imageUrl: data.imageUrl,
           messageCount: data.messageCount,
           memberCount: data.memberCount,
           locked: data.locked,
@@ -97,12 +79,17 @@ export class ThreadService {
       include: {
         author: { include: { guilds: true, roles: true } },
         tags: { include: { tag: true } },
+        messages: {
+          where: { id: threadId },
+          include: { author: { include: { guilds: true, roles: true } } },
+          take: 1,
+        },
       },
     });
   }
 
   static async getThreadsByType(guildId: string, threadType: string) {
-    return prisma.thread.findMany({
+    const threads = await prisma.thread.findMany({
       where: { guildId, boardType: threadType },
       include: {
         author: {
@@ -112,9 +99,19 @@ export class ThreadService {
           },
         },
         tags: { include: { tag: true } },
+        messages: {
+          include: { author: { include: { guilds: true, roles: true } } },
+          take: 1,
+          orderBy: { createdAt: "asc" },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
+
+    return threads.map((thread) => ({
+      ...thread,
+      messages: thread.messages.filter((m) => m.id === thread.id),
+    }));
   }
 
   static async upsertReply(message: Message): Promise<void> {
@@ -132,7 +129,7 @@ export class ThreadService {
     const data = this.parseReplyToDb(message, threadId, guildId);
 
     try {
-      await prisma.threadReply.upsert({
+      await prisma.threadMessage.upsert({
         where: { id: message.id },
         create: data,
         update: {
@@ -150,7 +147,7 @@ export class ThreadService {
   }
 
   static async deleteReply(messageId: string): Promise<void> {
-    await prisma.threadReply
+    await prisma.threadMessage
       .delete({ where: { id: messageId } })
       .catch(() => {});
   }
@@ -161,10 +158,10 @@ export class ThreadService {
   ) {
     const limit = options.limit || 50;
 
-    const replies = await prisma.threadReply.findMany({
+    const replies = await prisma.threadMessage.findMany({
       where: {
         threadId,
-        ...(options.after && { id: { gt: options.after } }),
+        id: { not: threadId, ...(options.after && { gt: options.after }) },
       },
       include: { author: { include: { guilds: true, roles: true } } },
       orderBy: { createdAt: "asc" },
@@ -225,7 +222,7 @@ export class ThreadService {
     message: Message,
     threadId: string,
     guildId: string,
-  ): Prisma.ThreadReplyCreateInput {
+  ): Prisma.ThreadMessageCreateInput {
     return {
       id: message.id,
       thread: { connect: { id: threadId } },

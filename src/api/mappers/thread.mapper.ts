@@ -17,6 +17,13 @@ export function formatThreadFromDb(
   guildId: string,
 ) {
   const author = mapMember(dbThread.author, guildId);
+  const firstMessage = dbThread.messages[0];
+  const attachments = firstMessage
+    ? mapAttachmentsFromDb(firstMessage.attachments)
+    : [];
+  const imageAttachment = attachments.find((a) =>
+    a.contentType?.startsWith("image/"),
+  );
   return {
     id: dbThread.id,
     name: dbThread.name,
@@ -32,8 +39,8 @@ export function formatThreadFromDb(
         name: tt.tag.emojiName || null,
       },
     })),
-    content: dbThread.content,
-    imageUrl: dbThread.imageUrl,
+    content: firstMessage?.content || null,
+    imageUrl: imageAttachment?.url || null,
     messageCount: dbThread.messageCount,
     totalMessageSent: dbThread.messageCount,
     memberCount: dbThread.memberCount,
@@ -44,6 +51,23 @@ export function formatThreadFromDb(
     invitable: dbThread.invitable,
     rateLimitPerUser: dbThread.rateLimitPerUser,
     flags: dbThread.flags?.toString() ?? null,
+    firstMessage: firstMessage
+      ? {
+          id: firstMessage.id,
+          content: firstMessage.content,
+          createdAt: firstMessage.createdAt.toISOString(),
+          editedAt: firstMessage.editedAt?.toISOString() || null,
+          pinned: firstMessage.pinned,
+          tts: firstMessage.tts,
+          type: firstMessage.type,
+          attachments,
+          embeds: mapEmbedsFromDb(firstMessage.embeds),
+          mentions: mapMentionsFromDb(firstMessage.mentions),
+          reactions: mapReactionsFromDb(firstMessage.reactions),
+          reference: mapReferenceFromDb(firstMessage.reference),
+          author: mapMember(firstMessage.author, guildId),
+        }
+      : null,
   };
 }
 
