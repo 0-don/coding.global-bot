@@ -1,11 +1,13 @@
-import type { CommandInteraction } from "discord.js";
-import type { MessageFlags } from "discord.js";
-import { ConfigValidator } from "@/shared/config/validator";
 import { BOT_CHANNELS } from "@/shared/config/channels";
+import { ConfigValidator } from "@/shared/config/validator";
+import type {
+  CommandInteraction,
+  InteractionDeferReplyOptions,
+} from "discord.js";
 
 export async function safeDeferReply(
   interaction: CommandInteraction,
-  options?: { flags?: MessageFlags[] },
+  options?: InteractionDeferReplyOptions & { withResponse: true },
 ): Promise<boolean> {
   try {
     await interaction.deferReply(options);
