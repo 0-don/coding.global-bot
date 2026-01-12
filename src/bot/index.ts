@@ -26,7 +26,7 @@ import "./commands/mod/log-command-history";
 import "./commands/mod/log-deleted-messages-history";
 import "./commands/mod/lookback-members";
 import "./commands/mod/verify-threads";
-import "./commands/mod/verify-all-users";
+import "./commands/mod/verify-users";
 
 // Commands - User
 import "./commands/user/lookback-me";

@@ -3,9 +3,9 @@ import type { SimpleCommandMessage } from "discordx";
 import { Discord, SimpleCommand } from "discordx";
 
 @Discord()
-export class VerifyAllUsers {
-  @SimpleCommand({ aliases: ["verify-all"], prefix: "!" })
-  async verifyAllUsers(command: SimpleCommandMessage) {
+export class VerifyUsers {
+  @SimpleCommand({ aliases: ["verify-users"], prefix: "!" })
+  async verifyUsers(command: SimpleCommandMessage) {
     const result = await executeVerifyAllUsers(command);
 
     if (result.error) {
