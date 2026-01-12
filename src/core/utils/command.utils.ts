@@ -7,7 +7,7 @@ import type {
 
 export async function safeDeferReply(
   interaction: CommandInteraction,
-  options?: InteractionDeferReplyOptions & { withResponse: true },
+  options?: InteractionDeferReplyOptions ,
 ): Promise<boolean> {
   try {
     await interaction.deferReply(options);
