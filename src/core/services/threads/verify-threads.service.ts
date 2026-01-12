@@ -58,10 +58,10 @@ export class SyncAllThreadsService {
       );
 
       const saved = await prisma.syncProgress.findUnique({
-        where: { guildId: guild.id },
+        where: { guildId_type: { guildId: guild.id, type: "threads" } },
       });
-      const processedThreads = new Set(saved?.processedThreads ?? []);
-      const failedThreads = new Set(saved?.failedThreads ?? []);
+      const processedThreads = new Set(saved?.processedIds ?? []);
+      const failedThreads = new Set(saved?.failedIds ?? []);
 
       const allThreads: Array<{
         thread: AnyThreadChannel;
@@ -198,15 +198,16 @@ export class SyncAllThreadsService {
         const done = alreadyDone + i + 1;
 
         await prisma.syncProgress.upsert({
-          where: { guildId: guild.id },
+          where: { guildId_type: { guildId: guild.id, type: "threads" } },
           create: {
             guildId: guild.id,
-            processedThreads: [...processedThreads],
-            failedThreads: [...failedThreads],
+            type: "threads",
+            processedIds: [...processedThreads],
+            failedIds: [...failedThreads],
           },
           update: {
-            processedThreads: [...processedThreads],
-            failedThreads: [...failedThreads],
+            processedIds: [...processedThreads],
+            failedIds: [...failedThreads],
           },
         });
 
@@ -219,7 +220,9 @@ export class SyncAllThreadsService {
       }
 
       await prisma.syncProgress
-        .delete({ where: { guildId: guild.id } })
+        .delete({
+          where: { guildId_type: { guildId: guild.id, type: "threads" } },
+        })
         .catch(() => {});
 
       const result =

@@ -52,8 +52,8 @@ export class VerifyAllUsersService {
         .sort((a, b) => a.id.localeCompare(b.id));
 
       // Load saved progress - track by member ID, not index
-      const saved = await prisma.verificationProgress.findUnique({
-        where: { guildId: guild.id },
+      const saved = await prisma.syncProgress.findUnique({
+        where: { guildId_type: { guildId: guild.id, type: "users" } },
       });
       const processedIds = new Set(saved?.processedIds ?? []);
       const failedIds = new Set(saved?.failedIds ?? []);
@@ -112,10 +112,11 @@ export class VerifyAllUsersService {
 
         const done = alreadyDone + i + 1;
 
-        await prisma.verificationProgress.upsert({
-          where: { guildId: guild.id },
+        await prisma.syncProgress.upsert({
+          where: { guildId_type: { guildId: guild.id, type: "users" } },
           create: {
             guildId: guild.id,
+            type: "users",
             processedIds: [...processedIds],
             failedIds: [...failedIds],
           },
@@ -135,8 +136,8 @@ export class VerifyAllUsersService {
       }
 
       // Clear progress on completion
-      await prisma.verificationProgress
-        .delete({ where: { guildId: guild.id } })
+      await prisma.syncProgress
+        .delete({ where: { guildId_type: { guildId: guild.id, type: "users" } } })
         .catch(() => {});
 
       const result =
