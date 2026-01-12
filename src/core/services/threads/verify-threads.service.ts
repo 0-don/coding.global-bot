@@ -1,3 +1,6 @@
+import { ThreadService } from "@/core/services/threads/thread.service";
+import { prisma } from "@/prisma";
+import { logTs } from "@/shared/utils/date.utils";
 import {
   ChannelType,
   ForumChannel,
@@ -6,9 +9,6 @@ import {
   type AnyThreadChannel,
   type GuildTextBasedChannel,
 } from "discord.js";
-import { prisma } from "@/prisma";
-import { logTs } from "@/shared/utils/date.utils";
-import { ThreadService } from "@/core/services/threads/thread.service";
 
 export class SyncAllThreadsService {
   private static runningGuilds = new Set<string>();
@@ -31,6 +31,8 @@ export class SyncAllThreadsService {
     this.runningGuilds.add(guild.id);
 
     try {
+      const gatheringMsg = await channel.send("Starting thread sync...");
+
       await prisma.guild.upsert({
         where: { guildId: guild.id },
         create: { guildId: guild.id, guildName: guild.name },
@@ -67,40 +69,74 @@ export class SyncAllThreadsService {
         forum: ForumChannel;
       }> = [];
 
-      for (const [, forum] of forumChannels) {
+      const forumArray = Array.from(forumChannels.values());
+      for (let f = 0; f < forumArray.length; f++) {
+        const forum = forumArray[f];
         const threadType = ThreadService.getThreadTypeFromChannel(forum);
 
         await ThreadService.upsertTags(guild.id, forum.availableTags);
+
+        if (f === 0 || (f + 1) % 5 === 0 || f + 1 === forumArray.length) {
+          await gatheringMsg
+            .edit(
+              `Gathering threads: ${f + 1}/${forumArray.length} forums (${forum.name})...`,
+            )
+            .catch(() => {});
+        }
 
         logTs("info", guildName, `Fetching threads from ${forum.name}...`);
 
         try {
           const activeResult = await forum.threads.fetchActive(true);
 
-          const archivedPublic = await forum.threads.fetchArchived({
-            type: "public",
-            limit: 100,
-          });
+          // Fetch all archived public threads with pagination
+          const archivedPublicThreads: AnyThreadChannel[] = [];
+          let hasMorePublic = true;
+          let beforePublic: string | undefined;
+          while (hasMorePublic) {
+            const result = await forum.threads.fetchArchived({
+              type: "public",
+              limit: 100,
+              before: beforePublic,
+            });
+            for (const [, thread] of result.threads) {
+              archivedPublicThreads.push(thread);
+            }
+            hasMorePublic = result.hasMore;
+            beforePublic = result.threads.last()?.id;
+          }
 
-          const archivedPrivate = await forum.threads.fetchArchived({
-            type: "private",
-            limit: 100,
-          });
+          // Fetch all archived private threads with pagination
+          const archivedPrivateThreads: AnyThreadChannel[] = [];
+          let hasMorePrivate = true;
+          let beforePrivate: string | undefined;
+          while (hasMorePrivate) {
+            const result = await forum.threads.fetchArchived({
+              type: "private",
+              limit: 100,
+              before: beforePrivate,
+            });
+            for (const [, thread] of result.threads) {
+              archivedPrivateThreads.push(thread);
+            }
+            hasMorePrivate = result.hasMore;
+            beforePrivate = result.threads.last()?.id;
+          }
 
           for (const [, thread] of activeResult.threads) {
             allThreads.push({ thread, threadType, forum });
           }
-          for (const [, thread] of archivedPublic.threads) {
+          for (const thread of archivedPublicThreads) {
             allThreads.push({ thread, threadType, forum });
           }
-          for (const [, thread] of archivedPrivate.threads) {
+          for (const thread of archivedPrivateThreads) {
             allThreads.push({ thread, threadType, forum });
           }
 
           logTs(
             "info",
             guildName,
-            `Found ${activeResult.threads.size} active, ${archivedPublic.threads.size} archived public, ${archivedPrivate.threads.size} archived private in ${forum.name}`,
+            `Found ${activeResult.threads.size} active, ${archivedPublicThreads.length} archived public, ${archivedPrivateThreads.length} archived private in ${forum.name}`,
           );
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
@@ -111,6 +147,12 @@ export class SyncAllThreadsService {
           );
         }
       }
+
+      await gatheringMsg
+        .edit(
+          `Gathered ${allThreads.length} threads from ${forumArray.length} forums`,
+        )
+        .catch(() => {});
 
       const remaining = allThreads.filter(
         (t) => !processedThreads.has(t.thread.id),
