@@ -58,10 +58,11 @@ export const threadRoutes = new Elysia()
   .get(
     "/api/:guildId/thread/:threadType/:threadId/messages",
     async ({ params, query }) => {
-      const { messages, hasMore, nextCursor } = await ThreadService.getReplies(
-        params.threadId,
-        { after: query.after, limit: PAGE_LIMIT },
-      );
+      const { messages, hasMore, nextCursor } =
+        await ThreadService.getThreadMessages(params.threadId, {
+          after: query.after,
+          limit: PAGE_LIMIT,
+        });
       return {
         messages: formatRepliesFromDb(messages, params.guildId),
         hasMore,
