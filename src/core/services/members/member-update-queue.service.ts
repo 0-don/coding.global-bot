@@ -1,8 +1,8 @@
-import { error, log } from "console";
-import { bot } from "@/main";
-import { prisma } from "@/prisma";
 import { MemberDataService } from "@/core/services/members/member-data.service";
 import { VerifyAllUsersService } from "@/core/services/members/verify-all-users.service";
+import { bot } from "@/main";
+import { prisma } from "@/prisma";
+import { error, log } from "console";
 
 const PROCESS_INTERVAL_MS = 1000;
 
@@ -60,6 +60,10 @@ export class MemberUpdateQueueService {
       try {
         member = await guild.members.fetch(item.memberId);
       } catch {
+        await prisma.memberGuild.updateMany({
+          where: { memberId: item.memberId, guildId: item.guildId },
+          data: { status: false },
+        });
         await deleteItem();
         return;
       }
