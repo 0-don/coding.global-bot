@@ -4,28 +4,28 @@ import {
   formatThreadsFromDb,
 } from "@/api/mappers/thread.mapper";
 import { PAGE_LIMIT } from "@/api/middleware/cache";
-import { BoardType, ThreadParams } from "@/api/middleware/validators";
+import { ThreadType, ThreadParams } from "@/api/middleware/validators";
 import { SyncAllThreadsService } from "@/core/services/threads/sync-all-threads.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
 import { Elysia, status, t } from "elysia";
 import { guildDerive } from "../middleware/guild.derive";
 
-export const boardRoutes = new Elysia()
+export const threadRoutes = new Elysia()
   .use(guildDerive)
   .get(
-    "/api/:guildId/board/:boardType",
+    "/api/:guildId/thread/:threadType",
     async ({ params }) => {
-      const boardType = params.boardType.toLowerCase();
-      const threads = await ThreadService.getThreadsByBoard(
+      const threadType = params.threadType.toLowerCase();
+      const threads = await ThreadService.getThreadsByType(
         params.guildId,
-        boardType,
+        threadType,
       );
       return formatThreadsFromDb(threads, params.guildId);
     },
-    { params: t.Object({ guildId: t.String(), boardType: BoardType }) },
+    { params: t.Object({ guildId: t.String(), threadType: ThreadType }) },
   )
   .get(
-    "/api/:guildId/board/:boardType/:threadId",
+    "/api/:guildId/thread/:threadType/:threadId",
     async ({ params, guild }) => {
       let thread = await ThreadService.getThread(params.threadId);
 
@@ -33,7 +33,7 @@ export const boardRoutes = new Elysia()
         const channel = await guild.channels.fetch(params.threadId).catch(() => null);
 
         if (channel?.isThread()) {
-          await ThreadService.upsertThread(channel, params.boardType);
+          await ThreadService.upsertThread(channel, params.threadType);
           await SyncAllThreadsService.syncThreadMessages(channel, params.guildId);
           thread = await ThreadService.getThread(params.threadId);
         }
@@ -47,11 +47,11 @@ export const boardRoutes = new Elysia()
     },
     {
       params: ThreadParams,
-      query: t.Object({ boardType: t.Optional(BoardType) }),
+      query: t.Object({ threadType: t.Optional(ThreadType) }),
     },
   )
   .get(
-    "/api/:guildId/board/:boardType/:threadId/messages",
+    "/api/:guildId/thread/:threadType/:threadId/messages",
     async ({ params, query }) => {
       const { messages, hasMore, nextCursor } = await ThreadService.getReplies(
         params.threadId,

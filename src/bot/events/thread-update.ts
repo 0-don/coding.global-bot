@@ -19,9 +19,9 @@ export class ThreadUpdate {
       return;
     }
 
-    const boardType = ThreadService.getBoardTypeFromChannel(newThread.parent);
+    const threadType = ThreadService.getThreadTypeFromChannel(newThread.parent);
 
     // Upsert the thread with updated data
-    await ThreadService.upsertThread(newThread, boardType);
+    await ThreadService.upsertThread(newThread, threadType);
   }
 }

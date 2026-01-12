@@ -14,9 +14,9 @@ export async function handleThreadCreate(
     return;
   }
 
-  const boardType = ThreadService.getBoardTypeFromChannel(thread.parent);
+  const threadType = ThreadService.getThreadTypeFromChannel(thread.parent);
 
   await ThreadService.upsertTags(thread.guildId, thread.parent.availableTags);
 
-  await ThreadService.upsertThread(thread, boardType);
+  await ThreadService.upsertThread(thread, threadType);
 }

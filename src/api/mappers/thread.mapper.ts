@@ -9,7 +9,7 @@ import {
 } from "@/shared/mappers/discord.mapper";
 
 type DbThread = Awaited<ReturnType<typeof ThreadService.getThread>>;
-type DbThreadList = Awaited<ReturnType<typeof ThreadService.getThreadsByBoard>>;
+type DbThreadList = Awaited<ReturnType<typeof ThreadService.getThreadsByType>>;
 type DbReplies = Awaited<ReturnType<typeof ThreadService.getReplies>>;
 
 export function formatThreadFromDb(
