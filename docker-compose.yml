@@ -15,7 +15,7 @@ services:
       - "5432:5432"
   coding-global-pgbackup:
     container_name: coding-global-pgbackup
-    image: prodrigestivill/postgres-backup-local
+    image: prodrigestivill/postgres-backup-local:18-alpine
     restart: always
     networks:
       - proxy
