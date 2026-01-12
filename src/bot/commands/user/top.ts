@@ -20,7 +20,7 @@ export class TopCommand {
       maxValue: 9999,
       type: ApplicationCommandOptionType.Integer,
     })
-    lookback: number = 30,
+    lookback: number = 9999,
     interaction: CommandInteraction,
   ) {
     await interaction.deferReply();
