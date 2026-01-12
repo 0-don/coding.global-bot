@@ -114,7 +114,7 @@ export class ThreadService {
     }));
   }
 
-  static async upsertReply(message: Message): Promise<void> {
+  static async upsertThreadMessage(message: Message): Promise<void> {
     const channel = message.channel;
     if (!channel.isThread()) return;
 
@@ -126,7 +126,7 @@ export class ThreadService {
     const thread = await prisma.thread.findUnique({ where: { id: threadId } });
     if (!thread) return;
 
-    const data = this.parseReplyToDb(message, threadId, guildId);
+    const data = this.parseThreadMessageToDb(message, threadId, guildId);
 
     try {
       await prisma.threadMessage.upsert({
@@ -146,13 +146,13 @@ export class ThreadService {
     } catch (_) {}
   }
 
-  static async deleteReply(messageId: string): Promise<void> {
+  static async deleteThreadMessage(messageId: string): Promise<void> {
     await prisma.threadMessage
       .delete({ where: { id: messageId } })
       .catch(() => {});
   }
 
-  static async getReplies(
+  static async getThreadMessages(
     threadId: string,
     options: { after?: string; limit?: number } = {},
   ) {
@@ -218,7 +218,7 @@ export class ThreadService {
     } catch (_) {}
   }
 
-  static parseReplyToDb(
+  static parseThreadMessageToDb(
     message: Message,
     threadId: string,
     guildId: string,

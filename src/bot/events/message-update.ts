@@ -1,6 +1,6 @@
+import { ThreadService } from "@/core/services/threads/thread.service";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { ThreadService } from "@/core/services/threads/thread.service";
 
 @Discord()
 export class MessageUpdate {
@@ -20,6 +20,6 @@ export class MessageUpdate {
     if (!message) return;
 
     // Update the reply in the database
-    await ThreadService.upsertReply(message);
+    await ThreadService.upsertThreadMessage(message);
   }
 }

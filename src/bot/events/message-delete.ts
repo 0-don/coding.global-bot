@@ -11,7 +11,7 @@ export class MessageDelete {
 
     // Delete from ThreadReply table if it's a thread message
     if (message.channel.isThread()) {
-      await ThreadService.deleteReply(message.id);
+      await ThreadService.deleteThreadMessage(message.id);
     }
 
     MessagesService.saveDeletedMessageHistory(message);
