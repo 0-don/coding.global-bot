@@ -21,6 +21,9 @@ export class StatsService {
       SELECT "MemberMessages"."memberId", "Member"."username", count("MemberMessages"."memberId")
       FROM "MemberMessages"
       LEFT JOIN "Member" ON "Member"."memberId" = "MemberMessages"."memberId"
+      INNER JOIN "MemberGuild" ON "MemberGuild"."memberId" = "MemberMessages"."memberId"
+        AND "MemberGuild"."guildId" = "MemberMessages"."guildId"
+        AND "MemberGuild"."status" = true
       WHERE "MemberMessages"."guildId" = ${guildId}
       AND "MemberMessages"."createdAt" > (NOW() - ${`${lastDaysCount} days`}::interval)
       GROUP BY "MemberMessages"."memberId", "Member"."username"
@@ -39,6 +42,9 @@ export class StatsService {
       SELECT "MemberHelper"."memberId", "Member"."username", count(*)
       FROM "MemberHelper"
       LEFT JOIN "Member" ON "Member"."memberId" = "MemberHelper"."memberId"
+      INNER JOIN "MemberGuild" ON "MemberGuild"."memberId" = "MemberHelper"."memberId"
+        AND "MemberGuild"."guildId" = "MemberHelper"."guildId"
+        AND "MemberGuild"."status" = true
       WHERE "MemberHelper"."guildId" = ${guildId}
       AND "MemberHelper"."createdAt" > (NOW() - ${`${lastDaysCount} days`}::interval)
       GROUP BY "MemberHelper"."memberId", "Member"."username"
@@ -73,11 +79,15 @@ export class StatsService {
       FROM (
           SELECT
           "memberId",
+          "guildId",
           EXTRACT(EPOCH FROM (COALESCE("leave", CURRENT_TIMESTAMP) - "join")) AS difference
           FROM "GuildVoiceEvents"
           WHERE "guildId" = ${guildId}
           AND "join" > (NOW() - ${`${lastDaysCount} days`}::interval)) AS t
       JOIN "Member" ON "Member"."memberId" = t."memberId"
+      INNER JOIN "MemberGuild" ON "MemberGuild"."memberId" = t."memberId"
+        AND "MemberGuild"."guildId" = t."guildId"
+        AND "MemberGuild"."status" = true
       GROUP BY t."memberId", "Member"."username"
       ORDER BY "sum" DESC
       LIMIT ${limit}` as Promise<
