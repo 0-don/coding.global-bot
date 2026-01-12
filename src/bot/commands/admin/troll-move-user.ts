@@ -1,4 +1,5 @@
 import { executeTrollMoveUser } from "@/core/handlers/command-handlers/admin/troll-move-user.handler";
+import { safeDeferReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 import {
   ApplicationCommandOptionType,
@@ -46,7 +47,7 @@ export class TrollMoveUser {
     timeout: number = 0,
     interaction: CommandInteraction,
   ) {
-    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] }))) return;
     if (interaction.member?.user.id && interaction.guildId) {
       prisma.memberCommandHistory
         .create({

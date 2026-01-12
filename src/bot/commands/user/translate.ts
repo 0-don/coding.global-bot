@@ -1,4 +1,5 @@
 import { executeTranslateCommand } from "@/core/handlers/command-handlers/user/translate.handler";
+import { safeDeferReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 import {
   ApplicationCommandOptionType,
@@ -23,7 +24,7 @@ export class Translate {
     txt: string,
     interaction: CommandInteraction,
   ) {
-    await interaction.deferReply();
+    if (!(await safeDeferReply(interaction))) return;
     if (interaction.member?.user.id && interaction.guildId) {
       prisma.memberCommandHistory
         .create({

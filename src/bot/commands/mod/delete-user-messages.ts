@@ -1,4 +1,5 @@
 import { executeDeleteUserMessages } from "@/core/handlers/command-handlers/mod/delete-user-messages.handler";
+import { safeDeferReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 import type { CommandInteraction, User } from "discord.js";
 import {
@@ -44,7 +45,7 @@ export class DeleteUserMessages {
     reason: string | undefined,
     interaction: CommandInteraction,
   ) {
-    await interaction.deferReply({ flags: [MessageFlags.Ephemeral] });
+    if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] }))) return;
     if (interaction.member?.user.id && interaction.guildId) {
       prisma.memberCommandHistory
         .create({

@@ -1,4 +1,5 @@
 import { executeUserStatsCommand } from "@/core/handlers/command-handlers/user/user.handler";
+import { safeDeferReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 import type { CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
@@ -11,7 +12,7 @@ export class MeCommand {
     dmPermission: false,
   })
   async me(interaction: CommandInteraction) {
-    await interaction.deferReply();
+    if (!(await safeDeferReply(interaction))) return;
     if (interaction.member?.user.id && interaction.guildId) {
       prisma.memberCommandHistory
         .create({
