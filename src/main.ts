@@ -42,12 +42,16 @@ bot.once("clientReady", async () => {
 bot.on("interactionCreate", (interaction) => {
   // Ignore DMs - only work in guild (server)
   if (!interaction.guild) return;
+  // Skip command execution if not running in Docker
+  if (!process.env.DOCKER) return;
   void bot.executeInteraction(interaction);
 });
 
 bot.on("messageCreate", (message) => {
   // Ignore DMs - only work in guild (server)
   if (!message.guild) return;
+  // Skip command execution if not running in Docker
+  if (!process.env.DOCKER) return;
   void bot.executeCommand(message);
 });
 
