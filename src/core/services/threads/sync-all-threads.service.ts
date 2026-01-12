@@ -259,7 +259,7 @@ export class SyncAllThreadsService {
     } catch (_) {}
 
     try {
-      await prisma.threadReply.upsert({
+      await prisma.threadMessage.upsert({
         where: { id: message.id },
         create: {
           id: message.id,
