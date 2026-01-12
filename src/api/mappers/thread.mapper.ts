@@ -52,21 +52,7 @@ export function formatThreadFromDb(
     rateLimitPerUser: dbThread.rateLimitPerUser,
     flags: dbThread.flags?.toString() ?? null,
     firstMessage: firstMessage
-      ? {
-          id: firstMessage.id,
-          content: firstMessage.content,
-          createdAt: firstMessage.createdAt.toISOString(),
-          editedAt: firstMessage.editedAt?.toISOString() || null,
-          pinned: firstMessage.pinned,
-          tts: firstMessage.tts,
-          type: firstMessage.type,
-          attachments,
-          embeds: mapEmbedsFromDb(firstMessage.embeds),
-          mentions: mapMentionsFromDb(firstMessage.mentions),
-          reactions: mapReactionsFromDb(firstMessage.reactions),
-          reference: mapReferenceFromDb(firstMessage.reference),
-          author: mapMember(firstMessage.author, guildId),
-        }
+      ? formatReplyFromDb(firstMessage, guildId)
       : null,
   };
 }
