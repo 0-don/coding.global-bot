@@ -2,6 +2,7 @@ import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { executeTopCommand } from "@/core/handlers/command-handlers/user/top.handler";
+import { safeDeferReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 
 @Discord()
@@ -23,7 +24,7 @@ export class TopCommand {
     lookback: number = 9999,
     interaction: CommandInteraction,
   ) {
-    await interaction.deferReply();
+    if (!(await safeDeferReply(interaction))) return;
     if (interaction.member?.user.id && interaction.guildId) {
       prisma.memberCommandHistory
         .create({

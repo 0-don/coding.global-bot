@@ -1,4 +1,5 @@
 import { deletedMessagesHistoryEmbed } from "@/core/embeds/deleted-messages.embed";
+import { safeDeferReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
@@ -23,7 +24,7 @@ export class LogDeletedMessagesHistory {
     count: number = 10,
     interaction: CommandInteraction,
   ) {
-    await interaction.deferReply();
+    if (!(await safeDeferReply(interaction))) return;
     if (interaction.member?.user.id && interaction.guildId) {
       prisma.memberCommandHistory
         .create({

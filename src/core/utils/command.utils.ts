@@ -1,6 +1,20 @@
 import type { CommandInteraction } from "discord.js";
+import type { MessageFlags } from "discord.js";
 import { ConfigValidator } from "@/shared/config/validator";
 import { BOT_CHANNELS } from "@/shared/config/channels";
+
+export async function safeDeferReply(
+  interaction: CommandInteraction,
+  options?: { flags?: MessageFlags[] },
+): Promise<boolean> {
+  try {
+    await interaction.deferReply(options);
+    return true;
+  } catch (error) {
+    if ((error as { code?: number }).code === 10062) return false;
+    throw error;
+  }
+}
 
 export function checkBotChannelRestriction(channelName: string): string | null {
   if (!ConfigValidator.isFeatureEnabled("IS_CONSTRAINED_TO_BOT_CHANNEL")) {
