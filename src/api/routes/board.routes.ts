@@ -5,10 +5,13 @@ import {
 } from "@/api/mappers/thread.mapper";
 import { PAGE_LIMIT } from "@/api/middleware/cache";
 import { BoardType, ThreadParams } from "@/api/middleware/validators";
+import { SyncAllThreadsService } from "@/core/services/threads/sync-all-threads.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
 import { Elysia, status, t } from "elysia";
+import { guildDerive } from "../middleware/guild.derive";
 
 export const boardRoutes = new Elysia()
+  .use(guildDerive)
   .get(
     "/api/:guildId/board/:boardType",
     async ({ params }) => {
@@ -23,13 +26,24 @@ export const boardRoutes = new Elysia()
   )
   .get(
     "/api/:guildId/board/:boardType/:threadId",
-    async ({ params }) => {
-      const thread = await ThreadService.getThread(params.threadId);
+    async ({ params, guild }) => {
+      let thread = await ThreadService.getThread(params.threadId);
+
       if (!thread) {
-        throw status("Not Found", "Thread not found");
+        const channel = await guild.channels.fetch(params.threadId).catch(() => null);
+
+        if (channel?.isThread()) {
+          await ThreadService.upsertThread(channel, params.boardType);
+          await SyncAllThreadsService.syncThreadMessages(channel, params.guildId);
+          thread = await ThreadService.getThread(params.threadId);
+        }
+
+        if (!thread) {
+          throw status("Not Found", "Thread not found");
+        }
       }
-      const formatedThread = formatThreadFromDb(thread, params.guildId);
-      return formatedThread;
+
+      return formatThreadFromDb(thread, params.guildId);
     },
     {
       params: ThreadParams,
