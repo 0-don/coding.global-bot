@@ -26,9 +26,7 @@ export async function handleMessageCreate(message: Message): Promise<void> {
 
   await MessagesService.addMessageDb(message);
 
-  if (message.channel.isThread()) {
-    await ThreadService.upsertThreadMessage(message);
-  }
+  await ThreadService.upsertThreadMessage(message);
 
   await MessagesService.levelUpMessage(message);
 }
