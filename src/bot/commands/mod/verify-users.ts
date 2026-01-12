@@ -1,4 +1,4 @@
-import { executeVerifyAllUsers } from "@/core/handlers/command-handlers/mod/verify-all-users.handler";
+import { executeVerifyAllUsers } from "@/core/handlers/command-handlers/mod/verify-users.handler";
 import type { SimpleCommandMessage } from "discordx";
 import { Discord, SimpleCommand } from "discordx";
 
