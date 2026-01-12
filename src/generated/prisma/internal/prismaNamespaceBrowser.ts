@@ -60,7 +60,6 @@ export const ModelName = {
   MemberRole: 'MemberRole',
   MemberCommandHistory: 'MemberCommandHistory',
   MemberDeletedMessages: 'MemberDeletedMessages',
-  VerificationProgress: 'VerificationProgress',
   MemberUpdateQueue: 'MemberUpdateQueue',
   Thread: 'Thread',
   Tag: 'Tag',
@@ -240,16 +239,6 @@ export const MemberDeletedMessagesScalarFieldEnum = {
 export type MemberDeletedMessagesScalarFieldEnum = (typeof MemberDeletedMessagesScalarFieldEnum)[keyof typeof MemberDeletedMessagesScalarFieldEnum]
 
 
-export const VerificationProgressScalarFieldEnum = {
-  guildId: 'guildId',
-  processedIds: 'processedIds',
-  failedIds: 'failedIds',
-  updatedAt: 'updatedAt'
-} as const
-
-export type VerificationProgressScalarFieldEnum = (typeof VerificationProgressScalarFieldEnum)[keyof typeof VerificationProgressScalarFieldEnum]
-
-
 export const MemberUpdateQueueScalarFieldEnum = {
   id: 'id',
   memberId: 'memberId',
@@ -326,9 +315,9 @@ export type ThreadMessageScalarFieldEnum = (typeof ThreadMessageScalarFieldEnum)
 
 export const SyncProgressScalarFieldEnum = {
   guildId: 'guildId',
-  processedThreads: 'processedThreads',
-  failedThreads: 'failedThreads',
-  currentChannel: 'currentChannel',
+  type: 'type',
+  processedIds: 'processedIds',
+  failedIds: 'failedIds',
   updatedAt: 'updatedAt'
 } as const
 

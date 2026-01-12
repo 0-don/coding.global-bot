@@ -393,7 +393,6 @@ export const ModelName = {
   MemberRole: 'MemberRole',
   MemberCommandHistory: 'MemberCommandHistory',
   MemberDeletedMessages: 'MemberDeletedMessages',
-  VerificationProgress: 'VerificationProgress',
   MemberUpdateQueue: 'MemberUpdateQueue',
   Thread: 'Thread',
   Tag: 'Tag',
@@ -415,7 +414,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "guild" | "guildVoiceEvents" | "member" | "memberMessages" | "memberGuild" | "memberHelper" | "memberRole" | "memberCommandHistory" | "memberDeletedMessages" | "verificationProgress" | "memberUpdateQueue" | "thread" | "tag" | "threadTag" | "threadMessage" | "syncProgress"
+    modelProps: "guild" | "guildVoiceEvents" | "member" | "memberMessages" | "memberGuild" | "memberHelper" | "memberRole" | "memberCommandHistory" | "memberDeletedMessages" | "memberUpdateQueue" | "thread" | "tag" | "threadTag" | "threadMessage" | "syncProgress"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1085,80 +1084,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    VerificationProgress: {
-      payload: Prisma.$VerificationProgressPayload<ExtArgs>
-      fields: Prisma.VerificationProgressFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.VerificationProgressFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationProgressPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.VerificationProgressFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationProgressPayload>
-        }
-        findFirst: {
-          args: Prisma.VerificationProgressFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationProgressPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.VerificationProgressFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationProgressPayload>
-        }
-        findMany: {
-          args: Prisma.VerificationProgressFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationProgressPayload>[]
-        }
-        create: {
-          args: Prisma.VerificationProgressCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationProgressPayload>
-        }
-        createMany: {
-          args: Prisma.VerificationProgressCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.VerificationProgressCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationProgressPayload>[]
-        }
-        delete: {
-          args: Prisma.VerificationProgressDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationProgressPayload>
-        }
-        update: {
-          args: Prisma.VerificationProgressUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationProgressPayload>
-        }
-        deleteMany: {
-          args: Prisma.VerificationProgressDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.VerificationProgressUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.VerificationProgressUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationProgressPayload>[]
-        }
-        upsert: {
-          args: Prisma.VerificationProgressUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VerificationProgressPayload>
-        }
-        aggregate: {
-          args: Prisma.VerificationProgressAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateVerificationProgress>
-        }
-        groupBy: {
-          args: Prisma.VerificationProgressGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.VerificationProgressGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.VerificationProgressCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.VerificationProgressCountAggregateOutputType> | number
-        }
-      }
-    }
     MemberUpdateQueue: {
       payload: Prisma.$MemberUpdateQueuePayload<ExtArgs>
       fields: Prisma.MemberUpdateQueueFieldRefs
@@ -1797,16 +1722,6 @@ export const MemberDeletedMessagesScalarFieldEnum = {
 export type MemberDeletedMessagesScalarFieldEnum = (typeof MemberDeletedMessagesScalarFieldEnum)[keyof typeof MemberDeletedMessagesScalarFieldEnum]
 
 
-export const VerificationProgressScalarFieldEnum = {
-  guildId: 'guildId',
-  processedIds: 'processedIds',
-  failedIds: 'failedIds',
-  updatedAt: 'updatedAt'
-} as const
-
-export type VerificationProgressScalarFieldEnum = (typeof VerificationProgressScalarFieldEnum)[keyof typeof VerificationProgressScalarFieldEnum]
-
-
 export const MemberUpdateQueueScalarFieldEnum = {
   id: 'id',
   memberId: 'memberId',
@@ -1883,9 +1798,9 @@ export type ThreadMessageScalarFieldEnum = (typeof ThreadMessageScalarFieldEnum)
 
 export const SyncProgressScalarFieldEnum = {
   guildId: 'guildId',
-  processedThreads: 'processedThreads',
-  failedThreads: 'failedThreads',
-  currentChannel: 'currentChannel',
+  type: 'type',
+  processedIds: 'processedIds',
+  failedIds: 'failedIds',
   updatedAt: 'updatedAt'
 } as const
 
@@ -2133,7 +2048,6 @@ export type GlobalOmitConfig = {
   memberRole?: Prisma.MemberRoleOmit
   memberCommandHistory?: Prisma.MemberCommandHistoryOmit
   memberDeletedMessages?: Prisma.MemberDeletedMessagesOmit
-  verificationProgress?: Prisma.VerificationProgressOmit
   memberUpdateQueue?: Prisma.MemberUpdateQueueOmit
   thread?: Prisma.ThreadOmit
   tag?: Prisma.TagOmit

@@ -26,21 +26,21 @@ export type AggregateSyncProgress = {
 
 export type SyncProgressMinAggregateOutputType = {
   guildId: string | null
-  currentChannel: string | null
+  type: string | null
   updatedAt: Date | null
 }
 
 export type SyncProgressMaxAggregateOutputType = {
   guildId: string | null
-  currentChannel: string | null
+  type: string | null
   updatedAt: Date | null
 }
 
 export type SyncProgressCountAggregateOutputType = {
   guildId: number
-  processedThreads: number
-  failedThreads: number
-  currentChannel: number
+  type: number
+  processedIds: number
+  failedIds: number
   updatedAt: number
   _all: number
 }
@@ -48,21 +48,21 @@ export type SyncProgressCountAggregateOutputType = {
 
 export type SyncProgressMinAggregateInputType = {
   guildId?: true
-  currentChannel?: true
+  type?: true
   updatedAt?: true
 }
 
 export type SyncProgressMaxAggregateInputType = {
   guildId?: true
-  currentChannel?: true
+  type?: true
   updatedAt?: true
 }
 
 export type SyncProgressCountAggregateInputType = {
   guildId?: true
-  processedThreads?: true
-  failedThreads?: true
-  currentChannel?: true
+  type?: true
+  processedIds?: true
+  failedIds?: true
   updatedAt?: true
   _all?: true
 }
@@ -141,9 +141,9 @@ export type SyncProgressGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type SyncProgressGroupByOutputType = {
   guildId: string
-  processedThreads: string[]
-  failedThreads: string[]
-  currentChannel: string | null
+  type: string
+  processedIds: string[]
+  failedIds: string[]
   updatedAt: Date
   _count: SyncProgressCountAggregateOutputType | null
   _min: SyncProgressMinAggregateOutputType | null
@@ -170,36 +170,37 @@ export type SyncProgressWhereInput = {
   OR?: Prisma.SyncProgressWhereInput[]
   NOT?: Prisma.SyncProgressWhereInput | Prisma.SyncProgressWhereInput[]
   guildId?: Prisma.StringFilter<"SyncProgress"> | string
-  processedThreads?: Prisma.StringNullableListFilter<"SyncProgress">
-  failedThreads?: Prisma.StringNullableListFilter<"SyncProgress">
-  currentChannel?: Prisma.StringNullableFilter<"SyncProgress"> | string | null
+  type?: Prisma.StringFilter<"SyncProgress"> | string
+  processedIds?: Prisma.StringNullableListFilter<"SyncProgress">
+  failedIds?: Prisma.StringNullableListFilter<"SyncProgress">
   updatedAt?: Prisma.DateTimeFilter<"SyncProgress"> | Date | string
 }
 
 export type SyncProgressOrderByWithRelationInput = {
   guildId?: Prisma.SortOrder
-  processedThreads?: Prisma.SortOrder
-  failedThreads?: Prisma.SortOrder
-  currentChannel?: Prisma.SortOrderInput | Prisma.SortOrder
+  type?: Prisma.SortOrder
+  processedIds?: Prisma.SortOrder
+  failedIds?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type SyncProgressWhereUniqueInput = Prisma.AtLeast<{
-  guildId?: string
+  guildId_type?: Prisma.SyncProgressGuildIdTypeCompoundUniqueInput
   AND?: Prisma.SyncProgressWhereInput | Prisma.SyncProgressWhereInput[]
   OR?: Prisma.SyncProgressWhereInput[]
   NOT?: Prisma.SyncProgressWhereInput | Prisma.SyncProgressWhereInput[]
-  processedThreads?: Prisma.StringNullableListFilter<"SyncProgress">
-  failedThreads?: Prisma.StringNullableListFilter<"SyncProgress">
-  currentChannel?: Prisma.StringNullableFilter<"SyncProgress"> | string | null
+  guildId?: Prisma.StringFilter<"SyncProgress"> | string
+  type?: Prisma.StringFilter<"SyncProgress"> | string
+  processedIds?: Prisma.StringNullableListFilter<"SyncProgress">
+  failedIds?: Prisma.StringNullableListFilter<"SyncProgress">
   updatedAt?: Prisma.DateTimeFilter<"SyncProgress"> | Date | string
-}, "guildId">
+}, "guildId_type">
 
 export type SyncProgressOrderByWithAggregationInput = {
   guildId?: Prisma.SortOrder
-  processedThreads?: Prisma.SortOrder
-  failedThreads?: Prisma.SortOrder
-  currentChannel?: Prisma.SortOrderInput | Prisma.SortOrder
+  type?: Prisma.SortOrder
+  processedIds?: Prisma.SortOrder
+  failedIds?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SyncProgressCountOrderByAggregateInput
   _max?: Prisma.SyncProgressMaxOrderByAggregateInput
@@ -211,102 +212,115 @@ export type SyncProgressScalarWhereWithAggregatesInput = {
   OR?: Prisma.SyncProgressScalarWhereWithAggregatesInput[]
   NOT?: Prisma.SyncProgressScalarWhereWithAggregatesInput | Prisma.SyncProgressScalarWhereWithAggregatesInput[]
   guildId?: Prisma.StringWithAggregatesFilter<"SyncProgress"> | string
-  processedThreads?: Prisma.StringNullableListFilter<"SyncProgress">
-  failedThreads?: Prisma.StringNullableListFilter<"SyncProgress">
-  currentChannel?: Prisma.StringNullableWithAggregatesFilter<"SyncProgress"> | string | null
+  type?: Prisma.StringWithAggregatesFilter<"SyncProgress"> | string
+  processedIds?: Prisma.StringNullableListFilter<"SyncProgress">
+  failedIds?: Prisma.StringNullableListFilter<"SyncProgress">
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SyncProgress"> | Date | string
 }
 
 export type SyncProgressCreateInput = {
   guildId: string
-  processedThreads?: Prisma.SyncProgressCreateprocessedThreadsInput | string[]
-  failedThreads?: Prisma.SyncProgressCreatefailedThreadsInput | string[]
-  currentChannel?: string | null
+  type: string
+  processedIds?: Prisma.SyncProgressCreateprocessedIdsInput | string[]
+  failedIds?: Prisma.SyncProgressCreatefailedIdsInput | string[]
   updatedAt?: Date | string
 }
 
 export type SyncProgressUncheckedCreateInput = {
   guildId: string
-  processedThreads?: Prisma.SyncProgressCreateprocessedThreadsInput | string[]
-  failedThreads?: Prisma.SyncProgressCreatefailedThreadsInput | string[]
-  currentChannel?: string | null
+  type: string
+  processedIds?: Prisma.SyncProgressCreateprocessedIdsInput | string[]
+  failedIds?: Prisma.SyncProgressCreatefailedIdsInput | string[]
   updatedAt?: Date | string
 }
 
 export type SyncProgressUpdateInput = {
   guildId?: Prisma.StringFieldUpdateOperationsInput | string
-  processedThreads?: Prisma.SyncProgressUpdateprocessedThreadsInput | string[]
-  failedThreads?: Prisma.SyncProgressUpdatefailedThreadsInput | string[]
-  currentChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  processedIds?: Prisma.SyncProgressUpdateprocessedIdsInput | string[]
+  failedIds?: Prisma.SyncProgressUpdatefailedIdsInput | string[]
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SyncProgressUncheckedUpdateInput = {
   guildId?: Prisma.StringFieldUpdateOperationsInput | string
-  processedThreads?: Prisma.SyncProgressUpdateprocessedThreadsInput | string[]
-  failedThreads?: Prisma.SyncProgressUpdatefailedThreadsInput | string[]
-  currentChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  processedIds?: Prisma.SyncProgressUpdateprocessedIdsInput | string[]
+  failedIds?: Prisma.SyncProgressUpdatefailedIdsInput | string[]
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SyncProgressCreateManyInput = {
   guildId: string
-  processedThreads?: Prisma.SyncProgressCreateprocessedThreadsInput | string[]
-  failedThreads?: Prisma.SyncProgressCreatefailedThreadsInput | string[]
-  currentChannel?: string | null
+  type: string
+  processedIds?: Prisma.SyncProgressCreateprocessedIdsInput | string[]
+  failedIds?: Prisma.SyncProgressCreatefailedIdsInput | string[]
   updatedAt?: Date | string
 }
 
 export type SyncProgressUpdateManyMutationInput = {
   guildId?: Prisma.StringFieldUpdateOperationsInput | string
-  processedThreads?: Prisma.SyncProgressUpdateprocessedThreadsInput | string[]
-  failedThreads?: Prisma.SyncProgressUpdatefailedThreadsInput | string[]
-  currentChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  processedIds?: Prisma.SyncProgressUpdateprocessedIdsInput | string[]
+  failedIds?: Prisma.SyncProgressUpdatefailedIdsInput | string[]
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SyncProgressUncheckedUpdateManyInput = {
   guildId?: Prisma.StringFieldUpdateOperationsInput | string
-  processedThreads?: Prisma.SyncProgressUpdateprocessedThreadsInput | string[]
-  failedThreads?: Prisma.SyncProgressUpdatefailedThreadsInput | string[]
-  currentChannel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  processedIds?: Prisma.SyncProgressUpdateprocessedIdsInput | string[]
+  failedIds?: Prisma.SyncProgressUpdatefailedIdsInput | string[]
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StringNullableListFilter<$PrismaModel = never> = {
+  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
+  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
+  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
+}
+
+export type SyncProgressGuildIdTypeCompoundUniqueInput = {
+  guildId: string
+  type: string
 }
 
 export type SyncProgressCountOrderByAggregateInput = {
   guildId?: Prisma.SortOrder
-  processedThreads?: Prisma.SortOrder
-  failedThreads?: Prisma.SortOrder
-  currentChannel?: Prisma.SortOrder
+  type?: Prisma.SortOrder
+  processedIds?: Prisma.SortOrder
+  failedIds?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type SyncProgressMaxOrderByAggregateInput = {
   guildId?: Prisma.SortOrder
-  currentChannel?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type SyncProgressMinOrderByAggregateInput = {
   guildId?: Prisma.SortOrder
-  currentChannel?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
-export type SyncProgressCreateprocessedThreadsInput = {
+export type SyncProgressCreateprocessedIdsInput = {
   set: string[]
 }
 
-export type SyncProgressCreatefailedThreadsInput = {
+export type SyncProgressCreatefailedIdsInput = {
   set: string[]
 }
 
-export type SyncProgressUpdateprocessedThreadsInput = {
+export type SyncProgressUpdateprocessedIdsInput = {
   set?: string[]
   push?: string | string[]
 }
 
-export type SyncProgressUpdatefailedThreadsInput = {
+export type SyncProgressUpdatefailedIdsInput = {
   set?: string[]
   push?: string | string[]
 }
@@ -315,46 +329,46 @@ export type SyncProgressUpdatefailedThreadsInput = {
 
 export type SyncProgressSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   guildId?: boolean
-  processedThreads?: boolean
-  failedThreads?: boolean
-  currentChannel?: boolean
+  type?: boolean
+  processedIds?: boolean
+  failedIds?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["syncProgress"]>
 
 export type SyncProgressSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   guildId?: boolean
-  processedThreads?: boolean
-  failedThreads?: boolean
-  currentChannel?: boolean
+  type?: boolean
+  processedIds?: boolean
+  failedIds?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["syncProgress"]>
 
 export type SyncProgressSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   guildId?: boolean
-  processedThreads?: boolean
-  failedThreads?: boolean
-  currentChannel?: boolean
+  type?: boolean
+  processedIds?: boolean
+  failedIds?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["syncProgress"]>
 
 export type SyncProgressSelectScalar = {
   guildId?: boolean
-  processedThreads?: boolean
-  failedThreads?: boolean
-  currentChannel?: boolean
+  type?: boolean
+  processedIds?: boolean
+  failedIds?: boolean
   updatedAt?: boolean
 }
 
-export type SyncProgressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"guildId" | "processedThreads" | "failedThreads" | "currentChannel" | "updatedAt", ExtArgs["result"]["syncProgress"]>
+export type SyncProgressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"guildId" | "type" | "processedIds" | "failedIds" | "updatedAt", ExtArgs["result"]["syncProgress"]>
 
 export type $SyncProgressPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SyncProgress"
   objects: {}
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     guildId: string
-    processedThreads: string[]
-    failedThreads: string[]
-    currentChannel: string | null
+    type: string
+    processedIds: string[]
+    failedIds: string[]
     updatedAt: Date
   }, ExtArgs["result"]["syncProgress"]>
   composites: {}
@@ -780,9 +794,9 @@ export interface Prisma__SyncProgressClient<T, Null = never, ExtArgs extends run
  */
 export interface SyncProgressFieldRefs {
   readonly guildId: Prisma.FieldRef<"SyncProgress", 'String'>
-  readonly processedThreads: Prisma.FieldRef<"SyncProgress", 'String[]'>
-  readonly failedThreads: Prisma.FieldRef<"SyncProgress", 'String[]'>
-  readonly currentChannel: Prisma.FieldRef<"SyncProgress", 'String'>
+  readonly type: Prisma.FieldRef<"SyncProgress", 'String'>
+  readonly processedIds: Prisma.FieldRef<"SyncProgress", 'String[]'>
+  readonly failedIds: Prisma.FieldRef<"SyncProgress", 'String[]'>
   readonly updatedAt: Prisma.FieldRef<"SyncProgress", 'DateTime'>
 }
     
