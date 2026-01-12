@@ -5,8 +5,8 @@ import {
 } from "@/api/mappers/thread.mapper";
 import { PAGE_LIMIT } from "@/api/middleware/cache";
 import { ThreadParams, ThreadType } from "@/api/middleware/validators";
-import { SyncAllThreadsService } from "@/core/services/threads/sync-all-threads.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
+import { SyncAllThreadsService } from "@/core/services/threads/verify-threads.service";
 import { Elysia, status, t } from "elysia";
 import { guildDerive } from "../middleware/guild.derive";
 

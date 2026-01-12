@@ -1,4 +1,4 @@
-import { SyncAllThreadsService } from "@/core/services/threads/sync-all-threads.service";
+import { SyncAllThreadsService } from "@/core/services/threads/verify-threads.service";
 import type { CommandResult } from "@/types";
 import { GuildTextBasedChannel, PermissionFlagsBits } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
