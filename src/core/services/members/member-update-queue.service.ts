@@ -1,5 +1,5 @@
 import { MemberDataService } from "@/core/services/members/member-data.service";
-import { VerifyAllUsersService } from "@/core/services/members/verify-all-users.service";
+import { VerifyAllUsersService } from "@/core/services/members/verify-users.service";
 import { bot } from "@/main";
 import { prisma } from "@/prisma";
 import { error, log } from "console";

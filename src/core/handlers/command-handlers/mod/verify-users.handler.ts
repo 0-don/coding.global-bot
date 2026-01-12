@@ -1,7 +1,7 @@
+import { VerifyAllUsersService } from "@/core/services/members/verify-users.service";
+import type { CommandResult } from "@/types";
 import { GuildTextBasedChannel, PermissionFlagsBits } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
-import { VerifyAllUsersService } from "@/core/services/members/verify-all-users.service";
-import type { CommandResult } from "@/types";
 
 export async function executeVerifyAllUsers(
   command: SimpleCommandMessage,
