@@ -24,7 +24,7 @@ model Guild {
   memberDeletedMessages MemberDeletedMessages[]
   threads               Thread[]
   tags                  Tag[]
-  threadReplies         ThreadReply[]
+  threadMessages        ThreadMessage[]
 }
 
 model GuildVoiceEvents {
@@ -71,7 +71,7 @@ model Member {
   memberHelper         MemberHelper[]
   memberCommandHistory MemberCommandHistory[]
   threads              Thread[]
-  threadReplies        ThreadReply[]
+  threadMessages       ThreadMessage[]
 
   deletedByMemberMessages MemberDeletedMessages[] @relation("deletedByMemberMessages")
   memberDeletedMessages   MemberDeletedMessages[] @relation("memberDeletedMessages")
@@ -245,10 +245,6 @@ model Thread {
   name      String
   boardType String // job-board, dev-board, showcase, etc.
 
-  // Content
-  content  String? @db.Text
-  imageUrl String?
-
   // Statistics
   messageCount Int @default(0)
   memberCount  Int @default(0)
@@ -267,10 +263,10 @@ model Thread {
   updatedAt DateTime  @updatedAt
 
   // Relations
-  guild    Guild       @relation(fields: [guildId], references: [guildId])
-  author   Member      @relation(fields: [authorId], references: [memberId])
+  guild    Guild           @relation(fields: [guildId], references: [guildId])
+  author   Member          @relation(fields: [authorId], references: [memberId])
   tags     ThreadTag[]
-  messages ThreadReply[]
+  messages ThreadMessage[]
 
   @@index([guildId])
   @@index([parentId])
@@ -300,14 +296,14 @@ model ThreadTag {
   @@id([threadId, tagId])
 }
 
-model ThreadReply {
+model ThreadMessage {
   id       String @id // Discord message ID
   threadId String
   authorId String
   guildId  String
 
   // Content
-  content String @db.Text
+  content String
 
   // Metadata
   createdAt DateTime
