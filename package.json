@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "prisma migrate deploy && NODE_ENV=production node dist/main.js",
+    "start": "prisma migrate deploy && dotenvx run --env NODE_ENV=production -- node dist/main.js",
     "dev": "tsx watch src/main.ts",
     "build": "tsup && tsc --emitDeclarationOnly",
     "prettier": "prettier -w .",
