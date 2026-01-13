@@ -1,9 +1,9 @@
-import { error } from "console";
-import { Message, TextChannel } from "discord.js";
-import type { Client } from "discordx";
 import { AiChatService } from "@/core/services/ai/ai-chat.service";
 import { AI_TOOLS, CODING_GLOBAL_PATTERN } from "@/shared/ai/ai-tools";
 import { ConfigValidator } from "@/shared/config/validator";
+import { error } from "console";
+import { Message, MessageFlags, TextChannel } from "discord.js";
+import type { Client } from "discordx";
 
 export async function handleAiChatMessage(
   message: Message,
@@ -16,7 +16,10 @@ export async function handleAiChatMessage(
   }
 
   if (isEmptyMessage(message)) {
-    await message.reply("if u are pinging me u should say something :/");
+    await message.reply({
+      content: "if u are pinging me u should say something :/",
+      flags: [MessageFlags.SuppressEmbeds],
+    });
     return;
   }
 
@@ -31,6 +34,7 @@ export async function handleAiChatMessage(
         ? [{ attachment: response.gifUrl, name: "reaction.gif" }]
         : undefined,
       allowedMentions: { users: [], roles: [] },
+      flags: [MessageFlags.SuppressEmbeds],
     });
   } catch (err) {
     const errorMessage = (err as Error).message;
