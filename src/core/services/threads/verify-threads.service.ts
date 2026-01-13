@@ -317,21 +317,6 @@ export class SyncAllThreadsService {
           pinned: message.pinned,
           tts: message.tts,
           type: message.type.toString(),
-          attachments: Array.from(message.attachments.values()).map((att) => ({
-            id: att.id,
-            url: att.url,
-            proxyURL: att.proxyURL,
-            name: att.name,
-            description: att.description || null,
-            contentType: att.contentType || null,
-            size: att.size,
-            width: att.width || null,
-            height: att.height || null,
-            ephemeral: att.ephemeral,
-            duration: att.duration || null,
-            waveform: att.waveform || null,
-            flags: att.flags?.bitfield.toString() || null,
-          })),
           embeds: message.embeds.map((embed) => ({
             title: embed.title || null,
             description: embed.description || null,
@@ -420,21 +405,6 @@ export class SyncAllThreadsService {
           content: message.content,
           editedAt: message.editedAt,
           pinned: message.pinned,
-          attachments: Array.from(message.attachments.values()).map((att) => ({
-            id: att.id,
-            url: att.url,
-            proxyURL: att.proxyURL,
-            name: att.name,
-            description: att.description || null,
-            contentType: att.contentType || null,
-            size: att.size,
-            width: att.width || null,
-            height: att.height || null,
-            ephemeral: att.ephemeral,
-            duration: att.duration || null,
-            waveform: att.waveform || null,
-            flags: att.flags?.bitfield.toString() || null,
-          })),
           embeds: message.embeds.map((embed) => ({
             title: embed.title || null,
             description: embed.description || null,
@@ -513,6 +483,11 @@ export class SyncAllThreadsService {
           })),
         },
       });
+
+      await ThreadService.upsertAttachments(
+        message.id,
+        Array.from(message.attachments.values()),
+      );
     } catch (_) {}
   }
 }

@@ -61,7 +61,6 @@ export type ThreadMessageCountAggregateOutputType = {
   pinned: number
   tts: number
   type: number
-  attachments: number
   embeds: number
   mentions: number
   reactions: number
@@ -107,7 +106,6 @@ export type ThreadMessageCountAggregateInputType = {
   pinned?: true
   tts?: true
   type?: true
-  attachments?: true
   embeds?: true
   mentions?: true
   reactions?: true
@@ -198,7 +196,6 @@ export type ThreadMessageGroupByOutputType = {
   pinned: boolean
   tts: boolean
   type: string
-  attachments: runtime.JsonValue | null
   embeds: runtime.JsonValue | null
   mentions: runtime.JsonValue | null
   reactions: runtime.JsonValue | null
@@ -237,7 +234,6 @@ export type ThreadMessageWhereInput = {
   pinned?: Prisma.BoolFilter<"ThreadMessage"> | boolean
   tts?: Prisma.BoolFilter<"ThreadMessage"> | boolean
   type?: Prisma.StringFilter<"ThreadMessage"> | string
-  attachments?: Prisma.JsonNullableFilter<"ThreadMessage">
   embeds?: Prisma.JsonNullableFilter<"ThreadMessage">
   mentions?: Prisma.JsonNullableFilter<"ThreadMessage">
   reactions?: Prisma.JsonNullableFilter<"ThreadMessage">
@@ -245,6 +241,7 @@ export type ThreadMessageWhereInput = {
   thread?: Prisma.XOR<Prisma.ThreadScalarRelationFilter, Prisma.ThreadWhereInput>
   author?: Prisma.XOR<Prisma.MemberScalarRelationFilter, Prisma.MemberWhereInput>
   guild?: Prisma.XOR<Prisma.GuildScalarRelationFilter, Prisma.GuildWhereInput>
+  attachments?: Prisma.AttachmentListRelationFilter
 }
 
 export type ThreadMessageOrderByWithRelationInput = {
@@ -258,7 +255,6 @@ export type ThreadMessageOrderByWithRelationInput = {
   pinned?: Prisma.SortOrder
   tts?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  attachments?: Prisma.SortOrderInput | Prisma.SortOrder
   embeds?: Prisma.SortOrderInput | Prisma.SortOrder
   mentions?: Prisma.SortOrderInput | Prisma.SortOrder
   reactions?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -266,6 +262,7 @@ export type ThreadMessageOrderByWithRelationInput = {
   thread?: Prisma.ThreadOrderByWithRelationInput
   author?: Prisma.MemberOrderByWithRelationInput
   guild?: Prisma.GuildOrderByWithRelationInput
+  attachments?: Prisma.AttachmentOrderByRelationAggregateInput
 }
 
 export type ThreadMessageWhereUniqueInput = Prisma.AtLeast<{
@@ -282,7 +279,6 @@ export type ThreadMessageWhereUniqueInput = Prisma.AtLeast<{
   pinned?: Prisma.BoolFilter<"ThreadMessage"> | boolean
   tts?: Prisma.BoolFilter<"ThreadMessage"> | boolean
   type?: Prisma.StringFilter<"ThreadMessage"> | string
-  attachments?: Prisma.JsonNullableFilter<"ThreadMessage">
   embeds?: Prisma.JsonNullableFilter<"ThreadMessage">
   mentions?: Prisma.JsonNullableFilter<"ThreadMessage">
   reactions?: Prisma.JsonNullableFilter<"ThreadMessage">
@@ -290,6 +286,7 @@ export type ThreadMessageWhereUniqueInput = Prisma.AtLeast<{
   thread?: Prisma.XOR<Prisma.ThreadScalarRelationFilter, Prisma.ThreadWhereInput>
   author?: Prisma.XOR<Prisma.MemberScalarRelationFilter, Prisma.MemberWhereInput>
   guild?: Prisma.XOR<Prisma.GuildScalarRelationFilter, Prisma.GuildWhereInput>
+  attachments?: Prisma.AttachmentListRelationFilter
 }, "id">
 
 export type ThreadMessageOrderByWithAggregationInput = {
@@ -303,7 +300,6 @@ export type ThreadMessageOrderByWithAggregationInput = {
   pinned?: Prisma.SortOrder
   tts?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  attachments?: Prisma.SortOrderInput | Prisma.SortOrder
   embeds?: Prisma.SortOrderInput | Prisma.SortOrder
   mentions?: Prisma.SortOrderInput | Prisma.SortOrder
   reactions?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -327,7 +323,6 @@ export type ThreadMessageScalarWhereWithAggregatesInput = {
   pinned?: Prisma.BoolWithAggregatesFilter<"ThreadMessage"> | boolean
   tts?: Prisma.BoolWithAggregatesFilter<"ThreadMessage"> | boolean
   type?: Prisma.StringWithAggregatesFilter<"ThreadMessage"> | string
-  attachments?: Prisma.JsonNullableWithAggregatesFilter<"ThreadMessage">
   embeds?: Prisma.JsonNullableWithAggregatesFilter<"ThreadMessage">
   mentions?: Prisma.JsonNullableWithAggregatesFilter<"ThreadMessage">
   reactions?: Prisma.JsonNullableWithAggregatesFilter<"ThreadMessage">
@@ -342,7 +337,6 @@ export type ThreadMessageCreateInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -350,6 +344,7 @@ export type ThreadMessageCreateInput = {
   thread: Prisma.ThreadCreateNestedOneWithoutMessagesInput
   author: Prisma.MemberCreateNestedOneWithoutThreadMessagesInput
   guild: Prisma.GuildCreateNestedOneWithoutThreadMessagesInput
+  attachments?: Prisma.AttachmentCreateNestedManyWithoutMessageInput
 }
 
 export type ThreadMessageUncheckedCreateInput = {
@@ -363,11 +358,11 @@ export type ThreadMessageUncheckedCreateInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutMessageInput
 }
 
 export type ThreadMessageUpdateInput = {
@@ -378,7 +373,6 @@ export type ThreadMessageUpdateInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -386,6 +380,7 @@ export type ThreadMessageUpdateInput = {
   thread?: Prisma.ThreadUpdateOneRequiredWithoutMessagesNestedInput
   author?: Prisma.MemberUpdateOneRequiredWithoutThreadMessagesNestedInput
   guild?: Prisma.GuildUpdateOneRequiredWithoutThreadMessagesNestedInput
+  attachments?: Prisma.AttachmentUpdateManyWithoutMessageNestedInput
 }
 
 export type ThreadMessageUncheckedUpdateInput = {
@@ -399,11 +394,11 @@ export type ThreadMessageUncheckedUpdateInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutMessageNestedInput
 }
 
 export type ThreadMessageCreateManyInput = {
@@ -417,7 +412,6 @@ export type ThreadMessageCreateManyInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -432,7 +426,6 @@ export type ThreadMessageUpdateManyMutationInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -450,7 +443,6 @@ export type ThreadMessageUncheckedUpdateManyInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -478,7 +470,6 @@ export type ThreadMessageCountOrderByAggregateInput = {
   pinned?: Prisma.SortOrder
   tts?: Prisma.SortOrder
   type?: Prisma.SortOrder
-  attachments?: Prisma.SortOrder
   embeds?: Prisma.SortOrder
   mentions?: Prisma.SortOrder
   reactions?: Prisma.SortOrder
@@ -509,6 +500,11 @@ export type ThreadMessageMinOrderByAggregateInput = {
   pinned?: Prisma.SortOrder
   tts?: Prisma.SortOrder
   type?: Prisma.SortOrder
+}
+
+export type ThreadMessageScalarRelationFilter = {
+  is?: Prisma.ThreadMessageWhereInput
+  isNot?: Prisma.ThreadMessageWhereInput
 }
 
 export type ThreadMessageCreateNestedManyWithoutGuildInput = {
@@ -637,6 +633,20 @@ export type ThreadMessageUncheckedUpdateManyWithoutThreadNestedInput = {
   deleteMany?: Prisma.ThreadMessageScalarWhereInput | Prisma.ThreadMessageScalarWhereInput[]
 }
 
+export type ThreadMessageCreateNestedOneWithoutAttachmentsInput = {
+  create?: Prisma.XOR<Prisma.ThreadMessageCreateWithoutAttachmentsInput, Prisma.ThreadMessageUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.ThreadMessageCreateOrConnectWithoutAttachmentsInput
+  connect?: Prisma.ThreadMessageWhereUniqueInput
+}
+
+export type ThreadMessageUpdateOneRequiredWithoutAttachmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ThreadMessageCreateWithoutAttachmentsInput, Prisma.ThreadMessageUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.ThreadMessageCreateOrConnectWithoutAttachmentsInput
+  upsert?: Prisma.ThreadMessageUpsertWithoutAttachmentsInput
+  connect?: Prisma.ThreadMessageWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ThreadMessageUpdateToOneWithWhereWithoutAttachmentsInput, Prisma.ThreadMessageUpdateWithoutAttachmentsInput>, Prisma.ThreadMessageUncheckedUpdateWithoutAttachmentsInput>
+}
+
 export type ThreadMessageCreateWithoutGuildInput = {
   id: string
   content: string
@@ -645,13 +655,13 @@ export type ThreadMessageCreateWithoutGuildInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   thread: Prisma.ThreadCreateNestedOneWithoutMessagesInput
   author: Prisma.MemberCreateNestedOneWithoutThreadMessagesInput
+  attachments?: Prisma.AttachmentCreateNestedManyWithoutMessageInput
 }
 
 export type ThreadMessageUncheckedCreateWithoutGuildInput = {
@@ -664,11 +674,11 @@ export type ThreadMessageUncheckedCreateWithoutGuildInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutMessageInput
 }
 
 export type ThreadMessageCreateOrConnectWithoutGuildInput = {
@@ -711,7 +721,6 @@ export type ThreadMessageScalarWhereInput = {
   pinned?: Prisma.BoolFilter<"ThreadMessage"> | boolean
   tts?: Prisma.BoolFilter<"ThreadMessage"> | boolean
   type?: Prisma.StringFilter<"ThreadMessage"> | string
-  attachments?: Prisma.JsonNullableFilter<"ThreadMessage">
   embeds?: Prisma.JsonNullableFilter<"ThreadMessage">
   mentions?: Prisma.JsonNullableFilter<"ThreadMessage">
   reactions?: Prisma.JsonNullableFilter<"ThreadMessage">
@@ -726,13 +735,13 @@ export type ThreadMessageCreateWithoutAuthorInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   thread: Prisma.ThreadCreateNestedOneWithoutMessagesInput
   guild: Prisma.GuildCreateNestedOneWithoutThreadMessagesInput
+  attachments?: Prisma.AttachmentCreateNestedManyWithoutMessageInput
 }
 
 export type ThreadMessageUncheckedCreateWithoutAuthorInput = {
@@ -745,11 +754,11 @@ export type ThreadMessageUncheckedCreateWithoutAuthorInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutMessageInput
 }
 
 export type ThreadMessageCreateOrConnectWithoutAuthorInput = {
@@ -786,13 +795,13 @@ export type ThreadMessageCreateWithoutThreadInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   author: Prisma.MemberCreateNestedOneWithoutThreadMessagesInput
   guild: Prisma.GuildCreateNestedOneWithoutThreadMessagesInput
+  attachments?: Prisma.AttachmentCreateNestedManyWithoutMessageInput
 }
 
 export type ThreadMessageUncheckedCreateWithoutThreadInput = {
@@ -805,11 +814,11 @@ export type ThreadMessageUncheckedCreateWithoutThreadInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutMessageInput
 }
 
 export type ThreadMessageCreateOrConnectWithoutThreadInput = {
@@ -838,6 +847,90 @@ export type ThreadMessageUpdateManyWithWhereWithoutThreadInput = {
   data: Prisma.XOR<Prisma.ThreadMessageUpdateManyMutationInput, Prisma.ThreadMessageUncheckedUpdateManyWithoutThreadInput>
 }
 
+export type ThreadMessageCreateWithoutAttachmentsInput = {
+  id: string
+  content: string
+  createdAt: Date | string
+  editedAt?: Date | string | null
+  pinned?: boolean
+  tts?: boolean
+  type?: string
+  embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  thread: Prisma.ThreadCreateNestedOneWithoutMessagesInput
+  author: Prisma.MemberCreateNestedOneWithoutThreadMessagesInput
+  guild: Prisma.GuildCreateNestedOneWithoutThreadMessagesInput
+}
+
+export type ThreadMessageUncheckedCreateWithoutAttachmentsInput = {
+  id: string
+  threadId: string
+  authorId: string
+  guildId: string
+  content: string
+  createdAt: Date | string
+  editedAt?: Date | string | null
+  pinned?: boolean
+  tts?: boolean
+  type?: string
+  embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+}
+
+export type ThreadMessageCreateOrConnectWithoutAttachmentsInput = {
+  where: Prisma.ThreadMessageWhereUniqueInput
+  create: Prisma.XOR<Prisma.ThreadMessageCreateWithoutAttachmentsInput, Prisma.ThreadMessageUncheckedCreateWithoutAttachmentsInput>
+}
+
+export type ThreadMessageUpsertWithoutAttachmentsInput = {
+  update: Prisma.XOR<Prisma.ThreadMessageUpdateWithoutAttachmentsInput, Prisma.ThreadMessageUncheckedUpdateWithoutAttachmentsInput>
+  create: Prisma.XOR<Prisma.ThreadMessageCreateWithoutAttachmentsInput, Prisma.ThreadMessageUncheckedCreateWithoutAttachmentsInput>
+  where?: Prisma.ThreadMessageWhereInput
+}
+
+export type ThreadMessageUpdateToOneWithWhereWithoutAttachmentsInput = {
+  where?: Prisma.ThreadMessageWhereInput
+  data: Prisma.XOR<Prisma.ThreadMessageUpdateWithoutAttachmentsInput, Prisma.ThreadMessageUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type ThreadMessageUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  thread?: Prisma.ThreadUpdateOneRequiredWithoutMessagesNestedInput
+  author?: Prisma.MemberUpdateOneRequiredWithoutThreadMessagesNestedInput
+  guild?: Prisma.GuildUpdateOneRequiredWithoutThreadMessagesNestedInput
+}
+
+export type ThreadMessageUncheckedUpdateWithoutAttachmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  threadId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  guildId?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+}
+
 export type ThreadMessageCreateManyGuildInput = {
   id: string
   threadId: string
@@ -848,7 +941,6 @@ export type ThreadMessageCreateManyGuildInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -863,13 +955,13 @@ export type ThreadMessageUpdateWithoutGuildInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   thread?: Prisma.ThreadUpdateOneRequiredWithoutMessagesNestedInput
   author?: Prisma.MemberUpdateOneRequiredWithoutThreadMessagesNestedInput
+  attachments?: Prisma.AttachmentUpdateManyWithoutMessageNestedInput
 }
 
 export type ThreadMessageUncheckedUpdateWithoutGuildInput = {
@@ -882,11 +974,11 @@ export type ThreadMessageUncheckedUpdateWithoutGuildInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutMessageNestedInput
 }
 
 export type ThreadMessageUncheckedUpdateManyWithoutGuildInput = {
@@ -899,7 +991,6 @@ export type ThreadMessageUncheckedUpdateManyWithoutGuildInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -916,7 +1007,6 @@ export type ThreadMessageCreateManyAuthorInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -931,13 +1021,13 @@ export type ThreadMessageUpdateWithoutAuthorInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   thread?: Prisma.ThreadUpdateOneRequiredWithoutMessagesNestedInput
   guild?: Prisma.GuildUpdateOneRequiredWithoutThreadMessagesNestedInput
+  attachments?: Prisma.AttachmentUpdateManyWithoutMessageNestedInput
 }
 
 export type ThreadMessageUncheckedUpdateWithoutAuthorInput = {
@@ -950,11 +1040,11 @@ export type ThreadMessageUncheckedUpdateWithoutAuthorInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutMessageNestedInput
 }
 
 export type ThreadMessageUncheckedUpdateManyWithoutAuthorInput = {
@@ -967,7 +1057,6 @@ export type ThreadMessageUncheckedUpdateManyWithoutAuthorInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -984,7 +1073,6 @@ export type ThreadMessageCreateManyThreadInput = {
   pinned?: boolean
   tts?: boolean
   type?: string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -999,13 +1087,13 @@ export type ThreadMessageUpdateWithoutThreadInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   author?: Prisma.MemberUpdateOneRequiredWithoutThreadMessagesNestedInput
   guild?: Prisma.GuildUpdateOneRequiredWithoutThreadMessagesNestedInput
+  attachments?: Prisma.AttachmentUpdateManyWithoutMessageNestedInput
 }
 
 export type ThreadMessageUncheckedUpdateWithoutThreadInput = {
@@ -1018,11 +1106,11 @@ export type ThreadMessageUncheckedUpdateWithoutThreadInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutMessageNestedInput
 }
 
 export type ThreadMessageUncheckedUpdateManyWithoutThreadInput = {
@@ -1035,13 +1123,41 @@ export type ThreadMessageUncheckedUpdateManyWithoutThreadInput = {
   pinned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tts?: Prisma.BoolFieldUpdateOperationsInput | boolean
   type?: Prisma.StringFieldUpdateOperationsInput | string
-  attachments?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   embeds?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   mentions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reactions?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reference?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
+
+/**
+ * Count Type ThreadMessageCountOutputType
+ */
+
+export type ThreadMessageCountOutputType = {
+  attachments: number
+}
+
+export type ThreadMessageCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  attachments?: boolean | ThreadMessageCountOutputTypeCountAttachmentsArgs
+}
+
+/**
+ * ThreadMessageCountOutputType without action
+ */
+export type ThreadMessageCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ThreadMessageCountOutputType
+   */
+  select?: Prisma.ThreadMessageCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ThreadMessageCountOutputType without action
+ */
+export type ThreadMessageCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AttachmentWhereInput
+}
 
 
 export type ThreadMessageSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1055,7 +1171,6 @@ export type ThreadMessageSelect<ExtArgs extends runtime.Types.Extensions.Interna
   pinned?: boolean
   tts?: boolean
   type?: boolean
-  attachments?: boolean
   embeds?: boolean
   mentions?: boolean
   reactions?: boolean
@@ -1063,6 +1178,8 @@ export type ThreadMessageSelect<ExtArgs extends runtime.Types.Extensions.Interna
   thread?: boolean | Prisma.ThreadDefaultArgs<ExtArgs>
   author?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   guild?: boolean | Prisma.GuildDefaultArgs<ExtArgs>
+  attachments?: boolean | Prisma.ThreadMessage$attachmentsArgs<ExtArgs>
+  _count?: boolean | Prisma.ThreadMessageCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["threadMessage"]>
 
 export type ThreadMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1076,7 +1193,6 @@ export type ThreadMessageSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   pinned?: boolean
   tts?: boolean
   type?: boolean
-  attachments?: boolean
   embeds?: boolean
   mentions?: boolean
   reactions?: boolean
@@ -1097,7 +1213,6 @@ export type ThreadMessageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   pinned?: boolean
   tts?: boolean
   type?: boolean
-  attachments?: boolean
   embeds?: boolean
   mentions?: boolean
   reactions?: boolean
@@ -1118,18 +1233,19 @@ export type ThreadMessageSelectScalar = {
   pinned?: boolean
   tts?: boolean
   type?: boolean
-  attachments?: boolean
   embeds?: boolean
   mentions?: boolean
   reactions?: boolean
   reference?: boolean
 }
 
-export type ThreadMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "threadId" | "authorId" | "guildId" | "content" | "createdAt" | "editedAt" | "pinned" | "tts" | "type" | "attachments" | "embeds" | "mentions" | "reactions" | "reference", ExtArgs["result"]["threadMessage"]>
+export type ThreadMessageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "threadId" | "authorId" | "guildId" | "content" | "createdAt" | "editedAt" | "pinned" | "tts" | "type" | "embeds" | "mentions" | "reactions" | "reference", ExtArgs["result"]["threadMessage"]>
 export type ThreadMessageInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   thread?: boolean | Prisma.ThreadDefaultArgs<ExtArgs>
   author?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   guild?: boolean | Prisma.GuildDefaultArgs<ExtArgs>
+  attachments?: boolean | Prisma.ThreadMessage$attachmentsArgs<ExtArgs>
+  _count?: boolean | Prisma.ThreadMessageCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ThreadMessageIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   thread?: boolean | Prisma.ThreadDefaultArgs<ExtArgs>
@@ -1148,6 +1264,7 @@ export type $ThreadMessagePayload<ExtArgs extends runtime.Types.Extensions.Inter
     thread: Prisma.$ThreadPayload<ExtArgs>
     author: Prisma.$MemberPayload<ExtArgs>
     guild: Prisma.$GuildPayload<ExtArgs>
+    attachments: Prisma.$AttachmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1160,7 +1277,6 @@ export type $ThreadMessagePayload<ExtArgs extends runtime.Types.Extensions.Inter
     pinned: boolean
     tts: boolean
     type: string
-    attachments: runtime.JsonValue | null
     embeds: runtime.JsonValue | null
     mentions: runtime.JsonValue | null
     reactions: runtime.JsonValue | null
@@ -1562,6 +1678,7 @@ export interface Prisma__ThreadMessageClient<T, Null = never, ExtArgs extends ru
   thread<T extends Prisma.ThreadDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ThreadDefaultArgs<ExtArgs>>): Prisma.Prisma__ThreadClient<runtime.Types.Result.GetResult<Prisma.$ThreadPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   author<T extends Prisma.MemberDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MemberDefaultArgs<ExtArgs>>): Prisma.Prisma__MemberClient<runtime.Types.Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   guild<T extends Prisma.GuildDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.GuildDefaultArgs<ExtArgs>>): Prisma.Prisma__GuildClient<runtime.Types.Result.GetResult<Prisma.$GuildPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  attachments<T extends Prisma.ThreadMessage$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ThreadMessage$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1601,7 +1718,6 @@ export interface ThreadMessageFieldRefs {
   readonly pinned: Prisma.FieldRef<"ThreadMessage", 'Boolean'>
   readonly tts: Prisma.FieldRef<"ThreadMessage", 'Boolean'>
   readonly type: Prisma.FieldRef<"ThreadMessage", 'String'>
-  readonly attachments: Prisma.FieldRef<"ThreadMessage", 'Json'>
   readonly embeds: Prisma.FieldRef<"ThreadMessage", 'Json'>
   readonly mentions: Prisma.FieldRef<"ThreadMessage", 'Json'>
   readonly reactions: Prisma.FieldRef<"ThreadMessage", 'Json'>
@@ -1999,6 +2115,30 @@ export type ThreadMessageDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many ThreadMessages to delete.
    */
   limit?: number
+}
+
+/**
+ * ThreadMessage.attachments
+ */
+export type ThreadMessage$attachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Attachment
+   */
+  select?: Prisma.AttachmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Attachment
+   */
+  omit?: Prisma.AttachmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AttachmentInclude<ExtArgs> | null
+  where?: Prisma.AttachmentWhereInput
+  orderBy?: Prisma.AttachmentOrderByWithRelationInput | Prisma.AttachmentOrderByWithRelationInput[]
+  cursor?: Prisma.AttachmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AttachmentScalarFieldEnum | Prisma.AttachmentScalarFieldEnum[]
 }
 
 /**

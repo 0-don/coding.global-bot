@@ -65,7 +65,8 @@ export const ModelName = {
   Tag: 'Tag',
   ThreadTag: 'ThreadTag',
   ThreadMessage: 'ThreadMessage',
-  SyncProgress: 'SyncProgress'
+  SyncProgress: 'SyncProgress',
+  Attachment: 'Attachment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -303,7 +304,6 @@ export const ThreadMessageScalarFieldEnum = {
   pinned: 'pinned',
   tts: 'tts',
   type: 'type',
-  attachments: 'attachments',
   embeds: 'embeds',
   mentions: 'mentions',
   reactions: 'reactions',
@@ -322,6 +322,26 @@ export const SyncProgressScalarFieldEnum = {
 } as const
 
 export type SyncProgressScalarFieldEnum = (typeof SyncProgressScalarFieldEnum)[keyof typeof SyncProgressScalarFieldEnum]
+
+
+export const AttachmentScalarFieldEnum = {
+  id: 'id',
+  messageId: 'messageId',
+  url: 'url',
+  proxyURL: 'proxyURL',
+  name: 'name',
+  description: 'description',
+  contentType: 'contentType',
+  size: 'size',
+  width: 'width',
+  height: 'height',
+  ephemeral: 'ephemeral',
+  duration: 'duration',
+  waveform: 'waveform',
+  flags: 'flags'
+} as const
+
+export type AttachmentScalarFieldEnum = (typeof AttachmentScalarFieldEnum)[keyof typeof AttachmentScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -1,6 +1,5 @@
 import { ThreadService } from "@/core/services/threads/thread.service";
 import {
-  mapAttachmentsFromDb,
   mapEmbedsFromDb,
   mapMember,
   mapMentionsFromDb,
@@ -18,9 +17,7 @@ export function formatThreadFromDb(
 ) {
   const author = mapMember(dbThread.author, guildId);
   const firstMessage = dbThread.messages[0];
-  const attachments = firstMessage
-    ? mapAttachmentsFromDb(firstMessage.attachments)
-    : [];
+  const attachments = firstMessage?.attachments ?? [];
   const imageAttachment = attachments.find((a) =>
     a.contentType?.startsWith("image/"),
   );
@@ -73,7 +70,7 @@ export function formatReplyFromDb(
     pinned: reply.pinned,
     tts: reply.tts,
     type: reply.type,
-    attachments: mapAttachmentsFromDb(reply.attachments),
+    attachments: reply.attachments,
     embeds: mapEmbedsFromDb(reply.embeds),
     mentions: mapMentionsFromDb(reply.mentions),
     reactions: mapReactionsFromDb(reply.reactions),
