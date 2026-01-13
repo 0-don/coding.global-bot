@@ -235,11 +235,30 @@ export class MessagesService {
 
     if (!memberGuild) return;
 
-    if (
-      content.includes("discord.gg/") ||
-      content.includes("discordapp.com/invite") ||
-      content.includes("discord.com/invite")
-    ) {
+    const inviteRegex =
+      /(?:discord\.gg\/|discordapp\.com\/invite\/|discord\.com\/invite\/)([a-zA-Z0-9-]+)/gi;
+    const matches = content.matchAll(inviteRegex);
+    const inviteCodes = [...matches].map((match) => match[1]);
+
+    if (inviteCodes.length === 0) return;
+
+    let hasExternalInvite = false;
+
+    for (const code of inviteCodes) {
+      try {
+        const invite = await message.client.fetchInvite(code);
+        if (invite.guild?.id !== message.guild.id) {
+          hasExternalInvite = true;
+          break;
+        }
+      } catch {
+        // Invalid invite or couldn't fetch - treat as external to be safe
+        hasExternalInvite = true;
+        break;
+      }
+    }
+
+    if (hasExternalInvite) {
       await message.delete();
 
       const currentWarnings = memberGuild.warnings + 1;
