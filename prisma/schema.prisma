@@ -347,8 +347,10 @@ model Attachment {
   duration    Float? // For audio/video
   waveform    String? // For audio
   flags       String?
+  expiresAt   DateTime? // Extracted from URL's "ex" param for refresh queries
 
   message ThreadMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
   @@index([messageId])
+  @@index([expiresAt])
 }

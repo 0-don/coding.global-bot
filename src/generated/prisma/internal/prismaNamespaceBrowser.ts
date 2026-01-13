@@ -338,7 +338,8 @@ export const AttachmentScalarFieldEnum = {
   ephemeral: 'ephemeral',
   duration: 'duration',
   waveform: 'waveform',
-  flags: 'flags'
+  flags: 'flags',
+  expiresAt: 'expiresAt'
 } as const
 
 export type AttachmentScalarFieldEnum = (typeof AttachmentScalarFieldEnum)[keyof typeof AttachmentScalarFieldEnum]

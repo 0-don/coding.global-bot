@@ -6,6 +6,7 @@ import type {
   MessageReaction,
   MessageReference,
 } from "discord.js";
+import { extractExpiresAt } from "../utils/date.utils";
 
 // Type for MemberGuild-first queries (e.g., member search)
 export type MemberGuildWithRelations = Prisma.MemberGuildGetPayload<{
@@ -122,6 +123,7 @@ export const mapAttachmentToDb = (a: Attachment, messageId: string) => ({
   duration: a.duration ?? null,
   waveform: a.waveform ?? null,
   flags: a.flags?.bitfield.toString() ?? null,
+  expiresAt: extractExpiresAt(a.url),
 });
 
 export const mapEmbed = (e: Embed) => ({
