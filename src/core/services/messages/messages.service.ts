@@ -1,19 +1,17 @@
+import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
+import { prisma } from "@/prisma";
+import { LEVEL_LIST, LEVEL_MESSAGES } from "@/shared/config/levels";
+import { JAIL, VOICE_ONLY } from "@/shared/config/roles";
+import { ConfigValidator } from "@/shared/config/validator";
 import {
   AuditLogEvent,
   Collection,
   FetchMessagesOptions,
+  GuildTextBasedChannel,
   Message,
   PartialMessage,
-  PrivateThreadChannel,
-  PublicThreadChannel,
-  TextBasedChannel,
   TextChannel,
 } from "discord.js";
-import { prisma } from "@/prisma";
-import { ConfigValidator } from "@/shared/config/validator";
-import { JAIL, VOICE_ONLY } from "@/shared/config/roles";
-import { LEVEL_LIST, LEVEL_MESSAGES } from "@/shared/config/levels";
-import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
 
 export class MessagesService {
   private static _levelSystemWarningLogged = false;
@@ -182,11 +180,7 @@ export class MessagesService {
 
   // Fetch messages utility
   static async fetchMessages(
-    channel:
-      | TextBasedChannel
-      | TextChannel
-      | PrivateThreadChannel
-      | PublicThreadChannel<boolean>,
+    channel: GuildTextBasedChannel,
     limit: number = 100,
   ): Promise<Message[]> {
     let out: Message[] = [];
