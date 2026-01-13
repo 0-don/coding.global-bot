@@ -99,3 +99,30 @@ cat coding-global-bot.sql | docker exec -i coding-global-bot-db psql -U postgres
 <!-- SELECT last_value FROM public."GuildVoiceEvents_id_seq"; -->
 <!-- SELECT setval('public."GuildVoiceEvents_id_seq"', 51980, false); -->
 <!-- GIT_COMMITTER_DATE="2024-06-09T12:00:00" git commit --amend --no-edit --date "2024-06-09T12:00:00" -->
+
+<!--
+### Prisma Migration Reset (Baselining for Production)
+
+If you need to reset prisma migrations while preserving production data:
+
+1. Remove the migrations folder:
+   rm -rf prisma/migrations
+
+2. Create a new migration directory:
+   mkdir -p prisma/migrations/0_init
+
+3. Generate the baseline migration SQL from your schema:
+   npx prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script > prisma/migrations/0_init/migration.sql
+
+4. IMPORTANT: Check the migration.sql file - if it has console output on line 1 (like "[dotenvx@...]"), remove that line manually
+
+5. Mark the migration as already applied (without running it):
+   npx prisma migrate resolve --applied 0_init
+
+6. Verify the migration status:
+   npx prisma migrate status
+
+If you need to redo step 5 (e.g., after fixing the SQL file):
+   npx prisma db execute --stdin <<< "DELETE FROM _prisma_migrations WHERE migration_name = '0_init';"
+   npx prisma migrate resolve --applied 0_init
+-->
