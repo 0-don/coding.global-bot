@@ -1,12 +1,13 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/prisma";
 import {
-  mapAttachment,
+  mapAttachmentToDb,
   mapEmbed,
   mapMentions,
   mapReactions,
   mapReference,
 } from "@/shared/mappers/discord.mapper";
+import type { Attachment } from "discord.js";
 import {
   ChannelType,
   ForumChannel,
@@ -95,7 +96,10 @@ export class ThreadService {
         tags: { include: { tag: true } },
         messages: {
           where: { id: threadId },
-          include: { author: { include: { guilds: true, roles: true } } },
+          include: {
+            author: { include: { guilds: true, roles: true } },
+            attachments: true,
+          },
           take: 1,
         },
       },
@@ -114,7 +118,10 @@ export class ThreadService {
         },
         tags: { include: { tag: true } },
         messages: {
-          include: { author: { include: { guilds: true, roles: true } } },
+          include: {
+            author: { include: { guilds: true, roles: true } },
+            attachments: true,
+          },
           take: 1,
           orderBy: { createdAt: "asc" },
         },
@@ -149,6 +156,7 @@ export class ThreadService {
     }
 
     const data = this.parseThreadMessageToDb(message, threadId, guildId);
+    const attachments = Array.from(message.attachments.values());
 
     try {
       await prisma.threadMessage.upsert({
@@ -158,14 +166,32 @@ export class ThreadService {
           content: data.content,
           editedAt: data.editedAt,
           pinned: data.pinned,
-          attachments: data.attachments,
           embeds: data.embeds,
           mentions: data.mentions,
           reactions: data.reactions,
           reference: data.reference,
         },
       });
+
+      await this.upsertAttachments(message.id, attachments);
     } catch (_) {}
+  }
+
+  static async upsertAttachments(
+    messageId: string,
+    attachments: Attachment[],
+  ): Promise<void> {
+    if (attachments.length === 0) {
+      await prisma.attachment.deleteMany({ where: { messageId } });
+      return;
+    }
+
+    const attachmentData = attachments.map((a) => mapAttachmentToDb(a, messageId));
+
+    await prisma.$transaction([
+      prisma.attachment.deleteMany({ where: { messageId } }),
+      prisma.attachment.createMany({ data: attachmentData }),
+    ]);
   }
 
   static async deleteThreadMessage(messageId: string): Promise<void> {
@@ -185,7 +211,10 @@ export class ThreadService {
         threadId,
         id: { not: threadId, ...(options.after && { gt: options.after }) },
       },
-      include: { author: { include: { guilds: true, roles: true } } },
+      include: {
+        author: { include: { guilds: true, roles: true } },
+        attachments: true,
+      },
       orderBy: { createdAt: "asc" },
       take: limit + 1,
     });
@@ -256,7 +285,6 @@ export class ThreadService {
       pinned: message.pinned,
       tts: message.tts,
       type: message.type.toString(),
-      attachments: Array.from(message.attachments.values()).map(mapAttachment),
       embeds: message.embeds.map(mapEmbed),
       mentions: mapMentions(message.mentions),
       reactions: mapReactions(message.reactions.cache.values()),

@@ -305,17 +305,17 @@ model ThreadMessage {
   tts       Boolean   @default(false)
   type      String    @default("DEFAULT")
 
-  // Rich content (stored as JSON)
-  attachments Json? // Array of attachment objects
+  // Rich content
   embeds      Json? // Array of embed objects
   mentions    Json? // {users: [], roles: [], everyone: boolean}
   reactions   Json? // Array of {emoji, count}
   reference   Json? // {messageId, channelId, guildId}
 
   // Relations
-  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  author Member @relation(fields: [authorId], references: [memberId])
-  guild  Guild  @relation(fields: [guildId], references: [guildId])
+  thread      Thread       @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author      Member       @relation(fields: [authorId], references: [memberId])
+  guild       Guild        @relation(fields: [guildId], references: [guildId])
+  attachments Attachment[]
 
   @@index([threadId])
   @@index([authorId])
@@ -330,4 +330,25 @@ model SyncProgress {
   updatedAt    DateTime @default(now()) @updatedAt
 
   @@id([guildId, type])
+}
+
+model Attachment {
+  id          String  @id // Discord attachment ID
+  messageId   String
+  url         String
+  proxyURL    String
+  name        String
+  description String?
+  contentType String?
+  size        Int
+  width       Int?
+  height      Int?
+  ephemeral   Boolean @default(false)
+  duration    Float? // For audio/video
+  waveform    String? // For audio
+  flags       String?
+
+  message ThreadMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
 }

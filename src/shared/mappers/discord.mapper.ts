@@ -107,6 +107,23 @@ export const mapAttachment = (a: Attachment) => ({
   flags: a.flags?.bitfield.toString() ?? null,
 });
 
+export const mapAttachmentToDb = (a: Attachment, messageId: string) => ({
+  id: a.id,
+  messageId,
+  url: a.url,
+  proxyURL: a.proxyURL,
+  name: a.name,
+  description: a.description ?? null,
+  contentType: a.contentType ?? null,
+  size: a.size,
+  width: a.width ?? null,
+  height: a.height ?? null,
+  ephemeral: a.ephemeral,
+  duration: a.duration ?? null,
+  waveform: a.waveform ?? null,
+  flags: a.flags?.bitfield.toString() ?? null,
+});
+
 export const mapEmbed = (e: Embed) => ({
   title: e.title ?? null,
   description: e.description ?? null,
@@ -195,9 +212,6 @@ export type DbReaction = ReturnType<typeof mapReactions>[number];
 export type DbReference = ReturnType<typeof mapReference>;
 
 // Mappers for reading from database (ensures proper native JSON types)
-export const mapAttachmentsFromDb = (raw: unknown): DbAttachment[] =>
-  Array.isArray(raw) ? (raw as DbAttachment[]) : [];
-
 export const mapEmbedsFromDb = (raw: unknown): DbEmbed[] =>
   Array.isArray(raw) ? (raw as DbEmbed[]) : [];
 

@@ -92,3 +92,8 @@ export type ThreadMessage = Prisma.ThreadMessageModel
  * 
  */
 export type SyncProgress = Prisma.SyncProgressModel
+/**
+ * Model Attachment
+ * 
+ */
+export type Attachment = Prisma.AttachmentModel
