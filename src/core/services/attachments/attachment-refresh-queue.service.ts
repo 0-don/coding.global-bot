@@ -69,8 +69,6 @@ export class AttachmentRefreshQueueService {
 
       if (expiringAttachments.length === 0) return;
 
-      log(`Refreshing ${expiringAttachments.length} messages with expiring attachments`);
-
       for (const attachment of expiringAttachments) {
         await this.refreshMessageAttachments(
           attachment.message.thread.guildId,
