@@ -65,7 +65,7 @@ export class DeleteUserMessagesService {
         (m) => m.author.id === params.memberId,
       );
       if (userMessages.size > 0)
-        await channel.bulkDelete(userMessages).catch(error);
+        await channel.bulkDelete(userMessages, true).catch(error);
     };
 
     const processThread = async (thread: ThreadChannel) => {
