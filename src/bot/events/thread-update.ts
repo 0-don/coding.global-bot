@@ -10,6 +10,12 @@ export class ThreadUpdate {
     [oldThread, newThread]: ArgsOf<"threadUpdate">,
     client: Client,
   ) {
+    console.log(
+      "Thread updated:",
+      newThread.parent,
+      newThread.parent?.type,
+      newThread instanceof ThreadChannel,
+    );
     // Only handle forum threads
     if (
       !newThread.parent ||
