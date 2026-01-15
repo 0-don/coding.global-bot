@@ -45,7 +45,7 @@ bot.on("interactionCreate", (interaction) => {
   // Ignore DMs - only work in guild (server)
   if (!interaction.guild) return;
   // Skip command execution if not running in Docker
-  if (!process.env.DOCKER) return;
+  // if (!process.env.DOCKER) return;
   void bot.executeInteraction(interaction);
 });
 
