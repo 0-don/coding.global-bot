@@ -16,21 +16,16 @@ export class MemberDataService {
       const memberGuildData = prepareMemberGuildData(guildMember);
       const memberRoleCreates = prepareMemberRolesData(guildMember);
 
-      await prisma.$transaction(async (tx) => {
-        // Delete existing roles to avoid duplicates
-        await tx.memberRole.deleteMany({
-          where: { memberId: member.id, guildId: member.guild.id },
-        });
+      // Upsert member first (required for foreign key constraints)
+      await prisma.member.upsert({
+        where: { memberId: memberData.memberId },
+        create: memberData,
+        update: memberData,
+      });
 
-        // Upsert member (global user data)
-        await tx.member.upsert({
-          where: { memberId: memberData.memberId },
-          create: memberData,
-          update: memberData,
-        });
-
-        // Upsert member guild (guild-specific data)
-        await tx.memberGuild.upsert({
+      // Run memberGuild upsert and role sync in parallel
+      await Promise.all([
+        prisma.memberGuild.upsert({
           where: {
             member_guild: {
               memberId: memberGuildData.memberId,
@@ -39,16 +34,20 @@ export class MemberDataService {
           },
           create: memberGuildData,
           update: memberGuildData,
-        });
-
-        // Create member roles if any exist
-        if (memberRoleCreates.length > 0) {
-          await tx.memberRole.createMany({
-            data: memberRoleCreates,
-            skipDuplicates: true,
+        }),
+        // Delete and recreate roles
+        (async () => {
+          await prisma.memberRole.deleteMany({
+            where: { memberId: member.id, guildId: member.guild.id },
           });
-        }
-      });
+          if (memberRoleCreates.length > 0) {
+            await prisma.memberRole.createMany({
+              data: memberRoleCreates,
+              skipDuplicates: true,
+            });
+          }
+        })(),
+      ]);
     } catch (error) {
       if (
         error instanceof Error &&

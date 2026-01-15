@@ -187,6 +187,7 @@ model MemberRole {
   guild  Guild  @relation(fields: [guildId], references: [guildId])
 
   @@unique([memberId, roleId], name: "member_role")
+  @@index([memberId, guildId])
 }
 
 model MemberCommandHistory {
