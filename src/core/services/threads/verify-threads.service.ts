@@ -1,4 +1,5 @@
 import { ThreadService } from "@/core/services/threads/thread.service";
+import { UNKNOWN_CHANNEL, UNKNOWN_MESSAGE } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 import { logTs } from "@/shared/utils/date.utils";
 import {
@@ -257,22 +258,31 @@ export class SyncAllThreadsService {
     } catch (_) {}
 
     while (hasMore) {
-      const messages = await thread.messages.fetch({
-        limit: PAGE_SIZE,
-        ...(lastMessageId && { before: lastMessageId }),
-      });
+      try {
+        const messages = await thread.messages.fetch({
+          limit: PAGE_SIZE,
+          ...(lastMessageId && { before: lastMessageId }),
+        });
 
-      if (messages.size === 0) {
-        hasMore = false;
-        break;
+        if (messages.size === 0) {
+          hasMore = false;
+          break;
+        }
+
+        for (const [, message] of messages) {
+          await this.upsertMessageToDb(message, thread.id, guildId);
+        }
+
+        lastMessageId = messages.last()?.id;
+        hasMore = messages.size === PAGE_SIZE;
+      } catch (err) {
+        const code = (err as { code?: number }).code;
+        // Thread/channel was deleted, stop syncing
+        if (code === UNKNOWN_CHANNEL || code === UNKNOWN_MESSAGE) {
+          return;
+        }
+        throw err;
       }
-
-      for (const [, message] of messages) {
-        await this.upsertMessageToDb(message, thread.id, guildId);
-      }
-
-      lastMessageId = messages.last()?.id;
-      hasMore = messages.size === PAGE_SIZE;
     }
   }
 

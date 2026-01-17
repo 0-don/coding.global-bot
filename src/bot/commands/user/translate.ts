@@ -1,5 +1,5 @@
 import { executeTranslateCommand } from "@/core/handlers/command-handlers/user/translate.handler";
-import { safeDeferReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 import {
   ApplicationCommandOptionType,
@@ -41,13 +41,14 @@ export class Translate {
     const result = await executeTranslateCommand(txt);
 
     if ("error" in result) {
-      return interaction.editReply({
+      await safeEditReply(interaction, {
         content: result.error,
         allowedMentions: { users: [], roles: [] },
       });
+      return;
     }
 
-    return interaction.editReply({
+    await safeEditReply(interaction, {
       content: result.text,
       allowedMentions: { users: [], roles: [] },
     });

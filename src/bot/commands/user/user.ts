@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { executeUserStatsCommand } from "@/core/handlers/command-handlers/user/user.handler";
-import { safeDeferReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 
 @Discord()
@@ -41,9 +41,12 @@ export class UserCommand {
 
     const result = await executeUserStatsCommand(interaction, user.id);
 
-    if ("error" in result) return interaction.editReply(result.error);
+    if ("error" in result) {
+      await safeEditReply(interaction, result.error);
+      return;
+    }
 
-    return interaction.editReply({
+    await safeEditReply(interaction, {
       embeds: [result.embed],
       allowedMentions: { users: [], roles: [] },
     });

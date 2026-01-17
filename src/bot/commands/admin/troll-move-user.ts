@@ -1,5 +1,5 @@
 import { executeTrollMoveUser } from "@/core/handlers/command-handlers/admin/troll-move-user.handler";
-import { safeDeferReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 import {
   ApplicationCommandOptionType,
@@ -68,6 +68,6 @@ export class TrollMoveUser {
       timeout,
     );
 
-    return interaction.editReply(result);
+    await safeEditReply(interaction, result);
   }
 }
