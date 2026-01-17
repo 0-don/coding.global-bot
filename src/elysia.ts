@@ -15,6 +15,9 @@ import { Elysia } from "elysia";
 export const app = new Elysia({ adapter: node() })
   .use(
     openapi({
+      documentation: {
+        openapi: "3.1.0",
+      },
       references: fromTypes(
         process.env.NODE_ENV === "production"
           ? "dist/elysia.d.ts"
