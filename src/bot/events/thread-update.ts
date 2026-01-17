@@ -12,8 +12,8 @@ export class ThreadUpdate {
   ) {
     console.log(
       "Thread updated:",
-      newThread.parent?.name,
       newThread.parent?.id,
+      newThread.parent?.name,
       newThread.parent?.type,
       newThread instanceof ThreadChannel,
     );
