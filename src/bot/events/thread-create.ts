@@ -1,4 +1,5 @@
 import { handleThreadCreate } from "@/core/handlers/event-handlers/thread-create.handler";
+import { log } from "console";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 
@@ -9,7 +10,7 @@ export class ThreadCreate {
     [thread, newlyCreated]: ArgsOf<"threadCreate">,
     client: Client,
   ) {
-    console.log(
+    log(
       "Thread created:",
       thread.id,
       thread.name,

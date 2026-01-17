@@ -1,4 +1,5 @@
 import { ThreadService } from "@/core/services/threads/thread.service";
+import { log } from "console";
 import { ChannelType, ThreadChannel } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
@@ -10,7 +11,7 @@ export class ThreadUpdate {
     [oldThread, newThread]: ArgsOf<"threadUpdate">,
     client: Client,
   ) {
-    console.log(
+    log(
       "Thread updated:",
       newThread.parent?.id,
       newThread.parent?.name,

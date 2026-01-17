@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { log } from "node:console";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,7 +39,7 @@ function checkBotImports() {
     if (extra.length) console.error("Stale:", extra.join(", "));
     throw new Error("Bot imports check failed");
   }
-  console.log("Bot imports verified.");
+  log("Bot imports verified.");
 }
 
 checkBotImports();

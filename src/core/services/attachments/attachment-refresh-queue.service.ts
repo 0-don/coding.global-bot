@@ -68,8 +68,6 @@ export class AttachmentRefreshQueueService {
         take: BATCH_SIZE,
       });
 
-      console.log("attachments", expiringAttachments.length);
-
       if (expiringAttachments.length === 0) return;
 
       // Count total expiring attachments for progress logging
