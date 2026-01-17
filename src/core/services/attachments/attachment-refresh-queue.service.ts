@@ -6,8 +6,8 @@ import { error, log } from "console";
 import { ChannelType, type TextChannel, type ThreadChannel } from "discord.js";
 import { ThreadService } from "../threads/thread.service";
 
-// Check every 1 second
-const CHECK_INTERVAL_MS = 1000;
+// Check every 10 second
+const CHECK_INTERVAL_MS = 10000;
 // Refresh attachments expiring within 6 hours
 const EXPIRY_THRESHOLD_MS = 6 * 60 * 60 * 1000;
 // Process up to 10 messages per cycle
