@@ -28,6 +28,7 @@ export function formatThreadFromDb(
     boardType: dbThread.boardType,
     author,
     createdAt: dbThread.createdAt?.toISOString() || null,
+    updatedAt: dbThread.updatedAt.toISOString(),
     tags: dbThread.tags.map((tt) => ({
       id: tt.tag.id,
       name: tt.tag.name,
