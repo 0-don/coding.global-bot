@@ -7,7 +7,7 @@ export class ThreadDelete {
   @On({ event: "threadDelete" })
   async threadDelete([thread]: ArgsOf<"threadDelete">, client: Client) {
     // Delete thread from database (cascade deletes replies)
-    console.log("Thread deleted:", thread.id, thread.name);
+    console.log("Thread deleted:", thread.id, thread.name, thread.parent?.name);
     await ThreadService.deleteThread(thread.id);
   }
 }

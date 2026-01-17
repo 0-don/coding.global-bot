@@ -16,6 +16,7 @@ export class ThreadUpdate {
       newThread.parent?.name,
       newThread.parent?.type,
       newThread instanceof ThreadChannel,
+      newThread.parent?.id,
     );
     // Only handle forum threads
     if (
