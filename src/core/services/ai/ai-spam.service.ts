@@ -42,6 +42,10 @@ export class AiSpamService {
       return null;
     }
 
-    return result.output;
+    try {
+      return result.output;
+    } catch {
+      return null;
+    }
   }
 }
