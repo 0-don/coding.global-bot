@@ -112,12 +112,25 @@ export class AttachmentRefreshQueueService {
       const guild = bot.guilds.cache.get(guildId);
       if (!guild) return;
 
-      const channel = guild.channels.cache.get(threadId) as
+      // Try cache first, then fetch from API (threads may not be cached if archived)
+      let channel = guild.channels.cache.get(threadId) as
         | ThreadChannel
         | TextChannel
         | undefined;
+
+      if (!channel) {
+        try {
+          const fetched = await guild.channels.fetch(threadId);
+          if (fetched && "messages" in fetched) {
+            channel = fetched as ThreadChannel | TextChannel;
+          }
+        } catch {
+          // Channel doesn't exist anymore
+        }
+      }
+
       if (!channel || !("messages" in channel)) {
-        // Channel no longer exists in cache, clean up attachments
+        // Channel no longer exists, clean up attachments
         await prisma.attachment.deleteMany({ where: { messageId } });
         return;
       }
