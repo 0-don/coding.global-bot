@@ -2,7 +2,7 @@ import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { executeTopCommand } from "@/core/handlers/command-handlers/user/top.handler";
-import { safeDeferReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 
 @Discord()
@@ -40,9 +40,12 @@ export class TopCommand {
 
     const result = await executeTopCommand(interaction, lookback);
 
-    if ("error" in result) return interaction.editReply(result.error);
+    if ("error" in result) {
+      await safeEditReply(interaction, result.error);
+      return;
+    }
 
-    return interaction.editReply({
+    await safeEditReply(interaction, {
       embeds: [result.embed],
       allowedMentions: { users: [], roles: [] },
     });

@@ -1,5 +1,5 @@
 import { deletedMessagesHistoryEmbed } from "@/core/embeds/deleted-messages.embed";
-import { safeDeferReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
@@ -46,7 +46,7 @@ export class LogDeletedMessagesHistory {
 
     const embed = deletedMessagesHistoryEmbed(history);
 
-    return interaction.editReply({
+    await safeEditReply(interaction, {
       embeds: [embed],
       allowedMentions: { users: [], roles: [] },
     });

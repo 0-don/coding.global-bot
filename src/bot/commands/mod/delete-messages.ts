@@ -1,5 +1,5 @@
 import { executeDeleteMessages } from "@/core/handlers/command-handlers/mod/delete-messages.handler";
-import { safeDeferReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 import type { CommandInteraction } from "discord.js";
 import {
@@ -45,8 +45,11 @@ export class DeleteMessages {
 
     const result = await executeDeleteMessages(interaction, amount);
 
-    if (result.error) return interaction.editReply(result.error);
+    if (result.error) {
+      await safeEditReply(interaction, result.error);
+      return;
+    }
 
-    return interaction.editReply({ content: "messages are deleted" });
+    await safeEditReply(interaction, { content: "messages are deleted" });
   }
 }

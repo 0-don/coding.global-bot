@@ -1,7 +1,7 @@
 import type { CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { executeMembersCommand } from "@/core/handlers/command-handlers/user/members.handler";
-import { safeDeferReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
 import { prisma } from "@/prisma";
 
 @Discord()
@@ -28,9 +28,12 @@ export class Members {
 
     const result = await executeMembersCommand(interaction);
 
-    if ("error" in result) return interaction.editReply(result.error);
+    if ("error" in result) {
+      await safeEditReply(interaction, result.error);
+      return;
+    }
 
-    return interaction.editReply({
+    await safeEditReply(interaction, {
       embeds: [result.embed],
       files: [result.attachment],
       allowedMentions: { users: [], roles: [] },
