@@ -70,6 +70,8 @@ export class AttachmentRefreshQueueService {
         take: BATCH_SIZE,
       });
 
+      console.log("attachments", expiringAttachments.length);
+
       if (expiringAttachments.length === 0) return;
 
       // Count total expiring attachments for progress logging
@@ -82,7 +84,9 @@ export class AttachmentRefreshQueueService {
         },
       });
 
-      log(`Refreshing attachments: ${expiringAttachments.length} messages this batch, ${totalExpiring} total expiring`);
+      log(
+        `Refreshing attachments: ${expiringAttachments.length} messages this batch, ${totalExpiring} total expiring`,
+      );
 
       for (const attachment of expiringAttachments) {
         await this.refreshMessageAttachments(
@@ -92,7 +96,9 @@ export class AttachmentRefreshQueueService {
         );
       }
 
-      log(`Batch complete. ${totalExpiring - expiringAttachments.length} attachments remaining`);
+      log(
+        `Batch complete. ${totalExpiring - expiringAttachments.length} attachments remaining`,
+      );
     } catch (err) {
       error("Failed to process expiring attachments:", err);
     } finally {
