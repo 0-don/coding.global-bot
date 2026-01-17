@@ -1,7 +1,7 @@
+import { UNKNOWN_CHANNEL, UNKNOWN_MESSAGE } from "@/core/utils/command.utils";
 import { bot } from "@/main";
 import { prisma } from "@/prisma";
 import { mapAttachmentToDb } from "@/shared/mappers/discord.mapper";
-import { UNKNOWN_CHANNEL, UNKNOWN_MESSAGE } from "@/core/utils/command.utils";
 import { error, log } from "console";
 import type { TextChannel, ThreadChannel } from "discord.js";
 
@@ -93,7 +93,10 @@ export class AttachmentRefreshQueueService {
       const guild = bot.guilds.cache.get(guildId);
       if (!guild) return;
 
-      const channel = guild.channels.cache.get(threadId) as ThreadChannel | TextChannel | undefined;
+      const channel = guild.channels.cache.get(threadId) as
+        | ThreadChannel
+        | TextChannel
+        | undefined;
       if (!channel || !("messages" in channel)) {
         // Channel no longer exists in cache, clean up attachments
         await prisma.attachment.deleteMany({ where: { messageId } });
@@ -114,19 +117,21 @@ export class AttachmentRefreshQueueService {
         return;
       }
 
-      const attachmentData = attachments.map((a) => mapAttachmentToDb(a, messageId));
+      const attachmentData = attachments.map((a) =>
+        mapAttachmentToDb(a, messageId),
+      );
 
       await prisma.$transaction([
         prisma.attachment.deleteMany({ where: { messageId } }),
         prisma.attachment.createMany({ data: attachmentData }),
       ]);
-
-      log(`Refreshed attachments for message ${messageId}`);
     } catch (err) {
       const code = (err as { code?: number }).code;
       // If channel or message no longer exists, clean up the attachments from DB
       if (code === UNKNOWN_CHANNEL || code === UNKNOWN_MESSAGE) {
-        await prisma.attachment.deleteMany({ where: { messageId } }).catch(() => {});
+        await prisma.attachment
+          .deleteMany({ where: { messageId } })
+          .catch(() => {});
         log(`Cleaned up attachments for deleted message/channel ${messageId}`);
         return;
       }
