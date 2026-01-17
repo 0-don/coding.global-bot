@@ -9,7 +9,7 @@ export class ThreadCreate {
     [thread, newlyCreated]: ArgsOf<"threadCreate">,
     client: Client,
   ) {
-    console.log("Thread created:", thread.id, newlyCreated);
+    console.log("Thread created:", thread.id, thread.name, newlyCreated);
     await handleThreadCreate(thread, newlyCreated);
   }
 }
