@@ -6,7 +6,6 @@ import { Discord, SimpleCommand } from "discordx";
 export class VerifyUsers {
   @SimpleCommand({ aliases: ["verify-users"], prefix: "!" })
   async verifyUsers(command: SimpleCommandMessage) {
-    console.log("Executing verify-users command");
     const result = await executeVerifyAllUsers(command);
 
     if (result.error) {

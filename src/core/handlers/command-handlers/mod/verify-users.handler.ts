@@ -1,5 +1,6 @@
 import { VerifyAllUsersService } from "@/core/services/members/verify-users.service";
 import type { CommandResult } from "@/types";
+import { log } from "console";
 import { GuildTextBasedChannel, PermissionFlagsBits } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
 
@@ -7,10 +8,10 @@ export async function executeVerifyAllUsers(
   command: SimpleCommandMessage,
 ): Promise<CommandResult> {
   const message = command.message;
-  console.log("Command message received:", message.content);
+  log("Command message received:", message.content);
   if (!message.guild) return { success: false, error: "Use in a server" };
 
-  console.log("Checking permissions for user:", message.author.tag);
+  log("Checking permissions for user:", message.author.tag);
   if (!message.member?.permissions.has(PermissionFlagsBits.ManageRoles)) {
     return {
       success: false,
