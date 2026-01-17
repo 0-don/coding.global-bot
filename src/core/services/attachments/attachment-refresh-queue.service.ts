@@ -3,7 +3,8 @@ import { bot } from "@/main";
 import { prisma } from "@/prisma";
 import { mapAttachmentToDb } from "@/shared/mappers/discord.mapper";
 import { error, log } from "console";
-import type { TextChannel, ThreadChannel } from "discord.js";
+import { ChannelType, type TextChannel, type ThreadChannel } from "discord.js";
+import { ThreadService } from "../threads/thread.service";
 
 // Check every 5 minutes
 const CHECK_INTERVAL_MS = 5 * 60 * 1000;
@@ -93,16 +94,36 @@ export class AttachmentRefreshQueueService {
       const guild = bot.guilds.cache.get(guildId);
       if (!guild) return;
 
-      const channel = guild.channels.cache.get(threadId) as
+      // Try cache first, then fetch from API (threads may not be cached if archived)
+      let channel = guild.channels.cache.get(threadId) as
         | ThreadChannel
         | TextChannel
         | undefined;
+
+      if (!channel) {
+        try {
+          const fetched = await guild.channels.fetch(threadId);
+          if (fetched) {
+            channel = fetched as ThreadChannel | TextChannel;
+          }
+        } catch {
+          // Channel doesn't exist anymore
+        }
+      }
+
       if (!channel || !("messages" in channel)) {
-        // Channel no longer exists in cache, clean up attachments
+        // Channel no longer exists, clean up attachments
         await prisma.attachment.deleteMany({ where: { messageId } });
         return;
       }
 
+      // For thread channels, sync all messages to refresh all attachments
+      if (channel.type === ChannelType.PublicThread || channel.type === ChannelType.PrivateThread) {
+        await ThreadService.syncThreadMessages(channel as ThreadChannel);
+        return;
+      }
+
+      // For regular text channels, fetch and update single message
       const message = await channel.messages.fetch(messageId);
       if (!message) {
         // Message was deleted, remove attachments
