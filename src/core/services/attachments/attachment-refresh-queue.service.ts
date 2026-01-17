@@ -6,8 +6,8 @@ import { error, log } from "console";
 import { ChannelType, type TextChannel, type ThreadChannel } from "discord.js";
 import { ThreadService } from "../threads/thread.service";
 
-// Check every 5 minutes
-const CHECK_INTERVAL_MS = 5 * 60 * 1000;
+// Check every 1 second
+const CHECK_INTERVAL_MS = 1000;
 // Refresh attachments expiring within 6 hours
 const EXPIRY_THRESHOLD_MS = 6 * 60 * 60 * 1000;
 // Process up to 10 messages per cycle
@@ -118,7 +118,10 @@ export class AttachmentRefreshQueueService {
       }
 
       // For thread channels, sync all messages to refresh all attachments
-      if (channel.type === ChannelType.PublicThread || channel.type === ChannelType.PrivateThread) {
+      if (
+        channel.type === ChannelType.PublicThread ||
+        channel.type === ChannelType.PrivateThread
+      ) {
         await ThreadService.syncThreadMessages(channel as ThreadChannel);
         return;
       }
