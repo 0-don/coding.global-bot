@@ -13,11 +13,12 @@ export class ThreadUpdate {
   ) {
     log(
       "Thread updated:",
+      newThread.id,
+      newThread.name,
       newThread.parent?.id,
       newThread.parent?.name,
       newThread.parent?.type,
       newThread instanceof ThreadChannel,
-      newThread.parent?.id,
     );
     // Only handle forum threads
     if (
