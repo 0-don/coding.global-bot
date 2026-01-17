@@ -44,12 +44,11 @@ export class AttachmentRefreshQueueService {
     try {
       const threshold = new Date(Date.now() + EXPIRY_THRESHOLD_MS);
 
-      // Find messages with attachments expiring soon, prioritizing soonest to expire
+      // Find messages with attachments expiring soon or already expired, prioritizing soonest/already expired
       const expiringAttachments = await prisma.attachment.findMany({
         where: {
           expiresAt: {
             lt: threshold,
-            gt: new Date(), // Not already expired
           },
         },
         select: {
@@ -79,7 +78,6 @@ export class AttachmentRefreshQueueService {
         where: {
           expiresAt: {
             lt: threshold,
-            gt: new Date(),
           },
         },
       });
