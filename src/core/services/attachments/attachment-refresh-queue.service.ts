@@ -44,7 +44,7 @@ export class AttachmentRefreshQueueService {
     try {
       const threshold = new Date(Date.now() + EXPIRY_THRESHOLD_MS);
 
-      // Find messages with attachments expiring soon
+      // Find messages with attachments expiring soon, prioritizing soonest to expire
       const expiringAttachments = await prisma.attachment.findMany({
         where: {
           expiresAt: {
@@ -65,11 +65,24 @@ export class AttachmentRefreshQueueService {
             },
           },
         },
+        orderBy: { expiresAt: "asc" },
         distinct: ["messageId"],
         take: BATCH_SIZE,
       });
 
       if (expiringAttachments.length === 0) return;
+
+      // Count total expiring attachments for progress logging
+      const totalExpiring = await prisma.attachment.count({
+        where: {
+          expiresAt: {
+            lt: threshold,
+            gt: new Date(),
+          },
+        },
+      });
+
+      log(`Refreshing attachments: ${expiringAttachments.length} messages this batch, ${totalExpiring} total expiring`);
 
       for (const attachment of expiringAttachments) {
         await this.refreshMessageAttachments(
@@ -78,6 +91,8 @@ export class AttachmentRefreshQueueService {
           attachment.messageId,
         );
       }
+
+      log(`Batch complete. ${totalExpiring - expiringAttachments.length} attachments remaining`);
     } catch (err) {
       error("Failed to process expiring attachments:", err);
     } finally {
