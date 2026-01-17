@@ -1,6 +1,6 @@
-import type { CommandInteraction, User } from "discord.js";
 import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
 import type { CommandResult } from "@/types";
+import type { CommandInteraction, User } from "discord.js";
 
 export async function executeDeleteUserMessages(
   interaction: CommandInteraction,
@@ -19,7 +19,9 @@ export async function executeDeleteUserMessages(
     memberId,
     jail,
     user: user ?? null,
-    reason: reason ?? "Manual moderation",
+    reason: reason
+      ? `${reason} (triggered by <@${interaction.user.id}>)`
+      : `Manual moderation (triggered by <@${interaction.user.id}>)`,
   });
 
   return { success: true };
