@@ -79,10 +79,6 @@ export class AttachmentRefreshQueueService {
         },
       });
 
-      log(
-        `Refreshing attachments: ${expiringAttachments.length} messages this batch, ${totalExpiring} total expiring`,
-      );
-
       for (const attachment of expiringAttachments) {
         await this.refreshMessageAttachments(
           attachment.message.thread.guildId,
@@ -90,10 +86,6 @@ export class AttachmentRefreshQueueService {
           attachment.messageId,
         );
       }
-
-      log(
-        `Batch complete. ${totalExpiring - expiringAttachments.length} attachments remaining`,
-      );
     } catch (err) {
       error("Failed to process expiring attachments:", err);
     } finally {
