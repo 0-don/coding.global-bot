@@ -50,6 +50,16 @@ class GoogleClientRotator {
     );
   }
 
+  private isNonRetryableError(error: unknown): boolean {
+    const message = error instanceof Error ? error.message : String(error);
+
+    return (
+      message.includes("404") ||
+      message.includes("Not Found") ||
+      message.includes("Failed to download")
+    );
+  }
+
   async executeWithRotation<T>(operation: () => Promise<T>): Promise<T | null> {
     const maxAttempts = this.providers.length;
     let lastError: unknown;
@@ -63,6 +73,12 @@ class GoogleClientRotator {
         console.error(
           `AI error (attempt ${attempt + 1}/${maxAttempts}): ${message}`,
         );
+
+        // Non-retryable errors (e.g., deleted images) - fail immediately
+        if (this.isNonRetryableError(error)) {
+          console.warn(`Non-retryable error detected, skipping remaining attempts: ${message}`);
+          return null;
+        }
 
         if (this.shouldRotateOnError(error) && attempt < maxAttempts - 1) {
           const expiredKey = getApiKeys()[this.currentIndex];
