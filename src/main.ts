@@ -2,7 +2,7 @@ import { AttachmentRefreshQueueService } from "@/core/services/attachments/attac
 import { MemberUpdateQueueService } from "@/core/services/members/member-update-queue.service";
 import { ConfigValidator } from "@/shared/config/validator";
 import "@dotenvx/dotenvx/config";
-import { log } from "console";
+import { error, log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
 import "./bot";
@@ -71,5 +71,13 @@ const main = async () => {
     activities: [{ name: ".gg/coding", type: ActivityType.Watching }],
   });
 };
+
+setInterval(
+  () =>
+    fetch("https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api").catch(
+      (e) => error("Ping error:", e),
+    ),
+  300000,
+);
 
 main();
