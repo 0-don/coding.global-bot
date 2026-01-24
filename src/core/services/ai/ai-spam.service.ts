@@ -11,9 +11,9 @@ export class AiSpamService {
   ): Promise<SpamDetectionResult | null> {
     const contextText = buildSpamContextText(context);
 
-    const result = await googleClient.executeWithRotation(async () => {
+    const result = await googleClient.executeWithRotation(async (model) => {
       return await generateText({
-        model: googleClient.getModel(),
+        model,
         system: SPAM_SYSTEM_PROMPT,
         messages: [
           {
@@ -35,6 +35,7 @@ export class AiSpamService {
           }),
         }),
         temperature: 0.1,
+        maxRetries: 0,
       });
     });
 
