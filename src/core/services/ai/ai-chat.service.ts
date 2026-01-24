@@ -42,13 +42,14 @@ export class AiChatService {
     const messages = channelMessages.get(message.channel.id) || [];
     messages.push(userMessage);
 
-    const result = await googleClient.executeWithRotation(async () => {
+    const result = await googleClient.executeWithRotation(async (model) => {
       return generateText({
-        model: googleClient.getModel(),
+        model,
         system: CHAT_SYSTEM_PROMPT,
         messages: [...messages],
         tools,
         maxOutputTokens: 500,
+        maxRetries: 0,
       });
     });
 
