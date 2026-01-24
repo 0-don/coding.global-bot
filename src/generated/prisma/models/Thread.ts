@@ -60,6 +60,7 @@ export type ThreadMinAggregateOutputType = {
   flags: bigint | null
   createdAt: Date | null
   updatedAt: Date | null
+  lastActivityAt: Date | null
 }
 
 export type ThreadMaxAggregateOutputType = {
@@ -80,6 +81,7 @@ export type ThreadMaxAggregateOutputType = {
   flags: bigint | null
   createdAt: Date | null
   updatedAt: Date | null
+  lastActivityAt: Date | null
 }
 
 export type ThreadCountAggregateOutputType = {
@@ -100,6 +102,7 @@ export type ThreadCountAggregateOutputType = {
   flags: number
   createdAt: number
   updatedAt: number
+  lastActivityAt: number
   _all: number
 }
 
@@ -138,6 +141,7 @@ export type ThreadMinAggregateInputType = {
   flags?: true
   createdAt?: true
   updatedAt?: true
+  lastActivityAt?: true
 }
 
 export type ThreadMaxAggregateInputType = {
@@ -158,6 +162,7 @@ export type ThreadMaxAggregateInputType = {
   flags?: true
   createdAt?: true
   updatedAt?: true
+  lastActivityAt?: true
 }
 
 export type ThreadCountAggregateInputType = {
@@ -178,6 +183,7 @@ export type ThreadCountAggregateInputType = {
   flags?: true
   createdAt?: true
   updatedAt?: true
+  lastActivityAt?: true
   _all?: true
 }
 
@@ -285,6 +291,7 @@ export type ThreadGroupByOutputType = {
   flags: bigint | null
   createdAt: Date | null
   updatedAt: Date
+  lastActivityAt: Date | null
   _count: ThreadCountAggregateOutputType | null
   _avg: ThreadAvgAggregateOutputType | null
   _sum: ThreadSumAggregateOutputType | null
@@ -328,6 +335,7 @@ export type ThreadWhereInput = {
   flags?: Prisma.BigIntNullableFilter<"Thread"> | bigint | number | null
   createdAt?: Prisma.DateTimeNullableFilter<"Thread"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"Thread"> | Date | string
+  lastActivityAt?: Prisma.DateTimeNullableFilter<"Thread"> | Date | string | null
   guild?: Prisma.XOR<Prisma.GuildScalarRelationFilter, Prisma.GuildWhereInput>
   author?: Prisma.XOR<Prisma.MemberScalarRelationFilter, Prisma.MemberWhereInput>
   tags?: Prisma.ThreadTagListRelationFilter
@@ -352,6 +360,7 @@ export type ThreadOrderByWithRelationInput = {
   flags?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  lastActivityAt?: Prisma.SortOrderInput | Prisma.SortOrder
   guild?: Prisma.GuildOrderByWithRelationInput
   author?: Prisma.MemberOrderByWithRelationInput
   tags?: Prisma.ThreadTagOrderByRelationAggregateInput
@@ -379,6 +388,7 @@ export type ThreadWhereUniqueInput = Prisma.AtLeast<{
   flags?: Prisma.BigIntNullableFilter<"Thread"> | bigint | number | null
   createdAt?: Prisma.DateTimeNullableFilter<"Thread"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"Thread"> | Date | string
+  lastActivityAt?: Prisma.DateTimeNullableFilter<"Thread"> | Date | string | null
   guild?: Prisma.XOR<Prisma.GuildScalarRelationFilter, Prisma.GuildWhereInput>
   author?: Prisma.XOR<Prisma.MemberScalarRelationFilter, Prisma.MemberWhereInput>
   tags?: Prisma.ThreadTagListRelationFilter
@@ -403,6 +413,7 @@ export type ThreadOrderByWithAggregationInput = {
   flags?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  lastActivityAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ThreadCountOrderByAggregateInput
   _avg?: Prisma.ThreadAvgOrderByAggregateInput
   _max?: Prisma.ThreadMaxOrderByAggregateInput
@@ -431,6 +442,7 @@ export type ThreadScalarWhereWithAggregatesInput = {
   flags?: Prisma.BigIntNullableWithAggregatesFilter<"Thread"> | bigint | number | null
   createdAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Thread"> | Date | string | null
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Thread"> | Date | string
+  lastActivityAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Thread"> | Date | string | null
 }
 
 export type ThreadCreateInput = {
@@ -449,6 +461,7 @@ export type ThreadCreateInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
   guild: Prisma.GuildCreateNestedOneWithoutThreadsInput
   author: Prisma.MemberCreateNestedOneWithoutThreadsInput
   tags?: Prisma.ThreadTagCreateNestedManyWithoutThreadInput
@@ -473,6 +486,7 @@ export type ThreadUncheckedCreateInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
   tags?: Prisma.ThreadTagUncheckedCreateNestedManyWithoutThreadInput
   messages?: Prisma.ThreadMessageUncheckedCreateNestedManyWithoutThreadInput
 }
@@ -493,6 +507,7 @@ export type ThreadUpdateInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   guild?: Prisma.GuildUpdateOneRequiredWithoutThreadsNestedInput
   author?: Prisma.MemberUpdateOneRequiredWithoutThreadsNestedInput
   tags?: Prisma.ThreadTagUpdateManyWithoutThreadNestedInput
@@ -517,6 +532,7 @@ export type ThreadUncheckedUpdateInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tags?: Prisma.ThreadTagUncheckedUpdateManyWithoutThreadNestedInput
   messages?: Prisma.ThreadMessageUncheckedUpdateManyWithoutThreadNestedInput
 }
@@ -539,6 +555,7 @@ export type ThreadCreateManyInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
 }
 
 export type ThreadUpdateManyMutationInput = {
@@ -557,6 +574,7 @@ export type ThreadUpdateManyMutationInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ThreadUncheckedUpdateManyInput = {
@@ -577,6 +595,7 @@ export type ThreadUncheckedUpdateManyInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ThreadListRelationFilter = {
@@ -607,6 +626,7 @@ export type ThreadCountOrderByAggregateInput = {
   flags?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  lastActivityAt?: Prisma.SortOrder
 }
 
 export type ThreadAvgOrderByAggregateInput = {
@@ -635,6 +655,7 @@ export type ThreadMaxOrderByAggregateInput = {
   flags?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  lastActivityAt?: Prisma.SortOrder
 }
 
 export type ThreadMinOrderByAggregateInput = {
@@ -655,6 +676,7 @@ export type ThreadMinOrderByAggregateInput = {
   flags?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  lastActivityAt?: Prisma.SortOrder
 }
 
 export type ThreadSumOrderByAggregateInput = {
@@ -798,6 +820,7 @@ export type ThreadCreateWithoutGuildInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
   author: Prisma.MemberCreateNestedOneWithoutThreadsInput
   tags?: Prisma.ThreadTagCreateNestedManyWithoutThreadInput
   messages?: Prisma.ThreadMessageCreateNestedManyWithoutThreadInput
@@ -820,6 +843,7 @@ export type ThreadUncheckedCreateWithoutGuildInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
   tags?: Prisma.ThreadTagUncheckedCreateNestedManyWithoutThreadInput
   messages?: Prisma.ThreadMessageUncheckedCreateNestedManyWithoutThreadInput
 }
@@ -871,6 +895,7 @@ export type ThreadScalarWhereInput = {
   flags?: Prisma.BigIntNullableFilter<"Thread"> | bigint | number | null
   createdAt?: Prisma.DateTimeNullableFilter<"Thread"> | Date | string | null
   updatedAt?: Prisma.DateTimeFilter<"Thread"> | Date | string
+  lastActivityAt?: Prisma.DateTimeNullableFilter<"Thread"> | Date | string | null
 }
 
 export type ThreadCreateWithoutAuthorInput = {
@@ -889,6 +914,7 @@ export type ThreadCreateWithoutAuthorInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
   guild: Prisma.GuildCreateNestedOneWithoutThreadsInput
   tags?: Prisma.ThreadTagCreateNestedManyWithoutThreadInput
   messages?: Prisma.ThreadMessageCreateNestedManyWithoutThreadInput
@@ -911,6 +937,7 @@ export type ThreadUncheckedCreateWithoutAuthorInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
   tags?: Prisma.ThreadTagUncheckedCreateNestedManyWithoutThreadInput
   messages?: Prisma.ThreadMessageUncheckedCreateNestedManyWithoutThreadInput
 }
@@ -957,6 +984,7 @@ export type ThreadCreateWithoutTagsInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
   guild: Prisma.GuildCreateNestedOneWithoutThreadsInput
   author: Prisma.MemberCreateNestedOneWithoutThreadsInput
   messages?: Prisma.ThreadMessageCreateNestedManyWithoutThreadInput
@@ -980,6 +1008,7 @@ export type ThreadUncheckedCreateWithoutTagsInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
   messages?: Prisma.ThreadMessageUncheckedCreateNestedManyWithoutThreadInput
 }
 
@@ -1015,6 +1044,7 @@ export type ThreadUpdateWithoutTagsInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   guild?: Prisma.GuildUpdateOneRequiredWithoutThreadsNestedInput
   author?: Prisma.MemberUpdateOneRequiredWithoutThreadsNestedInput
   messages?: Prisma.ThreadMessageUpdateManyWithoutThreadNestedInput
@@ -1038,6 +1068,7 @@ export type ThreadUncheckedUpdateWithoutTagsInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   messages?: Prisma.ThreadMessageUncheckedUpdateManyWithoutThreadNestedInput
 }
 
@@ -1057,6 +1088,7 @@ export type ThreadCreateWithoutMessagesInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
   guild: Prisma.GuildCreateNestedOneWithoutThreadsInput
   author: Prisma.MemberCreateNestedOneWithoutThreadsInput
   tags?: Prisma.ThreadTagCreateNestedManyWithoutThreadInput
@@ -1080,6 +1112,7 @@ export type ThreadUncheckedCreateWithoutMessagesInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
   tags?: Prisma.ThreadTagUncheckedCreateNestedManyWithoutThreadInput
 }
 
@@ -1115,6 +1148,7 @@ export type ThreadUpdateWithoutMessagesInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   guild?: Prisma.GuildUpdateOneRequiredWithoutThreadsNestedInput
   author?: Prisma.MemberUpdateOneRequiredWithoutThreadsNestedInput
   tags?: Prisma.ThreadTagUpdateManyWithoutThreadNestedInput
@@ -1138,6 +1172,7 @@ export type ThreadUncheckedUpdateWithoutMessagesInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tags?: Prisma.ThreadTagUncheckedUpdateManyWithoutThreadNestedInput
 }
 
@@ -1158,6 +1193,7 @@ export type ThreadCreateManyGuildInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
 }
 
 export type ThreadUpdateWithoutGuildInput = {
@@ -1176,6 +1212,7 @@ export type ThreadUpdateWithoutGuildInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   author?: Prisma.MemberUpdateOneRequiredWithoutThreadsNestedInput
   tags?: Prisma.ThreadTagUpdateManyWithoutThreadNestedInput
   messages?: Prisma.ThreadMessageUpdateManyWithoutThreadNestedInput
@@ -1198,6 +1235,7 @@ export type ThreadUncheckedUpdateWithoutGuildInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tags?: Prisma.ThreadTagUncheckedUpdateManyWithoutThreadNestedInput
   messages?: Prisma.ThreadMessageUncheckedUpdateManyWithoutThreadNestedInput
 }
@@ -1219,6 +1257,7 @@ export type ThreadUncheckedUpdateManyWithoutGuildInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type ThreadCreateManyAuthorInput = {
@@ -1238,6 +1277,7 @@ export type ThreadCreateManyAuthorInput = {
   flags?: bigint | number | null
   createdAt?: Date | string | null
   updatedAt?: Date | string
+  lastActivityAt?: Date | string | null
 }
 
 export type ThreadUpdateWithoutAuthorInput = {
@@ -1256,6 +1296,7 @@ export type ThreadUpdateWithoutAuthorInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   guild?: Prisma.GuildUpdateOneRequiredWithoutThreadsNestedInput
   tags?: Prisma.ThreadTagUpdateManyWithoutThreadNestedInput
   messages?: Prisma.ThreadMessageUpdateManyWithoutThreadNestedInput
@@ -1278,6 +1319,7 @@ export type ThreadUncheckedUpdateWithoutAuthorInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tags?: Prisma.ThreadTagUncheckedUpdateManyWithoutThreadNestedInput
   messages?: Prisma.ThreadMessageUncheckedUpdateManyWithoutThreadNestedInput
 }
@@ -1299,6 +1341,7 @@ export type ThreadUncheckedUpdateManyWithoutAuthorInput = {
   flags?: Prisma.NullableBigIntFieldUpdateOperationsInput | bigint | number | null
   createdAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastActivityAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -1359,6 +1402,7 @@ export type ThreadSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   flags?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  lastActivityAt?: boolean
   guild?: boolean | Prisma.GuildDefaultArgs<ExtArgs>
   author?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   tags?: boolean | Prisma.Thread$tagsArgs<ExtArgs>
@@ -1384,6 +1428,7 @@ export type ThreadSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   flags?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  lastActivityAt?: boolean
   guild?: boolean | Prisma.GuildDefaultArgs<ExtArgs>
   author?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["thread"]>
@@ -1406,6 +1451,7 @@ export type ThreadSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   flags?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  lastActivityAt?: boolean
   guild?: boolean | Prisma.GuildDefaultArgs<ExtArgs>
   author?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["thread"]>
@@ -1428,9 +1474,10 @@ export type ThreadSelectScalar = {
   flags?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  lastActivityAt?: boolean
 }
 
-export type ThreadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "guildId" | "parentId" | "authorId" | "name" | "boardType" | "messageCount" | "memberCount" | "locked" | "archived" | "archivedAt" | "autoArchiveDuration" | "invitable" | "rateLimitPerUser" | "flags" | "createdAt" | "updatedAt", ExtArgs["result"]["thread"]>
+export type ThreadOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "guildId" | "parentId" | "authorId" | "name" | "boardType" | "messageCount" | "memberCount" | "locked" | "archived" | "archivedAt" | "autoArchiveDuration" | "invitable" | "rateLimitPerUser" | "flags" | "createdAt" | "updatedAt" | "lastActivityAt", ExtArgs["result"]["thread"]>
 export type ThreadInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   guild?: boolean | Prisma.GuildDefaultArgs<ExtArgs>
   author?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
@@ -1473,6 +1520,7 @@ export type $ThreadPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     flags: bigint | null
     createdAt: Date | null
     updatedAt: Date
+    lastActivityAt: Date | null
   }, ExtArgs["result"]["thread"]>
   composites: {}
 }
@@ -1917,6 +1965,7 @@ export interface ThreadFieldRefs {
   readonly flags: Prisma.FieldRef<"Thread", 'BigInt'>
   readonly createdAt: Prisma.FieldRef<"Thread", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Thread", 'DateTime'>
+  readonly lastActivityAt: Prisma.FieldRef<"Thread", 'DateTime'>
 }
     
 

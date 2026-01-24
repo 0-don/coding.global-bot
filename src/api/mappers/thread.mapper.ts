@@ -29,6 +29,7 @@ export function formatThreadFromDb(
     author,
     createdAt: dbThread.createdAt?.toISOString() || null,
     updatedAt: dbThread.updatedAt.toISOString(),
+    lastActivityAt: dbThread.lastActivityAt?.toISOString() || dbThread.createdAt?.toISOString() || null,
     tags: dbThread.tags.map((tt) => ({
       id: tt.tag.id,
       name: tt.tag.name,
