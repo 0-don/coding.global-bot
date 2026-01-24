@@ -1,5 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/prisma";
+import { log } from "console";
 import {
   mapAttachmentToDb,
   mapEmbed,
@@ -85,7 +86,9 @@ export class ThreadService {
       if (options.syncMessages) {
         await this.syncThreadMessages(thread);
       }
-    } catch (_) {}
+    } catch (error) {
+      log(`[ThreadService] upsertThread failed for thread ${thread.id}:`, error);
+    }
   }
 
   static async syncThreadMessages(thread: ThreadChannel): Promise<void> {
@@ -94,7 +97,12 @@ export class ThreadService {
       for (const message of messages.values()) {
         await this.upsertThreadMessage(message);
       }
-    } catch (_) {}
+    } catch (error) {
+      log(
+        `[ThreadService] syncThreadMessages failed for thread ${thread.id}:`,
+        error,
+      );
+    }
   }
 
   static async deleteThread(threadId: string): Promise<void> {
@@ -164,6 +172,9 @@ export class ThreadService {
         const threadType = this.getThreadTypeFromChannel(parentChannel);
         await this.upsertThread(channel, threadType);
       } else {
+        log(
+          `[ThreadService] skipping upsertThreadMessage - thread ${threadId} not in DB and parent is not a forum (parent: ${parentChannel?.type ?? "null"})`,
+        );
         return;
       }
     }
@@ -185,14 +196,36 @@ export class ThreadService {
           reference: data.reference,
         },
       });
+      await this.upsertAttachments(message.id, attachments);
+    } catch (error) {
+      log(
+        `[ThreadService] upsertThreadMessage failed for message ${message.id} in thread ${threadId}:`,
+        error,
+      );
+    }
 
+    try {
       await prisma.thread.update({
         where: { id: threadId },
         data: { lastActivityAt: new Date() },
       });
-
-      await this.upsertAttachments(message.id, attachments);
-    } catch (_) {}
+    } catch (error) {
+      log(
+        `[ThreadService] lastActivityAt update failed for thread ${threadId}, retrying:`,
+        error,
+      );
+      try {
+        await prisma.thread.update({
+          where: { id: threadId },
+          data: { lastActivityAt: new Date() },
+        });
+      } catch (retryError) {
+        log(
+          `[ThreadService] lastActivityAt retry also failed for thread ${threadId}:`,
+          retryError,
+        );
+      }
+    }
   }
 
   static async upsertAttachments(
@@ -268,7 +301,9 @@ export class ThreadService {
             emojiName: tag.emoji?.name || null,
           },
         });
-      } catch (_) {}
+      } catch (error) {
+        log(`[ThreadService] upsertTags failed for tag ${tag.id}:`, error);
+      }
     }
   }
 
@@ -301,7 +336,12 @@ export class ThreadService {
           data: { lastActivityAt: new Date() },
         });
       }
-    } catch (_) {}
+    } catch (error) {
+      log(
+        `[ThreadService] syncThreadTags failed for thread ${threadId}:`,
+        error,
+      );
+    }
   }
 
   static parseThreadMessageToDb(
