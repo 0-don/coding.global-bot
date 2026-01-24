@@ -45,9 +45,21 @@ export class ThreadService {
       rateLimitPerUser: thread.rateLimitPerUser,
       flags: thread.flags.bitfield,
       createdAt: thread.createdAt,
+      lastActivityAt: new Date(),
     };
 
     try {
+      const existing = await prisma.thread.findUnique({
+        where: { id: thread.id },
+        select: { name: true, messageCount: true, memberCount: true },
+      });
+
+      const hasActivity =
+        !existing ||
+        existing.name !== data.name ||
+        existing.messageCount !== data.messageCount ||
+        existing.memberCount !== data.memberCount;
+
       await prisma.thread.upsert({
         where: { id: thread.id },
         create: data,
@@ -62,6 +74,7 @@ export class ThreadService {
           invitable: data.invitable,
           rateLimitPerUser: data.rateLimitPerUser,
           flags: data.flags,
+          ...(hasActivity && { lastActivityAt: new Date() }),
         },
       });
 
@@ -173,6 +186,11 @@ export class ThreadService {
         },
       });
 
+      await prisma.thread.update({
+        where: { id: threadId },
+        data: { lastActivityAt: new Date() },
+      });
+
       await this.upsertAttachments(message.id, attachments);
     } catch (_) {}
   }
@@ -259,11 +277,28 @@ export class ThreadService {
     tagIds: string[],
   ): Promise<void> {
     try {
+      const existingTags = await prisma.threadTag.findMany({
+        where: { threadId },
+        select: { tagId: true },
+      });
+      const existingTagIds = existingTags.map((t) => t.tagId).sort();
+      const newTagIds = [...tagIds].sort();
+      const tagsChanged =
+        existingTagIds.length !== newTagIds.length ||
+        existingTagIds.some((id, i) => id !== newTagIds[i]);
+
       await prisma.threadTag.deleteMany({ where: { threadId } });
       if (tagIds.length > 0) {
         await prisma.threadTag.createMany({
           data: tagIds.map((tagId) => ({ threadId, tagId })),
           skipDuplicates: true,
+        });
+      }
+
+      if (tagsChanged) {
+        await prisma.thread.update({
+          where: { id: threadId },
+          data: { lastActivityAt: new Date() },
         });
       }
     } catch (_) {}

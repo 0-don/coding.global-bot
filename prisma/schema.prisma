@@ -253,8 +253,9 @@ model Thread {
   flags               BigInt?
 
   // Timestamps
-  createdAt DateTime?
-  updatedAt DateTime  @updatedAt
+  createdAt      DateTime?
+  updatedAt      DateTime  @updatedAt
+  lastActivityAt DateTime?
 
   // Relations
   guild    Guild           @relation(fields: [guildId], references: [guildId])

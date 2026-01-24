@@ -1825,7 +1825,8 @@ export const ThreadScalarFieldEnum = {
   rateLimitPerUser: 'rateLimitPerUser',
   flags: 'flags',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  lastActivityAt: 'lastActivityAt'
 } as const
 
 export type ThreadScalarFieldEnum = (typeof ThreadScalarFieldEnum)[keyof typeof ThreadScalarFieldEnum]
