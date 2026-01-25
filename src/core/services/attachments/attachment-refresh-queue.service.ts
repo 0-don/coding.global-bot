@@ -3,7 +3,7 @@ import { bot } from "@/main";
 import { prisma } from "@/prisma";
 import { mapAttachmentToDb } from "@/shared/mappers/discord.mapper";
 import { error, log } from "console";
-import { type TextChannel, type ThreadChannel } from "discord.js";
+import { DiscordAPIError, HTTPError, type TextChannel, type ThreadChannel } from "discord.js";
 
 // Check every 10 second
 const CHECK_INTERVAL_MS = 10000;
@@ -11,6 +11,8 @@ const CHECK_INTERVAL_MS = 10000;
 const EXPIRY_THRESHOLD_MS = 6 * 60 * 60 * 1000;
 // Process up to 10 messages per cycle
 const BATCH_SIZE = 10;
+// Max failed refresh attempts before deleting
+const MAX_REFRESH_ATTEMPTS = 5;
 
 export class AttachmentRefreshQueueService {
   private static interval: NodeJS.Timeout | null = null;
@@ -157,7 +159,38 @@ export class AttachmentRefreshQueueService {
         log(`Cleaned up attachments for deleted message/channel ${messageId}`);
         return;
       }
+
+      // Handle Discord API 5xx errors (transient server issues)
+      const status = (err as HTTPError | DiscordAPIError).status;
+      if (status && status >= 500 && status < 600) {
+        await this.incrementFailedAttempts(messageId);
+        return;
+      }
+
       error(`Failed to refresh attachments for message ${messageId}:`, err);
+    }
+  }
+
+  private static async incrementFailedAttempts(messageId: string) {
+    // Increment failed attempts counter
+    const updated = await prisma.attachment.updateMany({
+      where: { messageId },
+      data: { failedRefreshAttempts: { increment: 1 } },
+    });
+
+    if (updated.count === 0) return;
+
+    // Check if any attachment has exceeded max attempts
+    const maxAttempts = await prisma.attachment.findFirst({
+      where: {
+        messageId,
+        failedRefreshAttempts: { gte: MAX_REFRESH_ATTEMPTS },
+      },
+    });
+
+    if (maxAttempts) {
+      await prisma.attachment.deleteMany({ where: { messageId } });
+      log(`Deleted attachments for message ${messageId} after ${MAX_REFRESH_ATTEMPTS} failed refresh attempts`);
     }
   }
 }

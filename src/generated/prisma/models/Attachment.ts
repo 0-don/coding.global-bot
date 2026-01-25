@@ -31,6 +31,7 @@ export type AttachmentAvgAggregateOutputType = {
   width: number | null
   height: number | null
   duration: number | null
+  failedRefreshAttempts: number | null
 }
 
 export type AttachmentSumAggregateOutputType = {
@@ -38,6 +39,7 @@ export type AttachmentSumAggregateOutputType = {
   width: number | null
   height: number | null
   duration: number | null
+  failedRefreshAttempts: number | null
 }
 
 export type AttachmentMinAggregateOutputType = {
@@ -56,6 +58,7 @@ export type AttachmentMinAggregateOutputType = {
   waveform: string | null
   flags: string | null
   expiresAt: Date | null
+  failedRefreshAttempts: number | null
 }
 
 export type AttachmentMaxAggregateOutputType = {
@@ -74,6 +77,7 @@ export type AttachmentMaxAggregateOutputType = {
   waveform: string | null
   flags: string | null
   expiresAt: Date | null
+  failedRefreshAttempts: number | null
 }
 
 export type AttachmentCountAggregateOutputType = {
@@ -92,6 +96,7 @@ export type AttachmentCountAggregateOutputType = {
   waveform: number
   flags: number
   expiresAt: number
+  failedRefreshAttempts: number
   _all: number
 }
 
@@ -101,6 +106,7 @@ export type AttachmentAvgAggregateInputType = {
   width?: true
   height?: true
   duration?: true
+  failedRefreshAttempts?: true
 }
 
 export type AttachmentSumAggregateInputType = {
@@ -108,6 +114,7 @@ export type AttachmentSumAggregateInputType = {
   width?: true
   height?: true
   duration?: true
+  failedRefreshAttempts?: true
 }
 
 export type AttachmentMinAggregateInputType = {
@@ -126,6 +133,7 @@ export type AttachmentMinAggregateInputType = {
   waveform?: true
   flags?: true
   expiresAt?: true
+  failedRefreshAttempts?: true
 }
 
 export type AttachmentMaxAggregateInputType = {
@@ -144,6 +152,7 @@ export type AttachmentMaxAggregateInputType = {
   waveform?: true
   flags?: true
   expiresAt?: true
+  failedRefreshAttempts?: true
 }
 
 export type AttachmentCountAggregateInputType = {
@@ -162,6 +171,7 @@ export type AttachmentCountAggregateInputType = {
   waveform?: true
   flags?: true
   expiresAt?: true
+  failedRefreshAttempts?: true
   _all?: true
 }
 
@@ -267,6 +277,7 @@ export type AttachmentGroupByOutputType = {
   waveform: string | null
   flags: string | null
   expiresAt: Date | null
+  failedRefreshAttempts: number
   _count: AttachmentCountAggregateOutputType | null
   _avg: AttachmentAvgAggregateOutputType | null
   _sum: AttachmentSumAggregateOutputType | null
@@ -308,6 +319,7 @@ export type AttachmentWhereInput = {
   waveform?: Prisma.StringNullableFilter<"Attachment"> | string | null
   flags?: Prisma.StringNullableFilter<"Attachment"> | string | null
   expiresAt?: Prisma.DateTimeNullableFilter<"Attachment"> | Date | string | null
+  failedRefreshAttempts?: Prisma.IntFilter<"Attachment"> | number
   message?: Prisma.XOR<Prisma.ThreadMessageScalarRelationFilter, Prisma.ThreadMessageWhereInput>
 }
 
@@ -327,6 +339,7 @@ export type AttachmentOrderByWithRelationInput = {
   waveform?: Prisma.SortOrderInput | Prisma.SortOrder
   flags?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  failedRefreshAttempts?: Prisma.SortOrder
   message?: Prisma.ThreadMessageOrderByWithRelationInput
 }
 
@@ -349,6 +362,7 @@ export type AttachmentWhereUniqueInput = Prisma.AtLeast<{
   waveform?: Prisma.StringNullableFilter<"Attachment"> | string | null
   flags?: Prisma.StringNullableFilter<"Attachment"> | string | null
   expiresAt?: Prisma.DateTimeNullableFilter<"Attachment"> | Date | string | null
+  failedRefreshAttempts?: Prisma.IntFilter<"Attachment"> | number
   message?: Prisma.XOR<Prisma.ThreadMessageScalarRelationFilter, Prisma.ThreadMessageWhereInput>
 }, "id">
 
@@ -368,6 +382,7 @@ export type AttachmentOrderByWithAggregationInput = {
   waveform?: Prisma.SortOrderInput | Prisma.SortOrder
   flags?: Prisma.SortOrderInput | Prisma.SortOrder
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  failedRefreshAttempts?: Prisma.SortOrder
   _count?: Prisma.AttachmentCountOrderByAggregateInput
   _avg?: Prisma.AttachmentAvgOrderByAggregateInput
   _max?: Prisma.AttachmentMaxOrderByAggregateInput
@@ -394,6 +409,7 @@ export type AttachmentScalarWhereWithAggregatesInput = {
   waveform?: Prisma.StringNullableWithAggregatesFilter<"Attachment"> | string | null
   flags?: Prisma.StringNullableWithAggregatesFilter<"Attachment"> | string | null
   expiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Attachment"> | Date | string | null
+  failedRefreshAttempts?: Prisma.IntWithAggregatesFilter<"Attachment"> | number
 }
 
 export type AttachmentCreateInput = {
@@ -411,6 +427,7 @@ export type AttachmentCreateInput = {
   waveform?: string | null
   flags?: string | null
   expiresAt?: Date | string | null
+  failedRefreshAttempts?: number
   message: Prisma.ThreadMessageCreateNestedOneWithoutAttachmentsInput
 }
 
@@ -430,6 +447,7 @@ export type AttachmentUncheckedCreateInput = {
   waveform?: string | null
   flags?: string | null
   expiresAt?: Date | string | null
+  failedRefreshAttempts?: number
 }
 
 export type AttachmentUpdateInput = {
@@ -447,6 +465,7 @@ export type AttachmentUpdateInput = {
   waveform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedRefreshAttempts?: Prisma.IntFieldUpdateOperationsInput | number
   message?: Prisma.ThreadMessageUpdateOneRequiredWithoutAttachmentsNestedInput
 }
 
@@ -466,6 +485,7 @@ export type AttachmentUncheckedUpdateInput = {
   waveform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedRefreshAttempts?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AttachmentCreateManyInput = {
@@ -484,6 +504,7 @@ export type AttachmentCreateManyInput = {
   waveform?: string | null
   flags?: string | null
   expiresAt?: Date | string | null
+  failedRefreshAttempts?: number
 }
 
 export type AttachmentUpdateManyMutationInput = {
@@ -501,6 +522,7 @@ export type AttachmentUpdateManyMutationInput = {
   waveform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedRefreshAttempts?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AttachmentUncheckedUpdateManyInput = {
@@ -519,6 +541,7 @@ export type AttachmentUncheckedUpdateManyInput = {
   waveform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedRefreshAttempts?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AttachmentListRelationFilter = {
@@ -547,6 +570,7 @@ export type AttachmentCountOrderByAggregateInput = {
   waveform?: Prisma.SortOrder
   flags?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  failedRefreshAttempts?: Prisma.SortOrder
 }
 
 export type AttachmentAvgOrderByAggregateInput = {
@@ -554,6 +578,7 @@ export type AttachmentAvgOrderByAggregateInput = {
   width?: Prisma.SortOrder
   height?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  failedRefreshAttempts?: Prisma.SortOrder
 }
 
 export type AttachmentMaxOrderByAggregateInput = {
@@ -572,6 +597,7 @@ export type AttachmentMaxOrderByAggregateInput = {
   waveform?: Prisma.SortOrder
   flags?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  failedRefreshAttempts?: Prisma.SortOrder
 }
 
 export type AttachmentMinOrderByAggregateInput = {
@@ -590,6 +616,7 @@ export type AttachmentMinOrderByAggregateInput = {
   waveform?: Prisma.SortOrder
   flags?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
+  failedRefreshAttempts?: Prisma.SortOrder
 }
 
 export type AttachmentSumOrderByAggregateInput = {
@@ -597,6 +624,7 @@ export type AttachmentSumOrderByAggregateInput = {
   width?: Prisma.SortOrder
   height?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  failedRefreshAttempts?: Prisma.SortOrder
 }
 
 export type AttachmentCreateNestedManyWithoutMessageInput = {
@@ -664,6 +692,7 @@ export type AttachmentCreateWithoutMessageInput = {
   waveform?: string | null
   flags?: string | null
   expiresAt?: Date | string | null
+  failedRefreshAttempts?: number
 }
 
 export type AttachmentUncheckedCreateWithoutMessageInput = {
@@ -681,6 +710,7 @@ export type AttachmentUncheckedCreateWithoutMessageInput = {
   waveform?: string | null
   flags?: string | null
   expiresAt?: Date | string | null
+  failedRefreshAttempts?: number
 }
 
 export type AttachmentCreateOrConnectWithoutMessageInput = {
@@ -728,6 +758,7 @@ export type AttachmentScalarWhereInput = {
   waveform?: Prisma.StringNullableFilter<"Attachment"> | string | null
   flags?: Prisma.StringNullableFilter<"Attachment"> | string | null
   expiresAt?: Prisma.DateTimeNullableFilter<"Attachment"> | Date | string | null
+  failedRefreshAttempts?: Prisma.IntFilter<"Attachment"> | number
 }
 
 export type AttachmentCreateManyMessageInput = {
@@ -745,6 +776,7 @@ export type AttachmentCreateManyMessageInput = {
   waveform?: string | null
   flags?: string | null
   expiresAt?: Date | string | null
+  failedRefreshAttempts?: number
 }
 
 export type AttachmentUpdateWithoutMessageInput = {
@@ -762,6 +794,7 @@ export type AttachmentUpdateWithoutMessageInput = {
   waveform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedRefreshAttempts?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AttachmentUncheckedUpdateWithoutMessageInput = {
@@ -779,6 +812,7 @@ export type AttachmentUncheckedUpdateWithoutMessageInput = {
   waveform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedRefreshAttempts?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type AttachmentUncheckedUpdateManyWithoutMessageInput = {
@@ -796,6 +830,7 @@ export type AttachmentUncheckedUpdateManyWithoutMessageInput = {
   waveform?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   flags?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedRefreshAttempts?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -816,6 +851,7 @@ export type AttachmentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   waveform?: boolean
   flags?: boolean
   expiresAt?: boolean
+  failedRefreshAttempts?: boolean
   message?: boolean | Prisma.ThreadMessageDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["attachment"]>
 
@@ -835,6 +871,7 @@ export type AttachmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   waveform?: boolean
   flags?: boolean
   expiresAt?: boolean
+  failedRefreshAttempts?: boolean
   message?: boolean | Prisma.ThreadMessageDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["attachment"]>
 
@@ -854,6 +891,7 @@ export type AttachmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   waveform?: boolean
   flags?: boolean
   expiresAt?: boolean
+  failedRefreshAttempts?: boolean
   message?: boolean | Prisma.ThreadMessageDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["attachment"]>
 
@@ -873,9 +911,10 @@ export type AttachmentSelectScalar = {
   waveform?: boolean
   flags?: boolean
   expiresAt?: boolean
+  failedRefreshAttempts?: boolean
 }
 
-export type AttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "messageId" | "url" | "proxyURL" | "name" | "description" | "contentType" | "size" | "width" | "height" | "ephemeral" | "duration" | "waveform" | "flags" | "expiresAt", ExtArgs["result"]["attachment"]>
+export type AttachmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "messageId" | "url" | "proxyURL" | "name" | "description" | "contentType" | "size" | "width" | "height" | "ephemeral" | "duration" | "waveform" | "flags" | "expiresAt" | "failedRefreshAttempts", ExtArgs["result"]["attachment"]>
 export type AttachmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   message?: boolean | Prisma.ThreadMessageDefaultArgs<ExtArgs>
 }
@@ -907,6 +946,7 @@ export type $AttachmentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     waveform: string | null
     flags: string | null
     expiresAt: Date | null
+    failedRefreshAttempts: number
   }, ExtArgs["result"]["attachment"]>
   composites: {}
 }
@@ -1346,6 +1386,7 @@ export interface AttachmentFieldRefs {
   readonly waveform: Prisma.FieldRef<"Attachment", 'String'>
   readonly flags: Prisma.FieldRef<"Attachment", 'String'>
   readonly expiresAt: Prisma.FieldRef<"Attachment", 'DateTime'>
+  readonly failedRefreshAttempts: Prisma.FieldRef<"Attachment", 'Int'>
 }
     
 
