@@ -308,10 +308,10 @@ model ThreadMessage {
   type      String    @default("DEFAULT")
 
   // Rich content
-  embeds      Json? // Array of embed objects
-  mentions    Json? // {users: [], roles: [], everyone: boolean}
-  reactions   Json? // Array of {emoji, count}
-  reference   Json? // {messageId, channelId, guildId}
+  embeds    Json? // Array of embed objects
+  mentions  Json? // {users: [], roles: [], everyone: boolean}
+  reactions Json? // Array of {emoji, count}
+  reference Json? // {messageId, channelId, guildId}
 
   // Relations
   thread      Thread       @relation(fields: [threadId], references: [id], onDelete: Cascade)
@@ -335,21 +335,22 @@ model SyncProgress {
 }
 
 model Attachment {
-  id          String  @id // Discord attachment ID
-  messageId   String
-  url         String
-  proxyURL    String
-  name        String
-  description String?
-  contentType String?
-  size        Int
-  width       Int?
-  height      Int?
-  ephemeral   Boolean @default(false)
-  duration    Float? // For audio/video
-  waveform    String? // For audio
-  flags       String?
-  expiresAt   DateTime? // Extracted from URL's "ex" param for refresh queries
+  id                    String    @id // Discord attachment ID
+  messageId             String
+  url                   String
+  proxyURL              String
+  name                  String
+  description           String?
+  contentType           String?
+  size                  Int
+  width                 Int?
+  height                Int?
+  ephemeral             Boolean   @default(false)
+  duration              Float? // For audio/video
+  waveform              String? // For audio
+  flags                 String?
+  expiresAt             DateTime? // Extracted from URL's "ex" param for refresh queries
+  failedRefreshAttempts Int       @default(0)
 
   message ThreadMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
 
