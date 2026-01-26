@@ -49,11 +49,12 @@ export class MemberDataService {
         })(),
       ]);
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message.includes("Connect Timeout Error")
-      ) {
-        return;
+      // Silently ignore expected errors
+      if (error instanceof Error) {
+        // Connect timeout - transient network issue
+        if (error.message.includes("Connect Timeout Error")) return;
+        // Unknown Member (10007) - member left the guild
+        if ("code" in error && error.code === 10007) return;
       }
       console.error(
         `Failed to update complete member data for ${member.id} ${member.user.username}:`,
