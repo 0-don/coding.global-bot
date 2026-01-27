@@ -1,5 +1,5 @@
 import { guildDerive } from "@/api/middleware/guild.derive";
-import { parseMultipleUsersWithRoles } from "@/api/mappers/member.mapper";
+import { getMembers } from "@/api/mappers/member.mapper";
 import { prisma } from "@/prisma";
 import { Elysia, t } from "elysia";
 
@@ -16,9 +16,10 @@ export const widgetRoutes = new Elysia().use(guildDerive).get(
       take: 100,
     });
 
-    const users = await parseMultipleUsersWithRoles(
+    const users = await getMembers(
       onlineMembers.map((m) => m.memberId),
       guild,
+      { activeOnly: true },
     );
     const presenceCount = await prisma.memberGuild.count({
       where: {

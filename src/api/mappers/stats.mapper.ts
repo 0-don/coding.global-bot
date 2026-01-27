@@ -1,6 +1,6 @@
 import { StatsService } from "@/core/services/stats/stats.service";
 import { prisma } from "@/prisma";
-import { parseMultipleUsersWithRoles } from "./member.mapper";
+import { getMembers } from "./member.mapper";
 
 export async function getTopStatsWithUsers(
   guildId: string,
@@ -19,7 +19,7 @@ export async function getTopStatsWithUsers(
   ];
 
   // Resolve users with Discord data (avatars, display names)
-  const resolvedUsers = await parseMultipleUsersWithRoles(allUserIds, guildId);
+  const resolvedUsers = await getMembers(allUserIds, guildId, { activeOnly: true });
   const userMap = new Map(resolvedUsers.map((u) => [u.id, u]));
 
   return {

@@ -8,11 +8,44 @@ import {
   mapReactionsFromDb,
   mapReferenceFromDb,
 } from "@/shared/mappers/discord.mapper";
-import { resolveMentionedUsers } from "./member.mapper";
+import { getMembers } from "./member.mapper";
 
 type DbThread = Awaited<ReturnType<typeof ThreadService.getThread>>;
 type DbThreadList = Awaited<ReturnType<typeof ThreadService.getThreadsByType>>;
 type DbReplies = Awaited<ReturnType<typeof ThreadService.getThreadMessages>>;
+
+type FormattedMessage = {
+  content: string;
+  embeds: DbEmbed[];
+  mentions: { users: { id: string }[]; roles: { id: string; name: string }[]; everyone: boolean };
+};
+
+export async function resolveAndEnrichMentions<T extends FormattedMessage>(
+  messages: T[],
+  guildId: string,
+): Promise<T[]> {
+  const userIds = new Set<string>();
+  for (const msg of messages) {
+    msg.mentions.users.forEach((u) => userIds.add(u.id));
+    extractUserIdsFromContent(msg.content, msg.embeds).forEach((id) => userIds.add(id));
+  }
+
+  if (userIds.size === 0) return messages;
+
+  const resolved = await getMembers([...userIds], guildId);
+  const userMap = new Map(resolved.map((u) => [u.id, u]));
+
+  return messages.map((msg) => ({
+    ...msg,
+    mentions: {
+      ...msg.mentions,
+      users: [...new Set([
+        ...msg.mentions.users.map((u) => u.id),
+        ...extractUserIdsFromContent(msg.content, msg.embeds),
+      ])].map((id) => userMap.get(id)).filter(Boolean),
+    },
+  }));
+}
 
 export function formatThreadFromDb(
   dbThread: NonNullable<DbThread>,
@@ -31,7 +64,7 @@ export function formatThreadFromDb(
     boardType: dbThread.boardType,
     author,
     createdAt: dbThread.createdAt?.toISOString() || null,
-    updatedAt: dbThread.updatedAt.toISOString(),
+    updatedAt: dbThread.updatedAt?.toISOString() || null,
     lastActivityAt: dbThread.lastActivityAt?.toISOString() || dbThread.createdAt?.toISOString() || null,
     tags: dbThread.tags.map((tt) => ({
       id: tt.tag.id,
@@ -41,7 +74,6 @@ export function formatThreadFromDb(
         name: tt.tag.emojiName || null,
       },
     })),
-    content: firstMessage?.content || null,
     imageUrl: imageAttachment?.url || null,
     messageCount: dbThread.messageCount,
     totalMessageSent: dbThread.messageCount,
@@ -84,27 +116,3 @@ export function formatReplyFromDb(
   };
 }
 
-export function formatRepliesFromDb(
-  replies: DbReplies["messages"],
-  guildId: string,
-) {
-  return replies.map((reply) => formatReplyFromDb(reply, guildId));
-}
-
-type MessageWithMentions = {
-  content: string | null;
-  embeds: DbEmbed[];
-  mentions?: { users?: { id: string }[] };
-};
-
-export async function resolveUnresolvedMentions(messages: MessageWithMentions[], guildId: string) {
-  const allIds = new Set<string>();
-
-  for (const msg of messages) {
-    // Include users from mentions array too - they need full data for popovers
-    msg.mentions?.users?.forEach((u) => allIds.add(u.id));
-    extractUserIdsFromContent(msg.content, msg.embeds).forEach((id) => allIds.add(id));
-  }
-
-  return resolveMentionedUsers([...allIds], guildId);
-}

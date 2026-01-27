@@ -9,17 +9,20 @@ import {
 } from "@/shared/mappers/discord.mapper";
 import { Guild, Message } from "discord.js";
 
-export async function parseMultipleUsersWithRoles(
+export async function getMembers(
   userIds: string[],
   guildId: string | Guild,
+  options?: { activeOnly?: boolean },
 ) {
+  if (userIds.length === 0) return [];
+
   const resolvedGuildId = typeof guildId === "string" ? guildId : guildId.id;
 
   const members = await prisma.memberGuild.findMany({
     where: {
       memberId: { in: userIds },
       guildId: resolvedGuildId,
-      status: true,
+      ...(options?.activeOnly && { status: true }),
     },
     include: {
       member: {
@@ -33,13 +36,9 @@ export async function parseMultipleUsersWithRoles(
     },
   });
 
-  const formattedMembers = members.map((memberGuild) =>
-    mapMemberGuild(memberGuild, resolvedGuildId),
-  );
-
-  return formattedMembers.sort(
-    (a, b) => b.highestRolePosition - a.highestRolePosition,
-  );
+  return members
+    .map((memberGuild) => mapMemberGuild(memberGuild, resolvedGuildId))
+    .sort((a, b) => b.highestRolePosition - a.highestRolePosition);
 }
 
 export async function searchUsers(
@@ -92,11 +91,3 @@ export function parseMessage(message: Message) {
   };
 }
 
-/**
- * Resolve user IDs to full user data for mention display.
- * Returns the same format as thread authors for consistent popover display.
- */
-export async function resolveMentionedUsers(userIds: string[], guildId: string) {
-  if (userIds.length === 0) return [];
-  return parseMultipleUsersWithRoles(userIds, guildId);
-}

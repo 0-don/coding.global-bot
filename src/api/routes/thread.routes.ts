@@ -1,8 +1,8 @@
 import {
-  formatRepliesFromDb,
+  formatReplyFromDb,
   formatThreadFromDb,
   formatThreadsFromDb,
-  resolveUnresolvedMentions,
+  resolveAndEnrichMentions,
 } from "@/api/mappers/thread.mapper";
 import { PAGE_LIMIT } from "@/api/middleware/cache";
 import { ThreadParams, ThreadType } from "@/api/middleware/validators";
@@ -49,12 +49,11 @@ export const threadRoutes = new Elysia()
         }
       }
 
-      const formattedThread = formatThreadFromDb(thread, params.guildId);
-      const resolvedUsers = await resolveUnresolvedMentions(
-        formattedThread.firstMessage ? [formattedThread.firstMessage] : [],
-        params.guildId,
-      );
-      return { ...formattedThread, resolvedUsers };
+      const formatted = formatThreadFromDb(thread, params.guildId);
+      if (!formatted.firstMessage) return formatted;
+
+      const [enriched] = await resolveAndEnrichMentions([formatted.firstMessage], params.guildId);
+      return { ...formatted, firstMessage: enriched };
     },
     {
       params: ThreadParams,
@@ -70,9 +69,9 @@ export const threadRoutes = new Elysia()
           limit: PAGE_LIMIT,
         });
 
-      const formattedMessages = formatRepliesFromDb(messages, params.guildId);
-      const resolvedUsers = await resolveUnresolvedMentions(formattedMessages, params.guildId);
-      return { messages: formattedMessages, resolvedUsers, hasMore, nextCursor };
+      const formatted = messages.map((m) => formatReplyFromDb(m, params.guildId));
+      const enriched = await resolveAndEnrichMentions(formatted, params.guildId);
+      return { messages: enriched, hasMore, nextCursor };
     },
     {
       params: ThreadParams,

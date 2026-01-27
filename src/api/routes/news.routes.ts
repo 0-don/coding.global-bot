@@ -1,8 +1,5 @@
 import { guildDerive } from "@/api/middleware/guild.derive";
-import {
-  parseMessage,
-  parseMultipleUsersWithRoles,
-} from "@/api/mappers/member.mapper";
+import { getMembers, parseMessage } from "@/api/mappers/member.mapper";
 import { PAGE_LIMIT } from "@/api/middleware/cache";
 import { ChannelType } from "discord.js";
 import { Elysia, status, t } from "elysia";
@@ -46,7 +43,7 @@ export const newsRoutes = new Elysia().use(guildDerive).get(
     }
 
     const authorIds = [...new Set(messages.map((msg) => msg.author.id))];
-    const authors = await parseMultipleUsersWithRoles(authorIds, guild);
+    const authors = await getMembers(authorIds, guild, { activeOnly: true });
 
     return messages.map((message) => ({
       ...parseMessage(message),
