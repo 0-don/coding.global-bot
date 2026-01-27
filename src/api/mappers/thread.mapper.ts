@@ -99,12 +99,12 @@ type MessageWithMentions = {
 
 export async function resolveUnresolvedMentions(messages: MessageWithMentions[], guildId: string) {
   const allIds = new Set<string>();
-  const resolved = new Set<string>();
 
   for (const msg of messages) {
-    msg.mentions?.users?.forEach((u) => resolved.add(u.id));
+    // Include users from mentions array too - they need full data for popovers
+    msg.mentions?.users?.forEach((u) => allIds.add(u.id));
     extractUserIdsFromContent(msg.content, msg.embeds).forEach((id) => allIds.add(id));
   }
 
-  return resolveMentionedUsers([...allIds].filter((id) => !resolved.has(id)), guildId);
+  return resolveMentionedUsers([...allIds], guildId);
 }
