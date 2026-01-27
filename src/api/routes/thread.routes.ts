@@ -21,7 +21,22 @@ export const threadRoutes = new Elysia()
         params.guildId,
         threadType,
       );
-      return formatThreadsFromDb(threads, params.guildId);
+      const formatted = formatThreadsFromDb(threads, params.guildId);
+
+      const firstMessages = formatted
+        .map((t) => t.firstMessage)
+        .filter((m): m is NonNullable<typeof m> => m !== null);
+
+      const enriched = await resolveAndEnrichMentions(
+        firstMessages,
+        params.guildId,
+      );
+      let i = 0;
+
+      return formatted.map((thread) => ({
+        ...thread,
+        firstMessage: thread.firstMessage ? enriched[i++] : null,
+      }));
     },
     { params: t.Object({ guildId: t.String(), threadType: ThreadType }) },
   )
