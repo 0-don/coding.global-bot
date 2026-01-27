@@ -16,19 +16,18 @@ const CODING_RESPONSE =
 
 export function getThreadWelcomeMessage(
   boardType: string,
-  threadName: string,
   threadId: string,
 ): string {
-  const link = `[${threadName}](https://coding.global/${threadId})`;
+  const link = `https://coding.global/${threadId}`;
 
   switch (boardType) {
     case "job-board":
-      return `Good luck finding the right candidate! :four_leaf_clover:\n\n:link: ${link}`;
+      return `Good luck finding the right candidate! :four_leaf_clover:\n${link}`;
     case "dev-board":
-      return `Hope you find the perfect match! :handshake:\n\n:link: ${link}`;
+      return `Hope you find the perfect match! :handshake:\n${link}`;
     case "showcase":
-      return `Thanks for sharing your project! :star2:\n\n:link: ${link}`;
+      return `Thanks for sharing your project! :star2:\n${link}`;
     default:
-      return `${CODING_RESPONSE}\n\n:link: ${link}`;
+      return `${CODING_RESPONSE}\n\n${link}`;
   }
 }
