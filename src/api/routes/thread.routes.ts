@@ -8,11 +8,37 @@ import { PAGE_LIMIT } from "@/api/middleware/cache";
 import { ThreadParams, ThreadType } from "@/api/middleware/validators";
 import { ThreadService } from "@/core/services/threads/thread.service";
 import { SyncAllThreadsService } from "@/core/services/threads/verify-threads.service";
+import { ForumChannel } from "discord.js";
 import { Elysia, status, t } from "elysia";
 import { guildDerive } from "../middleware/guild.derive";
 
 export const threadRoutes = new Elysia()
   .use(guildDerive)
+  .get(
+    "/api/:guildId/thread-lookup/:threadId",
+    async ({ params, guild }) => {
+      let thread = await ThreadService.getThread(params.threadId);
+
+      if (thread) {
+        return { boardType: thread.boardType, threadId: thread.id };
+      }
+
+      const channel = await guild.channels
+        .fetch(params.threadId)
+        .catch(() => null);
+
+      if (!channel?.isThread() || !channel.parent) {
+        throw status("Not Found", "Thread not found");
+      }
+
+      const boardType = ThreadService.getThreadTypeFromChannel(
+        channel.parent as ForumChannel,
+      );
+
+      return { boardType, threadId: params.threadId };
+    },
+    { params: t.Object({ guildId: t.String(), threadId: t.String() }) },
+  )
   .get(
     "/api/:guildId/thread/:threadType",
     async ({ params }) => {

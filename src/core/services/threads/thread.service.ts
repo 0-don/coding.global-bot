@@ -1,6 +1,6 @@
+import { ThreadType } from "@/api/middleware/validators";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/prisma";
-import { log } from "console";
 import {
   mapAttachmentToDb,
   mapEmbed,
@@ -8,6 +8,7 @@ import {
   mapReactions,
   mapReference,
 } from "@/shared/mappers/discord.mapper";
+import { log } from "console";
 import type { Attachment } from "discord.js";
 import {
   ChannelType,
@@ -16,6 +17,7 @@ import {
   Message,
   ThreadChannel,
 } from "discord.js";
+import { Static } from "elysia";
 
 export class ThreadService {
   static async upsertThread(
@@ -87,7 +89,10 @@ export class ThreadService {
         await this.syncThreadMessages(thread);
       }
     } catch (error) {
-      log(`[ThreadService] upsertThread failed for thread ${thread.id}:`, error);
+      log(
+        `[ThreadService] upsertThread failed for thread ${thread.id}:`,
+        error,
+      );
     }
   }
 
@@ -237,7 +242,9 @@ export class ThreadService {
       return;
     }
 
-    const attachmentData = attachments.map((a) => mapAttachmentToDb(a, messageId));
+    const attachmentData = attachments.map((a) =>
+      mapAttachmentToDb(a, messageId),
+    );
 
     await prisma.$transaction([
       prisma.attachment.deleteMany({ where: { messageId } }),
@@ -367,9 +374,9 @@ export class ThreadService {
     };
   }
 
-  static getThreadTypeFromChannel(channel: ForumChannel): string {
+  static getThreadTypeFromChannel(channel: ForumChannel) {
     const name = channel.name.toLowerCase();
     const match = name.match(/[^a-z0-9]*([a-z0-9-]+)$/i);
-    return match?.[1] || name;
+    return (match?.[1] || name) as Static<typeof ThreadType>;
   }
 }
