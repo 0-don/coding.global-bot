@@ -1,4 +1,4 @@
-import { searchUsers } from "@/api/mappers/member.mapper";
+import { getMembers, searchUsers } from "@/api/mappers/member.mapper";
 import { getUserStatsForApi } from "@/api/mappers/stats.mapper";
 import { Elysia, status, t } from "elysia";
 
@@ -20,10 +20,21 @@ export const userRoutes = new Elysia()
     },
   )
   .post(
-    "/api/:guildId/users",
+    "/api/:guildId/users/stats",
     async ({ params, body }) => {
       const uniqueUserIds = [...new Set(body.userIds)];
       return getUserStatsForApi(uniqueUserIds, params.guildId);
+    },
+    {
+      params: t.Object({ guildId: t.String() }),
+      body: t.Object({ userIds: t.Array(t.String()) }),
+    },
+  )
+  .post(
+    "/api/:guildId/users/info",
+    async ({ params, body }) => {
+      const uniqueUserIds = [...new Set(body.userIds)];
+      return getMembers(uniqueUserIds, params.guildId, { activeOnly: true });
     },
     {
       params: t.Object({ guildId: t.String() }),
