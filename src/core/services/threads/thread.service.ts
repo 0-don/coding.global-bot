@@ -114,6 +114,13 @@ export class ThreadService {
     await prisma.thread.delete({ where: { id: threadId } }).catch(() => {});
   }
 
+  static async getThreadLookup(threadId: string) {
+    return prisma.thread.findUnique({
+      where: { id: threadId },
+      select: { id: true, boardType: true },
+    });
+  }
+
   static async getThread(threadId: string) {
     return prisma.thread.findUnique({
       where: { id: threadId },
