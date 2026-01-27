@@ -29,6 +29,6 @@ export function getThreadWelcomeMessage(
     case "showcase":
       return `Thanks for sharing your project! :star2:\n${link}`;
     default:
-      return `${CODING_RESPONSE}\n\n${link}`;
+      return `${CODING_RESPONSE}\n${link}`;
   }
 }
