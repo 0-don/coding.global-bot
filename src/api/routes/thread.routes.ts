@@ -59,8 +59,8 @@ export const threadRoutes = new Elysia()
                 [formatted.firstMessage],
                 params.guildId,
               )
-            )[0]
-          : null)!,
+            )[0]!
+          : null!)!,
       };
     },
     {
