@@ -45,17 +45,25 @@ export async function getTopStatsWithUsers(
   };
 }
 
-export async function getUserStatsForApi(memberId: string, guildId: string) {
-  // Check if user is in the server
-  const memberGuild = await prisma.memberGuild.findUnique({
+export async function getUserStatsForApi(memberIds: string[], guildId: string) {
+  // Batch check which users are in the server
+  const memberGuilds = await prisma.memberGuild.findMany({
     where: {
-      member_guild: { memberId, guildId },
+      guildId,
+      memberId: { in: memberIds },
+      status: true,
     },
+    select: { memberId: true },
   });
 
-  if (!memberGuild || !memberGuild.status) {
-    return null;
-  }
+  const activeMemberIds = new Set(memberGuilds.map((mg) => mg.memberId));
 
-  return StatsService.getUserStats(memberId, guildId);
+  // Get stats for all active members
+  const results = await Promise.all(
+    memberIds
+      .filter((id) => activeMemberIds.has(id))
+      .map((memberId) => StatsService.getUserStats(memberId, guildId)),
+  );
+
+  return results.filter((stats) => stats !== null);
 }
