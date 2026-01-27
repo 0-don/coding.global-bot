@@ -1,14 +1,11 @@
-import { simpleEmbedExample } from "@/core/embeds/simple.embed";
 import { MessagesService } from "@/core/services/messages/messages.service";
 import { RolesService } from "@/core/services/roles/roles.service";
 import { DuplicateSpamService } from "@/core/services/spam/duplicate-spam.service";
 import { SpamDetectionService } from "@/core/services/spam/spam-detection.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
-import { THREAD_QUESTION_RESPONSE } from "@/shared/config/branding";
-import { EXCLUDED_THREAD_TYPES } from "@/shared/config/channels";
 import { ConfigValidator } from "@/shared/config/validator";
 import { translate } from "@/shared/integrations/deepl";
-import { Message, MessageType, TextChannel, ThreadChannel } from "discord.js";
+import { Message, MessageType, TextChannel } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
 
 export async function handleMessageCreate(message: Message): Promise<void> {
@@ -17,8 +14,6 @@ export async function handleMessageCreate(message: Message): Promise<void> {
   if (isSpam) {
     return;
   }
-
-  checkThreadStart(message);
 
   await DuplicateSpamService.checkDuplicateSpam(message);
 
@@ -29,37 +24,6 @@ export async function handleMessageCreate(message: Message): Promise<void> {
   await ThreadService.upsertThreadMessage(message);
 
   await MessagesService.levelUpMessage(message);
-}
-
-export async function checkThreadStart(message: Message): Promise<void> {
-  const channel = message.channel;
-  if (channel.isThread() && channel instanceof ThreadChannel) {
-    const parentChannel = message.guild?.channels.cache.get(channel.parentId!);
-    if (
-      parentChannel &&
-      !EXCLUDED_THREAD_TYPES.some((threadType) =>
-        parentChannel.name.includes(threadType),
-      )
-    ) {
-      try {
-        const firstMessage = await channel.fetchStarterMessage();
-        const messages = await channel.messages.fetch();
-
-        if (message.author.bot || firstMessage?.author.bot || messages.size > 1)
-          return;
-
-        if (firstMessage?.author.id === message.author.id) {
-          const embed = simpleEmbedExample();
-          embed.description = THREAD_QUESTION_RESPONSE;
-
-          await channel.send({
-            embeds: [embed],
-            allowedMentions: { users: [], roles: [] },
-          });
-        }
-      } catch (_) {}
-    }
-  }
 }
 
 export async function handleCheckThreadHelpLike(
