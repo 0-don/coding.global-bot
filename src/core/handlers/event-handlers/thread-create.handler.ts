@@ -25,11 +25,8 @@ export async function handleThreadCreate(
   if (newlyCreated) {
     try {
       const embed = simpleEmbedExample();
-      embed.description = getThreadWelcomeMessage(
-        threadType,
-        thread.name,
-        thread.id,
-      );
+      embed.description = getThreadWelcomeMessage(threadType, thread.id);
+      embed.footer!.text = threadType;
 
       await thread.send({
         embeds: [embed],
