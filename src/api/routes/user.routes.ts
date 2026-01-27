@@ -19,16 +19,14 @@ export const userRoutes = new Elysia()
       }),
     },
   )
-  .get(
-    "/api/:guildId/user/:userId",
-    async ({ params }) => {
-      const stats = await getUserStatsForApi(params.userId, params.guildId);
-      if (!stats) {
-        throw status("Not Found", "User not found or has left the server");
-      }
-      return stats;
+  .post(
+    "/api/:guildId/users",
+    async ({ params, body }) => {
+      const uniqueUserIds = [...new Set(body.userIds)];
+      return getUserStatsForApi(uniqueUserIds, params.guildId);
     },
     {
-      params: t.Object({ guildId: t.String(), userId: t.String() }),
+      params: t.Object({ guildId: t.String() }),
+      body: t.Object({ userIds: t.Array(t.String()) }),
     },
   );
