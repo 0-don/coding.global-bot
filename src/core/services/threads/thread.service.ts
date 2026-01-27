@@ -275,6 +275,7 @@ export class ThreadService {
       where: {
         threadId,
         id: { not: threadId, ...(options.after && { gt: options.after }) },
+        author: { bot: false },
       },
       include: {
         author: { include: { guilds: true, roles: true } },
