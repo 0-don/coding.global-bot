@@ -1,11 +1,14 @@
 import { ThreadService } from "@/core/services/threads/thread.service";
 import {
+  DbEmbed,
+  extractUserIdsFromContent,
   mapEmbedsFromDb,
   mapMember,
   mapMentionsFromDb,
   mapReactionsFromDb,
   mapReferenceFromDb,
 } from "@/shared/mappers/discord.mapper";
+import { resolveMentionedUsers } from "./member.mapper";
 
 type DbThread = Awaited<ReturnType<typeof ThreadService.getThread>>;
 type DbThreadList = Awaited<ReturnType<typeof ThreadService.getThreadsByType>>;
@@ -86,4 +89,22 @@ export function formatRepliesFromDb(
   guildId: string,
 ) {
   return replies.map((reply) => formatReplyFromDb(reply, guildId));
+}
+
+type MessageWithMentions = {
+  content: string | null;
+  embeds: DbEmbed[];
+  mentions?: { users?: { id: string }[] };
+};
+
+export async function resolveUnresolvedMentions(messages: MessageWithMentions[]) {
+  const allIds = new Set<string>();
+  const resolved = new Set<string>();
+
+  for (const msg of messages) {
+    msg.mentions?.users?.forEach((u) => resolved.add(u.id));
+    extractUserIdsFromContent(msg.content, msg.embeds).forEach((id) => allIds.add(id));
+  }
+
+  return resolveMentionedUsers([...allIds].filter((id) => !resolved.has(id)));
 }

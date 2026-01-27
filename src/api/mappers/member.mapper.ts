@@ -1,13 +1,13 @@
-import { Guild, Message } from "discord.js";
 import { prisma } from "@/prisma";
 import {
-  mapMemberGuild,
   mapAttachment,
   mapEmbed,
+  mapMemberGuild,
   mapMentions,
   mapReactions,
   mapReference,
 } from "@/shared/mappers/discord.mapper";
+import { Guild, Message } from "discord.js";
 
 export async function parseMultipleUsersWithRoles(
   userIds: string[],
@@ -90,4 +90,27 @@ export function parseMessage(message: Message) {
     reactions: mapReactions(message.reactions.cache.values()),
     reference: mapReference(message.reference),
   };
+}
+
+/**
+ * Resolve user IDs to minimal user data for mention display.
+ * Returns an array of { id, username, globalName }
+ */
+export async function resolveMentionedUsers(userIds: string[]) {
+  if (userIds.length === 0) return [];
+
+  const members = await prisma.member.findMany({
+    where: { memberId: { in: userIds } },
+    select: {
+      memberId: true,
+      username: true,
+      globalName: true,
+    },
+  });
+
+  return members.map((m) => ({
+    id: m.memberId,
+    username: m.username,
+    globalName: m.globalName,
+  }));
 }
