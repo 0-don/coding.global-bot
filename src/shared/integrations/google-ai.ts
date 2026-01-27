@@ -1,16 +1,29 @@
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import {
+  createGoogleGenerativeAI,
+  type GoogleGenerativeAIProvider,
+} from "@ai-sdk/google";
 import { APICallError, RetryError } from "ai";
 import { log } from "console";
 
-const FALLBACK_MODELS = [
+type RawModelId = Parameters<GoogleGenerativeAIProvider>[0];
+type ModelId = RawModelId extends infer T
+  ? T extends string
+    ? string extends T
+      ? never
+      : T
+    : never
+  : never;
+
+const FALLBACK_MODELS: ModelId[] = [
+  "gemini-3-flash-preview",
   "gemini-2.5-flash",
-  "gemini-3-flash",
   "gemini-2.5-flash-lite",
   "gemini-2.0-flash",
-  "gemini-2.0-flash-lite",
+  "gemini-1.5-flash",
+  "gemini-3-pro-preview",
   "gemini-2.5-pro",
-  "gemini-3-pro",
-];
+  "gemini-1.5-pro",
+]
 
 function getApiKeys() {
   return (
