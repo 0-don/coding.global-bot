@@ -59,7 +59,7 @@ const buildMemberResponse = (
   primaryGuild: member.primaryGuild
     ? JSON.stringify(member.primaryGuild)
     : null,
-  roles: roles.map((r) => ({ name: r.name ?? "", position: r.position ?? 0 })),
+  roles: roles.filter((r) => r.name).map((r) => ({ name: r.name!, position: r.position ?? 0 })),
   highestRolePosition: guild?.highestRolePosition ?? 0,
   status: guild?.presenceStatus ?? "offline",
   activity: guild?.presenceActivity ?? null,
