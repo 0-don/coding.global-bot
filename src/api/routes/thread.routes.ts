@@ -2,6 +2,7 @@ import {
   formatRepliesFromDb,
   formatThreadFromDb,
   formatThreadsFromDb,
+  resolveUnresolvedMentions,
 } from "@/api/mappers/thread.mapper";
 import { PAGE_LIMIT } from "@/api/middleware/cache";
 import { ThreadParams, ThreadType } from "@/api/middleware/validators";
@@ -48,7 +49,11 @@ export const threadRoutes = new Elysia()
         }
       }
 
-      return formatThreadFromDb(thread, params.guildId);
+      const formattedThread = formatThreadFromDb(thread, params.guildId);
+      const resolvedUsers = await resolveUnresolvedMentions(
+        formattedThread.firstMessage ? [formattedThread.firstMessage] : [],
+      );
+      return { ...formattedThread, resolvedUsers };
     },
     {
       params: ThreadParams,
@@ -63,11 +68,10 @@ export const threadRoutes = new Elysia()
           after: query.after,
           limit: PAGE_LIMIT,
         });
-      return {
-        messages: formatRepliesFromDb(messages, params.guildId),
-        hasMore,
-        nextCursor,
-      };
+
+      const formattedMessages = formatRepliesFromDb(messages, params.guildId);
+      const resolvedUsers = await resolveUnresolvedMentions(formattedMessages);
+      return { messages: formattedMessages, resolvedUsers, hasMore, nextCursor };
     },
     {
       params: ThreadParams,

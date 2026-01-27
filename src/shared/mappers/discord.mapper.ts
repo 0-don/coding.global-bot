@@ -227,3 +227,42 @@ export const mapReactionsFromDb = (raw: unknown): DbReaction[] =>
 
 export const mapReferenceFromDb = (raw: unknown): DbReference =>
   raw && typeof raw === "object" ? (raw as DbReference) : null;
+
+// Regex to find user mentions in content: <@123> or <@!123>
+const USER_MENTION_REGEX = /<@!?(\d+)>/g;
+
+/**
+ * Extract all user IDs from message content and embeds.
+ * Returns unique IDs that can be used for batch lookup.
+ */
+export const extractUserIdsFromContent = (
+  content: string | null,
+  embeds?: DbEmbed[],
+): string[] => {
+  const ids = new Set<string>();
+
+  // Parse main content
+  if (content) {
+    for (const match of content.matchAll(USER_MENTION_REGEX)) {
+      ids.add(match[1]);
+    }
+  }
+
+  // Parse embed descriptions and field values
+  if (embeds) {
+    for (const embed of embeds) {
+      if (embed.description) {
+        for (const match of embed.description.matchAll(USER_MENTION_REGEX)) {
+          ids.add(match[1]);
+        }
+      }
+      for (const field of embed.fields ?? []) {
+        for (const match of field.value.matchAll(USER_MENTION_REGEX)) {
+          ids.add(match[1]);
+        }
+      }
+    }
+  }
+
+  return Array.from(ids);
+};
