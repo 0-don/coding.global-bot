@@ -17,7 +17,7 @@ export const threadRoutes = new Elysia()
   .get(
     "/api/:guildId/thread-lookup/:threadId",
     async ({ params, guild }) => {
-      let thread = await ThreadService.getThread(params.threadId);
+      const thread = await ThreadService.getThreadLookup(params.threadId);
 
       if (thread) {
         return { boardType: thread.boardType, threadId: thread.id };
