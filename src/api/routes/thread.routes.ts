@@ -50,10 +50,18 @@ export const threadRoutes = new Elysia()
       }
 
       const formatted = formatThreadFromDb(thread, params.guildId);
-      if (!formatted.firstMessage) return { ...formatted, firstMessage: null };
 
-      const [enriched] = await resolveAndEnrichMentions([formatted.firstMessage], params.guildId);
-      return { ...formatted, firstMessage: enriched };
+      return {
+        ...formatted,
+        firstMessage: (formatted.firstMessage
+          ? (
+              await resolveAndEnrichMentions(
+                [formatted.firstMessage],
+                params.guildId,
+              )
+            )[0]
+          : null)!,
+      };
     },
     {
       params: ThreadParams,
@@ -69,8 +77,13 @@ export const threadRoutes = new Elysia()
           limit: PAGE_LIMIT,
         });
 
-      const formatted = messages.map((m) => formatReplyFromDb(m, params.guildId));
-      const enriched = await resolveAndEnrichMentions(formatted, params.guildId);
+      const formatted = messages.map((m) =>
+        formatReplyFromDb(m, params.guildId),
+      );
+      const enriched = await resolveAndEnrichMentions(
+        formatted,
+        params.guildId,
+      );
       return { messages: enriched, hasMore, nextCursor };
     },
     {
