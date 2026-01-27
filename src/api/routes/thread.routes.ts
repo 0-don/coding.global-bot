@@ -50,7 +50,7 @@ export const threadRoutes = new Elysia()
       }
 
       const formatted = formatThreadFromDb(thread, params.guildId);
-      if (!formatted.firstMessage) return formatted;
+      if (!formatted.firstMessage) return { ...formatted, firstMessage: null };
 
       const [enriched] = await resolveAndEnrichMentions([formatted.firstMessage], params.guildId);
       return { ...formatted, firstMessage: enriched };

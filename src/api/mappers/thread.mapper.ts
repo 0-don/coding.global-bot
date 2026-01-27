@@ -1,6 +1,5 @@
 import { ThreadService } from "@/core/services/threads/thread.service";
 import {
-  DbEmbed,
   extractUserIdsFromContent,
   mapEmbedsFromDb,
   mapMember,
@@ -14,37 +13,36 @@ type DbThread = Awaited<ReturnType<typeof ThreadService.getThread>>;
 type DbThreadList = Awaited<ReturnType<typeof ThreadService.getThreadsByType>>;
 type DbReplies = Awaited<ReturnType<typeof ThreadService.getThreadMessages>>;
 
-type FormattedMessage = {
-  content: string;
-  embeds: DbEmbed[];
-  mentions: { users: { id: string }[]; roles: { id: string; name: string }[]; everyone: boolean };
-};
+export type FormattedReply = ReturnType<typeof formatReplyFromDb>;
+export type FormattedThread = ReturnType<typeof formatThreadFromDb>;
 
-export async function resolveAndEnrichMentions<T extends FormattedMessage>(
-  messages: T[],
+export async function resolveAndEnrichMentions(
+  messages: FormattedReply[],
   guildId: string,
-): Promise<T[]> {
+) {
   const userIds = new Set<string>();
   for (const msg of messages) {
     msg.mentions.users.forEach((u) => userIds.add(u.id));
     extractUserIdsFromContent(msg.content, msg.embeds).forEach((id) => userIds.add(id));
   }
 
-  if (userIds.size === 0) return messages;
-
-  const resolved = await getMembers([...userIds], guildId);
+  const resolved = userIds.size > 0 ? await getMembers([...userIds], guildId) : [];
   const userMap = new Map(resolved.map((u) => [u.id, u]));
 
-  return messages.map((msg) => ({
-    ...msg,
-    mentions: {
-      ...msg.mentions,
-      users: [...new Set([
-        ...msg.mentions.users.map((u) => u.id),
-        ...extractUserIdsFromContent(msg.content, msg.embeds),
-      ])].map((id) => userMap.get(id)).filter(Boolean),
-    },
-  }));
+  return messages.map((msg) => {
+    const { mentions, ...rest } = msg;
+    return {
+      ...rest,
+      mentions: {
+        roles: mentions.roles,
+        everyone: mentions.everyone,
+        users: [...new Set([
+          ...mentions.users.map((u) => u.id),
+          ...extractUserIdsFromContent(msg.content, msg.embeds),
+        ])].map((id) => userMap.get(id)).filter((u): u is NonNullable<typeof u> => !!u),
+      },
+    };
+  });
 }
 
 export function formatThreadFromDb(
@@ -99,6 +97,7 @@ export function formatReplyFromDb(
   reply: DbReplies["messages"][number],
   guildId: string,
 ) {
+  const mentions = mapMentionsFromDb(reply.mentions);
   return {
     id: reply.id,
     content: reply.content,
@@ -109,7 +108,7 @@ export function formatReplyFromDb(
     type: reply.type,
     attachments: reply.attachments,
     embeds: mapEmbedsFromDb(reply.embeds),
-    mentions: mapMentionsFromDb(reply.mentions),
+    mentions,
     reactions: mapReactionsFromDb(reply.reactions),
     reference: mapReferenceFromDb(reply.reference),
     author: mapMember(reply.author, guildId),
