@@ -52,6 +52,7 @@ export const threadRoutes = new Elysia()
       const formattedThread = formatThreadFromDb(thread, params.guildId);
       const resolvedUsers = await resolveUnresolvedMentions(
         formattedThread.firstMessage ? [formattedThread.firstMessage] : [],
+        params.guildId,
       );
       return { ...formattedThread, resolvedUsers };
     },
@@ -70,7 +71,7 @@ export const threadRoutes = new Elysia()
         });
 
       const formattedMessages = formatRepliesFromDb(messages, params.guildId);
-      const resolvedUsers = await resolveUnresolvedMentions(formattedMessages);
+      const resolvedUsers = await resolveUnresolvedMentions(formattedMessages, params.guildId);
       return { messages: formattedMessages, resolvedUsers, hasMore, nextCursor };
     },
     {

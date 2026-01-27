@@ -97,7 +97,7 @@ type MessageWithMentions = {
   mentions?: { users?: { id: string }[] };
 };
 
-export async function resolveUnresolvedMentions(messages: MessageWithMentions[]) {
+export async function resolveUnresolvedMentions(messages: MessageWithMentions[], guildId: string) {
   const allIds = new Set<string>();
   const resolved = new Set<string>();
 
@@ -106,5 +106,5 @@ export async function resolveUnresolvedMentions(messages: MessageWithMentions[])
     extractUserIdsFromContent(msg.content, msg.embeds).forEach((id) => allIds.add(id));
   }
 
-  return resolveMentionedUsers([...allIds].filter((id) => !resolved.has(id)));
+  return resolveMentionedUsers([...allIds].filter((id) => !resolved.has(id)), guildId);
 }

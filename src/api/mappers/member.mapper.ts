@@ -93,24 +93,10 @@ export function parseMessage(message: Message) {
 }
 
 /**
- * Resolve user IDs to minimal user data for mention display.
- * Returns an array of { id, username, globalName }
+ * Resolve user IDs to full user data for mention display.
+ * Returns the same format as thread authors for consistent popover display.
  */
-export async function resolveMentionedUsers(userIds: string[]) {
+export async function resolveMentionedUsers(userIds: string[], guildId: string) {
   if (userIds.length === 0) return [];
-
-  const members = await prisma.member.findMany({
-    where: { memberId: { in: userIds } },
-    select: {
-      memberId: true,
-      username: true,
-      globalName: true,
-    },
-  });
-
-  return members.map((m) => ({
-    id: m.memberId,
-    username: m.username,
-    globalName: m.globalName,
-  }));
+  return parseMultipleUsersWithRoles(userIds, guildId);
 }
