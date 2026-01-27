@@ -23,9 +23,9 @@ export const threadRoutes = new Elysia()
         return { boardType: thread.boardType, threadId: thread.id };
       }
 
-      const channel = await guild.channels
-        .fetch(params.threadId)
-        .catch(() => null);
+      const channel =
+        guild.channels.cache.get(params.threadId) ??
+        (await guild.channels.fetch(params.threadId).catch(() => null));
 
       if (!channel?.isThread() || !channel.parent) {
         throw status("Not Found", "Thread not found");
