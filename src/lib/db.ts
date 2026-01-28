@@ -12,7 +12,7 @@ export const db = drizzle(postgres(databaseUrl, { onnotice: () => {} }), {
   schema,
 });
 
-// Skip migration during build time (STANDALONE is set in Dockerfile during build)
+// Run migrations (skip during build time when STANDALONE is set)
 if (!process.env.STANDALONE) {
   migrate(db, { migrationsFolder: resolve("drizzle") }).catch((e) =>
     error("Database migration failed", e),
