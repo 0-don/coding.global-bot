@@ -1,7 +1,4 @@
-import "@dotenvx/dotenvx/config";
-
 // Channel configurations parsed from environment variables
-
 export const GENERAL_CHANNELS =
   process.env.GENERAL_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
 
