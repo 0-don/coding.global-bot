@@ -49,8 +49,8 @@ export function formatThreadFromDb(
   dbThread: NonNullable<DbThread>,
   guildId: string,
 ) {
-  const author = mapMember(dbThread.author, guildId);
-  const firstMessage = dbThread.messages[0];
+  const author = dbThread.member ? mapMember(dbThread.member, guildId) : null;
+  const firstMessage = dbThread.threadMessages?.[0];
   const attachments = firstMessage?.attachments ?? [];
   const imageAttachment = attachments.find((a) =>
     a.contentType?.startsWith("image/"),
@@ -61,10 +61,10 @@ export function formatThreadFromDb(
     parentId: dbThread.parentId,
     boardType: dbThread.boardType,
     author,
-    createdAt: dbThread.createdAt?.toISOString() || null,
-    updatedAt: dbThread.updatedAt?.toISOString() || null,
-    lastActivityAt: dbThread.lastActivityAt?.toISOString() || dbThread.createdAt?.toISOString() || null,
-    tags: dbThread.tags.map((tt) => ({
+    createdAt: dbThread.createdAt || null,
+    updatedAt: dbThread.updatedAt || null,
+    lastActivityAt: dbThread.lastActivityAt || dbThread.createdAt || null,
+    tags: (dbThread.threadTags ?? []).map((tt) => ({
       id: tt.tag.id,
       name: tt.tag.name,
       emoji: {
@@ -78,7 +78,7 @@ export function formatThreadFromDb(
     memberCount: dbThread.memberCount,
     locked: dbThread.locked,
     archived: dbThread.archived,
-    archivedAt: dbThread.archivedAt?.toISOString() || null,
+    archivedAt: dbThread.archivedAt || null,
     autoArchiveDuration: dbThread.autoArchiveDuration?.toString() || null,
     invitable: dbThread.invitable,
     rateLimitPerUser: dbThread.rateLimitPerUser,
@@ -101,17 +101,17 @@ export function formatReplyFromDb(
   return {
     id: reply.id,
     content: reply.content,
-    createdAt: reply.createdAt.toISOString(),
-    editedAt: reply.editedAt?.toISOString() || null,
+    createdAt: reply.createdAt,
+    editedAt: reply.editedAt || null,
     pinned: reply.pinned,
     tts: reply.tts,
     type: reply.type,
-    attachments: reply.attachments,
+    attachments: reply.attachments ?? [],
     embeds: mapEmbedsFromDb(reply.embeds),
     mentions,
     reactions: mapReactionsFromDb(reply.reactions),
     reference: mapReferenceFromDb(reply.reference),
-    author: mapMember(reply.author, guildId),
+    author: reply.member ? mapMember(reply.member, guildId) : null,
   };
 }
 

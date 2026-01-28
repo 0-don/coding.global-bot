@@ -1,6 +1,8 @@
 import { UNKNOWN_CHANNEL, UNKNOWN_MESSAGE } from "@/core/utils/command.utils";
 import { bot } from "@/main";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { attachment } from "@/lib/db-schema";
+import { and, asc, count, eq, gte, lt, sql } from "drizzle-orm";
 import { mapAttachmentToDb } from "@/shared/mappers/discord.mapper";
 import { error, log } from "console";
 import { DiscordAPIError, HTTPError, type TextChannel, type ThreadChannel } from "discord.js";
@@ -46,46 +48,39 @@ export class AttachmentRefreshQueueService {
       const threshold = new Date(Date.now() + EXPIRY_THRESHOLD_MS);
 
       // Find messages with attachments expiring soon or already expired, prioritizing soonest/already expired
-      const expiringAttachments = await prisma.attachment.findMany({
-        where: {
-          expiresAt: {
-            lt: threshold,
-          },
-        },
-        select: {
-          messageId: true,
-          message: {
-            select: {
-              threadId: true,
+      const expiringAttachments = await db.query.attachment.findMany({
+        where: lt(attachment.expiresAt, threshold.toISOString()),
+        with: {
+          threadMessage: {
+            with: {
               thread: {
-                select: {
-                  guildId: true,
-                },
+                columns: { guildId: true },
               },
             },
+            columns: { threadId: true },
           },
         },
-        orderBy: { expiresAt: "asc" },
-        distinct: ["messageId"],
-        take: BATCH_SIZE,
+        columns: { messageId: true },
+        orderBy: asc(attachment.expiresAt),
+        limit: BATCH_SIZE,
       });
 
-      if (expiringAttachments.length === 0) return;
-
-      // Count total expiring attachments for progress logging
-      const totalExpiring = await prisma.attachment.count({
-        where: {
-          expiresAt: {
-            lt: threshold,
-          },
-        },
+      // Get distinct messageIds
+      const seen = new Set<string>();
+      const uniqueAttachments = expiringAttachments.filter((a) => {
+        if (seen.has(a.messageId)) return false;
+        seen.add(a.messageId);
+        return true;
       });
 
-      for (const attachment of expiringAttachments) {
+      if (uniqueAttachments.length === 0) return;
+
+      for (const att of uniqueAttachments) {
+        if (!att.threadMessage?.thread) continue;
         await this.refreshMessageAttachments(
-          attachment.message.thread.guildId,
-          attachment.message.threadId,
-          attachment.messageId,
+          att.threadMessage.thread.guildId,
+          att.threadMessage.threadId,
+          att.messageId,
         );
       }
     } catch (err) {
@@ -123,21 +118,21 @@ export class AttachmentRefreshQueueService {
 
       if (!channel || !("messages" in channel)) {
         // Channel no longer exists, clean up attachments
-        await prisma.attachment.deleteMany({ where: { messageId } });
+        await db.delete(attachment).where(eq(attachment.messageId, messageId));
         return;
       }
 
       const message = await channel.messages.fetch(messageId);
       if (!message) {
         // Message was deleted, remove attachments
-        await prisma.attachment.deleteMany({ where: { messageId } });
+        await db.delete(attachment).where(eq(attachment.messageId, messageId));
         return;
       }
 
       const attachments = Array.from(message.attachments.values());
 
       if (attachments.length === 0) {
-        await prisma.attachment.deleteMany({ where: { messageId } });
+        await db.delete(attachment).where(eq(attachment.messageId, messageId));
         return;
       }
 
@@ -145,16 +140,16 @@ export class AttachmentRefreshQueueService {
         mapAttachmentToDb(a, messageId),
       );
 
-      await prisma.$transaction([
-        prisma.attachment.deleteMany({ where: { messageId } }),
-        prisma.attachment.createMany({ data: attachmentData }),
-      ]);
+      await db.transaction(async (tx) => {
+        await tx.delete(attachment).where(eq(attachment.messageId, messageId));
+        await tx.insert(attachment).values(attachmentData);
+      });
     } catch (err) {
       const code = (err as { code?: number }).code;
       // If channel or message no longer exists, clean up the attachments from DB
       if (code === UNKNOWN_CHANNEL || code === UNKNOWN_MESSAGE) {
-        await prisma.attachment
-          .deleteMany({ where: { messageId } })
+        await db.delete(attachment)
+          .where(eq(attachment.messageId, messageId))
           .catch(() => {});
         log(`Cleaned up attachments for deleted message/channel ${messageId}`);
         return;
@@ -173,23 +168,20 @@ export class AttachmentRefreshQueueService {
 
   private static async incrementFailedAttempts(messageId: string) {
     // Increment failed attempts counter
-    const updated = await prisma.attachment.updateMany({
-      where: { messageId },
-      data: { failedRefreshAttempts: { increment: 1 } },
-    });
-
-    if (updated.count === 0) return;
+    const updated = await db.update(attachment)
+      .set({ failedRefreshAttempts: sql`${attachment.failedRefreshAttempts} + 1` })
+      .where(eq(attachment.messageId, messageId));
 
     // Check if any attachment has exceeded max attempts
-    const maxAttempts = await prisma.attachment.findFirst({
-      where: {
-        messageId,
-        failedRefreshAttempts: { gte: MAX_REFRESH_ATTEMPTS },
-      },
+    const maxAttempts = await db.query.attachment.findFirst({
+      where: and(
+        eq(attachment.messageId, messageId),
+        gte(attachment.failedRefreshAttempts, MAX_REFRESH_ATTEMPTS),
+      ),
     });
 
     if (maxAttempts) {
-      await prisma.attachment.deleteMany({ where: { messageId } });
+      await db.delete(attachment).where(eq(attachment.messageId, messageId));
       log(`Deleted attachments for message ${messageId} after ${MAX_REFRESH_ATTEMPTS} failed refresh attempts`);
     }
   }

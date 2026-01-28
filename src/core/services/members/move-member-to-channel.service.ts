@@ -1,13 +1,17 @@
 import { ChannelType, GuildMember, VoiceChannel } from "discord.js";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberGuild } from "@/lib/db-schema";
+import { and, eq, type InferSelectModel } from "drizzle-orm";
+
+type MemberGuildRow = InferSelectModel<typeof memberGuild>;
 
 export class MoveMemberToChannelService {
   static async moveMemberToChannel(member: GuildMember): Promise<void> {
-    let guildMemberDb = await prisma.memberGuild.findFirst({
-      where: {
-        guildId: member.guild.id,
-        memberId: member.id,
-      },
+    let guildMemberDb: MemberGuildRow | undefined = await db.query.memberGuild.findFirst({
+      where: and(
+        eq(memberGuild.guildId, member.guild.id),
+        eq(memberGuild.memberId, member.id),
+      ),
     });
 
     let count = guildMemberDb?.moveCounter || 0;
@@ -49,10 +53,9 @@ export class MoveMemberToChannelService {
     }
 
     const exit = async () => {
-      await prisma.memberGuild.update({
-        where: { id: guildMemberDb?.id },
-        data: { moving: false },
-      });
+      await db.update(memberGuild)
+        .set({ moving: false })
+        .where(eq(memberGuild.id, guildMemberDb!.id));
 
       // Only unlock empty channels immediately
       setTimeout(
@@ -97,12 +100,15 @@ export class MoveMemberToChannelService {
       ) {
         try {
           await guildMember.voice.setChannel(randomChannel);
-          guildMemberDb = await prisma.memberGuild.update({
-            where: { id: guildMemberDb?.id },
-            data: { moveCounter: count - 1, moving: true },
-          });
+          if (!guildMemberDb) break;
+          const dbId = guildMemberDb.id;
+          const [updatedRow] = await db.update(memberGuild)
+            .set({ moveCounter: count - 1, moving: true })
+            .where(eq(memberGuild.id, dbId))
+            .returning();
 
-          count = guildMemberDb.moveCounter;
+          if (!updatedRow) break;
+          count = updatedRow.moveCounter;
         } catch (_) {
           await exit();
           break;

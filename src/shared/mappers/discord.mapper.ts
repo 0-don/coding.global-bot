@@ -1,4 +1,5 @@
-import type { Prisma } from "@/generated/prisma/client";
+import type { InferSelectModel } from "drizzle-orm";
+import type { member, memberGuild, memberRole } from "@/lib/db-schema";
 import type {
   Attachment,
   Embed,
@@ -8,37 +9,36 @@ import type {
 } from "discord.js";
 import { extractExpiresAt } from "../utils/date.utils";
 
+// Base types from Drizzle schema
+type MemberSelect = InferSelectModel<typeof member>;
+type MemberGuildSelect = InferSelectModel<typeof memberGuild>;
+type MemberRoleSelect = InferSelectModel<typeof memberRole>;
+
 // Type for MemberGuild-first queries (e.g., member search)
-export type MemberGuildWithRelations = Prisma.MemberGuildGetPayload<{
-  include: {
-    member: {
-      include: {
-        roles: true;
-      };
-    };
+export type MemberGuildWithRelations = MemberGuildSelect & {
+  member: MemberSelect & {
+    memberRoles: MemberRoleSelect[];
   };
-}>;
+};
 
 // Type for Member-first queries (e.g., thread author)
-export type MemberWithGuildsAndRoles = Prisma.MemberGetPayload<{
-  include: {
-    guilds: true;
-    roles: true;
-  };
-}>;
+export type MemberWithGuildsAndRoles = MemberSelect & {
+  memberGuilds: MemberGuildSelect[];
+  memberRoles: MemberRoleSelect[];
+};
 
-type MemberGuild =
+type MemberGuildType =
   | MemberGuildWithRelations
-  | MemberWithGuildsAndRoles["guilds"][number]
+  | MemberWithGuildsAndRoles["memberGuilds"][number]
   | null;
-type Member = MemberGuildWithRelations["member"] | MemberWithGuildsAndRoles;
-type MemberRole = { name: string | null; position: number | null };
+type MemberType = MemberGuildWithRelations["member"] | MemberWithGuildsAndRoles;
+type MemberRoleType = { name: string | null; position: number | null };
 
 // Core mapper - builds response from member + guild data
 const buildMemberResponse = (
-  member: Member,
-  guild: MemberGuild,
-  roles: MemberRole[],
+  member: MemberType,
+  guild: MemberGuildType,
+  roles: MemberRoleType[],
 ) => ({
   id: member.memberId,
   username: member.username,
@@ -63,13 +63,12 @@ const buildMemberResponse = (
   highestRolePosition: guild?.highestRolePosition ?? 0,
   status: guild?.presenceStatus ?? "offline",
   activity: guild?.presenceActivity ?? null,
-  presenceUpdatedAt: guild?.presenceUpdatedAt?.toISOString() ?? null,
-  premiumSince: guild?.premiumSince?.toISOString() ?? null,
-  communicationDisabledUntil:
-    guild?.communicationDisabledUntil?.toISOString() ?? null,
-  joinedAt: guild?.joinedAt?.toISOString() ?? null,
-  createdAt: member.createdAt?.toISOString() ?? new Date().toISOString(),
-  updatedAt: member.updatedAt?.toISOString() ?? null,
+  presenceUpdatedAt: guild?.presenceUpdatedAt ?? null,
+  premiumSince: guild?.premiumSince ?? null,
+  communicationDisabledUntil: guild?.communicationDisabledUntil ?? null,
+  joinedAt: guild?.joinedAt ?? null,
+  createdAt: member.createdAt ?? new Date().toISOString(),
+  updatedAt: member.updatedAt ?? null,
 });
 
 // MemberGuild-first queries (member search, stats)
@@ -80,13 +79,13 @@ export const mapMemberGuild = (
   buildMemberResponse(
     data.member,
     data,
-    data.member.roles.filter((r) => r.roleId !== guildId),
+    data.member.memberRoles.filter((r) => r.roleId !== guildId),
   );
 
 // Member-first queries (thread authors)
 export const mapMember = (data: MemberWithGuildsAndRoles, guildId: string) => {
-  const guild = data.guilds.find((g) => g.guildId === guildId);
-  const roles = data.roles
+  const guild = data.memberGuilds.find((g) => g.guildId === guildId);
+  const roles = data.memberRoles
     .filter((r) => r.guildId === guildId && r.roleId !== guildId)
     .sort((a, b) => (b.position ?? 0) - (a.position ?? 0));
   return buildMemberResponse(data, guild ?? null, roles);
@@ -95,7 +94,7 @@ export const mapMember = (data: MemberWithGuildsAndRoles, guildId: string) => {
 export const mapAttachment = (a: Attachment) => ({
   id: a.id,
   url: a.url,
-  proxyURL: a.proxyURL,
+  proxyUrl: a.proxyURL,
   name: a.name,
   description: a.description ?? null,
   contentType: a.contentType ?? null,
@@ -112,7 +111,7 @@ export const mapAttachmentToDb = (a: Attachment, messageId: string) => ({
   id: a.id,
   messageId,
   url: a.url,
-  proxyURL: a.proxyURL,
+  proxyUrl: a.proxyURL,
   name: a.name,
   description: a.description ?? null,
   contentType: a.contentType ?? null,

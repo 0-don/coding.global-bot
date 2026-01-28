@@ -1,5 +1,6 @@
-import { Prisma } from "@/generated/prisma/client";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberRole, memberMessages, memberHelper } from "@/lib/db-schema";
+import { and, count, eq, ne } from "drizzle-orm";
 import { LEVEL_LIST } from "@/shared/config/levels";
 import {
   HELPER_RANKING,
@@ -48,23 +49,18 @@ export class RolesService {
       )[0];
       if (!newAddedRole) return;
 
-      const memberRole: Prisma.MemberRoleUncheckedCreateInput = {
+      const roleData = {
         roleId: newAddedRole.id,
         memberId: args.newMember.id,
         name: newAddedRole.name,
         guildId: args.newMember.guild.id,
       };
 
-      prisma.memberRole
-        .upsert({
-          where: {
-            member_role: {
-              memberId: memberRole.memberId,
-              roleId: memberRole.roleId,
-            },
-          },
-          create: memberRole,
-          update: memberRole,
+      db.insert(memberRole)
+        .values(roleData)
+        .onConflictDoUpdate({
+          target: [memberRole.memberId, memberRole.roleId],
+          set: roleData,
         })
         .catch(() => {});
     }
@@ -78,15 +74,13 @@ export class RolesService {
       if (!newRemovedRole) return;
 
       // try catch delete removed role from db
-      prisma.memberRole
-        .delete({
-          where: {
-            member_role: {
-              memberId: args.newMember.id,
-              roleId: newRemovedRole.id,
-            },
-          },
-        })
+      db.delete(memberRole)
+        .where(
+          and(
+            eq(memberRole.memberId, args.newMember.id),
+            eq(memberRole.roleId, newRemovedRole.id),
+          )
+        )
         .catch(() => {});
     }
   }
@@ -128,13 +122,14 @@ export class RolesService {
         )
           args.newMember.roles.add(dbRestrictedRole.roleId).catch(() => {});
 
-        prisma.memberRole.deleteMany({
-          where: {
-            memberId: args.newMember.id,
-            guildId: args.newMember.guild.id,
-            roleId: { not: dbRestrictedRole?.roleId },
-          },
-        });
+        db.delete(memberRole)
+          .where(
+            and(
+              eq(memberRole.memberId, args.newMember.id),
+              eq(memberRole.guildId, args.newMember.guild.id),
+              ne(memberRole.roleId, dbRestrictedRole.roleId),
+            )
+          );
 
         return;
       }
@@ -161,13 +156,14 @@ export class RolesService {
           args.newMember.roles.remove(role).catch(() => {}),
       );
 
-      return await prisma.memberRole.deleteMany({
-        where: {
-          memberId: args.newMember.id,
-          guildId: args.newMember.guild.id,
-          roleId: { not: restrictedRole?.id },
-        },
-      });
+      return await db.delete(memberRole)
+        .where(
+          and(
+            eq(memberRole.memberId, args.newMember.id),
+            eq(memberRole.guildId, args.newMember.guild.id),
+            ne(memberRole.roleId, restrictedRole?.id ?? ""),
+          )
+        );
     }
 
     // Check if role is a status role; if yes, remove unused status roles
@@ -185,16 +181,21 @@ export class RolesService {
       const levelRole = LEVEL_LIST.find((role) => role.role === newAddedRole);
       if (!levelRole) return;
 
-      const memberMessages = await prisma.memberMessages.count({
-        where: {
-          memberId: args.newMember?.id,
-          guildId: args.newMember?.guild?.id,
-        },
-      });
+      const [result] = await db
+        .select({ count: count() })
+        .from(memberMessages)
+        .where(
+          and(
+            eq(memberMessages.memberId, args.newMember?.id),
+            eq(memberMessages.guildId, args.newMember?.guild?.id),
+          )
+        );
+
+      const memberMessagesCount = result?.count ?? 0;
       const role = args.newMember.guild.roles.cache.find(
         (role) => role.name === newAddedRole,
       );
-      if (memberMessages < levelRole.count && role) {
+      if (memberMessagesCount < levelRole.count && role) {
         args.newMember.roles.remove(role);
       }
     }
@@ -218,18 +219,19 @@ export class RolesService {
     if (params.threadOwnerId !== params.thankerUserId) return false;
     if (params.helperId === params.thankerUserId) return false;
 
-    const isHelpedThread = await prisma.memberHelper.findFirst({
-      where: { threadId: params.threadId, threadOwnerId: params.threadOwnerId },
+    const isHelpedThread = await db.query.memberHelper.findFirst({
+      where: and(
+        eq(memberHelper.threadId, params.threadId),
+        eq(memberHelper.threadOwnerId, params.threadOwnerId),
+      ),
     });
     if (isHelpedThread) return false;
 
-    await prisma.memberHelper.create({
-      data: {
-        memberId: params.helperId,
-        guildId: params.guildId,
-        threadId: params.threadId,
-        threadOwnerId: params.threadOwnerId,
-      },
+    await db.insert(memberHelper).values({
+      memberId: params.helperId,
+      guildId: params.guildId,
+      threadId: params.threadId,
+      threadOwnerId: params.threadOwnerId,
     });
 
     await RolesService.helperRoleChecker(params.message);
@@ -252,9 +254,13 @@ export class RolesService {
       ? await message.member!.fetch()
       : message.member!;
     const memberRoles = guildMember.roles.cache;
-    const helpCount = await prisma.memberHelper.count({
-      where: { memberId: guildMember.id },
-    });
+
+    const [result] = await db
+      .select({ count: count() })
+      .from(memberHelper)
+      .where(eq(memberHelper.memberId, guildMember.id));
+
+    const helpCount = result?.count ?? 0;
 
     //check if user has helper role
     const hasHelperRole = memberRoles.some((role) =>

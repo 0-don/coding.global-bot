@@ -1,6 +1,7 @@
 import { executeUserStatsCommand } from "@/core/handlers/command-handlers/user/user.handler";
 import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberCommandHistory } from "@/lib/db-schema";
 import type { CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
 
@@ -14,14 +15,12 @@ export class MeCommand {
   async me(interaction: CommandInteraction) {
     if (!(await safeDeferReply(interaction))) return;
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory
-        .create({
-          data: {
-            channelId: interaction.channelId,
-            memberId: interaction.member.user.id,
-            guildId: interaction.guildId,
-            command: "me",
-          },
+      db.insert(memberCommandHistory)
+        .values({
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "me",
         })
         .catch(() => {});
     }

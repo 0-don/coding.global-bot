@@ -1,8 +1,10 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc.js";
 import { TextChannel, VoiceState } from "discord.js";
-import { GuildVoiceEvents } from "@/generated/prisma/client";
-import { prisma } from "@/prisma";
+import { and, desc, eq, isNull } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { guildVoiceEvents, memberGuild } from "@/lib/db-schema";
+import type { GuildVoiceEvents } from "@/lib/db-schema";
 import { ConfigValidator } from "@/shared/config/validator";
 import { VOICE_EVENT_CHANNELS } from "@/shared/config/channels";
 import { simpleEmbedExample } from "@/core/embeds/simple.embed";
@@ -17,14 +19,14 @@ export class VoiceService {
     // roll dice with if statemen 1/10 chance to run
     if (Math.floor(Math.random() * 10) === 0) return;
 
-    const allOpenVoiceEvents = await prisma.guildVoiceEvents.findMany({
-      where: { leave: null },
+    const allOpenVoiceEvents = await db.query.guildVoiceEvents.findMany({
+      where: isNull(guildVoiceEvents.leave),
     });
 
     // dayjs if event is older than 10 days delete it
     allOpenVoiceEvents.forEach(async (event) => {
       if (dayjs().diff(dayjs(event.join), "days") > 10) {
-        await prisma.guildVoiceEvents.delete({ where: { id: event.id } });
+        await db.delete(guildVoiceEvents).where(eq(guildVoiceEvents.id, event.id));
       }
     });
   }
@@ -102,30 +104,29 @@ export class VoiceService {
 
     if (!memberId || !guildId || !channelId) return;
 
-    let lastVoiceEvent = await prisma.guildVoiceEvents.findFirst({
-      where: { memberId },
-      orderBy: { id: "desc" },
+    let lastVoiceEvent = await db.query.guildVoiceEvents.findFirst({
+      where: eq(guildVoiceEvents.memberId, memberId),
+      orderBy: desc(guildVoiceEvents.id),
     });
 
     const data = {
       memberId,
       channelId,
       guildId,
-      lastVoiceEvent,
+      lastVoiceEvent: lastVoiceEvent ?? null,
     };
 
     // JOINED VOICE CHANNEL
     if (!oldVoiceState.channelId && newVoiceState.channelId) {
       // IF LAST VOICE EVENT WAS JOIN REMOVE IT BECAUSE OF DUPLICATE
       if (lastVoiceEvent?.leave === null)
-        await prisma.guildVoiceEvents.delete({
-          where: { id: lastVoiceEvent.id },
-        });
+        await db.delete(guildVoiceEvents).where(eq(guildVoiceEvents.id, lastVoiceEvent.id));
 
       // CREATE VOICE EVENT AFTER JOIN
-      return await prisma.guildVoiceEvents.create({
-        data: { memberId, channelId, guildId },
-      });
+      const [created] = await db.insert(guildVoiceEvents)
+        .values({ memberId, channelId, guildId })
+        .returning();
+      return created;
     }
 
     // LEFT VOICE CHANNEL
@@ -133,10 +134,11 @@ export class VoiceService {
       // CREATE VOICE EVENT AFTER LEAVE
       if (lastVoiceEvent?.leave === null) {
         lastVoiceEvent = await daysBetween(data);
-        return await prisma.guildVoiceEvents.update({
-          where: { id: lastVoiceEvent!.id },
-          data: { leave: new Date() },
-        });
+        const [updated] = await db.update(guildVoiceEvents)
+          .set({ leave: new Date().toISOString() })
+          .where(eq(guildVoiceEvents.id, lastVoiceEvent!.id))
+          .returning();
+        return updated;
       }
 
       return;
@@ -146,15 +148,15 @@ export class VoiceService {
     if (oldVoiceState.channelId !== newVoiceState.channelId) {
       if (lastVoiceEvent?.leave === null) {
         lastVoiceEvent = await daysBetween(data);
-        await prisma.guildVoiceEvents.update({
-          where: { id: lastVoiceEvent!.id },
-          data: { leave: new Date() },
-        });
+        await db.update(guildVoiceEvents)
+          .set({ leave: new Date().toISOString() })
+          .where(eq(guildVoiceEvents.id, lastVoiceEvent!.id));
       }
 
-      return await prisma.guildVoiceEvents.create({
-        data: { memberId, channelId, guildId },
-      });
+      const [created] = await db.insert(guildVoiceEvents)
+        .values({ memberId, channelId, guildId })
+        .returning();
+      return created;
     }
 
     return;
@@ -163,18 +165,17 @@ export class VoiceService {
   static async updateUserVoiceState(newVoiceState: VoiceState) {
     if (!newVoiceState.channel) return;
 
-    await prisma.memberGuild.update({
-      where: {
-        member_guild: {
-          guildId: newVoiceState.guild.id,
-          memberId: newVoiceState.member!.id,
-        },
-      },
-      data: {
+    await db.update(memberGuild)
+      .set({
         deafened: newVoiceState.serverDeaf || false,
         muted: newVoiceState.serverMute || false,
-      },
-    });
+      })
+      .where(
+        and(
+          eq(memberGuild.guildId, newVoiceState.guild.id),
+          eq(memberGuild.memberId, newVoiceState.member!.id),
+        )
+      );
   }
 }
 
@@ -192,24 +193,23 @@ async function daysBetween({
   if (!lastVoiceEvent?.join) return lastVoiceEvent as GuildVoiceEvents;
 
   const now = new Date();
-  const daysBetween = getDaysArray(lastVoiceEvent.join, now);
+  const daysBetween = getDaysArray(new Date(lastVoiceEvent.join), now);
   if (daysBetween.length < 2) return lastVoiceEvent;
 
   for (let i = 1; i < daysBetween.length; i++) {
-    await prisma.guildVoiceEvents.update({
-      where: { id: lastVoiceEvent.id },
-      data: {
-        leave: dayjs(lastVoiceEvent.join).utc().endOf("day").toDate(),
-      },
-    });
-    lastVoiceEvent = await prisma.guildVoiceEvents.create({
-      data: {
+    await db.update(guildVoiceEvents)
+      .set({ leave: dayjs(lastVoiceEvent.join).utc().endOf("day").toISOString() })
+      .where(eq(guildVoiceEvents.id, lastVoiceEvent.id));
+
+    const [created] = await db.insert(guildVoiceEvents)
+      .values({
         memberId,
         channelId,
         guildId,
-        join: dayjs(daysBetween[i]).utc().startOf("day").toDate(),
-      },
-    });
+        join: dayjs(daysBetween[i]).utc().startOf("day").toISOString(),
+      })
+      .returning();
+    lastVoiceEvent = created;
   }
   return lastVoiceEvent;
 }

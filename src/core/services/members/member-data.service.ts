@@ -1,5 +1,7 @@
 import type { GuildMember } from "discord.js";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { member, memberGuild, memberRole } from "@/lib/db-schema";
+import { and, eq } from "drizzle-orm";
 import {
   prepareMemberData,
   prepareMemberGuildData,
@@ -7,44 +9,44 @@ import {
 } from "@/shared/mappers/member-to-db.mapper";
 
 export class MemberDataService {
-  static async updateCompleteMemberData(member: GuildMember) {
+  static async updateCompleteMemberData(discordMember: GuildMember) {
     try {
-      const user = await member.user.fetch(true);
-      const guildMember = await member.fetch(true);
+      const user = await discordMember.user.fetch(true);
+      const guildMember = await discordMember.fetch(true);
 
       const memberData = prepareMemberData(user);
       const memberGuildData = prepareMemberGuildData(guildMember);
       const memberRoleCreates = prepareMemberRolesData(guildMember);
 
       // Upsert member first (required for foreign key constraints)
-      await prisma.member.upsert({
-        where: { memberId: memberData.memberId },
-        create: memberData,
-        update: memberData,
-      });
+      await db.insert(member)
+        .values(memberData)
+        .onConflictDoUpdate({
+          target: member.memberId,
+          set: memberData,
+        });
 
       // Run memberGuild upsert and role sync in parallel
       await Promise.all([
-        prisma.memberGuild.upsert({
-          where: {
-            member_guild: {
-              memberId: memberGuildData.memberId,
-              guildId: memberGuildData.guildId,
-            },
-          },
-          create: memberGuildData,
-          update: memberGuildData,
-        }),
+        db.insert(memberGuild)
+          .values(memberGuildData)
+          .onConflictDoUpdate({
+            target: [memberGuild.memberId, memberGuild.guildId],
+            set: memberGuildData,
+          }),
         // Delete and recreate roles
         (async () => {
-          await prisma.memberRole.deleteMany({
-            where: { memberId: member.id, guildId: member.guild.id },
-          });
+          await db.delete(memberRole)
+            .where(
+              and(
+                eq(memberRole.memberId, discordMember.id),
+                eq(memberRole.guildId, discordMember.guild.id),
+              )
+            );
           if (memberRoleCreates.length > 0) {
-            await prisma.memberRole.createMany({
-              data: memberRoleCreates,
-              skipDuplicates: true,
-            });
+            await db.insert(memberRole)
+              .values(memberRoleCreates)
+              .onConflictDoNothing();
           }
         })(),
       ]);
@@ -57,7 +59,7 @@ export class MemberDataService {
         if ("code" in error && error.code === 10007) return;
       }
       console.error(
-        `Failed to update complete member data for ${member.id} ${member.user.username}:`,
+        `Failed to update complete member data for ${discordMember.id} ${discordMember.user.username}:`,
         error,
       );
     }

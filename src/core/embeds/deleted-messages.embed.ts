@@ -1,6 +1,9 @@
 import dayjs from "dayjs";
 import { APIEmbed } from "discord.js";
-import { MemberDeletedMessages } from "@/generated/prisma/client";
+import type { InferSelectModel } from "drizzle-orm";
+import type { memberDeletedMessages } from "@/lib/db-schema";
+
+type MemberDeletedMessages = InferSelectModel<typeof memberDeletedMessages>;
 import {
   BOT_ICON,
   DELETED_MESSAGES_HISTORY_TEMPLATE,

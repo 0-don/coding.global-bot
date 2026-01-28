@@ -1,6 +1,8 @@
 import { AiSpamService } from "@/core/services/ai/ai-spam.service";
 import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberMessages } from "@/lib/db-schema";
+import { and, count, eq } from "drizzle-orm";
 import { extractImageUrls } from "@/shared/ai/attachment-processor";
 import { ConfigValidator } from "@/shared/config/validator";
 import type { SpamDetectionContext } from "@/types";
@@ -15,10 +17,16 @@ export class SpamDetectionService {
     memberId: string,
     guildId: string,
   ): Promise<boolean> {
-    const messageCount = await prisma.memberMessages.count({
-      where: { memberId, guildId },
-    });
-    return messageCount === 0;
+    const [result] = await db
+      .select({ count: count() })
+      .from(memberMessages)
+      .where(
+        and(
+          eq(memberMessages.memberId, memberId),
+          eq(memberMessages.guildId, guildId),
+        )
+      );
+    return (result?.count ?? 0) === 0;
   }
 
   private static async getUserProfile(message: Message) {

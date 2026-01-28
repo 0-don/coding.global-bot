@@ -14,7 +14,11 @@ export const UNKNOWN_INTERACTION = 10062;
 
 export function isDiscordNotFoundError(error: unknown): boolean {
   const code = (error as { code?: number }).code;
-  return code === UNKNOWN_MESSAGE || code === UNKNOWN_CHANNEL || code === UNKNOWN_INTERACTION;
+  return (
+    code === UNKNOWN_MESSAGE ||
+    code === UNKNOWN_CHANNEL ||
+    code === UNKNOWN_INTERACTION
+  );
 }
 
 export async function safeDeferReply(
@@ -39,7 +43,11 @@ export async function safeEditReply(
     return true;
   } catch (error) {
     const code = (error as { code?: number }).code;
-    if (code === UNKNOWN_MESSAGE || code === UNKNOWN_CHANNEL || code === UNKNOWN_INTERACTION) {
+    if (
+      code === UNKNOWN_MESSAGE ||
+      code === UNKNOWN_CHANNEL ||
+      code === UNKNOWN_INTERACTION
+    ) {
       return false;
     }
     throw error;

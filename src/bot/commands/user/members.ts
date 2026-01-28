@@ -2,7 +2,8 @@ import type { CommandInteraction } from "discord.js";
 import { Discord, Slash } from "discordx";
 import { executeMembersCommand } from "@/core/handlers/command-handlers/user/members.handler";
 import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberCommandHistory } from "@/lib/db-schema";
 
 @Discord()
 export class Members {
@@ -14,14 +15,12 @@ export class Members {
   async members(interaction: CommandInteraction) {
     if (!(await safeDeferReply(interaction))) return;
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory
-        .create({
-          data: {
-            channelId: interaction.channelId,
-            memberId: interaction.member.user.id,
-            guildId: interaction.guildId,
-            command: "members",
-          },
+      db.insert(memberCommandHistory)
+        .values({
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "members",
         })
         .catch(() => {});
     }

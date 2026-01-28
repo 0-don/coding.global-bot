@@ -1,6 +1,8 @@
 import { deletedMessagesHistoryEmbed } from "@/core/embeds/deleted-messages.embed";
 import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberCommandHistory, memberDeletedMessages } from "@/lib/db-schema";
+import { desc, eq } from "drizzle-orm";
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
@@ -26,22 +28,20 @@ export class LogDeletedMessagesHistory {
   ) {
     if (!(await safeDeferReply(interaction))) return;
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory
-        .create({
-          data: {
-            channelId: interaction.channelId,
-            memberId: interaction.member.user.id,
-            guildId: interaction.guildId,
-            command: "log-deleted-messages-history",
-          },
+      db.insert(memberCommandHistory)
+        .values({
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "log-deleted-messages-history",
         })
         .catch(() => {});
     }
 
-    const history = await prisma.memberDeletedMessages.findMany({
-      where: { guildId: interaction.guild!.id },
-      take: count,
-      orderBy: { createdAt: "desc" },
+    const history = await db.query.memberDeletedMessages.findMany({
+      where: eq(memberDeletedMessages.guildId, interaction.guild!.id),
+      limit: count,
+      orderBy: desc(memberDeletedMessages.createdAt),
     });
 
     const embed = deletedMessagesHistoryEmbed(history);

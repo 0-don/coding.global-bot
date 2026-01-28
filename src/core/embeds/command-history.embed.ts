@@ -1,6 +1,9 @@
 import dayjs from "dayjs";
 import { APIEmbed } from "discord.js";
-import { MemberCommandHistory } from "@/generated/prisma/client";
+import type { InferSelectModel } from "drizzle-orm";
+import type { memberCommandHistory } from "@/lib/db-schema";
+
+type MemberCommandHistory = InferSelectModel<typeof memberCommandHistory>;
 import {
   BOT_ICON,
   COMMAND_HISTORY_TEMPLATE,

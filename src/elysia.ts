@@ -5,7 +5,6 @@ import { staffRoutes } from "@/api/routes/staff.routes";
 import { statsRoutes } from "@/api/routes/stats.routes";
 import { userRoutes } from "@/api/routes/user.routes";
 import { widgetRoutes } from "@/api/routes/widget.routes";
-import { Prisma } from "@/generated/prisma/client";
 import { cors } from "@elysiajs/cors";
 import { node } from "@elysiajs/node";
 import { fromTypes, openapi } from "@elysiajs/openapi";
@@ -28,10 +27,8 @@ export const app = new Elysia({ adapter: node() })
   .use(cors())
   .use(cacheMiddleware)
   .onError(({ error }) => {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      console.error("Prisma Error:", error.code, error.message, error.meta);
-    } else if (error instanceof Prisma.PrismaClientValidationError) {
-      console.error("Prisma Validation Error:", error.message);
+    if (error instanceof Error) {
+      console.error("Error:", error.message);
     }
   })
   .use(staffRoutes)

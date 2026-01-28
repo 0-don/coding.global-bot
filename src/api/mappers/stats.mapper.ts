@@ -1,5 +1,7 @@
 import { StatsService } from "@/core/services/stats/stats.service";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberGuild } from "@/lib/db-schema";
+import { and, eq, inArray } from "drizzle-orm";
 import { getMembers } from "./member.mapper";
 
 export async function getTopStatsWithUsers(
@@ -47,13 +49,13 @@ export async function getTopStatsWithUsers(
 
 export async function getUserStatsForApi(memberIds: string[], guildId: string) {
   // Batch check which users are in the server
-  const memberGuilds = await prisma.memberGuild.findMany({
-    where: {
-      guildId,
-      memberId: { in: memberIds },
-      status: true,
-    },
-    select: { memberId: true },
+  const memberGuilds = await db.query.memberGuild.findMany({
+    where: and(
+      eq(memberGuild.guildId, guildId),
+      inArray(memberGuild.memberId, memberIds),
+      eq(memberGuild.status, true),
+    ),
+    columns: { memberId: true },
   });
 
   const activeMemberIds = new Set(memberGuilds.map((mg) => mg.memberId));

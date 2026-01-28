@@ -1,5 +1,8 @@
-import type { MemberRole } from "@/generated/prisma/client";
+import type { InferSelectModel } from "drizzle-orm";
+import type { memberRole } from "@/lib/db-schema";
 import type { STATUS_ROLES } from "@/shared/config/roles";
+
+type MemberRole = InferSelectModel<typeof memberRole>;
 import type {
   APIEmbed,
   Collection,

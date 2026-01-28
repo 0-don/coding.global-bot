@@ -1,3 +1,5 @@
+import "@dotenvx/dotenvx/config";
+
 // Channel configurations parsed from environment variables
 
 export const GENERAL_CHANNELS =

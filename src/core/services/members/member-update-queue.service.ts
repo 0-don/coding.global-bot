@@ -1,7 +1,9 @@
 import { MemberDataService } from "@/core/services/members/member-data.service";
 import { VerifyAllUsersService } from "@/core/services/members/verify-users.service";
 import { bot } from "@/main";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberUpdateQueue, memberGuild } from "@/lib/db-schema";
+import { and, asc, eq } from "drizzle-orm";
 import { error, log } from "console";
 
 const PROCESS_INTERVAL_MS = 1000;
@@ -11,11 +13,11 @@ export class MemberUpdateQueueService {
   private static isProcessing = false;
 
   static queueMemberUpdate(memberId: string, guildId: string, priority = 0) {
-    prisma.memberUpdateQueue
-      .upsert({
-        where: { memberId_guildId: { memberId, guildId } },
-        create: { memberId, guildId, priority },
-        update: { priority },
+    db.insert(memberUpdateQueue)
+      .values({ memberId, guildId, priority })
+      .onConflictDoUpdate({
+        target: [memberUpdateQueue.memberId, memberUpdateQueue.guildId],
+        set: { priority },
       })
       .catch(() => {});
   }
@@ -37,8 +39,8 @@ export class MemberUpdateQueueService {
     this.isProcessing = true;
 
     try {
-      const item = await prisma.memberUpdateQueue.findFirst({
-        orderBy: { createdAt: "asc" },
+      const item = await db.query.memberUpdateQueue.findFirst({
+        orderBy: asc(memberUpdateQueue.createdAt),
       });
 
       if (!item) return;
@@ -46,8 +48,8 @@ export class MemberUpdateQueueService {
       if (VerifyAllUsersService.isVerificationRunning(item.guildId)) return;
 
       const deleteItem = () =>
-        prisma.memberUpdateQueue
-          .delete({ where: { id: item.id } })
+        db.delete(memberUpdateQueue)
+          .where(eq(memberUpdateQueue.id, item.id))
           .catch(() => {});
 
       const guild = bot.guilds.cache.get(item.guildId);
@@ -60,10 +62,14 @@ export class MemberUpdateQueueService {
       try {
         member = await guild.members.fetch(item.memberId);
       } catch {
-        await prisma.memberGuild.updateMany({
-          where: { memberId: item.memberId, guildId: item.guildId },
-          data: { status: false },
-        });
+        await db.update(memberGuild)
+          .set({ status: false })
+          .where(
+            and(
+              eq(memberGuild.memberId, item.memberId),
+              eq(memberGuild.guildId, item.guildId),
+            )
+          );
         await deleteItem();
         return;
       }

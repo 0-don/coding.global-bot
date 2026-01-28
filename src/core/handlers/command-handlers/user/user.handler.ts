@@ -1,10 +1,10 @@
-import type { CommandInteraction, TextChannel } from "discord.js";
 import { StatsService } from "@/core/services/stats/stats.service";
 import {
   checkBotChannelRestriction,
   extractIds,
 } from "@/core/utils/command.utils";
 import type { EmbedResult } from "@/types";
+import type { CommandInteraction, TextChannel } from "discord.js";
 
 export async function executeUserStatsCommand(
   interaction: CommandInteraction,
