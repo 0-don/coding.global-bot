@@ -26,7 +26,7 @@ export async function handleAiChatMessage(
   try {
     const response = await AiChatService.generateResponse(message, AI_TOOLS);
 
-    if (!response) return;
+    if (!response || !response.text) return;
 
     await message.reply({
       content: response.text,
