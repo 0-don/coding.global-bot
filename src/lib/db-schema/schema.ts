@@ -324,7 +324,7 @@ export const attachment = pgTable("Attachment", {
 	id: text().primaryKey().notNull(),
 	messageId: text().notNull(),
 	url: text().notNull(),
-	proxyUrl: text().notNull(),
+	proxyUrl: text("proxyURL").notNull(),
 	name: text().notNull(),
 	description: text(),
 	contentType: text(),
