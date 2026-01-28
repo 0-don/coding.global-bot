@@ -1,8 +1,10 @@
+import "@dotenvx/dotenvx/config";
+
 import { cacheMiddleware } from "@/api/middleware/cache";
-import { threadRoutes } from "@/api/routes/thread.routes";
 import { newsRoutes } from "@/api/routes/news.routes";
 import { staffRoutes } from "@/api/routes/staff.routes";
 import { statsRoutes } from "@/api/routes/stats.routes";
+import { threadRoutes } from "@/api/routes/thread.routes";
 import { userRoutes } from "@/api/routes/user.routes";
 import { widgetRoutes } from "@/api/routes/widget.routes";
 import { cors } from "@elysiajs/cors";

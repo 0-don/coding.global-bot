@@ -1,4 +1,4 @@
-import { pgTable, uniqueIndex, text, integer, foreignKey, serial, timestamp, boolean, bigint, jsonb, index, varchar, doublePrecision, primaryKey } from "drizzle-orm/pg-core"
+import { pgTable, uniqueIndex, text, integer, foreignKey, serial, timestamp, boolean, bigint, jsonb, index, doublePrecision, primaryKey } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 
@@ -232,17 +232,6 @@ export const memberMessages = pgTable("MemberMessages", {
 			name: "MemberMessages_memberId_fkey"
 		}).onUpdate("cascade").onDelete("cascade"),
 ]);
-
-export const prismaMigrations = pgTable("_prisma_migrations", {
-	id: varchar({ length: 36 }).primaryKey().notNull(),
-	checksum: varchar({ length: 64 }).notNull(),
-	finishedAt: timestamp("finished_at", { withTimezone: true, mode: 'string' }),
-	migrationName: varchar("migration_name", { length: 255 }).notNull(),
-	logs: text(),
-	rolledBackAt: timestamp("rolled_back_at", { withTimezone: true, mode: 'string' }),
-	startedAt: timestamp("started_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	appliedStepsCount: integer("applied_steps_count").default(0).notNull(),
-});
 
 export const tag = pgTable("Tag", {
 	id: text().primaryKey().notNull(),
