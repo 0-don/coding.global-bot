@@ -1,5 +1,7 @@
 import { MoveMemberToChannelService } from "@/core/services/members/move-member-to-channel.service";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberGuild } from "@/lib/db-schema";
+import { and, eq } from "drizzle-orm";
 import { BOT_OWNER_ID } from "@/shared/config/roles";
 import type { CommandInteraction, User } from "discord.js";
 import { ChannelType, VoiceChannel } from "discord.js";
@@ -22,15 +24,14 @@ export async function executeTrollMoveUser(
     return "You can't troll yourself";
   }
 
-  await prisma.memberGuild.update({
-    where: {
-      member_guild: {
-        guildId: interaction.guild.id,
-        memberId: user.id,
-      },
-    },
-    data: { moveCounter: count, moveTimeout: timeout },
-  });
+  await db.update(memberGuild)
+    .set({ moveCounter: count, moveTimeout: timeout })
+    .where(
+      and(
+        eq(memberGuild.guildId, interaction.guild.id),
+        eq(memberGuild.memberId, user.id),
+      )
+    );
 
   const allVoiceChannels = interaction.guild.channels.cache.filter(
     (c) => c?.type === ChannelType.GuildVoice,

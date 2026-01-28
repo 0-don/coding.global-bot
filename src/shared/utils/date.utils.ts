@@ -22,12 +22,12 @@ export const getDaysArray = (s: Date, e: Date) => {
   return a;
 };
 
-export const extractExpiresAt = (url: string): Date | null => {
+export const extractExpiresAt = (url: string): string | null => {
   try {
     const params = new URL(url).searchParams;
     const ex = params.get("ex");
     if (!ex) return null;
-    return new Date(parseInt(ex, 16) * 1000);
+    return new Date(parseInt(ex, 16) * 1000).toISOString();
   } catch {
     return null;
   }

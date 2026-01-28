@@ -1,6 +1,7 @@
 import { ThreadType } from "@/api/middleware/validators";
-import type { Prisma } from "@/generated/prisma/client";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { thread, threadMessage, threadTag, tag, attachment } from "@/lib/db-schema";
+import { and, eq, gt, ne, asc, desc } from "drizzle-orm";
 import {
   mapAttachmentToDb,
   mapEmbed,
@@ -21,40 +22,41 @@ import { Static } from "elysia";
 
 export class ThreadService {
   static async upsertThread(
-    thread: ThreadChannel,
+    discordThread: ThreadChannel,
     threadType: string,
     options: { syncMessages?: boolean } = {},
   ): Promise<void> {
-    const guildId = thread.guildId;
-    const authorId = thread.ownerId;
+    const guildId = discordThread.guildId;
+    const authorId = discordThread.ownerId;
     if (!guildId || !authorId) return;
 
-    const data: Prisma.ThreadUpsertArgs["create"] = {
-      id: thread.id,
+    const data = {
+      id: discordThread.id,
       guildId,
-      parentId: thread.parentId,
+      parentId: discordThread.parentId,
       authorId,
-      name: thread.name,
+      name: discordThread.name,
       boardType: threadType,
-      messageCount: thread.messageCount || 0,
-      memberCount: thread.memberCount || 0,
-      locked: !!thread.locked,
-      archived: !!thread.archived,
-      archivedAt: thread.archiveTimestamp
-        ? new Date(thread.archiveTimestamp)
+      messageCount: discordThread.messageCount || 0,
+      memberCount: discordThread.memberCount || 0,
+      locked: !!discordThread.locked,
+      archived: !!discordThread.archived,
+      archivedAt: discordThread.archiveTimestamp
+        ? new Date(discordThread.archiveTimestamp).toISOString()
         : null,
-      autoArchiveDuration: thread.autoArchiveDuration || null,
-      invitable: thread.invitable,
-      rateLimitPerUser: thread.rateLimitPerUser,
-      flags: thread.flags.bitfield,
-      createdAt: thread.createdAt,
-      lastActivityAt: new Date(),
+      autoArchiveDuration: discordThread.autoArchiveDuration || null,
+      invitable: discordThread.invitable,
+      rateLimitPerUser: discordThread.rateLimitPerUser,
+      flags: discordThread.flags.bitfield,
+      createdAt: discordThread.createdAt?.toISOString() || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      lastActivityAt: new Date().toISOString(),
     };
 
     try {
-      const existing = await prisma.thread.findUnique({
-        where: { id: thread.id },
-        select: { name: true, messageCount: true, memberCount: true },
+      const existing = await db.query.thread.findFirst({
+        where: eq(thread.id, discordThread.id),
+        columns: { name: true, messageCount: true, memberCount: true },
       });
 
       const hasActivity =
@@ -63,34 +65,35 @@ export class ThreadService {
         existing.messageCount !== data.messageCount ||
         existing.memberCount !== data.memberCount;
 
-      await prisma.thread.upsert({
-        where: { id: thread.id },
-        create: data,
-        update: {
-          name: data.name,
-          messageCount: data.messageCount,
-          memberCount: data.memberCount,
-          locked: data.locked,
-          archived: data.archived,
-          archivedAt: data.archivedAt,
-          autoArchiveDuration: data.autoArchiveDuration,
-          invitable: data.invitable,
-          rateLimitPerUser: data.rateLimitPerUser,
-          flags: data.flags,
-          ...(hasActivity && { lastActivityAt: new Date() }),
-        },
-      });
+      await db.insert(thread)
+        .values(data)
+        .onConflictDoUpdate({
+          target: thread.id,
+          set: {
+            name: data.name,
+            messageCount: data.messageCount,
+            memberCount: data.memberCount,
+            locked: data.locked,
+            archived: data.archived,
+            archivedAt: data.archivedAt,
+            autoArchiveDuration: data.autoArchiveDuration,
+            invitable: data.invitable,
+            rateLimitPerUser: data.rateLimitPerUser,
+            flags: data.flags,
+            ...(hasActivity && { lastActivityAt: new Date().toISOString() }),
+          },
+        });
 
-      if (thread.parent?.type === ChannelType.GuildForum) {
-        await this.syncThreadTags(thread.id, thread.appliedTags);
+      if (discordThread.parent?.type === ChannelType.GuildForum) {
+        await this.syncThreadTags(discordThread.id, discordThread.appliedTags);
       }
 
       if (options.syncMessages) {
-        await this.syncThreadMessages(thread);
+        await this.syncThreadMessages(discordThread);
       }
     } catch (error) {
       log(
-        `[ThreadService] upsertThread failed for thread ${thread.id}:`,
+        `[ThreadService] upsertThread failed for thread ${discordThread.id}:`,
         error,
       );
     }
@@ -111,60 +114,60 @@ export class ThreadService {
   }
 
   static async deleteThread(threadId: string): Promise<void> {
-    await prisma.thread.delete({ where: { id: threadId } }).catch(() => {});
+    await db.delete(thread).where(eq(thread.id, threadId)).catch(() => {});
   }
 
   static async getThreadLookup(threadId: string) {
-    return prisma.thread.findUnique({
-      where: { id: threadId },
-      select: { id: true, boardType: true },
+    return db.query.thread.findFirst({
+      where: eq(thread.id, threadId),
+      columns: { id: true, boardType: true },
     });
   }
 
   static async getThread(threadId: string) {
-    return prisma.thread.findUnique({
-      where: { id: threadId },
-      include: {
-        author: { include: { guilds: true, roles: true } },
-        tags: { include: { tag: true } },
-        messages: {
-          where: { id: threadId },
-          include: {
-            author: { include: { guilds: true, roles: true } },
+    return db.query.thread.findFirst({
+      where: eq(thread.id, threadId),
+      with: {
+        member: { with: { memberGuilds: true, memberRoles: true } },
+        threadTags: { with: { tag: true } },
+        threadMessages: {
+          where: eq(threadMessage.id, threadId),
+          with: {
+            member: { with: { memberGuilds: true, memberRoles: true } },
             attachments: true,
           },
-          take: 1,
+          limit: 1,
         },
       },
     });
   }
 
   static async getThreadsByType(guildId: string, threadType: string) {
-    const threads = await prisma.thread.findMany({
-      where: { guildId, boardType: threadType },
-      include: {
-        author: {
-          include: {
-            guilds: { where: { guildId } },
-            roles: { where: { guildId } },
+    const threads = await db.query.thread.findMany({
+      where: and(eq(thread.guildId, guildId), eq(thread.boardType, threadType)),
+      with: {
+        member: {
+          with: {
+            memberGuilds: true,
+            memberRoles: true,
           },
         },
-        tags: { include: { tag: true } },
-        messages: {
-          include: {
-            author: { include: { guilds: true, roles: true } },
+        threadTags: { with: { tag: true } },
+        threadMessages: {
+          with: {
+            member: { with: { memberGuilds: true, memberRoles: true } },
             attachments: true,
           },
-          take: 1,
-          orderBy: { createdAt: "asc" },
+          limit: 1,
+          orderBy: asc(threadMessage.createdAt),
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: desc(thread.createdAt),
     });
 
-    return threads.map((thread) => ({
-      ...thread,
-      messages: thread.messages.filter((m) => m.id === thread.id),
+    return threads.map((t) => ({
+      ...t,
+      threadMessages: t.threadMessages.filter((m) => m.id === t.id),
     }));
   }
 
@@ -177,8 +180,8 @@ export class ThreadService {
     const authorId = message.author.id;
     if (!guildId || !authorId) return;
 
-    const thread = await prisma.thread.findUnique({ where: { id: threadId } });
-    if (!thread) {
+    const existingThread = await db.query.thread.findFirst({ where: eq(thread.id, threadId) });
+    if (!existingThread) {
       const parentChannel = channel.parent;
       if (parentChannel?.type === ChannelType.GuildForum) {
         const threadType = this.getThreadTypeFromChannel(parentChannel);
@@ -195,19 +198,20 @@ export class ThreadService {
     const attachments = Array.from(message.attachments.values());
 
     try {
-      await prisma.threadMessage.upsert({
-        where: { id: message.id },
-        create: data,
-        update: {
-          content: data.content,
-          editedAt: data.editedAt,
-          pinned: data.pinned,
-          embeds: data.embeds,
-          mentions: data.mentions,
-          reactions: data.reactions,
-          reference: data.reference,
-        },
-      });
+      await db.insert(threadMessage)
+        .values(data)
+        .onConflictDoUpdate({
+          target: threadMessage.id,
+          set: {
+            content: data.content,
+            editedAt: data.editedAt,
+            pinned: data.pinned,
+            embeds: data.embeds,
+            mentions: data.mentions,
+            reactions: data.reactions,
+            reference: data.reference,
+          },
+        });
       await this.upsertAttachments(message.id, attachments);
     } catch (error) {
       log(
@@ -217,20 +221,18 @@ export class ThreadService {
     }
 
     try {
-      await prisma.thread.update({
-        where: { id: threadId },
-        data: { lastActivityAt: new Date() },
-      });
+      await db.update(thread)
+        .set({ lastActivityAt: new Date().toISOString() })
+        .where(eq(thread.id, threadId));
     } catch (error) {
       log(
         `[ThreadService] lastActivityAt update failed for thread ${threadId}, retrying:`,
         error,
       );
       try {
-        await prisma.thread.update({
-          where: { id: threadId },
-          data: { lastActivityAt: new Date() },
-        });
+        await db.update(thread)
+          .set({ lastActivityAt: new Date().toISOString() })
+          .where(eq(thread.id, threadId));
       } catch (retryError) {
         log(
           `[ThreadService] lastActivityAt retry also failed for thread ${threadId}:`,
@@ -245,7 +247,7 @@ export class ThreadService {
     attachments: Attachment[],
   ): Promise<void> {
     if (attachments.length === 0) {
-      await prisma.attachment.deleteMany({ where: { messageId } });
+      await db.delete(attachment).where(eq(attachment.messageId, messageId));
       return;
     }
 
@@ -253,15 +255,15 @@ export class ThreadService {
       mapAttachmentToDb(a, messageId),
     );
 
-    await prisma.$transaction([
-      prisma.attachment.deleteMany({ where: { messageId } }),
-      prisma.attachment.createMany({ data: attachmentData }),
-    ]);
+    await db.transaction(async (tx) => {
+      await tx.delete(attachment).where(eq(attachment.messageId, messageId));
+      await tx.insert(attachment).values(attachmentData);
+    });
   }
 
   static async deleteThreadMessage(messageId: string): Promise<void> {
-    await prisma.threadMessage
-      .delete({ where: { id: messageId } })
+    await db.delete(threadMessage)
+      .where(eq(threadMessage.id, messageId))
       .catch(() => {});
   }
 
@@ -271,22 +273,29 @@ export class ThreadService {
   ) {
     const limit = options.limit || 50;
 
-    const replies = await prisma.threadMessage.findMany({
-      where: {
-        threadId,
-        id: { not: threadId, ...(options.after && { gt: options.after }) },
-        author: { bot: false },
-      },
-      include: {
-        author: { include: { guilds: true, roles: true } },
+    const conditions = [
+      eq(threadMessage.threadId, threadId),
+      ne(threadMessage.id, threadId),
+    ];
+    if (options.after) {
+      conditions.push(gt(threadMessage.id, options.after));
+    }
+
+    const replies = await db.query.threadMessage.findMany({
+      where: and(...conditions),
+      with: {
+        member: { with: { memberGuilds: true, memberRoles: true } },
         attachments: true,
       },
-      orderBy: { createdAt: "asc" },
-      take: limit + 1,
+      orderBy: asc(threadMessage.createdAt),
+      limit: limit + 1,
     });
 
-    const hasMore = replies.length > limit;
-    const messages = hasMore ? replies.slice(0, limit) : replies;
+    // Filter out bot authors (post-query since we can't join filter easily)
+    const filteredReplies = replies.filter((r) => !r.member?.bot);
+
+    const hasMore = filteredReplies.length > limit;
+    const messages = hasMore ? filteredReplies.slice(0, limit) : filteredReplies;
 
     return {
       messages,
@@ -299,25 +308,26 @@ export class ThreadService {
     guildId: string,
     tags: GuildForumTag[],
   ): Promise<void> {
-    for (const tag of tags) {
+    for (const forumTag of tags) {
       try {
-        await prisma.tag.upsert({
-          where: { id: tag.id },
-          create: {
-            id: tag.id,
+        await db.insert(tag)
+          .values({
+            id: forumTag.id,
             guildId,
-            name: tag.name,
-            emojiId: tag.emoji?.id || null,
-            emojiName: tag.emoji?.name || null,
-          },
-          update: {
-            name: tag.name,
-            emojiId: tag.emoji?.id || null,
-            emojiName: tag.emoji?.name || null,
-          },
-        });
+            name: forumTag.name,
+            emojiId: forumTag.emoji?.id || null,
+            emojiName: forumTag.emoji?.name || null,
+          })
+          .onConflictDoUpdate({
+            target: tag.id,
+            set: {
+              name: forumTag.name,
+              emojiId: forumTag.emoji?.id || null,
+              emojiName: forumTag.emoji?.name || null,
+            },
+          });
       } catch (error) {
-        log(`[ThreadService] upsertTags failed for tag ${tag.id}:`, error);
+        log(`[ThreadService] upsertTags failed for tag ${forumTag.id}:`, error);
       }
     }
   }
@@ -327,9 +337,9 @@ export class ThreadService {
     tagIds: string[],
   ): Promise<void> {
     try {
-      const existingTags = await prisma.threadTag.findMany({
-        where: { threadId },
-        select: { tagId: true },
+      const existingTags = await db.query.threadTag.findMany({
+        where: eq(threadTag.threadId, threadId),
+        columns: { tagId: true },
       });
       const existingTagIds = existingTags.map((t) => t.tagId).sort();
       const newTagIds = [...tagIds].sort();
@@ -337,19 +347,17 @@ export class ThreadService {
         existingTagIds.length !== newTagIds.length ||
         existingTagIds.some((id, i) => id !== newTagIds[i]);
 
-      await prisma.threadTag.deleteMany({ where: { threadId } });
+      await db.delete(threadTag).where(eq(threadTag.threadId, threadId));
       if (tagIds.length > 0) {
-        await prisma.threadTag.createMany({
-          data: tagIds.map((tagId) => ({ threadId, tagId })),
-          skipDuplicates: true,
-        });
+        await db.insert(threadTag)
+          .values(tagIds.map((tagId) => ({ threadId, tagId })))
+          .onConflictDoNothing();
       }
 
       if (tagsChanged) {
-        await prisma.thread.update({
-          where: { id: threadId },
-          data: { lastActivityAt: new Date() },
-        });
+        await db.update(thread)
+          .set({ lastActivityAt: new Date().toISOString() })
+          .where(eq(thread.id, threadId));
       }
     } catch (error) {
       log(
@@ -363,22 +371,22 @@ export class ThreadService {
     message: Message,
     threadId: string,
     guildId: string,
-  ): Prisma.ThreadMessageCreateInput {
+  ) {
     return {
       id: message.id,
-      thread: { connect: { id: threadId } },
-      author: { connect: { memberId: message.author.id } },
-      guild: { connect: { guildId } },
+      threadId,
+      authorId: message.author.id,
+      guildId,
       content: message.content,
-      createdAt: message.createdAt,
-      editedAt: message.editedAt ?? null,
+      createdAt: message.createdAt.toISOString(),
+      editedAt: message.editedAt?.toISOString() ?? null,
       pinned: message.pinned,
       tts: message.tts,
       type: message.type.toString(),
       embeds: message.embeds.map(mapEmbed),
       mentions: mapMentions(message.mentions),
       reactions: mapReactions(message.reactions.cache.values()),
-      reference: mapReference(message.reference) ?? undefined,
+      reference: mapReference(message.reference) ?? null,
     };
   }
 

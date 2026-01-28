@@ -1,5 +1,7 @@
 import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberMessages, memberDeletedMessages, memberGuild } from "@/lib/db-schema";
+import { and, count, eq } from "drizzle-orm";
 import { LEVEL_LIST, LEVEL_MESSAGES } from "@/shared/config/levels";
 import { JAIL, VOICE_ONLY } from "@/shared/config/roles";
 import { ConfigValidator } from "@/shared/config/validator";
@@ -30,11 +32,12 @@ export class MessagesService {
 
     // catch message edits
     try {
-      await prisma.memberMessages.upsert({
-        where: { messageId },
-        create: { channelId, guildId, memberId, messageId },
-        update: { channelId, guildId, memberId, messageId },
-      });
+      await db.insert(memberMessages)
+        .values({ id: messageId, channelId, guildId, memberId, messageId })
+        .onConflictDoUpdate({
+          target: memberMessages.messageId,
+          set: { channelId, guildId, memberId },
+        });
     } catch (_) {}
   }
 
@@ -44,9 +47,8 @@ export class MessagesService {
     if (!messageId) return;
 
     try {
-      await prisma.memberMessages.delete({
-        where: { messageId },
-      });
+      await db.delete(memberMessages)
+        .where(eq(memberMessages.messageId, messageId));
     } catch (_) {}
   }
 
@@ -101,15 +103,13 @@ export class MessagesService {
         }
       }
 
-      await prisma.memberDeletedMessages.create({
-        data: {
-          content,
-          deletedByMemberId,
-          messageMemberId,
-          channelId,
-          messageId,
-          guildId,
-        },
+      await db.insert(memberDeletedMessages).values({
+        content,
+        deletedByMemberId,
+        messageMemberId,
+        channelId,
+        messageId,
+        guildId,
       });
     } catch (_) {}
   }
@@ -144,12 +144,20 @@ export class MessagesService {
 
     if (memberInJail) return;
 
-    const memberMessages = await prisma.memberMessages.count({
-      where: { memberId: message.member?.id, guildId: message.guild?.id },
-    });
+    const [result] = await db
+      .select({ count: count() })
+      .from(memberMessages)
+      .where(
+        and(
+          eq(memberMessages.memberId, message.member?.id ?? ""),
+          eq(memberMessages.guildId, message.guild?.id ?? ""),
+        )
+      );
+
+    const memberMessagesCount = result?.count ?? 0;
 
     for (const item of LEVEL_LIST) {
-      if (memberMessages >= item.count) {
+      if (memberMessagesCount >= item.count) {
         const role = message.guild?.roles.cache.find(
           (role) => role.name === item.role,
         );
@@ -223,11 +231,11 @@ export class MessagesService {
 
     if (!member || !message.guild) return;
 
-    const memberGuild = await prisma.memberGuild.findFirst({
-      where: { memberId: member.id },
+    const memberGuildData = await db.query.memberGuild.findFirst({
+      where: eq(memberGuild.memberId, member.id),
     });
 
-    if (!memberGuild) return;
+    if (!memberGuildData) return;
 
     const inviteRegex =
       /(?:discord\.gg\/|discordapp\.com\/invite\/|discord\.com\/invite\/)([a-zA-Z0-9-]+)/gi;
@@ -255,12 +263,11 @@ export class MessagesService {
     if (hasExternalInvite) {
       await message.delete();
 
-      const currentWarnings = memberGuild.warnings + 1;
+      const currentWarnings = memberGuildData.warnings + 1;
 
-      await prisma.memberGuild.update({
-        where: { id: memberGuild.id },
-        data: { warnings: currentWarnings },
-      });
+      await db.update(memberGuild)
+        .set({ warnings: currentWarnings })
+        .where(eq(memberGuild.id, memberGuildData.id));
 
       if (currentWarnings < 4) {
         try {

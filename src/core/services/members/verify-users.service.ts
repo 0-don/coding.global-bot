@@ -1,6 +1,8 @@
 import { MemberDataService } from "@/core/services/members/member-data.service";
 import { RolesService } from "@/core/services/roles/roles.service";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { guild, memberGuild, syncProgress } from "@/lib/db-schema";
+import { and, eq } from "drizzle-orm";
 import { STATUS_ROLES, VERIFIED } from "@/shared/config/roles";
 import { logTs } from "@/shared/utils/date.utils";
 import {
@@ -18,26 +20,27 @@ export class VerifyAllUsersService {
   }
 
   static async verifyAllUsers(
-    guild: Guild,
+    discordGuild: Guild,
     channel: GuildTextBasedChannel,
   ): Promise<Collection<string, GuildMember> | undefined> {
-    const guildName = guild.name.slice(0, 20);
+    const guildName = discordGuild.name.slice(0, 20);
 
-    if (this.runningGuilds.has(guild.id)) {
+    if (this.runningGuilds.has(discordGuild.id)) {
       await channel.send("Verification already running.");
       return;
     }
 
-    this.runningGuilds.add(guild.id);
+    this.runningGuilds.add(discordGuild.id);
 
     try {
-      await prisma.guild.upsert({
-        where: { guildId: guild.id },
-        create: { guildId: guild.id, guildName: guild.name },
-        update: { guildName: guild.name },
-      });
+      await db.insert(guild)
+        .values({ guildId: discordGuild.id, guildName: discordGuild.name })
+        .onConflictDoUpdate({
+          target: guild.guildId,
+          set: { guildName: discordGuild.name },
+        });
 
-      const statusRoles = RolesService.getGuildStatusRoles(guild);
+      const statusRoles = RolesService.getGuildStatusRoles(discordGuild);
       if (STATUS_ROLES.some((r) => !statusRoles[r])) {
         const missing = STATUS_ROLES.filter((r) => !statusRoles[r]).join(", ");
         await channel.send(`Missing roles: ${missing}`);
@@ -45,25 +48,27 @@ export class VerifyAllUsersService {
       }
 
       logTs("info", guildName, "Fetching members...");
-      const allMembers = await guild.members.fetch();
+      const allMembers = await discordGuild.members.fetch();
 
       const members = Array.from(allMembers.values())
         .filter((m) => !m.user.bot)
         .sort((a, b) => a.id.localeCompare(b.id));
 
       // Load saved progress - track by member ID, not index
-      const saved = await prisma.syncProgress.findUnique({
-        where: { guildId_type: { guildId: guild.id, type: "users" } },
+      const saved = await db.query.syncProgress.findFirst({
+        where: and(
+          eq(syncProgress.guildId, discordGuild.id),
+          eq(syncProgress.type, "users"),
+        ),
       });
       const processedIds = new Set(saved?.processedIds ?? []);
       const failedIds = new Set(saved?.failedIds ?? []);
 
       // Only reset statuses when starting fresh (no saved progress)
       if (!saved) {
-        await prisma.memberGuild.updateMany({
-          where: { guildId: guild.id },
-          data: { status: false },
-        });
+        await db.update(memberGuild)
+          .set({ status: false })
+          .where(eq(memberGuild.guildId, discordGuild.id));
       }
 
       // Filter out already processed members
@@ -83,26 +88,26 @@ export class VerifyAllUsersService {
       );
 
       for (let i = 0; i < remaining.length; i++) {
-        const member = remaining[i];
-        const tag = `${member.user.username} (${member.id})`;
+        const discordMember = remaining[i];
+        const tag = `${discordMember.user.username} (${discordMember.id})`;
 
         try {
-          await MemberDataService.updateCompleteMemberData(member);
+          await MemberDataService.updateCompleteMemberData(discordMember);
           if (statusRoles[VERIFIED]) {
             const roleId = statusRoles[VERIFIED]!.id;
-            if (!member.roles.cache.has(roleId)) {
-              const role = guild.roles.cache.get(roleId);
-              if (role?.editable) await member.roles.add(roleId);
+            if (!discordMember.roles.cache.has(roleId)) {
+              const role = discordGuild.roles.cache.get(roleId);
+              if (role?.editable) await discordMember.roles.add(roleId);
             }
           }
-          processedIds.add(member.id);
+          processedIds.add(discordMember.id);
           logTs(
             "info",
             guildName,
             `✓ ${tag} (${alreadyDone + i + 1}/${total})`,
           );
         } catch {
-          failedIds.add(member.id);
+          failedIds.add(discordMember.id);
           logTs(
             "error",
             guildName,
@@ -112,19 +117,20 @@ export class VerifyAllUsersService {
 
         const done = alreadyDone + i + 1;
 
-        await prisma.syncProgress.upsert({
-          where: { guildId_type: { guildId: guild.id, type: "users" } },
-          create: {
-            guildId: guild.id,
+        await db.insert(syncProgress)
+          .values({
+            guildId: discordGuild.id,
             type: "users",
             processedIds: [...processedIds],
             failedIds: [...failedIds],
-          },
-          update: {
-            processedIds: [...processedIds],
-            failedIds: [...failedIds],
-          },
-        });
+          })
+          .onConflictDoUpdate({
+            target: [syncProgress.guildId, syncProgress.type],
+            set: {
+              processedIds: [...processedIds],
+              failedIds: [...failedIds],
+            },
+          });
 
         // Update Discord message
         if ((i + 1) % 25 === 0 || i + 1 === remaining.length) {
@@ -136,8 +142,13 @@ export class VerifyAllUsersService {
       }
 
       // Clear progress on completion
-      await prisma.syncProgress
-        .delete({ where: { guildId_type: { guildId: guild.id, type: "users" } } })
+      await db.delete(syncProgress)
+        .where(
+          and(
+            eq(syncProgress.guildId, discordGuild.id),
+            eq(syncProgress.type, "users"),
+          )
+        )
         .catch(() => {});
 
       const result =
@@ -154,7 +165,7 @@ export class VerifyAllUsersService {
       await channel.send(`Error: ${msg}. Run again to resume.`);
       throw err;
     } finally {
-      this.runningGuilds.delete(guild.id);
+      this.runningGuilds.delete(discordGuild.id);
     }
   }
 }

@@ -1,6 +1,7 @@
 import { simpleEmbedExample } from "@/core/embeds/simple.embed";
-import { Prisma } from "@/generated/prisma/client";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { member, memberGuild, memberRole, guild } from "@/lib/db-schema";
+import { and, eq } from "drizzle-orm";
 import {
   JOIN_EVENT_CHANNELS,
   MEMBERS_COUNT_CHANNELS,
@@ -24,11 +25,11 @@ export class MembersService {
   private static _memberCountWarningLogged = false;
 
   static async upsertDbMember(
-    member: GuildMember | PartialGuildMember,
+    discordMember: GuildMember | PartialGuildMember,
     status: "join" | "leave",
   ) {
     // dont add bots to the list
-    if (member.user.bot) return;
+    if (discordMember.user.bot) return;
 
     if (!ConfigValidator.isFeatureEnabled("SHOULD_COUNT_MEMBERS")) {
       if (!this._memberCountWarningLogged) {
@@ -53,67 +54,71 @@ export class MembersService {
     }
 
     // get member info
-    const memberId = member.id;
-    const guildId = member.guild.id;
-    const username = member.user.username;
-
-    // create member db input
-    const dbMemberInput: Prisma.MemberCreateInput = {
-      memberId,
-      username,
-    };
+    const memberId = discordMember.id;
+    const guildId = discordMember.guild.id;
+    const username = discordMember.user.username;
 
     // create or update member, fetch roles if exist
-    const dbMember = await prisma.member.upsert({
-      where: { memberId: dbMemberInput.memberId },
-      create: dbMemberInput,
-      update: dbMemberInput,
-      include: { roles: true },
+    const [dbMember] = await db.insert(member)
+      .values({ memberId, username })
+      .onConflictDoUpdate({
+        target: member.memberId,
+        set: { username },
+      })
+      .returning();
+
+    // Get member roles
+    const dbMemberRoles = await db.query.memberRole.findMany({
+      where: eq(memberRole.memberId, memberId),
     });
 
-    // create member guild db input
-    const dbMemberGuildInput: Prisma.MemberGuildUncheckedCreateInput = {
+    // create or update member guild
+    const memberGuildData = {
       memberId,
       guildId,
       status: status === "join",
       ...(status === "leave" && {
         presenceStatus: "offline",
-        presenceUpdatedAt: new Date(),
+        presenceUpdatedAt: new Date().toISOString(),
       }),
     };
 
-    // create or update member guild
-    await prisma.memberGuild.upsert({
-      where: { member_guild: { memberId, guildId } },
-      create: dbMemberGuildInput,
-      update: dbMemberGuildInput,
-    });
+    await db.insert(memberGuild)
+      .values(memberGuildData)
+      .onConflictDoUpdate({
+        target: [memberGuild.memberId, memberGuild.guildId],
+        set: memberGuildData,
+      });
 
     // if user joined and already has db roles assign them
-    if (status === "join" && dbMember.roles.length)
-      for (let role of dbMember.roles) {
-        if (member.roles.cache.has(role.roleId)) continue;
+    if (status === "join" && dbMemberRoles.length)
+      for (let role of dbMemberRoles) {
+        if (discordMember.roles.cache.has(role.roleId)) continue;
 
-        const roleToAdd = member.guild.roles.cache.get(role.roleId);
+        const roleToAdd = discordMember.guild.roles.cache.get(role.roleId);
         if (!roleToAdd || !roleToAdd.editable) {
           continue;
         }
 
         try {
-          await member.roles.add(role.roleId);
+          await discordMember.roles.add(role.roleId);
         } catch (error) {
-          await prisma.memberRole.delete({
-            where: { member_role: { memberId, roleId: role.roleId } },
-          });
+          await db.delete(memberRole)
+            .where(
+              and(
+                eq(memberRole.memberId, memberId),
+                eq(memberRole.roleId, role.roleId),
+              )
+            );
         }
       }
 
     // return user
-    return dbMember;
+    return { ...dbMember, roles: dbMemberRoles };
   }
 
   static async logJoinLeaveEvents(
-    member: GuildMember,
+    discordMember: GuildMember,
     event: "join" | "leave",
   ) {
     try {
@@ -122,15 +127,15 @@ export class MembersService {
       }
 
       // get voice channel by name
-      const joinEventsChannel = member.guild.channels.cache.find(({ name }) =>
+      const joinEventsChannel = discordMember.guild.channels.cache.find(({ name }) =>
         JOIN_EVENT_CHANNELS.includes(name),
       );
 
       // check if voice channel exists and it is voice channel
       if (!joinEventsChannel || !joinEventsChannel.isTextBased()) return;
 
-      const userServerName = member?.user.toString();
-      const userGlobalName = member?.user.username;
+      const userServerName = discordMember?.user.toString();
+      const userGlobalName = discordMember?.user.username;
 
       // copy paste embed so it doesnt get overwritten
       const joinEmbed = simpleEmbedExample();
@@ -151,19 +156,19 @@ export class MembersService {
     } catch (_) {}
   }
 
-  static async updateMemberCount(member: GuildMember | PartialGuildMember) {
-    if (member.user.bot || !SHOULD_COUNT_MEMBERS) return;
+  static async updateMemberCount(discordMember: GuildMember | PartialGuildMember) {
+    if (discordMember.user.bot || !SHOULD_COUNT_MEMBERS) return;
 
     // await member count - use cache if fetch fails due to rate limit
     try {
-      await member.guild.members.fetch();
+      await discordMember.guild.members.fetch();
     } catch {
       // Rate limited, continue with cached members
     }
 
     for (const channelName of MEMBERS_COUNT_CHANNELS) {
       // find member: channel
-      const memberCountChannel = member.guild.channels.cache.find((channel) =>
+      const memberCountChannel = discordMember.guild.channels.cache.find((channel) =>
         channel.name.includes(channelName),
       );
 
@@ -171,8 +176,8 @@ export class MembersService {
       if (!memberCountChannel) continue;
 
       // count members exc
-      const memberCount = member.guild.members.cache.filter(
-        (member) => !member.user.bot,
+      const memberCount = discordMember.guild.members.cache.filter(
+        (m) => !m.user.bot,
       ).size;
 
       // set channel name as member count
@@ -183,27 +188,31 @@ export class MembersService {
   }
 
   // Shared logic for computing member stats and generating chart
-  private static async computeMemberStats(guild: Guild) {
-    const guildId = guild.id;
-    const guildName = guild.name;
+  private static async computeMemberStats(discordGuild: Guild) {
+    const guildId = discordGuild.id;
+    const guildName = discordGuild.name;
 
     // create or update guild
-    const { lookback } = await prisma.guild.upsert({
-      where: { guildId },
-      create: { guildId, guildName },
-      update: { guildName },
-    });
+    const [guildData] = await db.insert(guild)
+      .values({ guildId, guildName })
+      .onConflictDoUpdate({
+        target: guild.guildId,
+        set: { guildName },
+      })
+      .returning();
+
+    const lookback = guildData.lookback;
 
     // get member join dates and sort ascending - use cache if fetch fails due to rate limit
     let members;
     try {
-      members = await guild.members.fetch();
+      members = await discordGuild.members.fetch();
     } catch {
       // Rate limited, use cached members
-      members = guild.members.cache;
+      members = discordGuild.members.cache;
     }
     const dates = members
-      .map((member) => member.joinedAt || new Date())
+      .map((m) => m.joinedAt || new Date())
       .sort((a, b) => a.getTime() - b.getTime());
 
     // if no dates, return null
@@ -269,9 +278,9 @@ export class MembersService {
   }
 
   static async guildMemberCountChart(
-    guild: Guild,
+    discordGuild: Guild,
   ): Promise<GuildMemberCountChart> {
-    const stats = await this.computeMemberStats(guild);
+    const stats = await this.computeMemberStats(discordGuild);
 
     if (!stats) return { error: "No members found" };
 
@@ -290,20 +299,19 @@ export class MembersService {
   }
 
   // Returns member stats with base64 chart for API usage
-  static async getMembersStatsForApi(guild: Guild) {
-    const stats = await this.computeMemberStats(guild);
+  static async getMembersStatsForApi(discordGuild: Guild) {
+    const stats = await this.computeMemberStats(discordGuild);
 
     if (!stats) {
-      const { lookback } = (await prisma.guild.findUnique({
-        where: { guildId: guild.id },
-        select: { lookback: true },
-      })) ?? { lookback: 9999 };
+      const guildData = await db.query.guild.findFirst({
+        where: eq(guild.guildId, discordGuild.id),
+      });
 
       return {
         thirtyDaysCount: 0,
         sevenDaysCount: 0,
         oneDayCount: 0,
-        lookback,
+        lookback: guildData?.lookback ?? 9999,
         memberCount: 0,
         chart: "",
       };
@@ -330,11 +338,12 @@ export class MembersService {
     guildId: string,
     lookback: number,
   ): Promise<void> {
-    await prisma.memberGuild.upsert({
-      where: { member_guild: { guildId, memberId } },
-      create: { guildId, lookback, memberId, status: true },
-      update: { guildId, lookback, memberId, status: true },
-    });
+    await db.insert(memberGuild)
+      .values({ guildId, lookback, memberId, status: true })
+      .onConflictDoUpdate({
+        target: [memberGuild.memberId, memberGuild.guildId],
+        set: { lookback },
+      });
   }
 
   static async setGuildLookback(
@@ -342,11 +351,12 @@ export class MembersService {
     guildName: string,
     lookback: number,
   ): Promise<void> {
-    await prisma.guild.upsert({
-      where: { guildId },
-      create: { guildId, guildName, lookback },
-      update: { guildName, lookback },
-    });
+    await db.insert(guild)
+      .values({ guildId, guildName, lookback })
+      .onConflictDoUpdate({
+        target: guild.guildId,
+        set: { guildName, lookback },
+      });
   }
 
   // Nickname methods
@@ -357,48 +367,47 @@ export class MembersService {
     if (oldMember.user.bot) return;
 
     if (oldMember.nickname !== newMember.nickname) {
-      const memberGuild = await prisma.memberGuild.findFirst({
-        where: {
-          guildId: newMember.guild.id,
-          memberId: newMember.id,
-        },
+      const memberGuildData = await db.query.memberGuild.findFirst({
+        where: and(
+          eq(memberGuild.guildId, newMember.guild.id),
+          eq(memberGuild.memberId, newMember.id),
+        ),
       });
-      if (memberGuild) {
-        await prisma.memberGuild.update({
-          where: { id: memberGuild.id },
-          data: { nickname: newMember.nickname },
-        });
+      if (memberGuildData) {
+        await db.update(memberGuild)
+          .set({ nickname: newMember.nickname })
+          .where(eq(memberGuild.id, memberGuildData.id));
       }
     }
   }
 
   static async joinSettings(
-    member: GuildMember | PartialGuildMember,
+    discordMember: GuildMember | PartialGuildMember,
     voiceState?: VoiceState,
   ) {
     // dont add bots to the list
-    if (member && member?.user?.bot) return;
+    if (discordMember && discordMember?.user?.bot) return;
 
-    const guildMember = await prisma.memberGuild.findFirst({
-      where: {
-        guildId: voiceState?.guild.id || member?.guild.id,
-        memberId: member?.id || voiceState?.member?.id,
-      },
+    const guildMember = await db.query.memberGuild.findFirst({
+      where: and(
+        eq(memberGuild.guildId, voiceState?.guild.id || discordMember?.guild.id),
+        eq(memberGuild.memberId, discordMember?.id || voiceState?.member?.id || ""),
+      ),
     });
 
-    if (guildMember && member) {
-      member = member.partial ? await member.fetch() : member;
+    if (guildMember && discordMember) {
+      const fetchedMember = discordMember.partial ? await discordMember.fetch() : discordMember;
 
-      if (guildMember.nickname && guildMember.nickname !== member.nickname) {
-        await member.setNickname(guildMember.nickname);
+      if (guildMember.nickname && guildMember.nickname !== fetchedMember.nickname) {
+        await fetchedMember.setNickname(guildMember.nickname);
       }
 
       if (voiceState?.channelId) {
-        if (member.voice.serverMute !== guildMember.muted)
-          await member.voice.setMute(guildMember.muted);
+        if (fetchedMember.voice.serverMute !== guildMember.muted)
+          await fetchedMember.voice.setMute(guildMember.muted);
 
-        if (member.voice.serverDeaf !== guildMember.deafened)
-          await member.voice.setDeaf(guildMember.deafened);
+        if (fetchedMember.voice.serverDeaf !== guildMember.deafened)
+          await fetchedMember.voice.setDeaf(guildMember.deafened);
       }
     }
   }

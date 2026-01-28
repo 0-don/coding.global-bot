@@ -3,7 +3,8 @@ import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 import { executeTopCommand } from "@/core/handlers/command-handlers/user/top.handler";
 import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberCommandHistory } from "@/lib/db-schema";
 
 @Discord()
 export class TopCommand {
@@ -26,14 +27,12 @@ export class TopCommand {
   ) {
     if (!(await safeDeferReply(interaction))) return;
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory
-        .create({
-          data: {
-            channelId: interaction.channelId,
-            memberId: interaction.member.user.id,
-            guildId: interaction.guildId,
-            command: "top",
-          },
+      db.insert(memberCommandHistory)
+        .values({
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "top",
         })
         .catch(() => {});
     }

@@ -1,6 +1,7 @@
 import { executeTranslateCommand } from "@/core/handlers/command-handlers/user/translate.handler";
 import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberCommandHistory } from "@/lib/db-schema";
 import {
   ApplicationCommandOptionType,
   type CommandInteraction,
@@ -26,14 +27,12 @@ export class Translate {
   ) {
     if (!(await safeDeferReply(interaction))) return;
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory
-        .create({
-          data: {
-            channelId: interaction.channelId,
-            memberId: interaction.member.user.id,
-            guildId: interaction.guildId,
-            command: "translate",
-          },
+      db.insert(memberCommandHistory)
+        .values({
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "translate",
         })
         .catch(() => {});
     }

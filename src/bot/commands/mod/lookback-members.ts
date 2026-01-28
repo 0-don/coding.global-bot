@@ -1,5 +1,6 @@
 import { executeLookbackMembers } from "@/core/handlers/command-handlers/mod/lookback-members.handler";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberCommandHistory } from "@/lib/db-schema";
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
@@ -25,14 +26,12 @@ export class LookbackMembers {
     interaction: CommandInteraction,
   ) {
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory
-        .create({
-          data: {
-            channelId: interaction.channelId,
-            memberId: interaction.member.user.id,
-            guildId: interaction.guildId,
-            command: "lookback-members",
-          },
+      db.insert(memberCommandHistory)
+        .values({
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "lookback-members",
         })
         .catch(() => {});
     }

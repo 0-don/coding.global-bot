@@ -3,7 +3,9 @@ import { SHOULD_LOG_VOICE_EVENTS } from "@/shared/config/features";
 import { MembersService } from "@/core/services/members/members.service";
 import { MoveMemberToChannelService } from "@/core/services/members/move-member-to-channel.service";
 import { VoiceService } from "@/core/services/voice/voice.service";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberGuild } from "@/lib/db-schema";
+import { and, eq } from "drizzle-orm";
 
 export async function handleVoiceStateUpdate(
   oldVoiceState: VoiceState,
@@ -15,14 +17,14 @@ export async function handleVoiceStateUpdate(
 
   if (!member || !guild) return;
 
-  const memberGuild = await prisma.memberGuild.findFirst({
-    where: {
-      memberId: member.id,
-      guildId: guild.id,
-    },
+  const guildMember = await db.query.memberGuild.findFirst({
+    where: and(
+      eq(memberGuild.memberId, member.id),
+      eq(memberGuild.guildId, guild.id),
+    ),
   });
 
-  if (memberGuild?.moving && memberGuild.moveCounter > 0) return;
+  if (guildMember?.moving && guildMember.moveCounter > 0) return;
 
   if (!oldVoiceState.channelId)
     await MembersService.joinSettings(

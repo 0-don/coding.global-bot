@@ -1,6 +1,7 @@
 import { executeTrollMoveUser } from "@/core/handlers/command-handlers/admin/troll-move-user.handler";
 import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberCommandHistory } from "@/lib/db-schema";
 import {
   ApplicationCommandOptionType,
   MessageFlags,
@@ -49,14 +50,12 @@ export class TrollMoveUser {
   ) {
     if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] }))) return;
     if (interaction.member?.user.id && interaction.guildId) {
-      prisma.memberCommandHistory
-        .create({
-          data: {
-            channelId: interaction.channelId,
-            memberId: interaction.member.user.id,
-            guildId: interaction.guildId,
-            command: "troll-move-user",
-          },
+      db.insert(memberCommandHistory)
+        .values({
+          channelId: interaction.channelId,
+          memberId: interaction.member.user.id,
+          guildId: interaction.guildId,
+          command: "troll-move-user",
         })
         .catch(() => {});
     }

@@ -1,4 +1,6 @@
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { memberGuild, member, memberRole } from "@/lib/db-schema";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import {
   mapAttachment,
   mapEmbed,
@@ -18,26 +20,38 @@ export async function getMembers(
 
   const resolvedGuildId = typeof guildId === "string" ? guildId : guildId.id;
 
-  const members = await prisma.memberGuild.findMany({
-    where: {
-      memberId: { in: userIds },
-      guildId: resolvedGuildId,
-      ...(options?.activeOnly && { status: true }),
-    },
-    include: {
+  const conditions = [
+    inArray(memberGuild.memberId, userIds),
+    eq(memberGuild.guildId, resolvedGuildId),
+  ];
+  if (options?.activeOnly) {
+    conditions.push(eq(memberGuild.status, true));
+  }
+
+  const members = await db.query.memberGuild.findMany({
+    where: and(...conditions),
+    with: {
       member: {
-        include: {
-          roles: {
-            where: { guildId: resolvedGuildId },
-            orderBy: { position: "desc" },
-          },
+        with: {
+          memberRoles: true,
         },
       },
     },
   });
 
-  return members
-    .map((memberGuild) => mapMemberGuild(memberGuild, resolvedGuildId))
+  // Filter and sort roles for guildId
+  const membersWithFilteredRoles = members.map((mg) => ({
+    ...mg,
+    member: {
+      ...mg.member,
+      memberRoles: mg.member.memberRoles
+        .filter((r) => r.guildId === resolvedGuildId)
+        .sort((a, b) => (b.position ?? 0) - (a.position ?? 0)),
+    },
+  }));
+
+  return membersWithFilteredRoles
+    .map((mg) => mapMemberGuild(mg, resolvedGuildId))
     .sort((a, b) => b.highestRolePosition - a.highestRolePosition);
 }
 
@@ -46,32 +60,45 @@ export async function searchUsers(
   query: string,
   limit: number = 10,
 ) {
-  const members = await prisma.memberGuild.findMany({
-    where: {
-      guildId,
-      status: true,
+  // Use raw SQL for case-insensitive search
+  const searchPattern = `%${query}%`;
+
+  const members = await db.query.memberGuild.findMany({
+    where: and(
+      eq(memberGuild.guildId, guildId),
+      eq(memberGuild.status, true),
+    ),
+    with: {
       member: {
-        OR: [
-          { username: { contains: query, mode: "insensitive" } },
-          { globalName: { contains: query, mode: "insensitive" } },
-        ],
-      },
-    },
-    include: {
-      member: {
-        include: {
-          roles: {
-            where: { guildId },
-            orderBy: { position: "desc" },
-          },
+        with: {
+          memberRoles: true,
         },
       },
     },
-    orderBy: { highestRolePosition: "desc" },
-    take: Math.min(limit, 50),
+    orderBy: desc(memberGuild.highestRolePosition),
+    limit: Math.min(limit, 50),
   });
 
-  return members.map((memberGuild) => mapMemberGuild(memberGuild, guildId));
+  // Filter by username or globalName (case-insensitive)
+  const filtered = members.filter((mg) => {
+    const username = mg.member.username?.toLowerCase() ?? "";
+    const globalName = mg.member.globalName?.toLowerCase() ?? "";
+    const searchLower = query.toLowerCase();
+    return username.includes(searchLower) || globalName.includes(searchLower);
+  });
+
+  // Filter and sort roles for guildId
+  const membersWithFilteredRoles = filtered.map((mg) => ({
+    ...mg,
+    member: {
+      ...mg.member,
+      memberRoles: mg.member.memberRoles
+        .filter((r) => r.guildId === guildId)
+        .sort((a, b) => (b.position ?? 0) - (a.position ?? 0)),
+    },
+  }));
+
+  return membersWithFilteredRoles.map((mg) => mapMemberGuild(mg, guildId));
 }
 
 export function parseMessage(message: Message) {
@@ -90,4 +117,3 @@ export function parseMessage(message: Message) {
     reference: mapReference(message.reference),
   };
 }
-

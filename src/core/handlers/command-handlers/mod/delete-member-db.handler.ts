@@ -1,5 +1,7 @@
 import type { CommandInteraction } from "discord.js";
-import { prisma } from "@/prisma";
+import { db } from "@/lib/db";
+import { member, memberGuild } from "@/lib/db-schema";
+import { and, count, eq } from "drizzle-orm";
 
 export type DeleteMemberDbResult = {
   success: boolean;
@@ -18,23 +20,23 @@ export async function executeDeleteMemberDb(
   }
 
   try {
-    await prisma.memberGuild.delete({
-      where: {
-        member_guild: {
-          memberId: userId,
-          guildId: interaction.guildId,
-        },
-      },
-    });
+    await db.delete(memberGuild)
+      .where(
+        and(
+          eq(memberGuild.memberId, userId),
+          eq(memberGuild.guildId, interaction.guildId),
+        )
+      );
 
-    const otherGuildCount = await prisma.memberGuild.count({
-      where: { memberId: userId },
-    });
+    const [otherGuildResult] = await db
+      .select({ count: count() })
+      .from(memberGuild)
+      .where(eq(memberGuild.memberId, userId));
+
+    const otherGuildCount = otherGuildResult?.count ?? 0;
 
     if (otherGuildCount === 0) {
-      await prisma.member.delete({
-        where: { memberId: userId },
-      });
+      await db.delete(member).where(eq(member.memberId, userId));
     }
 
     return {
