@@ -5,6 +5,15 @@ import { extractUserIdsFromContent } from "@/shared/mappers/discord.mapper";
 import { ChannelType } from "discord.js";
 import { Elysia, status, t } from "elysia";
 
+const NEWS_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+const newsFetchTimestamps = new Map<string, number>();
+
+function shouldRefetchNews(guildId: string): boolean {
+  const lastFetch = newsFetchTimestamps.get(guildId);
+  if (!lastFetch) return true;
+  return Date.now() - lastFetch > NEWS_CACHE_TTL;
+}
+
 export const newsRoutes = new Elysia().use(guildDerive).get(
   "/api/:guildId/news",
   async ({ guild }) => {
@@ -32,15 +41,19 @@ export const newsRoutes = new Elysia().use(guildDerive).get(
       );
     }
 
-    // Try cache first, only fetch if cache is empty
-    let messages = Array.from(newsChannel.messages.cache.values())
-      .sort((a, b) => b.createdTimestamp - a.createdTimestamp)
-      .slice(0, PAGE_LIMIT);
+    // Refetch if cache is empty or stale (older than 24 hours)
+    const needsRefetch = shouldRefetchNews(guild.id);
+    let messages = needsRefetch
+      ? []
+      : Array.from(newsChannel.messages.cache.values())
+          .sort((a, b) => b.createdTimestamp - a.createdTimestamp)
+          .slice(0, PAGE_LIMIT);
 
     if (messages.length === 0) {
       messages = Array.from(
         (await newsChannel.messages.fetch({ limit: PAGE_LIMIT })).values(),
       );
+      newsFetchTimestamps.set(guild.id, Date.now());
     }
 
     const parsed = messages.map((message) => parseMessage(message));
