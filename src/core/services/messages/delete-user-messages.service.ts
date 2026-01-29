@@ -24,9 +24,9 @@ export class DeleteUserMessagesService {
       if (!jailRoleId) return;
 
       // Check if user already has jail role - skip notification if they do
-      const discordMember = params.guild.members.cache.get(
-        params.user?.id || params.memberId,
-      );
+      const memberId = params.user?.id || params.memberId;
+      const discordMember = params.guild.members.cache.get(memberId)
+        || await params.guild.members.fetch(memberId).catch(() => null);
       const alreadyJailed = discordMember?.roles.cache.has(jailRoleId);
 
       await db.transaction(async (tx) => {
