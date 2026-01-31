@@ -1,20 +1,17 @@
 import { logs, SeverityNumber } from "@opentelemetry/api-logs";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { resourceFromAttributes } from "@opentelemetry/resources";
-import {
-  BatchLogRecordProcessor,
-  LoggerProvider,
-} from "@opentelemetry/sdk-logs";
-import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
+import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
+import { NodeSDK } from "@opentelemetry/sdk-node";
 
-let loggerProvider: LoggerProvider | null = null;
+let sdk: NodeSDK | null = null;
 
 // Dev mode: NODE_ENV is not set or is "development"
 const isDev =
   !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 
 export function initTelemetry(serviceName: string) {
-  if (loggerProvider) return;
+  if (sdk) return;
   if (isDev) {
     console.info("Dev mode, PostHog telemetry disabled");
     return;
@@ -26,26 +23,25 @@ export function initTelemetry(serviceName: string) {
 
   console.info(`PostHog telemetry enabled for ${serviceName}`);
 
-  const resource = resourceFromAttributes({
-    [ATTR_SERVICE_NAME]: serviceName,
+  sdk = new NodeSDK({
+    resource: resourceFromAttributes({
+      "service.name": serviceName,
+    }),
+    // @ts-expect-error - Type mismatch between sdk-node and sdk-logs versions
+    logRecordProcessor: new BatchLogRecordProcessor(
+      new OTLPLogExporter({
+        url: "https://eu.i.posthog.com/i/v1/logs",
+        headers: {
+          Authorization: `Bearer ${process.env.POSTHOG_KEY}`,
+        },
+      }),
+    ),
   });
-
-  const logExporter = new OTLPLogExporter({
-    url: "https://eu.i.posthog.com/i/v1/logs",
-    headers: {
-      Authorization: `Bearer ${process.env.POSTHOG_KEY}`,
-    },
-  });
-
-  loggerProvider = new LoggerProvider({
-    resource,
-    processors: [new BatchLogRecordProcessor(logExporter)],
-  });
-  logs.setGlobalLoggerProvider(loggerProvider);
+  sdk.start();
 }
 
 export async function shutdownTelemetry() {
-  if (loggerProvider) await loggerProvider.shutdown();
+  if (sdk) await sdk.shutdown();
 }
 
 const severityMap = {
@@ -64,7 +60,7 @@ export function getLogger(name: string) {
     attrs?: Record<string, unknown>,
   ) => {
     // Only send to PostHog in production
-    if (!isDev && loggerProvider) {
+    if (!isDev && sdk) {
       logger.emit({
         severityNumber: severityMap[level],
         severityText: level.toUpperCase(),
