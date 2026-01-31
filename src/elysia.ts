@@ -52,8 +52,14 @@ export const app = new Elysia({ adapter: node() })
     apiLogger.debug("Request", { url: request.url, method: request.method });
   })
   .onError(({ error, request }) => {
+    const message =
+      error instanceof Error
+        ? error.message
+        : typeof error === "object"
+          ? JSON.stringify(error)
+          : String(error);
     apiLogger.error("API Error", {
-      message: error instanceof Error ? error.message : String(error),
+      message,
       url: request.url,
       method: request.method,
     });
