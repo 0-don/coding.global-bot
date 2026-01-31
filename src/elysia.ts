@@ -48,9 +48,6 @@ export const app = new Elysia({ adapter: node() })
   )
   .use(cors())
   .use(cacheMiddleware)
-  .onRequest(({ request }) => {
-    apiLogger.debug("Request", { url: request.url, method: request.method });
-  })
   .onError(({ error, request }) => {
     const message =
       error instanceof Error
