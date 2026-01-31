@@ -1,4 +1,5 @@
 import { Collection, Message, ThreadChannel } from "discord.js";
+import { botLogger } from "@/lib/telemetry";
 import { StatsService } from "@/core/services/stats/stats.service";
 import {
   extractCodeFromAttachments,
@@ -129,7 +130,7 @@ export class AiContextService {
                 content += `\n\n[Code from attachment]:\n${codeContent}`;
               }
             } catch (err) {
-              console.error("Error processing attachments:", err);
+              botLogger.error("Error processing attachments", { error: String(err) });
             }
           }
 
@@ -140,7 +141,7 @@ export class AiContextService {
       const context = contextParts.filter(Boolean).join("\n") || "";
       return { context, images };
     } catch (err) {
-      console.error("Error fetching message context:", err);
+      botLogger.error("Error fetching message context", { error: String(err) });
       return { context: repliedMessage.content || "", images: [] };
     }
   }

@@ -46,6 +46,8 @@ jobs:
           echo SHOULD_COUNT_MEMBERS=${{ secrets.SHOULD_COUNT_MEMBERS }} >> .env
           echo SHOULD_USER_LEVEL_UP=${{ secrets.SHOULD_USER_LEVEL_UP }} >> .env
           echo BOT_ICON=${{ secrets.BOT_ICON }} >> .env
+          
+          echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env
 
       - name: Docker run
         run: docker compose up -d --force-recreate --build

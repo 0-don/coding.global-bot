@@ -1,5 +1,6 @@
 import type { GuildMember } from "discord.js";
 import { db } from "@/lib/db";
+import { botLogger } from "@/lib/telemetry";
 import { member, memberGuild, memberRole } from "@/lib/db-schema";
 import { and, eq } from "drizzle-orm";
 import {
@@ -58,10 +59,11 @@ export class MemberDataService {
         // Unknown Member (10007) - member left the guild
         if ("code" in error && error.code === 10007) return;
       }
-      console.error(
-        `Failed to update complete member data for ${discordMember.id} ${discordMember.user.username}:`,
-        error,
-      );
+      botLogger.error("Failed to update complete member data", {
+        memberId: discordMember.id,
+        username: discordMember.user.username,
+        error: String(error),
+      });
     }
   }
 }

@@ -1,6 +1,6 @@
 import { tool } from "ai";
-import { log } from "console";
 import { z } from "zod/v4";
+import { botLogger } from "@/lib/telemetry";
 import { ConfigValidator } from "@/shared/config/validator";
 import { StatsService } from "@/core/services/stats/stats.service";
 import { bot } from "@/main";
@@ -10,7 +10,7 @@ const TENOR_BASE_URL = "https://tenor.googleapis.com/v2/search";
 
 async function searchGifs(query: string, limit: number = 5): Promise<string[]> {
   if (!TENOR_API_KEY) {
-    console.warn("TENOR_API_KEY not configured - GIF search disabled");
+    botLogger.warn("TENOR_API_KEY not configured - GIF search disabled");
     return [];
   }
 
@@ -38,7 +38,7 @@ async function searchGifs(query: string, limit: number = 5): Promise<string[]> {
         .filter(Boolean) || []
     );
   } catch (error) {
-    console.error("Error fetching GIFs:", error);
+    botLogger.error("Error fetching GIFs", { error: String(error) });
     return [];
   }
 }
@@ -60,9 +60,7 @@ export const gatherChannelContext = tool({
   }),
   execute: async ({ channelId, guildId, messageCount }) => {
     try {
-      log(
-        `Gathering AI context from channel ${channelId} in guild ${guildId}...`,
-      );
+      botLogger.info("Gathering AI context", { channelId, guildId });
       const guild = await bot.guilds.fetch(guildId).catch(() => null);
       if (!guild) {
         return { success: false, error: "Guild not found" };
@@ -127,7 +125,7 @@ export const gatherChannelContext = tool({
         },
       };
     } catch (error) {
-      console.error("Error gathering channel context:", error);
+      botLogger.error("Error gathering channel context", { error: String(error) });
       return {
         success: false,
         error: `Failed to gather channel context: ${error instanceof Error ? error.message : "Unknown error"}`,

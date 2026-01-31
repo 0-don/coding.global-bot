@@ -1,9 +1,16 @@
 import "@dotenvx/dotenvx/config";
 
+import {
+  botLogger,
+  initTelemetry,
+  shutdownTelemetry,
+} from "@/lib/telemetry";
+
+initTelemetry("coding-global-bot");
+
 import { AttachmentRefreshQueueService } from "@/core/services/attachments/attachment-refresh-queue.service";
 import { MemberUpdateQueueService } from "@/core/services/members/member-update-queue.service";
 import { ConfigValidator } from "@/shared/config/validator";
-import { error, log } from "console";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
 import "./bot";
@@ -39,7 +46,7 @@ bot.once("clientReady", async () => {
   await bot.initApplicationCommands();
   process.env.DOCKER && MemberUpdateQueueService.start();
   process.env.DOCKER && AttachmentRefreshQueueService.start();
-  log("Bot started");
+  botLogger.info("Bot started", { clientId: bot.user?.id });
 });
 
 bot.on("interactionCreate", (interaction) => {
@@ -63,8 +70,24 @@ bot.on(
   (reaction, user) => void bot.executeReaction(reaction, user),
 );
 
+// Graceful shutdown
+process.on("SIGTERM", async () => {
+  botLogger.info("Received SIGTERM, shutting down");
+  await shutdownTelemetry();
+  process.exit(0);
+});
+
+process.on("SIGINT", async () => {
+  botLogger.info("Received SIGINT, shutting down");
+  await shutdownTelemetry();
+  process.exit(0);
+});
+
 const main = async () => {
-  if (!token) throw Error("Could not find TOKEN in your environment");
+  if (!token) {
+    botLogger.error("Could not find TOKEN in environment");
+    throw Error("Could not find TOKEN in your environment");
+  }
 
   await bot.login(token);
 
@@ -76,7 +99,7 @@ const main = async () => {
 setInterval(
   () =>
     fetch("https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api").catch(
-      (e) => error("Ping error:", e),
+      (e) => botLogger.error("Ping error", { error: String(e) }),
     ),
   300000,
 );

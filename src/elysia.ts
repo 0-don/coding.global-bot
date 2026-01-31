@@ -7,13 +7,33 @@ import { statsRoutes } from "@/api/routes/stats.routes";
 import { threadRoutes } from "@/api/routes/thread.routes";
 import { userRoutes } from "@/api/routes/user.routes";
 import { widgetRoutes } from "@/api/routes/widget.routes";
+import { apiLogger } from "@/lib/telemetry";
 import { cors } from "@elysiajs/cors";
 import { node } from "@elysiajs/node";
 import { fromTypes, openapi } from "@elysiajs/openapi";
-import { log } from "console";
+import { opentelemetry } from "@elysiajs/opentelemetry";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { Elysia } from "elysia";
 
 export const app = new Elysia({ adapter: node() })
+  .use(
+    process.env.POSTHOG_KEY
+      ? opentelemetry({
+          serviceName: "coding-global-bot-api",
+          spanProcessors: [
+            new BatchSpanProcessor(
+              new OTLPTraceExporter({
+                url: "https://eu.i.posthog.com/i/v1/traces",
+                headers: {
+                  Authorization: `Bearer ${process.env.POSTHOG_KEY}`,
+                },
+              }),
+            ),
+          ],
+        })
+      : (app: Elysia) => app,
+  )
   .use(
     openapi({
       documentation: {
@@ -28,10 +48,15 @@ export const app = new Elysia({ adapter: node() })
   )
   .use(cors())
   .use(cacheMiddleware)
-  .onError(({ error }) => {
-    if (error instanceof Error) {
-      console.error("Error:", error.message);
-    }
+  .onRequest(({ request }) => {
+    apiLogger.debug("Request", { url: request.url, method: request.method });
+  })
+  .onError(({ error, request }) => {
+    apiLogger.error("API Error", {
+      message: error instanceof Error ? error.message : String(error),
+      url: request.url,
+      method: request.method,
+    });
   })
   .use(staffRoutes)
   .use(newsRoutes)
@@ -41,4 +66,4 @@ export const app = new Elysia({ adapter: node() })
   .use(userRoutes)
   .listen(4000);
 
-log("Server started on port 4000");
+apiLogger.info("Elysia server started", { port: 4000 });

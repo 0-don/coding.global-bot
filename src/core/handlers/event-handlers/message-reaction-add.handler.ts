@@ -1,4 +1,5 @@
 import type { MessageReaction, User } from "discord.js";
+import { botLogger } from "@/lib/telemetry";
 import { RolesService } from "@/core/services/roles/roles.service";
 
 export async function handleHelperReaction(
@@ -23,6 +24,6 @@ export async function handleHelperReaction(
       message,
     });
   } catch (error) {
-    console.error("Error in handleHelperReaction:", error);
+    botLogger.error("Error in handleHelperReaction", { error: String(error) });
   }
 }
