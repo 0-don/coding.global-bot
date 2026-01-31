@@ -4,6 +4,7 @@ import {
 } from "@/shared/ai/attachment-processor";
 import { CHAT_SYSTEM_PROMPT } from "@/shared/ai/prompts";
 import { googleClient } from "@/shared/integrations/google-ai";
+import { botLogger } from "@/lib/telemetry";
 import { generateText, ModelMessage } from "ai";
 import { Message } from "discord.js";
 import { LRUCache } from "lru-cache";
@@ -48,15 +49,25 @@ export class AiChatService {
         system: CHAT_SYSTEM_PROMPT,
         messages: [...messages],
         tools,
+        maxSteps: 3,
         maxOutputTokens: 500,
         maxRetries: 0,
       });
     });
 
-    if (!result) return null;
+    if (!result) {
+      botLogger.warn("AI returned null result");
+      return null;
+    }
 
     const { text, steps } = result;
     const responseText = text?.trim() || "";
+
+    botLogger.info("AI response", {
+      hasText: !!responseText,
+      textLength: responseText.length,
+      hasSteps: !!steps?.length,
+    });
 
     const history = channelMessages.get(message.channel.id) || [];
     history.push(userMessage, { role: "assistant", content: responseText });

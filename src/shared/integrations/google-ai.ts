@@ -120,10 +120,21 @@ class GoogleClientRotator {
   async executeWithRotation<T>(
     operation: (model: ReturnType<GoogleClientRotator["getModel"]>) => Promise<T>,
   ): Promise<T | null> {
+    if (this.providers.length === 0) {
+      botLogger.error("No API keys configured");
+      return null;
+    }
+
     const startModelIndex = this.currentModelIndex;
     const startKeyIndex = this.currentKeyIndex;
     let lastError: unknown;
     let lastCategory: ErrorCategory = "unknown";
+
+    botLogger.info("Starting AI request", {
+      model: FALLBACK_MODELS[this.currentModelIndex],
+      keyIndex: this.currentKeyIndex + 1,
+      totalKeys: this.providers.length,
+    });
 
     do {
       const keyStartIndex = this.currentKeyIndex;
@@ -131,7 +142,11 @@ class GoogleClientRotator {
       do {
         try {
           const model = this.getModel();
-          return await operation(model);
+          const result = await operation(model);
+          botLogger.info("AI request succeeded", {
+            model: FALLBACK_MODELS[this.currentModelIndex],
+          });
+          return result;
         } catch (error) {
           lastError = error;
           const message = error instanceof Error ? error.message : String(error);
