@@ -117,62 +117,60 @@ class GoogleClientRotator {
   async executeWithRotation<T>(
     operation: (model: ReturnType<GoogleClientRotator["getModel"]>) => Promise<T>,
   ): Promise<T | null> {
-    const maxKeyAttempts = this.providers.length;
     const startModelIndex = this.currentModelIndex;
+    const startKeyIndex = this.currentKeyIndex;
     let lastError: unknown;
+    let lastCategory: ErrorCategory = "unknown";
 
-    for (let modelAttempt = 0; modelAttempt < FALLBACK_MODELS.length; modelAttempt++) {
-      for (let keyAttempt = 0; keyAttempt < maxKeyAttempts; keyAttempt++) {
-        const attempt = modelAttempt * maxKeyAttempts + keyAttempt + 1;
-        const totalAttempts = FALLBACK_MODELS.length * maxKeyAttempts;
+    do {
+      const keyStartIndex = this.currentKeyIndex;
 
+      do {
         try {
           const model = this.getModel();
           return await operation(model);
         } catch (error) {
           lastError = error;
           const message = error instanceof Error ? error.message : String(error);
-          const category = categorizeError(error);
+          lastCategory = categorizeError(error);
 
           console.error(
-            `AI error [${FALLBACK_MODELS[this.currentModelIndex]}, key ${this.currentKeyIndex + 1}] (${category}, attempt ${attempt}/${totalAttempts}): ${message}`,
+            `AI error [${FALLBACK_MODELS[this.currentModelIndex]}, key ${this.currentKeyIndex + 1}] (${lastCategory}): ${message}`,
           );
 
-          if (category === "non_retryable") {
-            console.warn(`Non-retryable error, skipping remaining attempts`);
+          if (lastCategory === "non_retryable") {
+            console.warn(`Non-retryable error, stopping`);
             return null;
           }
 
-          if (category === "key_error") {
+          if (lastCategory === "key_error") {
             const expiredKey = getApiKeys()[this.currentKeyIndex];
             if (expiredKey) {
               log(`API key invalid: ${maskApiKey(expiredKey)}`);
             }
-            this.rotateKey();
-            continue;
           }
 
-          if (category === "rate_limit") {
-            if (keyAttempt < maxKeyAttempts - 1) {
-              this.rotateKey();
-            }
-            continue;
-          }
-
-          // Unknown errors: try next key, might be transient
-          if (keyAttempt < maxKeyAttempts - 1) {
-            this.rotateKey();
-          }
+          this.rotateKey();
         }
+      } while (this.currentKeyIndex !== keyStartIndex);
+
+      // All keys exhausted for this model
+      // If last error was key_error, don't try other models (same keys will fail)
+      if (lastCategory === "key_error") {
+        console.warn(`All keys invalid, stopping`);
+        this.currentModelIndex = startModelIndex;
+        this.currentKeyIndex = startKeyIndex;
+        return null;
       }
 
+      // Try next model for rate_limit or unknown errors
       if (!this.rotateModel()) {
+        this.currentModelIndex = startModelIndex;
+        this.currentKeyIndex = startKeyIndex;
         break;
       }
       this.currentKeyIndex = 0;
-    }
-
-    this.currentModelIndex = startModelIndex;
+    } while (this.currentModelIndex !== startModelIndex);
 
     console.warn(
       `All models and keys exhausted (${FALLBACK_MODELS.length} models × ${this.providers.length} keys). Request failed.`,
