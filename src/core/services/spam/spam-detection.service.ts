@@ -5,8 +5,8 @@ import { memberMessages } from "@/lib/db-schema";
 import { and, count, eq } from "drizzle-orm";
 import { extractImageUrls } from "@/shared/ai/attachment-processor";
 import { ConfigValidator } from "@/shared/config/validator";
+import { botLogger } from "@/lib/telemetry";
 import type { SpamDetectionContext } from "@/types";
-import { log } from "console";
 import dayjs from "dayjs";
 import { Message, ThreadChannel } from "discord.js";
 
@@ -42,7 +42,7 @@ export class SpamDetectionService {
         collectibles: userProfile.collectibles || null,
       };
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      botLogger.error("Error fetching user profile", { error: String(error) });
       return {
         banner: null,
         accentColor: null,
@@ -130,9 +130,13 @@ export class SpamDetectionService {
         return false;
       }
 
-      log(
-        `[${dayjs().format("YYYY-MM-DD HH:mm:ss")}] Spam detection - User: ${message.author.username} (${message.author.globalName || ""}) - Spam: ${result.isSpam} - Confidence: ${result.confidence} - Reason: ${result.reason}`,
-      );
+      botLogger.info("Spam detection result", {
+        user: message.author.username,
+        displayName: message.author.globalName,
+        isSpam: result.isSpam,
+        confidence: result.confidence,
+        reason: result.reason,
+      });
 
       if (result.isSpam && result.confidence !== "low") {
         await DeleteUserMessagesService.deleteUserMessages({
@@ -146,7 +150,7 @@ export class SpamDetectionService {
       }
       return false;
     } catch (error) {
-      console.error("Spam detection error:", error);
+      botLogger.error("Spam detection error", { error: String(error) });
       return false;
     }
   }

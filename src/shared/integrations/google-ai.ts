@@ -2,8 +2,8 @@ import {
   createGoogleGenerativeAI,
   type GoogleGenerativeAIProvider,
 } from "@ai-sdk/google";
+import { botLogger } from "@/lib/telemetry";
 import { APICallError, RetryError } from "ai";
-import { log } from "console";
 
 type RawModelId = Parameters<GoogleGenerativeAIProvider>[0];
 type ModelId = RawModelId extends infer T
@@ -96,9 +96,10 @@ class GoogleClientRotator {
   private rotateKey() {
     if (this.providers.length > 1) {
       this.currentKeyIndex = (this.currentKeyIndex + 1) % this.providers.length;
-      log(
-        `Rotated to API key ${this.currentKeyIndex + 1}/${this.providers.length}`,
-      );
+      botLogger.info("Rotated API key", {
+        keyIndex: this.currentKeyIndex + 1,
+        totalKeys: this.providers.length,
+      });
     }
   }
 
@@ -106,9 +107,11 @@ class GoogleClientRotator {
     const nextModelIndex = this.currentModelIndex + 1;
     if (nextModelIndex < FALLBACK_MODELS.length) {
       this.currentModelIndex = nextModelIndex;
-      log(
-        `Rotated to model ${FALLBACK_MODELS[this.currentModelIndex]} (${this.currentModelIndex + 1}/${FALLBACK_MODELS.length})`,
-      );
+      botLogger.info("Rotated model", {
+        model: FALLBACK_MODELS[this.currentModelIndex],
+        modelIndex: this.currentModelIndex + 1,
+        totalModels: FALLBACK_MODELS.length,
+      });
       return true;
     }
     return false;
@@ -134,19 +137,22 @@ class GoogleClientRotator {
           const message = error instanceof Error ? error.message : String(error);
           lastCategory = categorizeError(error);
 
-          console.error(
-            `AI error [${FALLBACK_MODELS[this.currentModelIndex]}, key ${this.currentKeyIndex + 1}] (${lastCategory}): ${message}`,
-          );
+          botLogger.error("AI error", {
+            model: FALLBACK_MODELS[this.currentModelIndex],
+            keyIndex: this.currentKeyIndex + 1,
+            category: lastCategory,
+            message,
+          });
 
           if (lastCategory === "non_retryable") {
-            console.warn(`Non-retryable error, stopping`);
+            botLogger.warn("Non-retryable error, stopping");
             return null;
           }
 
           if (lastCategory === "key_error") {
             const expiredKey = getApiKeys()[this.currentKeyIndex];
             if (expiredKey) {
-              log(`API key invalid: ${maskApiKey(expiredKey)}`);
+              botLogger.warn("API key invalid", { key: maskApiKey(expiredKey) });
             }
           }
 
@@ -157,7 +163,7 @@ class GoogleClientRotator {
       // All keys exhausted for this model
       // If last error was key_error, don't try other models (same keys will fail)
       if (lastCategory === "key_error") {
-        console.warn(`All keys invalid, stopping`);
+        botLogger.warn("All keys invalid, stopping");
         this.currentModelIndex = startModelIndex;
         this.currentKeyIndex = startKeyIndex;
         return null;
@@ -172,12 +178,13 @@ class GoogleClientRotator {
       this.currentKeyIndex = 0;
     } while (this.currentModelIndex !== startModelIndex);
 
-    console.warn(
-      `All models and keys exhausted (${FALLBACK_MODELS.length} models × ${this.providers.length} keys). Request failed.`,
-    );
+    botLogger.warn("All models and keys exhausted", {
+      totalModels: FALLBACK_MODELS.length,
+      totalKeys: this.providers.length,
+    });
     const finalMessage =
       lastError instanceof Error ? lastError.message : String(lastError);
-    console.error(`Last error: ${finalMessage}`);
+    botLogger.error("Last error", { message: finalMessage });
 
     return null;
   }

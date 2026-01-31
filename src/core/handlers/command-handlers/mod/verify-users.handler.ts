@@ -1,6 +1,6 @@
 import { VerifyAllUsersService } from "@/core/services/members/verify-users.service";
+import { botLogger } from "@/lib/telemetry";
 import type { CommandResult } from "@/types";
-import { log } from "console";
 import { GuildTextBasedChannel, PermissionFlagsBits } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
 
@@ -8,10 +8,10 @@ export async function executeVerifyAllUsers(
   command: SimpleCommandMessage,
 ): Promise<CommandResult> {
   const message = command.message;
-  log("Command message received:", message.content);
+  botLogger.info("Command message received", { content: message.content });
   if (!message.guild) return { success: false, error: "Use in a server" };
 
-  log("Checking permissions for user:", message.author.tag);
+  botLogger.debug("Checking permissions", { user: message.author.tag });
   if (!message.member?.permissions.has(PermissionFlagsBits.ManageRoles)) {
     return {
       success: false,
@@ -26,7 +26,7 @@ export async function executeVerifyAllUsers(
     );
     return { success: true };
   } catch (error) {
-    console.error("Error in verify-all command:", error);
+    botLogger.error("Error in verify-all command", { error: String(error) });
     return { success: false };
   }
 }

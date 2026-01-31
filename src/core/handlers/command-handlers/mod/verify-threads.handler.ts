@@ -1,4 +1,5 @@
 import { SyncAllThreadsService } from "@/core/services/threads/verify-threads.service";
+import { botLogger } from "@/lib/telemetry";
 import type { CommandResult } from "@/types";
 import { GuildTextBasedChannel, PermissionFlagsBits } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
@@ -23,7 +24,7 @@ export async function executeSyncThreads(
     );
     return { success: true };
   } catch (error) {
-    console.error("Error in sync-threads command:", error);
+    botLogger.error("Error in sync-threads command", { error: String(error) });
     return { success: false };
   }
 }
