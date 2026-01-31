@@ -12,9 +12,9 @@ import {
 
 let loggerProvider: LoggerProvider | null = null;
 
-// Dev mode: NODE_ENV=development OR no DOCKER env (local dev)
+// Dev mode: NODE_ENV is not set or is "development"
 const isDev =
-  process.env.NODE_ENV === "development" || !process.env.DOCKER;
+  !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 
 export function initTelemetry(serviceName: string) {
   if (loggerProvider) return;
