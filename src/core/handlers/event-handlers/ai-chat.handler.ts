@@ -26,10 +26,10 @@ export async function handleAiChatMessage(
   try {
     const response = await AiChatService.generateResponse(message, AI_TOOLS);
 
-    if (!response || !response.text) return;
+    if (!response || (!response.text && !response.gifUrl)) return;
 
     await message.reply({
-      content: response.text,
+      content: response.text || undefined,
       files: response.gifUrl
         ? [{ attachment: response.gifUrl, name: "reaction.gif" }]
         : undefined,
