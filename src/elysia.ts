@@ -48,18 +48,10 @@ export const app = new Elysia({ adapter: node() })
   )
   .use(cors())
   .use(cacheMiddleware)
-  .onError(({ error, request }) => {
-    const message =
-      error instanceof Error
-        ? error.message
-        : typeof error === "object"
-          ? JSON.stringify(error)
-          : String(error);
-    apiLogger.error("API Error", {
-      message,
-      url: request.url,
-      method: request.method,
-    });
+  .onError(({ error }) => {
+    if (error instanceof Error) {
+      console.error("Error:", error.message);
+    }
   })
   .use(staffRoutes)
   .use(newsRoutes)
