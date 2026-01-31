@@ -1,12 +1,6 @@
 import "@dotenvx/dotenvx/config";
-
-import {
-  botLogger,
-  initTelemetry,
-  shutdownTelemetry,
-} from "@/lib/telemetry";
-
-initTelemetry("coding-global-bot");
+// Telemetry must be imported early - it initializes at module load time
+import { botLogger, shutdownTelemetry } from "@/lib/telemetry";
 
 import { AttachmentRefreshQueueService } from "@/core/services/attachments/attachment-refresh-queue.service";
 import { MemberUpdateQueueService } from "@/core/services/members/member-update-queue.service";
