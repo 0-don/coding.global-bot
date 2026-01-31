@@ -12,8 +12,16 @@ import {
 
 let loggerProvider: LoggerProvider | null = null;
 
+// Dev mode: NODE_ENV=development OR no DOCKER env (local dev)
+const isDev =
+  process.env.NODE_ENV === "development" || !process.env.DOCKER;
+
 export function initTelemetry(serviceName: string) {
   if (loggerProvider) return;
+  if (isDev) {
+    console.info("Dev mode, PostHog telemetry disabled");
+    return;
+  }
   if (!process.env.POSTHOG_KEY) {
     console.warn("POSTHOG_KEY not set, telemetry disabled");
     return;
@@ -58,13 +66,16 @@ export function getLogger(name: string) {
     message: string,
     attrs?: Record<string, unknown>,
   ) => {
-    logger.emit({
-      severityNumber: severityMap[level],
-      severityText: level.toUpperCase(),
-      body: message,
-      attributes: attrs as Record<string, string | number | boolean>,
-    });
-    // Also log to console
+    // Only send to PostHog in production
+    if (!isDev) {
+      logger.emit({
+        severityNumber: severityMap[level],
+        severityText: level.toUpperCase(),
+        body: message,
+        attributes: attrs as Record<string, string | number | boolean>,
+      });
+    }
+    // Always log to console
     console[level](`[${name}] ${message}`, attrs || "");
   };
 
