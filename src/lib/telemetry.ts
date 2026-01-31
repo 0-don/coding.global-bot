@@ -4,28 +4,22 @@ import { resourceFromAttributes } from "@opentelemetry/resources";
 import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 
-let sdk: NodeSDK | null = null;
-
 // Dev mode: NODE_ENV is not set or is "development"
 const isDev =
   !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 
-export function initTelemetry(serviceName: string) {
-  if (sdk) return;
-  if (isDev) {
-    console.info("Dev mode, PostHog telemetry disabled");
-    return;
-  }
-  if (!process.env.POSTHOG_KEY) {
-    console.warn("POSTHOG_KEY not set, telemetry disabled");
-    return;
-  }
+// Initialize SDK at module load time (before any imports that might log)
+let sdk: NodeSDK | null = null;
 
-  console.info(`PostHog telemetry enabled for ${serviceName}`);
-
+if (isDev) {
+  console.info("Dev mode, PostHog telemetry disabled");
+} else if (!process.env.POSTHOG_KEY) {
+  console.warn("POSTHOG_KEY not set, telemetry disabled");
+} else {
+  console.info("PostHog telemetry enabled for coding-global-bot");
   sdk = new NodeSDK({
     resource: resourceFromAttributes({
-      "service.name": serviceName,
+      "service.name": "coding-global-bot",
     }),
     // @ts-ignore - Type mismatch between sdk-node and sdk-logs versions
     logRecordProcessor: new BatchLogRecordProcessor(
