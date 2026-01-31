@@ -143,6 +143,17 @@ class GoogleClientRotator {
         try {
           const model = this.getModel();
           const result = await operation(model);
+          // Treat empty text responses as failures - continue rotating
+          const hasContent = result && typeof result === "object" && "text" in result
+            ? !!(result as { text?: string }).text?.trim()
+            : !!result;
+          if (!hasContent) {
+            botLogger.warn("Empty response, rotating", {
+              model: FALLBACK_MODELS[this.currentModelIndex],
+            });
+            this.rotateKey();
+            continue;
+          }
           botLogger.info("AI request succeeded", {
             model: FALLBACK_MODELS[this.currentModelIndex],
           });
