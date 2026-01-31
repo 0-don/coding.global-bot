@@ -67,6 +67,6 @@ export const app = new Elysia({ adapter: node() })
   .use(threadRoutes)
   .use(statsRoutes)
   .use(userRoutes)
-  .listen(4000);
-
-apiLogger.info("Elysia server started", { port: 4000 });
+  .listen(4000, () => {
+    apiLogger.info("Elysia server started", { port: 4000 });
+  });
