@@ -46,7 +46,7 @@ export function getLogger(name: string) {
         attributes: attrs as Record<string, string | number | boolean>,
       });
     }
-    console[level](`[${name}] ${msg}`, attrs || "");
+    console[level](JSON.stringify({ level, name, msg, ...attrs }));
   };
   return {
     debug: (msg: string, attrs?: Record<string, unknown>) =>
