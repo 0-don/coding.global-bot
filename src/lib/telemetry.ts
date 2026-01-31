@@ -1,3 +1,4 @@
+import "@dotenvx/dotenvx/config";
 import { logs, SeverityNumber } from "@opentelemetry/api-logs";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { resourceFromAttributes } from "@opentelemetry/resources";
@@ -5,8 +6,7 @@ import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
 import { NodeSDK } from "@opentelemetry/sdk-node";
 
 // Dev mode: NODE_ENV is not set or is "development"
-const isDev =
-  !process.env.NODE_ENV || process.env.NODE_ENV === "development";
+const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 
 // Initialize SDK at module load time (before any imports that might log)
 let sdk: NodeSDK | null = null;

@@ -1,9 +1,8 @@
 import "@dotenvx/dotenvx/config";
-// Telemetry must be imported early - it initializes at module load time
-import { botLogger, shutdownTelemetry } from "@/lib/telemetry";
 
 import { AttachmentRefreshQueueService } from "@/core/services/attachments/attachment-refresh-queue.service";
 import { MemberUpdateQueueService } from "@/core/services/members/member-update-queue.service";
+import { botLogger, shutdownTelemetry } from "@/lib/telemetry";
 import { ConfigValidator } from "@/shared/config/validator";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
