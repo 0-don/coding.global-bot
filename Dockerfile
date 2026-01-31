@@ -29,5 +29,6 @@ COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/.env ./.env
 
 ENV DOCKER=true
+ENV NODE_ENV=production
 
 CMD ["bun", "start"]
