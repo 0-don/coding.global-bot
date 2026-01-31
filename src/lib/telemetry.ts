@@ -27,7 +27,7 @@ export function initTelemetry(serviceName: string) {
     resource: resourceFromAttributes({
       "service.name": serviceName,
     }),
-    // @ts-expect-error - Type mismatch between sdk-node and sdk-logs versions
+    // @ts-ignore - Type mismatch between sdk-node and sdk-logs versions
     logRecordProcessor: new BatchLogRecordProcessor(
       new OTLPLogExporter({
         url: "https://eu.i.posthog.com/i/v1/logs",
