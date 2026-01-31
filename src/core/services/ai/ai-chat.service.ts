@@ -61,7 +61,7 @@ export class AiChatService {
     }
 
     const { text, steps } = result;
-    const responseText = text?.trim() || "";
+    const responseText = this.stripFakeGifUrls(text?.trim() || "");
 
     botLogger.info("AI response", {
       hasText: !!responseText,
@@ -106,6 +106,16 @@ export class AiChatService {
       };
     }
     return { role: "user", content: text };
+  }
+
+  private static stripFakeGifUrls(text: string): string {
+    // Strip hallucinated GIF URLs from models that can't use tools
+    return text
+      .replace(/https?:\/\/media\.tenor\.com\/[^\s)>\]]+/gi, "")
+      .replace(/https?:\/\/[^\s)>\]]*giphy\.[^\s)>\]]+/gi, "")
+      .replace(/https?:\/\/[^\s)>\]]*\.gif(?:\?[^\s)>\]]*)?/gi, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
   }
 
   private static extractGifFromSteps(steps: any[]): string | null {
