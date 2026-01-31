@@ -5,10 +5,7 @@ import {
   BatchLogRecordProcessor,
   LoggerProvider,
 } from "@opentelemetry/sdk-logs";
-import {
-  ATTR_SERVICE_NAME,
-  ATTR_SERVICE_VERSION,
-} from "@opentelemetry/semantic-conventions";
+import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 
 let loggerProvider: LoggerProvider | null = null;
 
@@ -27,10 +24,10 @@ export function initTelemetry(serviceName: string) {
     return;
   }
 
+  console.info(`PostHog telemetry enabled for ${serviceName}`);
+
   const resource = resourceFromAttributes({
     [ATTR_SERVICE_NAME]: serviceName,
-    [ATTR_SERVICE_VERSION]: "1.0.0",
-    "deployment.environment": process.env.NODE_ENV || "development",
   });
 
   const logExporter = new OTLPLogExporter({
@@ -67,7 +64,7 @@ export function getLogger(name: string) {
     attrs?: Record<string, unknown>,
   ) => {
     // Only send to PostHog in production
-    if (!isDev) {
+    if (!isDev && loggerProvider) {
       logger.emit({
         severityNumber: severityMap[level],
         severityText: level.toUpperCase(),
