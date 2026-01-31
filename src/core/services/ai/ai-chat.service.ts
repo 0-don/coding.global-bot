@@ -5,7 +5,7 @@ import {
 import { CHAT_SYSTEM_PROMPT } from "@/shared/ai/prompts";
 import { googleClient } from "@/shared/integrations/google-ai";
 import { botLogger } from "@/lib/telemetry";
-import { generateText, ModelMessage } from "ai";
+import { generateText, ModelMessage, stepCountIs } from "ai";
 import { Message } from "discord.js";
 import { LRUCache } from "lru-cache";
 import { AiContextService } from "./ai-context.service";
@@ -49,7 +49,7 @@ export class AiChatService {
         system: CHAT_SYSTEM_PROMPT,
         messages: [...messages],
         tools,
-        maxSteps: 3,
+        stopWhen: stepCountIs(3),
         maxOutputTokens: 500,
         maxRetries: 0,
       });
