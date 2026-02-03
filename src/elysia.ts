@@ -48,9 +48,9 @@ export const app = new Elysia({ adapter: node() })
   )
   .use(cors())
   .use(cacheMiddleware)
-  .onError(({ error }) => {
+  .onError(({ error, path }) => {
     if (error instanceof Error) {
-      console.error("Error:", error.message);
+      console.error(`Error [${path}]:`, error.message);
     }
   })
   .use(staffRoutes)
