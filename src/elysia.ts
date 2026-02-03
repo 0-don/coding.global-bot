@@ -48,7 +48,13 @@ export const app = new Elysia({ adapter: node() })
   )
   .use(cors())
   .use(cacheMiddleware)
-  .onError(({ error, path }) => {
+  .onError(({ error, path, code }) => {
+    // Ignore 404/NOT_FOUND errors for non-API paths (scanner bots)
+    if (code === "NOT_FOUND" && !path.startsWith("/api/")) {
+      return;
+    }
+
+    // Log all other errors (500s, validation errors, etc.)
     if (error instanceof Error) {
       console.error(`Error [${path}]:`, error.message);
     }
