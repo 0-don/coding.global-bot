@@ -36,12 +36,12 @@ export const JAIL =
   STATUS_ROLES.find((r) => r?.toLowerCase() === "jail") || STATUS_ROLES?.[2];
 
 // Level role names
-export const COPY_PASTER =
-  LEVEL_ROLES.find((r) => r.toLowerCase() === "copy paster!") ||
-  LEVEL_ROLES?.[0];
-
 export const SCRIPT_KIDDIE =
   LEVEL_ROLES.find((r) => r.toLowerCase() === "script kiddie!") ||
+  LEVEL_ROLES?.[0];
+
+export const COPY_PASTER =
+  LEVEL_ROLES.find((r) => r.toLowerCase() === "copy paster!") ||
   LEVEL_ROLES?.[1];
 
 export const VIBE_CODER =
