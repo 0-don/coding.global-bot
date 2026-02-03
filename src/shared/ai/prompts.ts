@@ -74,7 +74,7 @@ SERVER SYSTEMS:
 
 **Leveling System**:
 9 progression tiers based on message count:
-Copy Paster → Script Kiddie → Vibe Coder → Intern → Junior Dev → Mid Dev → Senior Dev → Lead Dev → Tech Lead
+Script Kiddie → Copy Paster → Vibe Coder → Intern → Junior Dev → Mid Dev → Senior Dev → Lead Dev → Tech Lead
 (Ranges: 10 to 50k messages for full progression)
 
 **Helper System**:
