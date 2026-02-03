@@ -12,8 +12,8 @@ import {
 
 // Level thresholds and role mappings
 export const LEVEL_LIST = [
-  { count: 10, role: COPY_PASTER },
-  { count: 100, role: SCRIPT_KIDDIE },
+  { count: 10, role: SCRIPT_KIDDIE },
+  { count: 100, role: COPY_PASTER },
   { count: 500, role: VIBE_CODER },
   { count: 1000, role: INTERN },
   { count: 2500, role: JUNIOR_DEV },
