@@ -34,6 +34,14 @@ export class MemberUpdateQueueService {
     log("Member update queue processor started");
   }
 
+  static stop() {
+    if (this.processorInterval) {
+      clearInterval(this.processorInterval);
+      this.processorInterval = null;
+      log("Member update queue processor stopped");
+    }
+  }
+
   private static async processNextItem() {
     if (this.isProcessing) return;
     this.isProcessing = true;

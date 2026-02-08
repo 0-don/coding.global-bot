@@ -66,12 +66,16 @@ bot.on(
 // Graceful shutdown
 process.on("SIGTERM", async () => {
   botLogger.info("Received SIGTERM, shutting down");
+  MemberUpdateQueueService.stop();
+  AttachmentRefreshQueueService.stop();
   await shutdownTelemetry();
   process.exit(0);
 });
 
 process.on("SIGINT", async () => {
   botLogger.info("Received SIGINT, shutting down");
+  MemberUpdateQueueService.stop();
+  AttachmentRefreshQueueService.stop();
   await shutdownTelemetry();
   process.exit(0);
 });
