@@ -46,7 +46,9 @@ export function getLogger(name: string) {
         attributes: attrs as Record<string, string | number | boolean>,
       });
     }
-    console[level](JSON.stringify({ level, name, msg, ...attrs }));
+    const prefix = level === "error" ? "ERR" : level === "warn" ? "WRN" : level === "debug" ? "DBG" : "INF";
+    const stream = level === "error" || level === "warn" ? process.stderr : process.stdout;
+    stream.write(`${prefix} ${JSON.stringify({ name, msg, ...attrs })}\n`);
   };
   return {
     debug: (msg: string, attrs?: Record<string, unknown>) =>
