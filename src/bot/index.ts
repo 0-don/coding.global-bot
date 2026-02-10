@@ -16,6 +16,7 @@ import "./events/user-update";
 import "./events/voice-stateupdate";
 
 // Commands - Admin
+import "./commands/admin/audit-roles";
 import "./commands/admin/troll-move-user";
 
 // Commands - Mod
