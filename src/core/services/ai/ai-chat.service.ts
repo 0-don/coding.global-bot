@@ -80,7 +80,7 @@ export class AiChatService {
   }
 
   private static extractUserMessage(message: Message): string {
-    const mentionPattern = new RegExp(`^<@!?\\d+>\\s*`);
+    const mentionPattern = new RegExp(`^<@[!&]?\\d+>\\s*`);
     const codingGlobalPattern = /^coding\s?global/i;
 
     return message.content
