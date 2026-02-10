@@ -109,8 +109,9 @@ export class AiChatService {
   }
 
   private static stripFakeGifUrls(text: string): string {
-    // Strip hallucinated GIF URLs from models that can't use tools
+    // Strip hallucinated GIF URLs and broken markdown images from models that can't use tools
     return text
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
       .replace(/https?:\/\/media\.tenor\.com\/[^\s)>\]]+/gi, "")
       .replace(/https?:\/\/[^\s)>\]]*giphy\.[^\s)>\]]+/gi, "")
       .replace(/https?:\/\/[^\s)>\]]*\.gif(?:\?[^\s)>\]]*)?/gi, "")

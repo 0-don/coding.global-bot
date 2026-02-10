@@ -11,10 +11,9 @@ export const translate = async (text: string) => {
     return;
   }
 
-  const length = text.split(" ").length;
-  if (length < 4) {
-    return "Please add 5 or more words to translate.";
-  }
   const translated = await TRANSLATOR?.translateText(text, null, "en-GB");
-  return translated?.text;
+  if (!translated?.text || translated.detectedSourceLang.toUpperCase() === "EN") {
+    return;
+  }
+  return translated.text;
 };
