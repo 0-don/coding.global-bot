@@ -24,10 +24,15 @@ const FALLBACK_MODELS: ModelId[] = [
 ]
 
 function getApiKeys() {
-  return (
+  const keys =
     process.env.GOOGLE_GENERATIVE_AI_API_KEY?.split(",").map((k) => k.trim()) ||
-    []
-  );
+    [];
+  // Shuffle once at startup so different instances don't all hit the same key first
+  for (let i = keys.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [keys[i], keys[j]] = [keys[j], keys[i]];
+  }
+  return keys;
 }
 
 function createGoogleProviders() {
