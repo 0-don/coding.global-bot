@@ -57,12 +57,15 @@ function shouldRespond(message: Message, client: Client): boolean {
 
   const mention = new RegExp(`^<@!?${client.user?.id}>`);
   const isMention = mention.test(message.content);
+  const isRoleMention = message.mentions.roles.some(
+    (role) => role.name.toLowerCase() === "coding.global",
+  );
   const isReply = isReplyToBot(message, client);
   const isCodingGlobal = CODING_GLOBAL_PATTERN.test(
     message.content.toLowerCase(),
   );
 
-  return isMention || isReply || isCodingGlobal;
+  return isMention || isRoleMention || isReply || isCodingGlobal;
 }
 
 function isReplyToBot(message: Message, client: Client): boolean {
@@ -75,7 +78,7 @@ function isReplyToBot(message: Message, client: Client): boolean {
 }
 
 function isEmptyMessage(message: Message): boolean {
-  const mention = new RegExp(`^<@!?\\d+>\\s*`);
+  const mention = new RegExp(`^<@[!&]?\\d+>\\s*`);
   const userMsg = message.content
     .replace(mention, "")
     .replace(CODING_GLOBAL_PATTERN, "")
