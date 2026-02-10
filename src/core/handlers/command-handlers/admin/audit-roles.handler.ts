@@ -14,11 +14,21 @@ const ELEVATED_PERMISSIONS = [
   { flag: PermissionFlagsBits.ManageNicknames, name: "Manage Nicknames" },
   { flag: PermissionFlagsBits.ManageEvents, name: "Manage Events" },
   { flag: PermissionFlagsBits.ManageThreads, name: "Manage Threads" },
+  {
+    flag: PermissionFlagsBits.ManageGuildExpressions,
+    name: "Manage Expressions",
+  },
   { flag: PermissionFlagsBits.MentionEveryone, name: "Mention Everyone" },
   { flag: PermissionFlagsBits.ModerateMembers, name: "Timeout Members" },
   { flag: PermissionFlagsBits.MuteMembers, name: "Mute Members" },
   { flag: PermissionFlagsBits.DeafenMembers, name: "Deafen Members" },
   { flag: PermissionFlagsBits.MoveMembers, name: "Move Members" },
+  { flag: PermissionFlagsBits.ViewAuditLog, name: "View Audit Log" },
+  {
+    flag: PermissionFlagsBits.ViewCreatorMonetizationAnalytics,
+    name: "View Monetization",
+  },
+  { flag: PermissionFlagsBits.CreateInstantInvite, name: "Create Invite" },
 ];
 
 export async function executeAuditRoles(
@@ -47,7 +57,9 @@ export async function executeAuditRoles(
     if (elevated.length === 0) continue;
 
     const permNames = elevated.map((p) => p.name).join(", ");
-    findings.push(`**${role.name}** (${role.members.size} members): ${permNames}`);
+    findings.push(
+      `**${role.name}** (${role.members.size} members): ${permNames}`,
+    );
   }
 
   if (findings.length === 0) {
