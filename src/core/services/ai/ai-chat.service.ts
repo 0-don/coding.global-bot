@@ -50,7 +50,7 @@ export class AiChatService {
         messages: [...messages],
         tools,
         stopWhen: stepCountIs(3),
-        maxOutputTokens: 500,
+        maxOutputTokens: 1024,
         maxRetries: 0,
       });
     });
