@@ -75,7 +75,7 @@ export class AiContextService {
         channelInfo = `Channel: #${channel.name}`;
       }
 
-      return `\n\n[User Context: ${JSON.stringify({ embed, roles: roles?.filter(Boolean) || [], location: channelInfo }, null, 2)}]`;
+      return `\n\n[User Context: ${JSON.stringify({ roles: roles?.filter(Boolean) || [], location: channelInfo }, null, 2)}]`;
     } catch {
       return "\n\n[User Context: Unable to retrieve stats]";
     }
