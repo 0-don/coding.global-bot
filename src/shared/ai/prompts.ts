@@ -165,13 +165,19 @@ export function buildTemplateContextText(
   appliedTagNames: string[],
   availableTagNames: string[]
 ): string {
-  return `Board type: ${boardType} (${BOARD_TEMPLATES[boardType].label})
+  const board = BOARD_TEMPLATES[boardType];
+  const fieldsList = board.fields.map((f) => `"${f}"`).join(", ");
+
+  return `Board type: ${boardType} (${board.label})
 Thread title: "${threadTitle}"
 Applied tags: ${appliedTagNames.length > 0 ? appliedTagNames.join(", ") : "none"}
 Available tags: ${availableTagNames.join(", ")}
 
 Post content:
-"${postContent}"`;
+"${postContent}"
+
+IMPORTANT: For extractedFields, you MUST extract a value for each of these fields if the information exists anywhere in the post or thread title: ${fieldsList}
+For each field, copy the relevant text from the post. Even short or partial matches count. Do NOT return an empty extractedFields object.`;
 }
 
 export function buildSpamContextText(context: SpamDetectionContext): string {

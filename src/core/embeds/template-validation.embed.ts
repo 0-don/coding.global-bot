@@ -2,11 +2,13 @@ import type { APIEmbed } from "discord.js";
 import { BOT_ICON, RED_COLOR } from "@/shared/config/branding";
 import { BOARD_TEMPLATES } from "@/shared/ai/prompts";
 import type { ValidatedBoardType } from "@/shared/ai/prompts";
+import { botLogger } from "@/lib/telemetry";
 import type { TemplateValidationResult } from "@/types";
 
 interface TemplateValidationDmParams {
   postTitle: string;
   boardType: ValidatedBoardType;
+  postContent: string;
   result: TemplateValidationResult;
 }
 
@@ -35,6 +37,36 @@ function findExtractedValue(
   return undefined;
 }
 
+function extractFieldsFromContent(
+  boardType: ValidatedBoardType,
+  postContent: string,
+  postTitle: string,
+): Record<string, string> {
+  const extracted: Record<string, string> = {};
+  const board = BOARD_TEMPLATES[boardType];
+  const lines = postContent.split("\n").map((l) => l.trim()).filter(Boolean);
+
+  for (const field of board.fields) {
+    const pattern = new RegExp(
+      `\\*\\*${field.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&")}\\s*:?\\*\\*\\s*(.+)`,
+      "i",
+    );
+    for (const line of lines) {
+      const match = line.match(pattern);
+      if (match?.[1]?.trim()) {
+        extracted[field] = match[1].trim();
+        break;
+      }
+    }
+  }
+
+  if (boardType === "job-board" && !extracted["Project Title"] && postTitle) {
+    extracted["Project Title"] = postTitle;
+  }
+
+  return extracted;
+}
+
 function buildPreFilledTemplate(
   boardType: ValidatedBoardType,
   extractedFields: Record<string, string>,
@@ -52,7 +84,22 @@ export const templateValidationDmEmbed = (
 ): APIEmbed => {
   const board = BOARD_TEMPLATES[params.boardType];
 
-  const enrichedFields = { ...params.result.extractedFields };
+  const aiFields = params.result.extractedFields;
+  const hasAiFields = Object.keys(aiFields).length > 0;
+
+  const fallbackFields = hasAiFields
+    ? aiFields
+    : extractFieldsFromContent(params.boardType, params.postContent, params.postTitle);
+
+  botLogger.info("[TemplateValidation] Building DM embed", {
+    source: hasAiFields ? "ai" : "regex_fallback",
+    aiFieldCount: Object.keys(aiFields).length,
+    fallbackFieldCount: Object.keys(fallbackFields).length,
+    fallbackFieldKeys: Object.keys(fallbackFields),
+    fallbackFields
+  });
+
+  const enrichedFields = { ...fallbackFields };
   if (
     params.boardType === "job-board" &&
     !findExtractedValue("Project Title", enrichedFields)
