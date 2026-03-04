@@ -36,6 +36,9 @@ interface FeatureBotEnvironment {
   SHOULD_COUNT_MEMBERS: string;
   SHOULD_USER_LEVEL_UP: string;
 
+  // Template Validation
+  TEMPLATE_VALIDATION_CHANNELS: string;
+
   // Appearance Features
   BOT_ICON: string;
 }

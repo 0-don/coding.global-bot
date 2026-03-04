@@ -80,6 +80,11 @@ export class ConfigValidator {
       feature: "Bot Channel Restrictions",
     },
     {
+      key: "TEMPLATE_VALIDATION_CHANNELS",
+      required: false,
+      feature: "Template Validation Notifications",
+    },
+    {
       key: "BOT_ICON",
       required: false,
       feature: "Custom Bot Icon",

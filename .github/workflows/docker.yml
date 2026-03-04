@@ -39,6 +39,7 @@ jobs:
           echo BOT_CHANNELS=${{ secrets.BOT_CHANNELS }} >> .env
           echo VOICE_EVENT_CHANNELS=${{ secrets.VOICE_EVENT_CHANNELS }} >> .env
           echo JOIN_EVENT_CHANNELS=${{ secrets.JOIN_EVENT_CHANNELS }} >> .env
+          echo TEMPLATE_VALIDATION_CHANNELS=${{ secrets.TEMPLATE_VALIDATION_CHANNELS }} >> .env
           echo MEMBERS_COUNT_CHANNELS=${{ secrets.MEMBERS_COUNT_CHANNELS }} >> .env
 
           echo IS_CONSTRAINED_TO_BOT_CHANNEL=${{ secrets.IS_CONSTRAINED_TO_BOT_CHANNEL }} >> .env
@@ -46,7 +47,7 @@ jobs:
           echo SHOULD_COUNT_MEMBERS=${{ secrets.SHOULD_COUNT_MEMBERS }} >> .env
           echo SHOULD_USER_LEVEL_UP=${{ secrets.SHOULD_USER_LEVEL_UP }} >> .env
           echo BOT_ICON=${{ secrets.BOT_ICON }} >> .env
-          
+
           echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env
 
       - name: Docker run
