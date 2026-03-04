@@ -14,6 +14,8 @@ interface TemplateValidationDmParams {
 
 interface TemplateValidationNotificationParams {
   memberId: string;
+  username: string;
+  displayName: string;
   postTitle: string;
   boardType: ValidatedBoardType;
   missingFields: string[];
@@ -204,7 +206,8 @@ export const templateValidationNotificationEmbed = (
     color,
     title: `Post Removed from ${board.label}`,
     description: [
-      `**User:** <@${params.memberId}>`,
+      `**User:** <@${params.memberId}> (${params.displayName} / @${params.username})`,
+      `**ID:** \`${params.memberId}\``,
       `**Post:** ${params.postTitle}`,
     ].join("\n"),
     fields,
