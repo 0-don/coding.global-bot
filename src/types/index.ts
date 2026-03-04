@@ -170,3 +170,10 @@ export interface SpamDetectionResult {
   confidence: "high" | "medium" | "low";
   reason: string;
 }
+
+export interface TemplateValidationResult {
+  isValid: boolean;
+  missingFields: string[];
+  suggestions: string;
+  extractedFields: Record<string, string>;
+}

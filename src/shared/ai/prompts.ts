@@ -71,6 +71,102 @@ Provide your confidence level:
 
 Also provide a brief reason (1 sentence) explaining why you classified it as spam or not.`;
 
+export const TEMPLATE_VALIDATION_SYSTEM_PROMPT = `You are a forum post template validator for a programming Discord server.
+
+Your job is to check if a new forum post contains the KEY information required by the board template. You do NOT require exact formatting or bold headings. The information just needs to be present somewhere in the post, even in natural language.
+
+BOARD TEMPLATES:
+
+=== JOB BOARD ===
+Required information:
+- Project Title (what the project/job is about, can be the thread title)
+- Project Description (what needs to be done)
+- Required Skills (technologies or skills needed)
+- Budget Range (must mention $/h OR total $, a concrete number or range)
+- Timeline (when it needs to be done or estimated duration)
+- Contact Method (how to reach the poster: DM, email, etc.)
+
+Optional:
+- Additional Details
+
+=== DEV BOARD (Hire-Devs) ===
+Required information:
+- Skills/Expertise (what technologies they know)
+- Experience Level (some indication of junior/mid/senior/expert level)
+- Availability (hours per week or full-time/part-time)
+- Rate/Hour (hourly rate or rate range)
+- Portfolio Link (link to portfolio, GitHub, or previous work)
+- Contact Method (how to reach them)
+
+Optional:
+- Previous Projects/Examples
+
+VALIDATION RULES:
+- Be LENIENT: information can be stated in any format, not just the template headings
+- A post that says "I charge $50/h" satisfies the budget/rate requirement even without the heading
+- A post that lists technologies in the description satisfies the skills requirement
+- The thread title can satisfy the Project Title requirement
+- Only mark as invalid if KEY required information is genuinely missing
+- If the post has most required fields but is missing 1 optional field, still mark as valid
+- Tags are informational only, do not fail validation based on tags
+
+RESPONSE:
+- isValid: true if all required information is present (even in non-standard format)
+- missingFields: list ONLY the actually missing required fields by their template field name (empty array if valid)
+- suggestions: brief, friendly guidance on what to add or improve (empty string if perfect)
+- extractedFields: map each template field name to the value you found in the post. Use the exact template field names as keys. Include all fields you can extract, even partial matches. For missing fields, do NOT include them here.`;
+
+const JOB_BOARD_TEMPLATE_FIELDS = [
+  "Project Title",
+  "Project Description",
+  "Required Skills",
+  "Budget Range",
+  "Timeline",
+  "Contact Method",
+  "Additional Details"
+] as const;
+
+const DEV_BOARD_TEMPLATE_FIELDS = [
+  "Skills/Expertise",
+  "Experience Level",
+  "Availability",
+  "Rate/Hour",
+  "Portfolio Link",
+  "Contact Method",
+  "Previous Projects/Examples"
+] as const;
+
+export const BOARD_TEMPLATES = {
+  "job-board": {
+    label: "Job Board",
+    fields: JOB_BOARD_TEMPLATE_FIELDS,
+    template: `**Project Title:**\n**Project Description:**\n**Required Skills:**\n**Budget Range:** $/h or total $\n**Timeline:**\n**Contact Method:**\n**Additional Details:**`
+  },
+  "dev-board": {
+    label: "Dev Board",
+    fields: DEV_BOARD_TEMPLATE_FIELDS,
+    template: `**Skills/Expertise:**\n**Experience Level:** Junior / Mid / Senior / Expert\n**Availability:**\n**Rate/Hour:**\n**Portfolio Link:**\n**Contact Method:**\n**Previous Projects:**`
+  }
+} as const;
+
+export type ValidatedBoardType = keyof typeof BOARD_TEMPLATES;
+
+export function buildTemplateContextText(
+  boardType: ValidatedBoardType,
+  threadTitle: string,
+  postContent: string,
+  appliedTagNames: string[],
+  availableTagNames: string[]
+): string {
+  return `Board type: ${boardType} (${BOARD_TEMPLATES[boardType].label})
+Thread title: "${threadTitle}"
+Applied tags: ${appliedTagNames.length > 0 ? appliedTagNames.join(", ") : "none"}
+Available tags: ${availableTagNames.join(", ")}
+
+Post content:
+"${postContent}"`;
+}
+
 export function buildSpamContextText(context: SpamDetectionContext): string {
   return `User info:
 - Account age: ${context.accountAge} days
