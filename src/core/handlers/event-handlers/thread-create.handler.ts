@@ -137,8 +137,13 @@ async function validateForumPost(
     const ownerId = thread.ownerId;
     if (ownerId) {
       let dmSent = false;
+      let username = "unknown";
+      let displayName = "Unknown";
+
       try {
         const owner = await thread.guild.members.fetch(ownerId);
+        username = owner.user.username;
+        displayName = owner.displayName;
         await owner.send({
           embeds: [
             templateValidationDmEmbed({
@@ -165,7 +170,7 @@ async function validateForumPost(
         missingFields: result.missingFields
       });
 
-      await sendNotification(thread, boardType, ownerId, result);
+      await sendNotification(thread, boardType, ownerId, username, displayName, result);
     }
 
     try {
@@ -193,6 +198,8 @@ async function sendNotification(
   thread: ThreadChannel,
   boardType: ValidatedBoardType,
   memberId: string,
+  username: string,
+  displayName: string,
   result: TemplateValidationResult,
 ): Promise<void> {
   if (!ConfigValidator.isFeatureEnabled("TEMPLATE_VALIDATION_CHANNELS")) {
@@ -210,6 +217,8 @@ async function sendNotification(
       embeds: [
         templateValidationNotificationEmbed({
           memberId,
+          username,
+          displayName,
           postTitle: thread.name,
           boardType,
           missingFields: result.missingFields,
