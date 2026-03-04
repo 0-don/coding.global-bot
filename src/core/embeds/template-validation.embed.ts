@@ -1,5 +1,5 @@
 import type { APIEmbed } from "discord.js";
-import { BOT_ICON, RED_COLOR } from "@/shared/config/branding";
+import { BOT_ICON, RED_COLOR, YELLOW_COLOR } from "@/shared/config/branding";
 import { BOARD_TEMPLATES } from "@/shared/ai/prompts";
 import type { ValidatedBoardType } from "@/shared/ai/prompts";
 import { botLogger } from "@/lib/telemetry";
@@ -17,6 +17,9 @@ interface TemplateValidationNotificationParams {
   postTitle: string;
   boardType: ValidatedBoardType;
   missingFields: string[];
+  summary: string;
+  scamRisk: "low" | "medium" | "high";
+  scamReason: string;
 }
 
 function findExtractedValue(
@@ -164,19 +167,47 @@ export const templateValidationDmEmbed = (
   };
 };
 
+const SCAM_RISK_LABELS: Record<string, string> = {
+  low: "Low",
+  medium: "Medium",
+  high: "HIGH",
+};
+
 export const templateValidationNotificationEmbed = (
   params: TemplateValidationNotificationParams,
 ): APIEmbed => {
   const board = BOARD_TEMPLATES[params.boardType];
 
+  const color = params.scamRisk === "high" ? RED_COLOR
+    : params.scamRisk === "medium" ? YELLOW_COLOR
+    : RED_COLOR;
+
+  const fields: APIEmbed["fields"] = [
+    {
+      name: "Summary",
+      value: params.summary || "No summary available",
+      inline: false,
+    },
+    {
+      name: "Missing Fields",
+      value: params.missingFields.join(", "),
+      inline: true,
+    },
+    {
+      name: "Scam Risk",
+      value: `**${SCAM_RISK_LABELS[params.scamRisk] || params.scamRisk}** — ${params.scamReason}`,
+      inline: false,
+    },
+  ];
+
   return {
-    color: RED_COLOR,
+    color,
     title: `Post Removed from ${board.label}`,
     description: [
       `**User:** <@${params.memberId}>`,
       `**Post:** ${params.postTitle}`,
-      `**Missing:** ${params.missingFields.join(", ")}`,
     ].join("\n"),
+    fields,
     timestamp: new Date().toISOString(),
     footer: {
       text: board.label,

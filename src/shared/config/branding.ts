@@ -7,6 +7,7 @@ export const COMMAND_HISTORY_TEMPLATE = "command history";
 export const DELETED_MESSAGES_HISTORY_TEMPLATE = "deleted messages history";
 
 export const RED_COLOR = 0xff0000;
+export const YELLOW_COLOR = 0xffaa00;
 export const BOT_ICON =
   process.env.BOT_ICON?.trim() || "https://via.placeholder.com/32";
 
