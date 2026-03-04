@@ -21,6 +21,9 @@ const templateValidationSchema = z.object({
       value: z.string(),
     }),
   ),
+  summary: z.string(),
+  scamRisk: z.enum(["low", "medium", "high"]),
+  scamReason: z.string(),
 });
 
 export class AiTemplateService {
@@ -77,6 +80,9 @@ export class AiTemplateService {
         missingFields: raw.missingFields,
         suggestions: raw.suggestions,
         extractedFields,
+        summary: raw.summary,
+        scamRisk: raw.scamRisk,
+        scamReason: raw.scamReason,
       };
     } catch {
       return null;

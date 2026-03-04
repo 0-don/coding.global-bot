@@ -176,4 +176,7 @@ export interface TemplateValidationResult {
   missingFields: string[];
   suggestions: string;
   extractedFields: Record<string, string>;
+  summary: string;
+  scamRisk: "low" | "medium" | "high";
+  scamReason: string;
 }

@@ -7,6 +7,7 @@ import { AiTemplateService } from "@/core/services/ai/ai-template.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
 import { botLogger } from "@/lib/telemetry";
 import type { ValidatedBoardType } from "@/shared/ai/prompts";
+import type { TemplateValidationResult } from "@/types";
 import { getThreadWelcomeMessage } from "@/shared/config/branding";
 import { TEMPLATE_VALIDATION_CHANNELS } from "@/shared/config/channels";
 import { ConfigValidator } from "@/shared/config/validator";
@@ -164,7 +165,7 @@ async function validateForumPost(
         missingFields: result.missingFields
       });
 
-      await sendNotification(thread, boardType, ownerId, result.missingFields);
+      await sendNotification(thread, boardType, ownerId, result);
     }
 
     try {
@@ -192,7 +193,7 @@ async function sendNotification(
   thread: ThreadChannel,
   boardType: ValidatedBoardType,
   memberId: string,
-  missingFields: string[]
+  result: TemplateValidationResult,
 ): Promise<void> {
   if (!ConfigValidator.isFeatureEnabled("TEMPLATE_VALIDATION_CHANNELS")) {
     return;
@@ -211,7 +212,10 @@ async function sendNotification(
           memberId,
           postTitle: thread.name,
           boardType,
-          missingFields
+          missingFields: result.missingFields,
+          summary: result.summary,
+          scamRisk: result.scamRisk,
+          scamReason: result.scamReason,
         })
       ],
       allowedMentions: { users: [], roles: [] }

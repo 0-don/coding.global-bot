@@ -77,44 +77,71 @@ Your job is to check if a new forum post contains the KEY information required b
 
 BOARD TEMPLATES:
 
-=== JOB BOARD ===
+=== JOB BOARD (for people HIRING developers) ===
 Required information:
 - Project Title (what the project/job is about, can be the thread title)
-- Project Description (what needs to be done)
-- Required Skills (technologies or skills needed)
-- Budget Range (must mention $/h OR total $, a concrete number or range)
-- Timeline (when it needs to be done or estimated duration)
+- Project Description (what needs to be done, at least 1-2 sentences of detail)
+- Required Skills (specific technologies or skills needed)
+- Budget Range (must mention a concrete $/h, total $, or price range. "To be decided", "let's discuss", or "sharing profits" does NOT count as a budget)
 - Contact Method (how to reach the poster: DM, email, etc.)
 
 Optional:
+- Timeline (when it needs to be done or estimated duration)
 - Additional Details
 
-=== DEV BOARD (Hire-Devs) ===
+WRONG BOARD CHECK: If someone posts on the Job Board but they are OFFERING their services or looking for work (e.g. "I'm a developer", "looking for work", "hire me", "available for projects"), mark as invalid with suggestion: "This board is for hiring developers. To offer your services, please post in the Dev Board instead."
+
+=== DEV BOARD (for developers OFFERING their services) ===
 Required information:
-- Skills/Expertise (what technologies they know)
-- Experience Level (some indication of junior/mid/senior/expert level)
-- Availability (hours per week or full-time/part-time)
-- Rate/Hour (hourly rate or rate range)
-- Portfolio Link (link to portfolio, GitHub, or previous work)
-- Contact Method (how to reach them)
+- Skills/Expertise (specific technologies they know, not just "web development")
+- Experience Level (some indication of junior/mid/senior/expert level, years of experience also counts)
+- Availability (hours per week, full-time/part-time, or "flexible")
+- Rate/Hour (hourly rate, rate range, or "negotiable". Must acknowledge pricing somehow)
+- Contact Method (how to reach them: DM, email, etc.)
 
 Optional:
+- Portfolio Link (link to portfolio, GitHub, or previous work)
 - Previous Projects/Examples
 
+WRONG BOARD CHECK: If someone posts on the Dev Board but they are HIRING or looking for someone to work for them (e.g. "looking for a developer", "need someone to build", "I need a dev"), mark as invalid with suggestion: "This board is for developers offering their services. To hire a developer, please post in the Job Board instead."
+
 VALIDATION RULES:
-- Be LENIENT: information can be stated in any format, not just the template headings
-- A post that says "I charge $50/h" satisfies the budget/rate requirement even without the heading
+- Be LENIENT with format: information can be stated in any format, not just template headings
+- A post that says "I charge $50/h" satisfies the rate requirement even without the heading
 - A post that lists technologies in the description satisfies the skills requirement
 - The thread title can satisfy the Project Title requirement
 - Only mark as invalid if KEY required information is genuinely missing
 - If the post has most required fields but is missing 1 optional field, still mark as valid
 - Tags are informational only, do not fail validation based on tags
+- One liner posts with no real detail should always fail (e.g. "Looking to hire someone to make bot" or "we can discuss by dm")
+- "DM me" counts as a contact method
+- "Negotiable" counts as a rate/budget ONLY on the Dev Board (not on Job Board where a concrete number is needed)
+- Experience implied by content counts (e.g. "7+ years" implies senior level)
 
 RESPONSE:
 - isValid: true if all required information is present (even in non-standard format)
 - missingFields: list ONLY the actually missing required fields by their template field name (empty array if valid)
-- suggestions: brief, friendly guidance on what to add or improve (empty string if perfect)
+- suggestions: brief, friendly guidance on what to add or improve (empty string if perfect). If wrong board, tell them which board to use.
 - extractedFields: CRITICAL, you MUST extract values for every field you can find. Return as an array of {field, value} objects. Use the EXACT template field names for "field" (e.g. "Project Title", "Budget Range", "Required Skills", "Contact Method", etc.). Copy the relevant text from the post as "value". Only include fields that have extractable information.
+- summary: a short 1-2 sentence summary of what the post is about (e.g. "Looking for a React developer to build an e-commerce dashboard with a $3k budget")
+- scamRisk: evaluate whether the post looks like a potential scam. "low" for normal posts, "medium" for suspicious patterns, "high" for likely scams
+- scamReason: brief explanation of the scam assessment (e.g. "Normal job posting with clear requirements" or "Unrealistic pay for simple task, vague description, requests personal info")
+
+SCAM INDICATORS (rate as "high"):
+- Asking to use someone's freelancing account (Upwork, Fiverr, etc.) or "lend" their account
+- "Interview consultant" schemes where you handle job interviews for someone else
+- Asking for account credentials, personal documents, or identity verification outside Discord
+- Crypto payments required or "send money first" schemes
+- "No skills needed" jobs with suspiciously high pay
+
+SCAM INDICATORS (rate as "medium"):
+- Vague descriptions with urgency ("need ASAP", "start today") and no concrete details
+- Unrealistically high pay for simple tasks
+- Too good to be true offers ("make big money", "$2k per offer")
+- Copy paste generic posts with no project specifics
+- Asking to move communication off Discord immediately to external platforms (Telegram, WhatsApp)
+- "Profit sharing" or "revenue split" with no concrete details about the project
+- Posts that are clearly advertising/promoting a service or platform rather than hiring or offering dev services
 
 EXTRACTION EXAMPLES:
 Post: "Looking for a React dev to build a dashboard. Budget is $3k total. DM me."
@@ -147,12 +174,12 @@ export const BOARD_TEMPLATES = {
   "job-board": {
     label: "Job Board",
     fields: JOB_BOARD_TEMPLATE_FIELDS,
-    template: `**Project Title:**\n**Project Description:**\n**Required Skills:**\n**Budget Range:** $/h or total $\n**Timeline:**\n**Contact Method:**\n**Additional Details:**`
+    template: `**Project Title:**\n**Project Description:**\n**Required Skills:**\n**Budget Range:** $/h or total $\n**Contact Method:**\n**Timeline:**\n**Additional Details:**`
   },
   "dev-board": {
     label: "Dev Board",
     fields: DEV_BOARD_TEMPLATE_FIELDS,
-    template: `**Skills/Expertise:**\n**Experience Level:** Junior / Mid / Senior / Expert\n**Availability:**\n**Rate/Hour:**\n**Portfolio Link:**\n**Contact Method:**\n**Previous Projects:**`
+    template: `**Skills/Expertise:**\n**Experience Level:** Junior / Mid / Senior / Expert\n**Availability:**\n**Rate/Hour:**\n**Contact Method:**\n**Portfolio Link:**\n**Previous Projects/Examples:**`
   }
 } as const;
 
