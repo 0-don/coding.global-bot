@@ -28,14 +28,31 @@ export async function handleAiChatMessage(
 
     if (!response || (!response.text && !response.gifUrl)) return;
 
-    await message.reply({
-      content: response.text || undefined,
-      files: response.gifUrl
-        ? [{ attachment: response.gifUrl, name: "reaction.gif" }]
-        : undefined,
-      allowedMentions: { users: [], roles: [] },
-      flags: [MessageFlags.SuppressEmbeds],
-    });
+    const text = response.text || "";
+    const chunks = splitMessage(text, 2000);
+    const files = response.gifUrl
+      ? [{ attachment: response.gifUrl, name: "reaction.gif" }]
+      : undefined;
+
+    let lastMessage = message;
+    for (let i = 0; i < chunks.length; i++) {
+      const isLast = i === chunks.length - 1;
+      const sent = await lastMessage.reply({
+        content: chunks[i] || undefined,
+        files: isLast ? files : undefined,
+        allowedMentions: { users: [], roles: [] },
+        flags: [MessageFlags.SuppressEmbeds],
+      });
+      lastMessage = sent;
+    }
+
+    if (!chunks.length && files) {
+      await message.reply({
+        files,
+        allowedMentions: { users: [], roles: [] },
+        flags: [MessageFlags.SuppressEmbeds],
+      });
+    }
   } catch (err) {
     const errorMessage = (err as Error).message;
 
@@ -90,4 +107,27 @@ function isEmptyMessage(message: Message): boolean {
     message.stickers.size === 0 &&
     !message.reference
   );
+}
+
+function splitMessage(text: string, maxLength: number): string[] {
+  if (text.length <= maxLength) return [text];
+
+  const chunks: string[] = [];
+  let remaining = text;
+
+  while (remaining.length > 0) {
+    if (remaining.length <= maxLength) {
+      chunks.push(remaining);
+      break;
+    }
+
+    let splitAt = remaining.lastIndexOf("\n", maxLength);
+    if (splitAt <= 0) splitAt = remaining.lastIndexOf(" ", maxLength);
+    if (splitAt <= 0) splitAt = maxLength;
+
+    chunks.push(remaining.slice(0, splitAt));
+    remaining = remaining.slice(splitAt).trimStart();
+  }
+
+  return chunks;
 }
