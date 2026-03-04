@@ -8,11 +8,19 @@ import type { TemplateValidationResult } from "@/types";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 
+// Gemini does not support z.record() in structured output (maps to
+// additionalProperties which is silently ignored, always returning {}).
+// Use an array of key-value pairs instead and convert back after.
 const templateValidationSchema = z.object({
   isValid: z.boolean(),
   missingFields: z.array(z.string()),
   suggestions: z.string(),
-  extractedFields: z.record(z.string(), z.string()),
+  extractedFields: z.array(
+    z.object({
+      field: z.string(),
+      value: z.string(),
+    }),
+  ),
 });
 
 export class AiTemplateService {
@@ -54,7 +62,22 @@ export class AiTemplateService {
     }
 
     try {
-      return result.output;
+      const raw = result.output;
+
+      // Convert array of {field, value} back to Record<string, string>
+      const extractedFields: Record<string, string> = {};
+      for (const entry of raw.extractedFields) {
+        if (entry.field && entry.value) {
+          extractedFields[entry.field] = entry.value;
+        }
+      }
+
+      return {
+        isValid: raw.isValid,
+        missingFields: raw.missingFields,
+        suggestions: raw.suggestions,
+        extractedFields,
+      };
     } catch {
       return null;
     }
