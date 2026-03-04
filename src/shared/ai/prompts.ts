@@ -114,7 +114,14 @@ RESPONSE:
 - isValid: true if all required information is present (even in non-standard format)
 - missingFields: list ONLY the actually missing required fields by their template field name (empty array if valid)
 - suggestions: brief, friendly guidance on what to add or improve (empty string if perfect)
-- extractedFields: map each template field name to the value you found in the post. Use the exact template field names as keys. Include all fields you can extract, even partial matches. For missing fields, do NOT include them here.`;
+- extractedFields: CRITICAL, you MUST extract values for every field you can find. Map each template field name to the value you found in the post. Use the EXACT template field names as keys (e.g. "Project Title", "Budget Range", "Required Skills", "Contact Method", etc.). Copy the relevant text from the post as the value. For missing fields, do NOT include them.
+
+EXTRACTION EXAMPLES:
+Post: "Looking for a React dev to build a dashboard. Budget is $3k total. DM me."
+extractedFields: {"Project Title": "React dashboard", "Project Description": "Build a dashboard", "Required Skills": "React", "Budget Range": "$3k total", "Contact Method": "DM"}
+
+Post: "I know Python, JS, and Go. Senior level. Available 30h/week at $80/h. GitHub: github.com/user. DM for details."
+extractedFields: {"Skills/Expertise": "Python, JS, Go", "Experience Level": "Senior", "Availability": "30h/week", "Rate/Hour": "$80/h", "Portfolio Link": "github.com/user", "Contact Method": "DM"}`;
 
 const JOB_BOARD_TEMPLATE_FIELDS = [
   "Project Title",

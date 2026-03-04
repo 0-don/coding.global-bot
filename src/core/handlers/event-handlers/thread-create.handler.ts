@@ -113,7 +113,6 @@ async function validateForumPost(
             templateValidationDmEmbed({
               postTitle: thread.name,
               boardType,
-              postContent,
               result
             })
           ]

@@ -7,7 +7,6 @@ import type { TemplateValidationResult } from "@/types";
 interface TemplateValidationDmParams {
   postTitle: string;
   boardType: ValidatedBoardType;
-  postContent: string;
   result: TemplateValidationResult;
 }
 
@@ -85,17 +84,6 @@ export const templateValidationDmEmbed = (
   fields.push({
     name: "Template (copy and fill in)",
     value: `\`\`\`\n${preFilledTemplate}\n\`\`\``,
-    inline: false,
-  });
-
-  const truncatedContent =
-    params.postContent.length > 500
-      ? params.postContent.slice(0, 500) + "..."
-      : params.postContent;
-
-  fields.push({
-    name: "Your Original Post",
-    value: `\`\`\`\n${truncatedContent}\n\`\`\``,
     inline: false,
   });
 
