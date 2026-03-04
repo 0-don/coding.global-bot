@@ -114,14 +114,14 @@ RESPONSE:
 - isValid: true if all required information is present (even in non-standard format)
 - missingFields: list ONLY the actually missing required fields by their template field name (empty array if valid)
 - suggestions: brief, friendly guidance on what to add or improve (empty string if perfect)
-- extractedFields: CRITICAL, you MUST extract values for every field you can find. Map each template field name to the value you found in the post. Use the EXACT template field names as keys (e.g. "Project Title", "Budget Range", "Required Skills", "Contact Method", etc.). Copy the relevant text from the post as the value. For missing fields, do NOT include them.
+- extractedFields: CRITICAL, you MUST extract values for every field you can find. Return as an array of {field, value} objects. Use the EXACT template field names for "field" (e.g. "Project Title", "Budget Range", "Required Skills", "Contact Method", etc.). Copy the relevant text from the post as "value". Only include fields that have extractable information.
 
 EXTRACTION EXAMPLES:
 Post: "Looking for a React dev to build a dashboard. Budget is $3k total. DM me."
-extractedFields: {"Project Title": "React dashboard", "Project Description": "Build a dashboard", "Required Skills": "React", "Budget Range": "$3k total", "Contact Method": "DM"}
+extractedFields: [{"field": "Project Title", "value": "React dashboard"}, {"field": "Project Description", "value": "Build a dashboard"}, {"field": "Required Skills", "value": "React"}, {"field": "Budget Range", "value": "$3k total"}, {"field": "Contact Method", "value": "DM"}]
 
 Post: "I know Python, JS, and Go. Senior level. Available 30h/week at $80/h. GitHub: github.com/user. DM for details."
-extractedFields: {"Skills/Expertise": "Python, JS, Go", "Experience Level": "Senior", "Availability": "30h/week", "Rate/Hour": "$80/h", "Portfolio Link": "github.com/user", "Contact Method": "DM"}`;
+extractedFields: [{"field": "Skills/Expertise", "value": "Python, JS, Go"}, {"field": "Experience Level", "value": "Senior"}, {"field": "Availability", "value": "30h/week"}, {"field": "Rate/Hour", "value": "$80/h"}, {"field": "Portfolio Link", "value": "github.com/user"}, {"field": "Contact Method", "value": "DM"}]`;
 
 const JOB_BOARD_TEMPLATE_FIELDS = [
   "Project Title",
@@ -176,8 +176,8 @@ Available tags: ${availableTagNames.join(", ")}
 Post content:
 "${postContent}"
 
-IMPORTANT: For extractedFields, you MUST extract a value for each of these fields if the information exists anywhere in the post or thread title: ${fieldsList}
-For each field, copy the relevant text from the post. Even short or partial matches count. Do NOT return an empty extractedFields object.`;
+IMPORTANT: For extractedFields, you MUST return an array of {field, value} objects for each of these fields if the information exists anywhere in the post or thread title: ${fieldsList}
+For each field, copy the relevant text from the post as value. Even short or partial matches count. Do NOT return an empty extractedFields array.`;
 }
 
 export function buildSpamContextText(context: SpamDetectionContext): string {
