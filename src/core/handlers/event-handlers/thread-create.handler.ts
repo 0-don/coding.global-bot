@@ -98,7 +98,8 @@ async function validateForumPost(
       threadName: thread.name,
       boardType,
       isValid: result.isValid,
-      missingFields: result.missingFields
+      missingFields: result.missingFields,
+      extractedFields: result.extractedFields
     });
 
     if (result.isValid) return true;
@@ -112,6 +113,7 @@ async function validateForumPost(
             templateValidationDmEmbed({
               postTitle: thread.name,
               boardType,
+              postContent,
               result
             })
           ]

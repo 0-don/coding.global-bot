@@ -7,6 +7,7 @@ import type { TemplateValidationResult } from "@/types";
 interface TemplateValidationDmParams {
   postTitle: string;
   boardType: ValidatedBoardType;
+  postContent: string;
   result: TemplateValidationResult;
 }
 
@@ -17,13 +18,31 @@ interface TemplateValidationNotificationParams {
   missingFields: string[];
 }
 
+function findExtractedValue(
+  field: string,
+  extractedFields: Record<string, string>,
+): string | undefined {
+  if (extractedFields[field]) return extractedFields[field];
+
+  const fieldLower = field.toLowerCase();
+  for (const [key, value] of Object.entries(extractedFields)) {
+    if (key.toLowerCase() === fieldLower) return value;
+    if (
+      key.toLowerCase().includes(fieldLower) ||
+      fieldLower.includes(key.toLowerCase())
+    )
+      return value;
+  }
+  return undefined;
+}
+
 function buildPreFilledTemplate(
   boardType: ValidatedBoardType,
   extractedFields: Record<string, string>,
 ): string {
   const board = BOARD_TEMPLATES[boardType];
   const lines = board.fields.map((field) => {
-    const value = extractedFields[field];
+    const value = findExtractedValue(field, extractedFields);
     return `**${field}:** ${value || "[FILL IN]"}`;
   });
   return lines.join("\n");
@@ -33,9 +52,18 @@ export const templateValidationDmEmbed = (
   params: TemplateValidationDmParams,
 ): APIEmbed => {
   const board = BOARD_TEMPLATES[params.boardType];
+
+  const enrichedFields = { ...params.result.extractedFields };
+  if (
+    params.boardType === "job-board" &&
+    !findExtractedValue("Project Title", enrichedFields)
+  ) {
+    enrichedFields["Project Title"] = params.postTitle;
+  }
+
   const preFilledTemplate = buildPreFilledTemplate(
     params.boardType,
-    params.result.extractedFields,
+    enrichedFields,
   );
 
   const fields: APIEmbed["fields"] = [
@@ -57,6 +85,17 @@ export const templateValidationDmEmbed = (
   fields.push({
     name: "Template (copy and fill in)",
     value: `\`\`\`\n${preFilledTemplate}\n\`\`\``,
+    inline: false,
+  });
+
+  const truncatedContent =
+    params.postContent.length > 500
+      ? params.postContent.slice(0, 500) + "..."
+      : params.postContent;
+
+  fields.push({
+    name: "Your Original Post",
+    value: `\`\`\`\n${truncatedContent}\n\`\`\``,
     inline: false,
   });
 
