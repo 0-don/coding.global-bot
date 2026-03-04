@@ -47,22 +47,38 @@ function extractFieldsFromContent(
   const lines = postContent.split("\n").map((l) => l.trim()).filter(Boolean);
 
   for (const field of board.fields) {
-    const pattern = new RegExp(
-      `\\*\\*${field.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&")}\\s*:?\\*\\*\\s*(.+)`,
-      "i",
-    );
+    const escaped = field.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&");
+    // Match variations: **Field:** val, **Field**: val, **Field** : val, Field: val
+    const patterns = [
+      new RegExp(`\\*\\*${escaped}\\s*:\\*\\*\\s*(.+)`, "i"),
+      new RegExp(`\\*\\*${escaped}\\*\\*\\s*:?\\s*(.+)`, "i"),
+      new RegExp(`${escaped}\\s*:\\s*(.+)`, "i"),
+    ];
+
     for (const line of lines) {
-      const match = line.match(pattern);
-      if (match?.[1]?.trim()) {
-        extracted[field] = match[1].trim();
-        break;
+      let matched = false;
+      for (const pattern of patterns) {
+        const match = line.match(pattern);
+        if (match?.[1]?.trim()) {
+          extracted[field] = match[1].trim();
+          matched = true;
+          break;
+        }
       }
+      if (matched) break;
     }
   }
 
   if (boardType === "job-board" && !extracted["Project Title"] && postTitle) {
     extracted["Project Title"] = postTitle;
   }
+
+  botLogger.info("[TemplateValidation] Regex extraction result", {
+    boardType,
+    contentLines: lines.length,
+    extractedKeys: Object.keys(extracted),
+    extracted
+  });
 
   return extracted;
 }
@@ -85,27 +101,28 @@ export const templateValidationDmEmbed = (
   const board = BOARD_TEMPLATES[params.boardType];
 
   const aiFields = params.result.extractedFields;
-  const hasAiFields = Object.keys(aiFields).length > 0;
+  const regexFields = extractFieldsFromContent(
+    params.boardType,
+    params.postContent,
+    params.postTitle,
+  );
 
-  const fallbackFields = hasAiFields
-    ? aiFields
-    : extractFieldsFromContent(params.boardType, params.postContent, params.postTitle);
+  // Merge: regex first, AI overwrites (AI is more accurate when it works)
+  const enrichedFields = { ...regexFields, ...aiFields };
 
-  botLogger.info("[TemplateValidation] Building DM embed", {
-    source: hasAiFields ? "ai" : "regex_fallback",
-    aiFieldCount: Object.keys(aiFields).length,
-    fallbackFieldCount: Object.keys(fallbackFields).length,
-    fallbackFieldKeys: Object.keys(fallbackFields),
-    fallbackFields
-  });
-
-  const enrichedFields = { ...fallbackFields };
   if (
     params.boardType === "job-board" &&
     !findExtractedValue("Project Title", enrichedFields)
   ) {
     enrichedFields["Project Title"] = params.postTitle;
   }
+
+  botLogger.info("[TemplateValidation] Building DM embed", {
+    aiFieldCount: Object.keys(aiFields).length,
+    regexFieldCount: Object.keys(regexFields).length,
+    mergedFieldCount: Object.keys(enrichedFields).length,
+    mergedFieldKeys: Object.keys(enrichedFields),
+  });
 
   const preFilledTemplate = buildPreFilledTemplate(
     params.boardType,
