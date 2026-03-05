@@ -10,6 +10,8 @@ interface TemplateValidationDmParams {
   boardType: ValidatedBoardType;
   postContent: string;
   result: TemplateValidationResult;
+  strikes: number;
+  maxStrikes: number;
 }
 
 interface TemplateValidationNotificationParams {
@@ -156,10 +158,15 @@ export const templateValidationDmEmbed = (
     inline: false,
   });
 
+  const remainingStrikes = params.maxStrikes - params.strikes;
+  const strikeWarning = remainingStrikes <= 0
+    ? `\n\n**You have been jailed for repeated violations (${params.strikes}/${params.maxStrikes} strikes).**`
+    : `\n\n**Strike ${params.strikes}/${params.maxStrikes}.** You will be jailed after ${remainingStrikes} more removal${remainingStrikes === 1 ? "" : "s"}.`;
+
   return {
     color: RED_COLOR,
     title: "Post Removed: Missing Required Information",
-    description: `Your post **"${params.postTitle}"** in the **${board.label}** was removed because it is missing required information.\n\nPlease repost with the missing fields filled in.`,
+    description: `Your post **"${params.postTitle}"** in the **${board.label}** was removed because it is missing required information.\n\nPlease repost with the missing fields filled in.${strikeWarning}`,
     fields,
     timestamp: new Date().toISOString(),
     footer: {
