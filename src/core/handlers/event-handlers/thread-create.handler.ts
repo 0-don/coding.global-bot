@@ -4,6 +4,7 @@ import {
   templateValidationNotificationEmbed
 } from "@/core/embeds/template-validation.embed";
 import { AiTemplateService } from "@/core/services/ai/ai-template.service";
+import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
 import { botLogger } from "@/lib/telemetry";
 import type { ValidatedBoardType } from "@/shared/ai/prompts";
@@ -15,6 +16,11 @@ import type { AnyThreadChannel } from "discord.js";
 import { ChannelType, TextChannel, ThreadChannel } from "discord.js";
 
 const VALIDATED_BOARDS: ValidatedBoardType[] = ["job-board", "dev-board"];
+
+// In-memory counter for post removal strikes per user
+// Key: `${guildId}:${userId}`, Value: removal count
+const removalStrikes = new Map<string, number>();
+const MAX_STRIKES = 3;
 
 function isValidatedBoard(type: string): type is ValidatedBoardType {
   return VALIDATED_BOARDS.includes(type as ValidatedBoardType);
@@ -136,6 +142,17 @@ async function validateForumPost(
 
     const ownerId = thread.ownerId;
     if (ownerId) {
+      // Track removal strikes
+      const strikeKey = `${thread.guildId}:${ownerId}`;
+      const currentStrikes = (removalStrikes.get(strikeKey) || 0) + 1;
+      removalStrikes.set(strikeKey, currentStrikes);
+
+      botLogger.info("[TemplateValidation] Strike recorded", {
+        ownerId,
+        strikes: currentStrikes,
+        maxStrikes: MAX_STRIKES,
+      });
+
       let dmSent = false;
       let username = "unknown";
       let displayName = "Unknown";
@@ -150,7 +167,9 @@ async function validateForumPost(
               postTitle: thread.name,
               boardType,
               postContent,
-              result
+              result,
+              strikes: currentStrikes,
+              maxStrikes: MAX_STRIKES,
             })
           ]
         });
@@ -167,10 +186,36 @@ async function validateForumPost(
         threadName: thread.name,
         ownerId,
         dmSent,
+        strikes: currentStrikes,
         missingFields: result.missingFields
       });
 
       await sendNotification(thread, boardType, ownerId, username, displayName, result);
+
+      // Auto-jail user after MAX_STRIKES removals
+      if (currentStrikes >= MAX_STRIKES) {
+        botLogger.warn("[TemplateValidation] Auto-jailing user after repeated violations", {
+          ownerId,
+          strikes: currentStrikes,
+        });
+
+        try {
+          const owner = await thread.guild.members.fetch(ownerId).catch(() => null);
+          await DeleteUserMessagesService.deleteUserMessages({
+            guild: thread.guild,
+            user: owner?.user || null,
+            memberId: ownerId,
+            jail: true,
+            reason: `Auto-jailed: ${currentStrikes} post removals from validated boards`,
+          });
+          removalStrikes.delete(strikeKey);
+        } catch (jailError) {
+          botLogger.error("[TemplateValidation] Failed to auto-jail user", {
+            ownerId,
+            error: String(jailError),
+          });
+        }
+      }
     }
 
     try {
