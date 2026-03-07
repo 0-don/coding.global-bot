@@ -152,6 +152,14 @@ export const templateValidationDmEmbed = (
     });
   }
 
+  if (params.result.scamRisk && params.result.scamRisk !== "low" && params.result.scamReason) {
+    fields.push({
+      name: "Notice",
+      value: params.result.scamReason,
+      inline: false,
+    });
+  }
+
   fields.push({
     name: "Template (copy and fill in)",
     value: `\`\`\`\n${preFilledTemplate}\n\`\`\``,
@@ -166,7 +174,7 @@ export const templateValidationDmEmbed = (
   return {
     color: RED_COLOR,
     title: "Post Removed: Missing Required Information",
-    description: `Your post **"${params.postTitle}"** in the **${board.label}** was removed because it is missing required information.\n\nPlease repost with the missing fields filled in.${strikeWarning}`,
+    description: `Your post **"${params.postTitle}"** in the **${board.label}** was removed because it is missing the following required information: **${params.result.missingFields.join(", ")}**.\n\nPlease repost with the missing fields filled in.${strikeWarning}`,
     fields,
     timestamp: new Date().toISOString(),
     footer: {
