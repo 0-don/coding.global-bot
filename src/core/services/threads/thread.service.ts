@@ -13,6 +13,7 @@ import { log } from "console";
 import type { Attachment } from "discord.js";
 import {
   ChannelType,
+  DiscordAPIError,
   ForumChannel,
   GuildForumTag,
   Message,
@@ -99,15 +100,20 @@ export class ThreadService {
     }
   }
 
-  static async syncThreadMessages(thread: ThreadChannel): Promise<void> {
+  static async syncThreadMessages(discordThread: ThreadChannel): Promise<void> {
     try {
-      const messages = await thread.messages.fetch();
+      const messages = await discordThread.messages.fetch();
       for (const message of messages.values()) {
         await this.upsertThreadMessage(message);
       }
     } catch (error) {
+      if (error instanceof DiscordAPIError && error.code === 10003) {
+        log(`[ThreadService] Channel ${discordThread.id} no longer exists, cleaning up DB records`);
+        await this.deleteThread(discordThread.id);
+        return;
+      }
       log(
-        `[ThreadService] syncThreadMessages failed for thread ${thread.id}:`,
+        `[ThreadService] syncThreadMessages failed for thread ${discordThread.id}:`,
         error,
       );
     }

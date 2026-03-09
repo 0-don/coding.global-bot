@@ -42,14 +42,20 @@ export async function handleThreadCreate(
 
   await ThreadService.upsertTags(thread.guildId, thread.parent.availableTags);
 
-  await ThreadService.upsertThread(thread, threadType, { syncMessages: true });
+  if (newlyCreated && isValidatedBoard(threadType)) {
+    // Upsert thread without syncing messages first, validation may delete the thread
+    await ThreadService.upsertThread(thread, threadType);
+
+    const isValid = await validateForumPost(thread, threadType);
+    if (!isValid) return;
+
+    // Only sync messages after validation passes
+    await ThreadService.syncThreadMessages(thread);
+  } else {
+    await ThreadService.upsertThread(thread, threadType, { syncMessages: true });
+  }
 
   if (newlyCreated) {
-    if (isValidatedBoard(threadType)) {
-      const isValid = await validateForumPost(thread, threadType);
-      if (!isValid) return;
-    }
-
     try {
       const embed = simpleEmbedExample();
       embed.description = getThreadWelcomeMessage(
@@ -228,6 +234,9 @@ async function validateForumPost(
         error: String(deleteError)
       });
     }
+
+    // Clean up DB records for the deleted thread
+    await ThreadService.deleteThread(thread.id);
 
     return false;
   } catch (error) {
