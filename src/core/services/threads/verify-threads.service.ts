@@ -287,8 +287,9 @@ export class SyncAllThreadsService {
         hasMore = messages.size === PAGE_SIZE;
       } catch (err) {
         const code = (err as { code?: number }).code;
-        // Thread/channel was deleted, stop syncing
+        // Thread/channel was deleted, stop syncing and clean up DB records
         if (code === UNKNOWN_CHANNEL || code === UNKNOWN_MESSAGE) {
+          await ThreadService.deleteThread(thread.id);
           return;
         }
         throw err;

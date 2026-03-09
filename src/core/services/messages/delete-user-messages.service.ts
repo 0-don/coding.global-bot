@@ -1,5 +1,6 @@
 import { userJailedEmbed } from "@/core/embeds/user-jailed.embed";
 import { RolesService } from "@/core/services/roles/roles.service";
+import { ThreadService } from "@/core/services/threads/thread.service";
 import { db } from "@/lib/db";
 import { member, memberRole } from "@/lib/db-schema";
 import { and, eq, ne } from "drizzle-orm";
@@ -7,6 +8,7 @@ import { JAIL } from "@/shared/config/roles";
 import type { DeleteUserMessagesParams } from "@/types";
 import {
   ChannelType,
+  DiscordAPIError,
   ForumChannel,
   Guild,
   GuildTextBasedChannel,
@@ -14,7 +16,7 @@ import {
   ThreadChannel,
   User,
 } from "discord.js";
-import { error } from "node:console";
+import { error, log } from "node:console";
 
 export class DeleteUserMessagesService {
   static async deleteUserMessages(params: DeleteUserMessagesParams) {
@@ -65,18 +67,38 @@ export class DeleteUserMessagesService {
     }
 
     const deleteMessages = async (channel: GuildTextBasedChannel) => {
-      const messages = await channel.messages.fetch({ limit: 100 });
-      const userMessages = messages.filter(
-        (m) => m.author.id === params.memberId,
-      );
-      if (userMessages.size > 0)
-        await channel.bulkDelete(userMessages, true).catch(error);
+      try {
+        const messages = await channel.messages.fetch({ limit: 100 });
+        const userMessages = messages.filter(
+          (m) => m.author.id === params.memberId,
+        );
+        if (userMessages.size > 0)
+          await channel.bulkDelete(userMessages, true);
+      } catch (err) {
+        if (err instanceof DiscordAPIError && err.code === 10003) {
+          log(`[DeleteUserMessages] Channel ${channel.id} no longer exists, cleaning up DB records`);
+          if (channel.isThread()) await ThreadService.deleteThread(channel.id);
+          return;
+        }
+        error(err);
+      }
     };
 
     const processThread = async (thread: ThreadChannel) => {
-      if (thread.ownerId === params.memberId)
-        return void (await thread.delete().catch(error));
-      await deleteMessages(thread as GuildTextBasedChannel);
+      try {
+        if (thread.ownerId === params.memberId) {
+          await thread.delete();
+          return;
+        }
+        await deleteMessages(thread as GuildTextBasedChannel);
+      } catch (err) {
+        if (err instanceof DiscordAPIError && err.code === 10003) {
+          log(`[DeleteUserMessages] Thread ${thread.id} no longer exists, cleaning up DB records`);
+          await ThreadService.deleteThread(thread.id);
+          return;
+        }
+        error(err);
+      }
     };
 
     for (const channel of params.guild.channels.cache.values()) {
