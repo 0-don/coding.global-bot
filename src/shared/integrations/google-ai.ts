@@ -56,9 +56,18 @@ function getAPICallError(error: unknown): InstanceType<typeof APICallError> | nu
 type ErrorCategory = "rate_limit" | "key_error" | "non_retryable" | "unknown";
 
 function categorizeError(error: unknown): ErrorCategory {
+  // Check message first, since Gemini wraps download failures in various HTTP statuses
+  const message = error instanceof Error ? error.message : String(error);
+
+  if (message.includes("Failed to download") || message.includes("INVALID_ARGUMENT")) return "non_retryable";
+
   const apiError = getAPICallError(error);
 
   if (apiError) {
+    // Also check response body for download failures (Gemini wraps them in 4xx/5xx)
+    const body = apiError.responseBody || "";
+    if (body.includes("Failed to download")) return "non_retryable";
+
     // HTTP status-based detection
     if (apiError.statusCode === 429) return "rate_limit";
     if (apiError.statusCode === 403) return "key_error";
@@ -66,13 +75,9 @@ function categorizeError(error: unknown): ErrorCategory {
     if (apiError.statusCode === 400) return "non_retryable";
 
     // Response body-based detection for ambiguous status codes
-    const body = apiError.responseBody || "";
     if (body.includes("RESOURCE_EXHAUSTED") || body.includes("rateLimitExceeded")) return "rate_limit";
     if (body.includes("API_KEY_INVALID") || body.includes("PERMISSION_DENIED")) return "key_error";
   }
-
-  // Fallback to message-based detection
-  const message = error instanceof Error ? error.message : String(error);
 
   if (message.includes("429") || message.includes("RESOURCE_EXHAUSTED") ||
       message.includes("quota") || message.includes("overloaded") ||
@@ -80,8 +85,6 @@ function categorizeError(error: unknown): ErrorCategory {
 
   if (message.includes("API_KEY_INVALID") || message.includes("API key not valid") ||
       message.includes("PERMISSION_DENIED")) return "key_error";
-
-  if (message.includes("Failed to download") || message.includes("INVALID_ARGUMENT")) return "non_retryable";
 
   return "unknown";
 }
