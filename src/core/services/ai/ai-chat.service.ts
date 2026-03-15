@@ -3,7 +3,7 @@ import {
   extractImageUrls,
 } from "@/shared/ai/attachment-processor";
 import { CHAT_SYSTEM_PROMPT } from "@/shared/ai/prompts";
-import { googleClient } from "@/shared/integrations/google-ai";
+import { googleClient, ImageDownloadError } from "@/shared/integrations/google-ai";
 import { botLogger } from "@/lib/telemetry";
 import { generateText, ModelMessage, stepCountIs } from "ai";
 import { Message } from "discord.js";
@@ -39,21 +39,37 @@ export class AiChatService {
     const messageImages = await extractImageUrls(message);
     const allImages = [...messageImages, ...repliedImages];
 
-    const userMessage = this.buildUserMessage(fullMessage, allImages);
+    let userMessage = this.buildUserMessage(fullMessage, allImages);
     const messages = channelMessages.get(message.channel.id) || [];
     messages.push(userMessage);
 
-    const result = await googleClient.executeWithRotation(async (model) => {
-      return generateText({
-        model,
-        system: CHAT_SYSTEM_PROMPT,
-        messages: [...messages],
-        tools,
-        stopWhen: stepCountIs(3),
-        maxOutputTokens: 1024,
-        maxRetries: 0,
+    const runAI = async () => {
+      return googleClient.executeWithRotation(async (model) => {
+        return generateText({
+          model,
+          system: CHAT_SYSTEM_PROMPT,
+          messages: [...messages],
+          tools,
+          stopWhen: stepCountIs(3),
+          maxOutputTokens: 1024,
+          maxRetries: 0,
+        });
       });
-    });
+    };
+
+    let result;
+    try {
+      result = await runAI();
+    } catch (error) {
+      if (error instanceof ImageDownloadError) {
+        botLogger.warn("Retrying AI request without images");
+        userMessage = this.buildUserMessage(fullMessage, []);
+        messages[messages.length - 1] = userMessage;
+        result = await runAI();
+      } else {
+        throw error;
+      }
+    }
 
     if (!result) {
       botLogger.warn("AI returned null result");

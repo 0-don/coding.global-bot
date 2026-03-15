@@ -53,20 +53,28 @@ function getAPICallError(error: unknown): InstanceType<typeof APICallError> | nu
   return null;
 }
 
-type ErrorCategory = "rate_limit" | "key_error" | "non_retryable" | "unknown";
+type ErrorCategory = "rate_limit" | "key_error" | "non_retryable" | "image_download" | "unknown";
+
+export class ImageDownloadError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ImageDownloadError";
+  }
+}
 
 function categorizeError(error: unknown): ErrorCategory {
   // Check message first, since Gemini wraps download failures in various HTTP statuses
   const message = error instanceof Error ? error.message : String(error);
 
-  if (message.includes("Failed to download") || message.includes("INVALID_ARGUMENT")) return "non_retryable";
+  if (message.includes("Failed to download")) return "image_download";
+  if (message.includes("INVALID_ARGUMENT")) return "non_retryable";
 
   const apiError = getAPICallError(error);
 
   if (apiError) {
     // Also check response body for download failures (Gemini wraps them in 4xx/5xx)
     const body = apiError.responseBody || "";
-    if (body.includes("Failed to download")) return "non_retryable";
+    if (body.includes("Failed to download")) return "image_download";
 
     // HTTP status-based detection
     if (apiError.statusCode === 429) return "rate_limit";
@@ -175,6 +183,11 @@ class GoogleClientRotator {
             category: lastCategory,
             message,
           });
+
+          if (lastCategory === "image_download") {
+            botLogger.warn("Image download failed, caller should retry without images");
+            throw new ImageDownloadError(message);
+          }
 
           if (lastCategory === "non_retryable") {
             botLogger.warn("Non-retryable error, stopping");
