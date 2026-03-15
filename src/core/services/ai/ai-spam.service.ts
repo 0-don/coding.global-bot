@@ -1,5 +1,6 @@
 import { buildSpamContextText, SPAM_SYSTEM_PROMPT } from "@/shared/ai/prompts";
-import { googleClient } from "@/shared/integrations/google-ai";
+import { googleClient, ImageDownloadError } from "@/shared/integrations/google-ai";
+import { botLogger } from "@/lib/telemetry";
 import type { SpamDetectionContext, SpamDetectionResult } from "@/types";
 import { generateText, Output } from "ai";
 import { z } from "zod";
@@ -11,33 +12,48 @@ export class AiSpamService {
   ): Promise<SpamDetectionResult | null> {
     const contextText = buildSpamContextText(context);
 
-    const result = await googleClient.executeWithRotation(async (model) => {
-      return await generateText({
-        model,
-        system: SPAM_SYSTEM_PROMPT,
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: contextText },
-              ...images.map((url) => ({
-                type: "image" as const,
-                image: url,
-              })),
-            ],
-          },
+    const buildMessages = (imgs: string[]) => [
+      {
+        role: "user" as const,
+        content: [
+          { type: "text" as const, text: contextText },
+          ...imgs.map((url) => ({
+            type: "image" as const,
+            image: url,
+          })),
         ],
-        output: Output.object({
-          schema: z.object({
-            isSpam: z.boolean(),
-            confidence: z.enum(["high", "medium", "low"]),
-            reason: z.string(),
+      },
+    ];
+
+    const runAI = (msgs: ReturnType<typeof buildMessages>) =>
+      googleClient.executeWithRotation(async (model) => {
+        return await generateText({
+          model,
+          system: SPAM_SYSTEM_PROMPT,
+          messages: msgs,
+          output: Output.object({
+            schema: z.object({
+              isSpam: z.boolean(),
+              confidence: z.enum(["high", "medium", "low"]),
+              reason: z.string(),
+            }),
           }),
-        }),
-        temperature: 0.1,
-        maxRetries: 0,
+          temperature: 0.1,
+          maxRetries: 0,
+        });
       });
-    });
+
+    let result;
+    try {
+      result = await runAI(buildMessages(images));
+    } catch (error) {
+      if (error instanceof ImageDownloadError) {
+        botLogger.warn("Retrying spam analysis without images");
+        result = await runAI(buildMessages([]));
+      } else {
+        throw error;
+      }
+    }
 
     if (!result) {
       return null;
