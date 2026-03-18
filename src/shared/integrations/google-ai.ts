@@ -1,8 +1,8 @@
+import { botLogger } from "@/lib/telemetry";
 import {
   createGoogleGenerativeAI,
-  type GoogleGenerativeAIProvider,
+  type GoogleGenerativeAIProvider
 } from "@ai-sdk/google";
-import { botLogger } from "@/lib/telemetry";
 import { APICallError, RetryError } from "ai";
 
 type RawModelId = Parameters<GoogleGenerativeAIProvider>[0];
@@ -15,13 +15,15 @@ type ModelId = RawModelId extends infer T
   : never;
 
 const FALLBACK_MODELS: ModelId[] = [
+  "gemini-3.1-flash-lite-preview",
+  "gemini-3.1-pro-preview",
   "gemini-3-flash-preview",
   "gemini-2.5-flash",
   "gemini-2.5-flash-lite",
   "gemini-2.0-flash",
   "gemini-3-pro-preview",
-  "gemini-2.5-pro",
-]
+  "gemini-2.5-pro"
+];
 
 function getApiKeys() {
   const keys =
@@ -45,15 +47,25 @@ function maskApiKey(key: string): string {
   return `${key.slice(0, 6)}...${key.slice(-6)}`;
 }
 
-function getAPICallError(error: unknown): InstanceType<typeof APICallError> | null {
+function getAPICallError(
+  error: unknown
+): InstanceType<typeof APICallError> | null {
   if (APICallError.isInstance(error)) return error;
-  if (RetryError.isInstance(error) && APICallError.isInstance(error.lastError)) {
+  if (
+    RetryError.isInstance(error) &&
+    APICallError.isInstance(error.lastError)
+  ) {
     return error.lastError;
   }
   return null;
 }
 
-type ErrorCategory = "rate_limit" | "key_error" | "non_retryable" | "image_download" | "unknown";
+type ErrorCategory =
+  | "rate_limit"
+  | "key_error"
+  | "non_retryable"
+  | "image_download"
+  | "unknown";
 
 export class ImageDownloadError extends Error {
   constructor(message: string) {
@@ -83,16 +95,30 @@ function categorizeError(error: unknown): ErrorCategory {
     if (apiError.statusCode === 400) return "non_retryable";
 
     // Response body-based detection for ambiguous status codes
-    if (body.includes("RESOURCE_EXHAUSTED") || body.includes("rateLimitExceeded")) return "rate_limit";
-    if (body.includes("API_KEY_INVALID") || body.includes("PERMISSION_DENIED")) return "key_error";
+    if (
+      body.includes("RESOURCE_EXHAUSTED") ||
+      body.includes("rateLimitExceeded")
+    )
+      return "rate_limit";
+    if (body.includes("API_KEY_INVALID") || body.includes("PERMISSION_DENIED"))
+      return "key_error";
   }
 
-  if (message.includes("429") || message.includes("RESOURCE_EXHAUSTED") ||
-      message.includes("quota") || message.includes("overloaded") ||
-      message.includes("The model is overloaded")) return "rate_limit";
+  if (
+    message.includes("429") ||
+    message.includes("RESOURCE_EXHAUSTED") ||
+    message.includes("quota") ||
+    message.includes("overloaded") ||
+    message.includes("The model is overloaded")
+  )
+    return "rate_limit";
 
-  if (message.includes("API_KEY_INVALID") || message.includes("API key not valid") ||
-      message.includes("PERMISSION_DENIED")) return "key_error";
+  if (
+    message.includes("API_KEY_INVALID") ||
+    message.includes("API key not valid") ||
+    message.includes("PERMISSION_DENIED")
+  )
+    return "key_error";
 
   return "unknown";
 }
@@ -112,7 +138,7 @@ class GoogleClientRotator {
       this.currentKeyIndex = (this.currentKeyIndex + 1) % this.providers.length;
       botLogger.info("Rotated API key", {
         keyIndex: this.currentKeyIndex + 1,
-        totalKeys: this.providers.length,
+        totalKeys: this.providers.length
       });
     }
   }
@@ -124,7 +150,7 @@ class GoogleClientRotator {
       botLogger.info("Rotated model", {
         model: FALLBACK_MODELS[this.currentModelIndex],
         modelIndex: this.currentModelIndex + 1,
-        totalModels: FALLBACK_MODELS.length,
+        totalModels: FALLBACK_MODELS.length
       });
       return true;
     }
@@ -132,7 +158,9 @@ class GoogleClientRotator {
   }
 
   async executeWithRotation<T>(
-    operation: (model: ReturnType<GoogleClientRotator["getModel"]>) => Promise<T>,
+    operation: (
+      model: ReturnType<GoogleClientRotator["getModel"]>
+    ) => Promise<T>
   ): Promise<T | null> {
     if (this.providers.length === 0) {
       botLogger.error("No API keys configured");
@@ -147,7 +175,7 @@ class GoogleClientRotator {
     botLogger.info("Starting AI request", {
       model: FALLBACK_MODELS[this.currentModelIndex],
       keyIndex: this.currentKeyIndex + 1,
-      totalKeys: this.providers.length,
+      totalKeys: this.providers.length
     });
 
     do {
@@ -158,34 +186,38 @@ class GoogleClientRotator {
           const model = this.getModel();
           const result = await operation(model);
           // Treat empty text responses as failures - continue rotating
-          const hasContent = result && typeof result === "object" && "text" in result
-            ? !!(result as { text?: string }).text?.trim()
-            : !!result;
+          const hasContent =
+            result && typeof result === "object" && "text" in result
+              ? !!(result as { text?: string }).text?.trim()
+              : !!result;
           if (!hasContent) {
             botLogger.warn("Empty response, rotating", {
-              model: FALLBACK_MODELS[this.currentModelIndex],
+              model: FALLBACK_MODELS[this.currentModelIndex]
             });
             this.rotateKey();
             continue;
           }
           botLogger.info("AI request succeeded", {
-            model: FALLBACK_MODELS[this.currentModelIndex],
+            model: FALLBACK_MODELS[this.currentModelIndex]
           });
           return result;
         } catch (error) {
           lastError = error;
-          const message = error instanceof Error ? error.message : String(error);
+          const message =
+            error instanceof Error ? error.message : String(error);
           lastCategory = categorizeError(error);
 
           botLogger.error("AI error", {
             model: FALLBACK_MODELS[this.currentModelIndex],
             keyIndex: this.currentKeyIndex + 1,
             category: lastCategory,
-            message,
+            message
           });
 
           if (lastCategory === "image_download") {
-            botLogger.warn("Image download failed, caller should retry without images");
+            botLogger.warn(
+              "Image download failed, caller should retry without images"
+            );
             throw new ImageDownloadError(message);
           }
 
@@ -197,7 +229,9 @@ class GoogleClientRotator {
           if (lastCategory === "key_error") {
             const expiredKey = getApiKeys()[this.currentKeyIndex];
             if (expiredKey) {
-              botLogger.warn("API key invalid", { key: maskApiKey(expiredKey) });
+              botLogger.warn("API key invalid", {
+                key: maskApiKey(expiredKey)
+              });
             }
           }
 
@@ -225,7 +259,7 @@ class GoogleClientRotator {
 
     botLogger.warn("All models and keys exhausted", {
       totalModels: FALLBACK_MODELS.length,
-      totalKeys: this.providers.length,
+      totalKeys: this.providers.length
     });
     const finalMessage =
       lastError instanceof Error ? lastError.message : String(lastError);
