@@ -64,6 +64,9 @@ export class AiChatService {
       if (error instanceof ImageDownloadError) {
         botLogger.warn("Retrying AI request without images");
         userMessage = this.buildUserMessage(fullMessage, []);
+        for (let i = 0; i < messages.length; i++) {
+          messages[i] = this.stripImagesFromMessage(messages[i]);
+        }
         messages[messages.length - 1] = userMessage;
         result = await runAI();
       } else {
@@ -85,9 +88,8 @@ export class AiChatService {
       hasSteps: !!steps?.length,
     });
 
-    const history = channelMessages.get(message.channel.id) || [];
-    history.push(userMessage, { role: "assistant", content: responseText });
-    channelMessages.set(message.channel.id, history);
+    messages.push({ role: "assistant", content: responseText });
+    channelMessages.set(message.channel.id, messages);
 
     return {
       text: responseText,
@@ -122,6 +124,20 @@ export class AiChatService {
       };
     }
     return { role: "user", content: text };
+  }
+
+  private static stripImagesFromMessage(msg: ModelMessage): ModelMessage {
+    if (Array.isArray(msg.content)) {
+      const filtered = (msg.content as any[]).filter(
+        (part) => part.type !== "image",
+      );
+      if (filtered.length === 0) return { role: "user", content: "" };
+      if (filtered.length === 1 && filtered[0].type === "text") {
+        return { role: "user", content: filtered[0].text } as ModelMessage;
+      }
+      return { role: "user", content: filtered } as ModelMessage;
+    }
+    return msg;
   }
 
   private static stripFakeGifUrls(text: string): string {
