@@ -21,82 +21,61 @@
 
 ### Prerequisites
 
-1. **Discord Bot Token** - Follow this [YouTube tutorial](https://www.youtube.com/watch?v=aI4OmIbkJH8) to create a Discord bot and get your token
-2. **Database** - Set up a PostgreSQL database using [Neon.tech](https://neon.tech) (recommended) or your preferred provider
+1. **Discord Bot Token** from the [Discord Developer Portal](https://discord.com/developers/applications)
+2. **PostgreSQL** database (run one locally, use Docker, or any hosted provider)
+3. **Bun** runtime
 
-### Database Setup with Neon
+### Getting Started
 
-1. **Create a Neon Account**
-   - Go to [Neon.tech](https://neon.tech) and sign up for a free account
-   - Create a new project and give it a name (e.g., "coding-global-bot")
+1. Copy `.env.example` to `.env` and fill in your bot token and database credentials.
 
-2. **Get Database Connection String**
-   - In your Neon dashboard, go to your project
-   - Navigate to the "Connection Details" section
-   - Copy the connection string (it looks like: `postgresql://username:password@host/database?sslmode=require`)
-
-3. **Configure Environment Variables**
-   Create a `.env` file from the `.env.example` template and fill in the required variables:
-
-4. **Install Dependencies & Run Migrations**
+2. Install dependencies and push the database schema:
    ```sh
    bun install
    bun run db:push
+   ```
+
+3. Start the bot:
+   ```sh
    bun run dev
    ```
-   run `/verify-all-users` to verify all users in the server and the db.
 
-### Slash Commands
+4. Run `!verify-users` in Discord to sync all server members with the database.
 
----
+### Commands
 
-- **/verify-all-users**
-  - **Description**: Important for the first run, this command verifies all users in the server.
+#### Public
 
-- **/delete-messages**
-  - **Description**: Deletes messages from a channel.
-  - **Options**:
-    - **amount**: Delete message history.
+| Command | Description | Options |
+| --- | --- | --- |
+| `/me` | Get your stats | |
+| `/user` | Get stats from a specific user | `user` |
+| `/top` | Get top stats for the guild | `lookback` (optional) |
+| `/members` | Member flow and count | |
+| `/translate` | Translate text to English | `text` |
+| `/lookback-me` | Change your lookback date range | `lookback` |
 
-- **/me**
-  - **Description**: Get your stats.
+#### Mod (Manage Roles)
 
-- **/members**
-  - **Description**: Member flow and count of the past.
+| Command | Description | Options |
+| --- | --- | --- |
+| `/delete-messages` | Delete messages from a channel | `amount` |
+| `/delete-user-messages` | Delete messages from a specific user | `user`, `user-id`, `jail`, `reason` |
+| `/delete-member-db` | Remove a member from the server database | `user` |
+| `/lookback-members` | Change lookback date range for the guild | `lookback` |
+| `/log-command-history` | Show command history | `count` (optional) |
+| `/log-deleted-messages-history` | Show deleted messages | `count` (optional) |
 
-- **/top**
-  - **Description**: Get top user stats.
+#### Admin
 
-- **/translate**
-  - **Description**: Translate text to English.
-  - **Options**:
-    - **text**: The text to translate.
+| Command | Description | Options |
+| --- | --- | --- |
+| `/troll-move-user` | Move user around empty voice channels | `user`, `count`, `timeout` |
+| `/audit-roles` | Audit all roles for elevated permissions | |
 
-- **/troll-move-user**
-  - **Description**: Troll move user around empty voice channels.
-  - **Options**:
-    - **user**: Select either user which should be moved.
+#### Prefix Commands
 
-- **/user**
-  - **Description**: Get stats from a specific user.
-  - **Options**:
-    - **user**: Select the user whose stats should be shown.
-
-### restore db
-
-```sh
-docker exec -i coding-global-bot-db pg_restore -U postgres -c -d coding-global-bot -v < ~/coding-global-bot-latest.sql.gz
-```
-
-### backup raw db / restore raw db
-
-```sh
-docker exec -ti coding-global-bot-db pg_dump -U postgres coding-global-bot > coding-global-bot.sql
-
-cat coding-global-bot.sql | docker exec -i coding-global-bot-db psql -U postgres -d coding-global-bot
-```
-
-<!-- SELECT last_value FROM public."GuildVoiceEvents_id_seq"; -->
-<!-- SELECT setval('public."GuildVoiceEvents_id_seq"', 51980, false); -->
-<!-- GIT_COMMITTER_DATE="2024-06-09T12:00:00" git commit --amend --no-edit --date "2024-06-09T12:00:00" -->
-
+| Command | Description |
+| --- | --- |
+| `!verify-users` | Sync all server members with the database |
+| `!verify-threads` | Sync thread templates |
