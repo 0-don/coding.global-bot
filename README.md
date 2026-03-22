@@ -30,12 +30,14 @@
 1. Copy `.env.example` to `.env` and fill in your bot token and database credentials.
 
 2. Install dependencies and push the database schema:
+
    ```sh
    bun install
    bun run db:push
    ```
 
 3. Start the bot:
+
    ```sh
    bun run dev
    ```
@@ -44,38 +46,38 @@
 
 ### Commands
 
+#### Prefix Commands
+
+| Command           | Description                                                       |
+| ----------------- | ----------------------------------------------------------------- |
+| `!verify-users`   | Sync all server members with the database (required on first run) |
+| `!verify-threads` | Sync thread templates                                             |
+
 #### Public
 
-| Command | Description | Options |
-| --- | --- | --- |
-| `/me` | Get your stats | |
-| `/user` | Get stats from a specific user | `user` |
-| `/top` | Get top stats for the guild | `lookback` (optional) |
-| `/members` | Member flow and count | |
-| `/translate` | Translate text to English | `text` |
-| `/lookback-me` | Change your lookback date range | `lookback` |
+| Command        | Description                     | Options               |
+| -------------- | ------------------------------- | --------------------- |
+| `/me`          | Get your stats                  |                       |
+| `/user`        | Get stats from a specific user  | `user`                |
+| `/top`         | Get top stats for the guild     | `lookback` (optional) |
+| `/members`     | Member flow and count           |                       |
+| `/translate`   | Translate text to English       | `text`                |
+| `/lookback-me` | Change your lookback date range | `lookback`            |
 
 #### Mod (Manage Roles)
 
-| Command | Description | Options |
-| --- | --- | --- |
-| `/delete-messages` | Delete messages from a channel | `amount` |
-| `/delete-user-messages` | Delete messages from a specific user | `user`, `user-id`, `jail`, `reason` |
-| `/delete-member-db` | Remove a member from the server database | `user` |
-| `/lookback-members` | Change lookback date range for the guild | `lookback` |
-| `/log-command-history` | Show command history | `count` (optional) |
-| `/log-deleted-messages-history` | Show deleted messages | `count` (optional) |
+| Command                         | Description                              | Options                             |
+| ------------------------------- | ---------------------------------------- | ----------------------------------- |
+| `/delete-messages`              | Delete messages from a channel           | `amount`                            |
+| `/delete-user-messages`         | Delete messages from a specific user     | `user`, `user-id`, `jail`, `reason` |
+| `/delete-member-db`             | Remove a member from the server database | `user`                              |
+| `/lookback-members`             | Change lookback date range for the guild | `lookback`                          |
+| `/log-command-history`          | Show command history                     | `count` (optional)                  |
+| `/log-deleted-messages-history` | Show deleted messages                    | `count` (optional)                  |
 
 #### Admin
 
-| Command | Description | Options |
-| --- | --- | --- |
-| `/troll-move-user` | Move user around empty voice channels | `user`, `count`, `timeout` |
-| `/audit-roles` | Audit all roles for elevated permissions | |
-
-#### Prefix Commands
-
-| Command | Description |
-| --- | --- |
-| `!verify-users` | Sync all server members with the database |
-| `!verify-threads` | Sync thread templates |
+| Command            | Description                              | Options                    |
+| ------------------ | ---------------------------------------- | -------------------------- |
+| `/troll-move-user` | Move user around empty voice channels    | `user`, `count`, `timeout` |
+| `/audit-roles`     | Audit all roles for elevated permissions |                            |
