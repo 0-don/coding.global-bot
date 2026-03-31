@@ -5,36 +5,38 @@ import { ConfigValidator } from "@/shared/config/validator";
 import { StatsService } from "@/core/services/stats/stats.service";
 import { bot } from "@/main";
 
-const TENOR_API_KEY = process.env.TENOR_API_KEY;
-const TENOR_BASE_URL = "https://tenor.googleapis.com/v2/search";
+const KLIPY_API_KEY = process.env.KLIPY_API_KEY;
+const KLIPY_BASE_URL = `https://api.klipy.com/api/v1/${KLIPY_API_KEY}/gifs/search`;
 
 async function searchGifs(query: string, limit: number = 5): Promise<string[]> {
-  if (!TENOR_API_KEY) {
-    botLogger.warn("TENOR_API_KEY not configured - GIF search disabled");
+  if (!KLIPY_API_KEY) {
+    botLogger.warn("KLIPY_API_KEY not configured - GIF search disabled");
     return [];
   }
 
   try {
     const params = new URLSearchParams({
       q: query,
-      key: TENOR_API_KEY,
-      limit: limit.toString(),
-      contentfilter: "off",
-      media_filter: "gif",
-      random: "true",
+      per_page: limit.toString(),
+      content_filter: "off",
+      format_filter: "gif",
+      customer_id: "coding-global-bot",
     });
 
-    const response = await fetch(`${TENOR_BASE_URL}?${params}`);
+    const response = await fetch(`${KLIPY_BASE_URL}?${params}`);
 
     if (!response.ok) {
-      throw new Error(`Tenor API error: ${response.status}`);
+      throw new Error(`Klipy API error: ${response.status}`);
     }
 
-    const data = await response.json() as { results?: Array<{ media_formats?: { gif?: { url?: string } } }> };
+    const data = await response.json() as {
+      result?: boolean;
+      data?: { data?: Array<{ file?: { md?: { gif?: { url?: string } } } }> };
+    };
 
     return (
-      data.results
-        ?.map((result: any) => result.media_formats?.gif?.url)
+      data.data?.data
+        ?.map((result: any) => result.file?.md?.gif?.url)
         .filter(Boolean) || []
     );
   } catch (error) {
@@ -141,7 +143,7 @@ export const searchMemeGifs = tool({
     query: z.string().describe("Search query for the GIF"),
   }),
   execute: async ({ query }: { query: string }) => {
-    if (!ConfigValidator.isFeatureEnabled("TENOR_API_KEY")) {
+    if (!ConfigValidator.isFeatureEnabled("KLIPY_API_KEY")) {
       return { success: false, error: "GIF search not available" };
     }
 
