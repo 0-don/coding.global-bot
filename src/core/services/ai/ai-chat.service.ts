@@ -145,6 +145,7 @@ export class AiChatService {
     return text
       .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
       .replace(/https?:\/\/media\.tenor\.com\/[^\s)>\]]+/gi, "")
+      .replace(/https?:\/\/[^\s)>\]]*klipy\.com\/[^\s)>\]]+/gi, "")
       .replace(/https?:\/\/[^\s)>\]]*giphy\.[^\s)>\]]+/gi, "")
       .replace(/https?:\/\/[^\s)>\]]*\.gif(?:\?[^\s)>\]]*)?/gi, "")
       .replace(/\n{3,}/g, "\n\n")

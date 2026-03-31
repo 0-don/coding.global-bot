@@ -20,7 +20,7 @@ export class ConfigValidator {
       feature: "AI Chat & Spam Detection",
     },
     {
-      key: "TENOR_API_KEY",
+      key: "KLIPY_API_KEY",
       required: false,
       feature: "GIF Search",
     },
