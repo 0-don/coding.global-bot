@@ -11,29 +11,9 @@ import { apiLogger } from "@/lib/telemetry";
 import { cors } from "@elysiajs/cors";
 import { node } from "@elysiajs/node";
 import { fromTypes, openapi } from "@elysiajs/openapi";
-import { opentelemetry } from "@elysiajs/opentelemetry";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
-import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { Elysia } from "elysia";
 
 export const app = new Elysia({ adapter: node() })
-  .use(
-    process.env.POSTHOG_KEY
-      ? opentelemetry({
-          serviceName: "coding-global-bot-api",
-          spanProcessors: [
-            new BatchSpanProcessor(
-              new OTLPTraceExporter({
-                url: "https://eu.i.posthog.com/i/v1/traces",
-                headers: {
-                  Authorization: `Bearer ${process.env.POSTHOG_KEY}`,
-                },
-              }),
-            ),
-          ],
-        })
-      : (app: Elysia) => app,
-  )
   .use(
     openapi({
       documentation: {

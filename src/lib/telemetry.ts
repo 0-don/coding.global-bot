@@ -1,53 +1,47 @@
 import "@dotenvx/dotenvx/config";
-import { logs, SeverityNumber } from "@opentelemetry/api-logs";
-import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
-import { resourceFromAttributes } from "@opentelemetry/resources";
-import { BatchLogRecordProcessor } from "@opentelemetry/sdk-logs";
-import { NodeSDK } from "@opentelemetry/sdk-node";
+import { PostHog } from "posthog-node";
 
 const isDev = !process.env.NODE_ENV || process.env.NODE_ENV === "development";
-let sdk: NodeSDK | null = null;
 
-if (!isDev && process.env.POSTHOG_KEY) {
-  sdk = new NodeSDK({
-    resource: resourceFromAttributes({ "service.name": "coding-global-bot" }),
-    // @ts-ignore
-    logRecordProcessor: new BatchLogRecordProcessor(
-      new OTLPLogExporter({
-        url: "https://eu.i.posthog.com/i/v1/logs",
-        headers: { Authorization: `Bearer ${process.env.POSTHOG_KEY}` },
-      }),
-    ),
-  });
-  sdk.start();
-}
+const posthog =
+  !isDev && process.env.POSTHOG_KEY
+    ? new PostHog(process.env.POSTHOG_KEY, {
+        host: "https://eu.i.posthog.com",
+        flushAt: 10,
+        flushInterval: 5000,
+      })
+    : null;
 
-export const shutdownTelemetry = () => sdk?.shutdown();
-
-const severityMap = {
-  debug: SeverityNumber.DEBUG,
-  info: SeverityNumber.INFO,
-  warn: SeverityNumber.WARN,
-  error: SeverityNumber.ERROR,
-} as const;
+export const shutdownTelemetry = () => posthog?.shutdown();
 
 export function getLogger(name: string) {
-  const logger = logs.getLogger(name);
   const emit = (
-    level: keyof typeof severityMap,
+    level: "debug" | "info" | "warn" | "error",
     msg: string,
     attrs?: Record<string, unknown>,
   ) => {
-    if (!isDev && sdk) {
-      logger.emit({
-        severityNumber: severityMap[level],
-        severityText: level.toUpperCase(),
-        body: msg,
-        attributes: attrs as Record<string, string | number | boolean>,
+    if (posthog) {
+      posthog.capture({
+        distinctId: name,
+        event: "bot_log",
+        properties: {
+          severity: level.toUpperCase(),
+          message: msg,
+          service: name,
+          ...attrs,
+        },
       });
     }
-    const prefix = level === "error" ? "ERR" : level === "warn" ? "WRN" : level === "debug" ? "DBG" : "INF";
-    const stream = level === "error" || level === "warn" ? process.stderr : process.stdout;
+    const prefix =
+      level === "error"
+        ? "ERR"
+        : level === "warn"
+          ? "WRN"
+          : level === "debug"
+            ? "DBG"
+            : "INF";
+    const stream =
+      level === "error" || level === "warn" ? process.stderr : process.stdout;
     stream.write(`${prefix} ${JSON.stringify({ name, msg, ...attrs })}\n`);
   };
   return {

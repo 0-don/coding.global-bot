@@ -18,15 +18,6 @@
     "@elysiajs/cors": "1.4.1",
     "@elysiajs/node": "1.4.5",
     "@elysiajs/openapi": "1.4.14",
-    "@elysiajs/opentelemetry": "1.4.10",
-    "@opentelemetry/api-logs": "0.214.0",
-    "@opentelemetry/exporter-logs-otlp-http": "0.214.0",
-    "@opentelemetry/exporter-trace-otlp-proto": "0.214.0",
-    "@opentelemetry/resources": "2.6.1",
-    "@opentelemetry/sdk-logs": "0.214.0",
-    "@opentelemetry/sdk-node": "0.214.0",
-    "@opentelemetry/sdk-trace-node": "2.6.1",
-    "@opentelemetry/semantic-conventions": "1.40.0",
     "ai": "6.0.143",
     "dayjs": "1.11.20",
     "deepl-node": "1.25.0",
@@ -36,6 +27,7 @@
     "drizzle-typebox": "0.3.3",
     "elysia": "1.4.28",
     "lru-cache": "11.2.7",
+    "posthog-node": "5.28.11",
     "postgres": "3.4.8"
   },
   "devDependencies": {
