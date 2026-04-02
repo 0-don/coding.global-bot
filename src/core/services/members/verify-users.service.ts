@@ -92,12 +92,12 @@ export class VerifyAllUsersService {
         const tag = `${discordMember.user.username} (${discordMember.id})`;
 
         try {
-          // Check if member has jail or voiceonly role in DB
+          // Check if member has jail or voiceonly role in DB or on Discord
           const jailRoleId = statusRoles[JAIL]?.id;
           const voiceOnlyRoleId = statusRoles[VOICE_ONLY]?.id;
           const restrictedRoleIds = [jailRoleId, voiceOnlyRoleId].filter(Boolean) as string[];
 
-          const restrictedRole = restrictedRoleIds.length > 0
+          const restrictedDbRole = restrictedRoleIds.length > 0
             ? await db.query.memberRole.findFirst({
                 where: and(
                   eq(memberRole.memberId, discordMember.id),
@@ -107,8 +107,18 @@ export class VerifyAllUsersService {
               })
             : null;
 
-          if (restrictedRole) {
-            const keepRoleId = restrictedRole.roleId;
+          // Also check Discord roles directly (DB might not be synced)
+          const restrictedDiscordRoleId = restrictedRoleIds.find(
+            (id) => discordMember.roles.cache.has(id),
+          );
+
+          // Prefer jail over voiceonly if both somehow exist
+          const keepRoleId =
+            (jailRoleId && (restrictedDbRole?.roleId === jailRoleId || restrictedDiscordRoleId === jailRoleId))
+              ? jailRoleId
+              : restrictedDbRole?.roleId ?? restrictedDiscordRoleId ?? null;
+
+          if (keepRoleId) {
 
             // Remove ALL other roles from Discord, keep only the restricted role
             const rolesToRemove = discordMember.roles.cache
