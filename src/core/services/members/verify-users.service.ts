@@ -1,9 +1,9 @@
 import { MemberDataService } from "@/core/services/members/member-data.service";
 import { RolesService } from "@/core/services/roles/roles.service";
 import { db } from "@/lib/db";
-import { guild, memberGuild, syncProgress } from "@/lib/db-schema";
-import { and, eq } from "drizzle-orm";
-import { STATUS_ROLES, VERIFIED } from "@/shared/config/roles";
+import { guild, memberGuild, memberRole, syncProgress } from "@/lib/db-schema";
+import { and, eq, inArray, ne } from "drizzle-orm";
+import { JAIL, STATUS_ROLES, VERIFIED, VOICE_ONLY } from "@/shared/config/roles";
 import { logTs } from "@/shared/utils/date.utils";
 import {
   Collection,
@@ -92,13 +92,62 @@ export class VerifyAllUsersService {
         const tag = `${discordMember.user.username} (${discordMember.id})`;
 
         try {
-          await MemberDataService.updateCompleteMemberData(discordMember);
-          if (statusRoles[VERIFIED]) {
-            const roleId = statusRoles[VERIFIED]!.id;
-            if (!discordMember.roles.cache.has(roleId)) {
-              const role = discordGuild.roles.cache.get(roleId);
-              if (role?.editable) await discordMember.roles.add(roleId);
+          // Check if member has jail or voiceonly role in DB
+          const jailRoleId = statusRoles[JAIL]?.id;
+          const voiceOnlyRoleId = statusRoles[VOICE_ONLY]?.id;
+          const restrictedRoleIds = [jailRoleId, voiceOnlyRoleId].filter(Boolean) as string[];
+
+          const restrictedRole = restrictedRoleIds.length > 0
+            ? await db.query.memberRole.findFirst({
+                where: and(
+                  eq(memberRole.memberId, discordMember.id),
+                  eq(memberRole.guildId, discordGuild.id),
+                  inArray(memberRole.roleId, restrictedRoleIds),
+                ),
+              })
+            : null;
+
+          if (restrictedRole) {
+            const keepRoleId = restrictedRole.roleId;
+
+            // Remove ALL other roles from Discord, keep only the restricted role
+            const rolesToRemove = discordMember.roles.cache
+              .filter((r) => r.id !== discordGuild.id && r.id !== keepRoleId && r.editable)
+              .map((r) => r.id);
+            for (const roleId of rolesToRemove) {
+              await discordMember.roles.remove(roleId);
             }
+            if (!discordMember.roles.cache.has(keepRoleId)) {
+              const role = discordGuild.roles.cache.get(keepRoleId);
+              if (role?.editable) await discordMember.roles.add(keepRoleId);
+            }
+
+            // Clean DB roles: delete all except the restricted role
+            await db.delete(memberRole)
+              .where(
+                and(
+                  eq(memberRole.memberId, discordMember.id),
+                  eq(memberRole.guildId, discordGuild.id),
+                  ne(memberRole.roleId, keepRoleId),
+                ),
+              );
+          } else {
+            // Not restricted: remove other status roles, add verified, then regular sync
+            for (const statusName of STATUS_ROLES) {
+              if (statusName === VERIFIED) continue;
+              const role = statusRoles[statusName];
+              if (role && discordMember.roles.cache.has(role.id) && role.editable) {
+                await discordMember.roles.remove(role.id);
+              }
+            }
+            if (statusRoles[VERIFIED]) {
+              const verifiedId = statusRoles[VERIFIED]!.id;
+              if (!discordMember.roles.cache.has(verifiedId)) {
+                const role = discordGuild.roles.cache.get(verifiedId);
+                if (role?.editable) await discordMember.roles.add(verifiedId);
+              }
+            }
+            await MemberDataService.updateCompleteMemberData(discordMember);
           }
           processedIds.add(discordMember.id);
           logTs(
