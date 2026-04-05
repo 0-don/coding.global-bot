@@ -13,27 +13,27 @@
     "db:introspect": "drizzle-kit introspect"
   },
   "dependencies": {
-    "@ai-sdk/google": "3.0.55",
+    "@ai-sdk/google": "3.0.58",
     "@discordx/importer": "1.3.3",
     "@elysiajs/cors": "1.4.1",
     "@elysiajs/node": "1.4.5",
     "@elysiajs/openapi": "1.4.14",
-    "ai": "6.0.143",
+    "ai": "6.0.146",
     "dayjs": "1.11.20",
     "deepl-node": "1.25.0",
-    "discord.js": "14.26.0",
+    "discord.js": "14.26.2",
     "discordx": "11.13.3",
     "drizzle-orm": "0.45.2",
     "drizzle-typebox": "0.3.3",
     "elysia": "1.4.28",
     "lru-cache": "11.2.7",
     "posthog-node": "5.28.11",
-    "postgres": "3.4.8"
+    "postgres": "3.4.9"
   },
   "devDependencies": {
     "@dotenvx/dotenvx": "1.59.1",
     "@types/bun": "1.3.11",
-    "@types/node": "25.5.0",
+    "@types/node": "25.5.2",
     "drizzle-kit": "0.31.10",
     "prettier": "3.8.1",
     "tsup": "8.5.1",

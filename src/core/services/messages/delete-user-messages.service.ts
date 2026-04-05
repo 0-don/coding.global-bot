@@ -3,20 +3,22 @@ import { RolesService } from "@/core/services/roles/roles.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
 import { db } from "@/lib/db";
 import { member, memberRole } from "@/lib/db-schema";
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { JAIL } from "@/shared/config/roles";
 import type { DeleteUserMessagesParams } from "@/types";
 import {
   ChannelType,
   DiscordAPIError,
-  ForumChannel,
   Guild,
-  GuildTextBasedChannel,
   TextChannel,
-  ThreadChannel,
   User,
 } from "discord.js";
+import { Routes } from "discord-api-types/v10";
+import type { APIMessageSearchResult, APIMessage } from "discord-api-types/v10";
 import { error, log } from "node:console";
+
+const SEARCH_LIMIT = 25;
+const BULK_DELETE_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
 
 export class DeleteUserMessagesService {
   static async deleteUserMessages(params: DeleteUserMessagesParams) {
@@ -66,70 +68,121 @@ export class DeleteUserMessagesService {
       }
     }
 
-    const deleteMessages = async (channel: GuildTextBasedChannel) => {
-      try {
-        const messages = await channel.messages.fetch({ limit: 100 });
-        const userMessages = messages.filter(
-          (m) => m.author.id === params.memberId,
-        );
-        if (userMessages.size > 0)
-          await channel.bulkDelete(userMessages, true);
-      } catch (err) {
-        if (err instanceof DiscordAPIError && err.code === 10003) {
-          log(`[DeleteUserMessages] Channel ${channel.id} no longer exists, cleaning up DB records`);
-          if (channel.isThread()) await ThreadService.deleteThread(channel.id);
-          return;
-        }
-        error(err);
-      }
-    };
+    await this.deleteMessagesViaSearch(params);
+  }
 
-    const processThread = async (thread: ThreadChannel) => {
-      try {
-        if (thread.ownerId === params.memberId) {
-          await thread.delete();
-          return;
-        }
-        await deleteMessages(thread as GuildTextBasedChannel);
-      } catch (err) {
-        if (err instanceof DiscordAPIError && err.code === 10003) {
-          log(`[DeleteUserMessages] Thread ${thread.id} no longer exists, cleaning up DB records`);
-          await ThreadService.deleteThread(thread.id);
-          return;
-        }
-        error(err);
-      }
-    };
+  /**
+   * Uses the guild message search API to find and delete all messages by a user,
+   * instead of iterating every channel individually.
+   */
+  private static async deleteMessagesViaSearch(params: DeleteUserMessagesParams) {
+    const rest = params.guild.client.rest;
+    const deletedThreadIds = new Set<string>();
+    let offset = 0;
 
-    for (const channel of params.guild.channels.cache.values()) {
-      if (channel.type === ChannelType.GuildForum) {
-        const threads = await (channel as ForumChannel).threads
-          .fetchActive()
-          .catch(error);
-        if (threads) {
-          for (const thread of threads.threads.values()) {
-            await processThread(thread).catch(error);
+    for (;;) {
+      let result: APIMessageSearchResult;
+      try {
+        result = await rest.get(
+          Routes.guildMessagesSearch(params.guild.id),
+          { query: new URLSearchParams({ author_id: params.memberId, limit: String(SEARCH_LIMIT), offset: String(offset) }) },
+        ) as APIMessageSearchResult;
+      } catch (err) {
+        // 202 means search index not ready yet, retry once after delay
+        if (err instanceof DiscordAPIError && err.status === 202) {
+          log(`[DeleteUserMessages] Search index not ready, retrying after delay`);
+          await new Promise((r) => setTimeout(r, 3000));
+          try {
+            result = await rest.get(
+              Routes.guildMessagesSearch(params.guild.id),
+              { query: new URLSearchParams({ author_id: params.memberId, limit: String(SEARCH_LIMIT), offset: String(offset) }) },
+            ) as APIMessageSearchResult;
+          } catch {
+            log(`[DeleteUserMessages] Search index still not ready, aborting`);
+            return;
+          }
+        } else {
+          error(`[DeleteUserMessages] Search API error:`, err);
+          return;
+        }
+      }
+
+      const messages = result.messages.flat();
+      if (messages.length === 0) break;
+
+      // Delete threads owned by this user
+      const threadIds = (result.threads || [])
+        .filter((t) => t.owner_id === params.memberId)
+        .map((t) => t.id);
+
+      for (const threadId of threadIds) {
+        if (deletedThreadIds.has(threadId)) continue;
+        try {
+          const thread = params.guild.channels.cache.get(threadId);
+          if (thread) await thread.delete();
+          else await rest.delete(Routes.channel(threadId));
+          deletedThreadIds.add(threadId);
+          await ThreadService.deleteThread(threadId);
+        } catch (err) {
+          if (err instanceof DiscordAPIError && err.code === 10003) {
+            await ThreadService.deleteThread(threadId);
+          } else {
+            error(`[DeleteUserMessages] Failed to delete thread ${threadId}:`, err);
           }
         }
-      } else if (
-        [
-          ChannelType.GuildText,
-          ChannelType.GuildAnnouncement,
-          ChannelType.GuildVoice,
-          ChannelType.GuildStageVoice,
-          ChannelType.GuildMedia,
-        ].includes(channel.type)
-      ) {
-        await deleteMessages(channel as GuildTextBasedChannel).catch(error);
-      } else if (
-        [
-          ChannelType.PublicThread,
-          ChannelType.PrivateThread,
-          ChannelType.AnnouncementThread,
-        ].includes(channel.type)
-      ) {
-        await processThread(channel as ThreadChannel).catch(error);
       }
+
+      // Group remaining messages by channel for bulk deletion
+      const messagesByChannel = new Map<string, APIMessage[]>();
+      for (const msg of messages) {
+        // Skip messages in threads we already deleted
+        if (deletedThreadIds.has(msg.channel_id)) continue;
+        const existing = messagesByChannel.get(msg.channel_id) || [];
+        existing.push(msg);
+        messagesByChannel.set(msg.channel_id, existing);
+      }
+
+      for (const [channelId, channelMessages] of messagesByChannel) {
+        try {
+          const now = Date.now();
+          const recentIds = channelMessages
+            .filter((m) => now - new Date(m.timestamp).getTime() < BULK_DELETE_AGE_MS)
+            .map((m) => m.id);
+          const oldIds = channelMessages
+            .filter((m) => now - new Date(m.timestamp).getTime() >= BULK_DELETE_AGE_MS)
+            .map((m) => m.id);
+
+          // Bulk delete recent messages (2+ required for bulk delete endpoint)
+          if (recentIds.length >= 2) {
+            const channel = params.guild.channels.cache.get(channelId);
+            if (channel && "bulkDelete" in channel) {
+              await (channel as TextChannel).bulkDelete(recentIds, true).catch(error);
+            }
+          } else if (recentIds.length === 1) {
+            oldIds.push(recentIds[0]);
+          }
+
+          // Delete old messages individually
+          for (const msgId of oldIds) {
+            await rest.delete(Routes.channelMessage(channelId, msgId)).catch(error);
+          }
+        } catch (err) {
+          if (err instanceof DiscordAPIError && err.code === 10003) {
+            log(`[DeleteUserMessages] Channel ${channelId} no longer exists, cleaning up`);
+          } else {
+            error(`[DeleteUserMessages] Error deleting messages in ${channelId}:`, err);
+          }
+        }
+      }
+
+      // If we got fewer results than the limit, we've reached the end
+      if (messages.length < SEARCH_LIMIT) break;
+
+      // Don't increase offset since we're deleting messages, which shifts results.
+      // But if deletion fails for some, we'd loop forever, so bump offset by how
+      // many messages were in threads we skipped (not deleted individually).
+      const skipped = messages.filter((m) => deletedThreadIds.has(m.channel_id)).length;
+      offset += skipped;
     }
   }
 
