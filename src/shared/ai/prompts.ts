@@ -105,6 +105,28 @@ Optional:
 
 WRONG BOARD CHECK: If someone posts on the Dev Board but they are HIRING or looking for someone to work for them (e.g. "looking for a developer", "need someone to build", "I need a dev"), mark as invalid with suggestion: "This board is for developers offering their services. To hire a developer, please post in the Job Board instead."
 
+=== SHOWCASE (for sharing coding projects) ===
+Required information:
+- Project Name (what the project is called, can be the thread title)
+- Description (what it does and why they built it, at least 1-2 sentences of real detail)
+- Tech Stack (specific languages, frameworks, or tools used)
+- Link (GitHub repo, live demo URL, or at minimum a screenshot/attachment)
+
+Optional:
+- Key Features
+- Challenges Overcome
+- Screenshots/Demos
+
+WRONG BOARD CHECK: If someone posts on the Showcase but they are HIRING developers, looking for work, offering paid services, or seeking collaborators for hire, mark as invalid with suggestion: "This board is for showcasing projects. To hire a developer, use the Job Board. To offer your services, use the Dev Board."
+
+SHOWCASE REJECTION CRITERIA (always mark as invalid):
+- Product advertisements or SaaS marketing copy (promotional language like "The Ultimate Platform!", "Introducing X!", referral links with ?ref= or affiliate parameters)
+- Hiring requests, job seeking, or recruiting posts
+- Empty or extremely low effort posts (just "game", "oh", "check it out" with no description)
+- Surveys, Google Forms, upvote/ProductHunt requests
+- Posts with only a local file path (file:///) and no actual hosted link
+- Posts that are clearly advertising a commercial product rather than showcasing something they built
+
 VALIDATION RULES:
 - Be LENIENT with format: information can be stated in any format, not just template headings
 - A post that says "I charge $50/h" satisfies the rate requirement even without the heading
@@ -112,7 +134,8 @@ VALIDATION RULES:
 - The thread title can satisfy the Project Title requirement
 - Only mark as invalid if KEY required information is genuinely missing
 - If the post has most required fields but is missing 1 optional field, still mark as valid
-- Tags are informational only, do not fail validation based on tags
+- Tags are informational only, do not fail validation based on tags (showcase has no tags)
+- For showcase: a YouTube video link counts as a valid link, an itch.io link counts as a valid link
 - One liner posts with no real detail should always fail (e.g. "Looking to hire someone to make bot" or "we can discuss by dm")
 - "DM me" counts as a contact method
 - "Negotiable" counts as a rate/budget ONLY on the Dev Board (not on Job Board where a concrete number is needed)
@@ -149,7 +172,10 @@ Post: "Looking for a React dev to build a dashboard. Budget is $3k total. DM me.
 extractedFields: [{"field": "Project Title", "value": "React dashboard"}, {"field": "Project Description", "value": "Build a dashboard"}, {"field": "Required Skills", "value": "React"}, {"field": "Budget Range", "value": "$3k total"}, {"field": "Contact Method", "value": "DM"}]
 
 Post: "I know Python, JS, and Go. Senior level. Available 30h/week at $80/h. GitHub: github.com/user. DM for details."
-extractedFields: [{"field": "Skills/Expertise", "value": "Python, JS, Go"}, {"field": "Experience Level", "value": "Senior"}, {"field": "Availability", "value": "30h/week"}, {"field": "Rate/Hour", "value": "$80/h"}, {"field": "Portfolio Link", "value": "github.com/user"}, {"field": "Contact Method", "value": "DM"}]`;
+extractedFields: [{"field": "Skills/Expertise", "value": "Python, JS, Go"}, {"field": "Experience Level", "value": "Senior"}, {"field": "Availability", "value": "30h/week"}, {"field": "Rate/Hour", "value": "$80/h"}, {"field": "Portfolio Link", "value": "github.com/user"}, {"field": "Contact Method", "value": "DM"}]
+
+Post: "Clippy is a modern clipboard manager with global hotkeys and smart search. Built with Rust (Tauri), SolidJS, and SQLite. GitHub: github.com/0-don/clippy"
+extractedFields: [{"field": "Project Name", "value": "Clippy"}, {"field": "Description", "value": "A modern clipboard manager with global hotkeys and smart search"}, {"field": "Tech Stack", "value": "Rust (Tauri), SolidJS, SQLite"}, {"field": "Link", "value": "github.com/0-don/clippy"}]`;
 
 const JOB_BOARD_TEMPLATE_FIELDS = [
   "Project Title",
@@ -171,6 +197,13 @@ const DEV_BOARD_TEMPLATE_FIELDS = [
   "Previous Projects/Examples"
 ] as const;
 
+const SHOWCASE_TEMPLATE_FIELDS = [
+  "Project Name",
+  "Description",
+  "Tech Stack",
+  "Link"
+] as const;
+
 export const BOARD_TEMPLATES = {
   "job-board": {
     label: "Job Board",
@@ -181,6 +214,11 @@ export const BOARD_TEMPLATES = {
     label: "Dev Board",
     fields: DEV_BOARD_TEMPLATE_FIELDS,
     template: `**Skills/Expertise:**\n**Experience Level:** Junior / Mid / Senior / Expert\n**Availability:**\n**Rate/Hour:**\n**Contact Method:**\n**Portfolio Link:**\n**Previous Projects/Examples:**`
+  },
+  "showcase": {
+    label: "Showcase",
+    fields: SHOWCASE_TEMPLATE_FIELDS,
+    template: `**Project Name:**\n**Description:** What it does and why you built it\n**Tech Stack:**\n**Link:** GitHub, live demo, or screenshot`
   }
 } as const;
 
@@ -196,16 +234,18 @@ export function buildTemplateContextText(
   const board = BOARD_TEMPLATES[boardType];
   const fieldsList = board.fields.map((f) => `"${f}"`).join(", ");
 
+  const tagInfo = boardType === "showcase"
+    ? ""
+    : `\nApplied tags: ${appliedTagNames.length > 0 ? appliedTagNames.join(", ") : "none"}\nAvailable tags: ${availableTagNames.join(", ")}`;
+
   return `Board type: ${boardType} (${board.label})
-Thread title: "${threadTitle}"
-Applied tags: ${appliedTagNames.length > 0 ? appliedTagNames.join(", ") : "none"}
-Available tags: ${availableTagNames.join(", ")}
+Thread title: "${threadTitle}"${tagInfo}
 
 Post content:
 "${postContent}"
 
 IMPORTANT: For extractedFields, you MUST return an array of {field, value} objects for each of these fields if the information exists anywhere in the post or thread title: ${fieldsList}
-For each field, copy the relevant text from the post as value. Even short or partial matches count. Do NOT return an empty extractedFields array.`;
+For each field, copy the relevant text from the post as value. Even short or partial matches count. Do NOT return an empty extractedFields array.${boardType === "showcase" ? `\nFor showcase: the thread title can satisfy the Project Name requirement.` : ""}`;
 }
 
 export function buildSpamContextText(context: SpamDetectionContext): string {
