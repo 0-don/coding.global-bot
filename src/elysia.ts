@@ -7,6 +7,7 @@ import { statsRoutes } from "@/api/routes/stats.routes";
 import { threadRoutes } from "@/api/routes/thread.routes";
 import { userRoutes } from "@/api/routes/user.routes";
 import { widgetRoutes } from "@/api/routes/widget.routes";
+import { adminRoutes } from "@/api/routes/admin.routes";
 import { apiLogger } from "@/lib/telemetry";
 import { cors } from "@elysiajs/cors";
 import { node } from "@elysiajs/node";
@@ -45,6 +46,7 @@ export const app = new Elysia({ adapter: node() })
   .use(threadRoutes)
   .use(statsRoutes)
   .use(userRoutes)
+  .use(adminRoutes)
   .listen(4000, () => {
     apiLogger.info("Elysia server started", { port: 4000 });
   });

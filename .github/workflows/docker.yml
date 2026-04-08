@@ -48,6 +48,7 @@ jobs:
           echo SHOULD_USER_LEVEL_UP=${{ secrets.SHOULD_USER_LEVEL_UP }} >> .env
           echo BOT_ICON=${{ secrets.BOT_ICON }} >> .env
 
+          echo ADMIN_API_KEY=${{ secrets.ADMIN_API_KEY }} >> .env
           echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env
 
       - name: Docker run
