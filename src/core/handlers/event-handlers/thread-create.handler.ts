@@ -15,7 +15,7 @@ import { ConfigValidator } from "@/shared/config/validator";
 import type { AnyThreadChannel } from "discord.js";
 import { ChannelType, TextChannel, ThreadChannel } from "discord.js";
 
-const VALIDATED_BOARDS: ValidatedBoardType[] = ["job-board", "dev-board"];
+const VALIDATED_BOARDS: ValidatedBoardType[] = ["job-board", "dev-board", "showcase"];
 
 // In-memory counter for post removal strikes per user
 // Key: `${guildId}:${userId}`, Value: removal count

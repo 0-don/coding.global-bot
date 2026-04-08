@@ -1,5 +1,5 @@
 import type { APIEmbed } from "discord.js";
-import { BOT_ICON, RED_COLOR, YELLOW_COLOR } from "@/shared/config/branding";
+import { BOT_ICON, RED_COLOR, YELLOW_COLOR, GREEN_COLOR } from "@/shared/config/branding";
 import { BOARD_TEMPLATES } from "@/shared/ai/prompts";
 import type { ValidatedBoardType } from "@/shared/ai/prompts";
 import { botLogger } from "@/lib/telemetry";
@@ -24,6 +24,23 @@ interface TemplateValidationNotificationParams {
   summary: string;
   scamRisk: "low" | "medium" | "high";
   scamReason: string;
+}
+
+const DM_EMBED_COLORS = [
+  0x5865f2, // blurple
+  0xeb459e, // fuchsia
+  0xed4245, // red
+  0xfee75c, // yellow
+  0x57f287, // green
+  0xe67e22, // orange
+  0x9b59b6, // purple
+  0x1abc9c, // teal
+  0x3498db, // blue
+  0xe91e63, // pink
+];
+
+function randomDmColor(): number {
+  return DM_EMBED_COLORS[Math.floor(Math.random() * DM_EMBED_COLORS.length)];
 }
 
 function findExtractedValue(
@@ -124,6 +141,13 @@ export const templateValidationDmEmbed = (
     enrichedFields["Project Title"] = params.postTitle;
   }
 
+  if (
+    params.boardType === "showcase" &&
+    !findExtractedValue("Project Name", enrichedFields)
+  ) {
+    enrichedFields["Project Name"] = params.postTitle;
+  }
+
   botLogger.info("[TemplateValidation] Building DM embed", {
     aiFieldCount: Object.keys(aiFields).length,
     regexFieldCount: Object.keys(regexFields).length,
@@ -172,7 +196,7 @@ export const templateValidationDmEmbed = (
     : `\n\n**Strike ${params.strikes}/${params.maxStrikes}.** You will be jailed after ${remainingStrikes} more removal${remainingStrikes === 1 ? "" : "s"}.`;
 
   return {
-    color: RED_COLOR,
+    color: randomDmColor(),
     title: "Post Removed: Missing Required Information",
     description: `Your post **"${params.postTitle}"** in the **${board.label}** was removed because it is missing the following required information: **${params.result.missingFields.join(", ")}**.\n\nPlease repost with the missing fields filled in.${strikeWarning}`,
     fields,
@@ -197,7 +221,7 @@ export const templateValidationNotificationEmbed = (
 
   const color = params.scamRisk === "high" ? RED_COLOR
     : params.scamRisk === "medium" ? YELLOW_COLOR
-    : RED_COLOR;
+    : GREEN_COLOR;
 
   const fields: APIEmbed["fields"] = [
     {
