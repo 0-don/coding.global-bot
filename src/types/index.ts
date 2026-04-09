@@ -19,6 +19,7 @@ export type StatusRoles = (typeof STATUS_ROLES)[number];
 export type CommandResult = {
   success: boolean;
   error?: string;
+  message?: string;
 };
 
 export type EmbedResult = { embed: APIEmbed } | { error: string };

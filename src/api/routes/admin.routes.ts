@@ -51,7 +51,7 @@ export const adminRoutes = new Elysia()
       const discordMember = guild.members.cache.get(params.memberId)
         ?? await guild.members.fetch(params.memberId).catch(() => null);
 
-      await DeleteUserMessagesService.deleteUserMessages({
+      await DeleteUserMessagesService.jailAndDeleteMessages({
         guild,
         user: discordMember?.user || null,
         memberId: params.memberId,

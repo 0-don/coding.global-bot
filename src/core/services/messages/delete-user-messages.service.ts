@@ -2,7 +2,7 @@ import { userJailedEmbed } from "@/core/embeds/user-jailed.embed";
 import { RolesService } from "@/core/services/roles/roles.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
 import { db } from "@/lib/db";
-import { member, memberRole } from "@/lib/db-schema";
+import { member, memberGuild, memberRole } from "@/lib/db-schema";
 import { and, eq } from "drizzle-orm";
 import { JAIL } from "@/shared/config/roles";
 import type { DeleteUserMessagesParams } from "@/types";
@@ -18,63 +18,108 @@ import {
 } from "discord.js";
 import { error, log } from "node:console";
 
-export class DeleteUserMessagesService {
-  static async deleteUserMessages(params: DeleteUserMessagesParams) {
-    if (params.jail) {
-      const jailRoleId = RolesService.getGuildStatusRoles(params.guild)[JAIL]
-        ?.id;
-      if (!jailRoleId) return;
+const CHANNEL_CONCURRENCY = 3;
+const MAX_DELETE_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
 
-      // Check if user already has jail role - skip notification if they do
-      const memberId = params.user?.id || params.memberId;
-      const discordMember = params.guild.members.cache.get(memberId)
-        || await params.guild.members.fetch(memberId).catch(() => null);
-      const alreadyJailed = discordMember?.roles.cache.has(jailRoleId);
+async function runWithConcurrency<T>(
+  tasks: (() => Promise<T>)[],
+  concurrency: number,
+): Promise<PromiseSettledResult<T>[]> {
+  const results: PromiseSettledResult<T>[] = [];
+  let index = 0;
 
-      await db.transaction(async (tx) => {
-        await tx.insert(member)
-          .values({
-            memberId: params.memberId,
-            username: params.user?.username || "Unknown User",
-          })
-          .onConflictDoNothing();
-
-        await tx.delete(memberRole)
-          .where(
-            and(
-              eq(memberRole.memberId, params.memberId),
-              eq(memberRole.guildId, params.guild.id),
-            )
-          );
-
-        await tx.insert(memberRole)
-          .values({
-            roleId: jailRoleId,
-            memberId: params.memberId,
-            guildId: params.guild.id,
-            name: JAIL,
-          });
-      });
-
-      const role = params.guild.roles.cache.get(jailRoleId);
-      if (discordMember && role?.editable)
-        await discordMember.roles.add(jailRoleId).catch(error);
-
-      // Send notification to jail channel only if user wasn't already jailed
-      if (!alreadyJailed) {
-        await this.sendJailNotification(params);
+  async function runNext(): Promise<void> {
+    while (index < tasks.length) {
+      const currentIndex = index++;
+      try {
+        const value = await tasks[currentIndex]();
+        results[currentIndex] = { status: "fulfilled", value };
+      } catch (reason) {
+        results[currentIndex] = { status: "rejected", reason };
       }
     }
+  }
 
-    log(`[DeleteUserMessages] Starting message deletion for user ${params.memberId} in guild ${params.guild.name}`);
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, tasks.length) }, () =>
+      runNext(),
+    ),
+  );
+  return results;
+}
+
+export class DeleteUserMessagesService {
+  /**
+   * Jail user and start message deletion in background.
+   * Returns as soon as the jail is applied.
+   */
+  static async jailAndDeleteMessages(params: DeleteUserMessagesParams) {
+    await this.jailUser(params);
+    this.deleteUserMessages(params).catch(error);
+  }
+
+  /**
+   * Apply jail role, update DB, send notification. Fast operation (~2s).
+   */
+  static async jailUser(params: DeleteUserMessagesParams) {
+    const jailRoleId = RolesService.getGuildStatusRoles(params.guild)[JAIL]
+      ?.id;
+    if (!jailRoleId) return;
+
+    const memberId = params.user?.id || params.memberId;
+    const discordMember =
+      params.guild.members.cache.get(memberId) ||
+      (await params.guild.members.fetch(memberId).catch(() => null));
+    const alreadyJailed = discordMember?.roles.cache.has(jailRoleId);
+
+    await db.transaction(async (tx) => {
+      await tx
+        .insert(member)
+        .values({
+          memberId: params.memberId,
+          username: params.user?.username || "Unknown User",
+        })
+        .onConflictDoNothing();
+
+      await tx.delete(memberRole).where(
+        and(
+          eq(memberRole.memberId, params.memberId),
+          eq(memberRole.guildId, params.guild.id),
+        ),
+      );
+
+      await tx.insert(memberRole).values({
+        roleId: jailRoleId,
+        memberId: params.memberId,
+        guildId: params.guild.id,
+        name: JAIL,
+      });
+    });
+
+    const role = params.guild.roles.cache.get(jailRoleId);
+    if (discordMember && role?.editable)
+      await discordMember.roles.add(jailRoleId).catch(error);
+
+    if (!alreadyJailed) {
+      await this.sendJailNotification(params);
+    }
+  }
+
+  /**
+   * Delete user messages across all channels. Scoped to last 14 days.
+   */
+  static async deleteUserMessages(params: DeleteUserMessagesParams) {
+    log(
+      `[DeleteUserMessages] Starting message deletion for user ${params.memberId} in guild ${params.guild.name}`,
+    );
     let totalDeleted = 0;
+    const cutoff = Date.now() - MAX_DELETE_AGE_MS;
 
     const deleteMessages = async (channel: GuildTextBasedChannel) => {
       try {
         let deleted = 0;
         let lastMessageId: string | undefined;
 
-        // Paginate through all messages in the channel
         for (;;) {
           const messages = await channel.messages.fetch({
             limit: 100,
@@ -83,35 +128,38 @@ export class DeleteUserMessagesService {
           if (messages.size === 0) break;
 
           lastMessageId = messages.last()!.id;
+
+          // Stop if we've gone past the 14-day cutoff
+          const oldestMessage = messages.last()!;
+          const pastCutoff = oldestMessage.createdTimestamp < cutoff;
+
           const userMessages = messages.filter(
-            (m) => m.author.id === params.memberId,
+            (m) =>
+              m.author.id === params.memberId &&
+              m.createdTimestamp >= cutoff,
           );
 
           if (userMessages.size > 0) {
-            // bulkDelete handles the 14-day limit internally with filterOld=true
             const result = await channel.bulkDelete(userMessages, true);
             deleted += result.size;
-
-            // Individually delete messages older than 14 days that bulkDelete skipped
-            const bulkDeletedIds = new Set(result.keys());
-            const remaining = userMessages.filter((m) => !bulkDeletedIds.has(m.id));
-            for (const msg of remaining.values()) {
-              await msg.delete().catch(error);
-              deleted++;
-            }
           }
 
-          if (messages.size < 100) break;
+          if (messages.size < 100 || pastCutoff) break;
         }
 
         if (deleted > 0) {
-          log(`[DeleteUserMessages] Deleted ${deleted} messages in #${channel.name} (${channel.id})`);
+          log(
+            `[DeleteUserMessages] Deleted ${deleted} messages in #${channel.name} (${channel.id})`,
+          );
           totalDeleted += deleted;
         }
       } catch (err) {
         if (err instanceof DiscordAPIError && err.code === 10003) {
-          log(`[DeleteUserMessages] Channel ${channel.id} no longer exists, cleaning up DB records`);
-          if (channel.isThread()) await ThreadService.deleteThread(channel.id);
+          log(
+            `[DeleteUserMessages] Channel ${channel.id} no longer exists, cleaning up DB records`,
+          );
+          if (channel.isThread())
+            await ThreadService.deleteThread(channel.id);
           return;
         }
         error(err);
@@ -121,14 +169,18 @@ export class DeleteUserMessagesService {
     const processThread = async (thread: ThreadChannel) => {
       try {
         if (thread.ownerId === params.memberId) {
-          log(`[DeleteUserMessages] Deleting thread owned by user: #${thread.name} (${thread.id})`);
+          log(
+            `[DeleteUserMessages] Deleting thread owned by user: #${thread.name} (${thread.id})`,
+          );
           await thread.delete();
           return;
         }
         await deleteMessages(thread as GuildTextBasedChannel);
       } catch (err) {
         if (err instanceof DiscordAPIError && err.code === 10003) {
-          log(`[DeleteUserMessages] Thread ${thread.id} no longer exists, cleaning up DB records`);
+          log(
+            `[DeleteUserMessages] Thread ${thread.id} no longer exists, cleaning up DB records`,
+          );
           await ThreadService.deleteThread(thread.id);
           return;
         }
@@ -136,20 +188,20 @@ export class DeleteUserMessagesService {
       }
     };
 
-    const channelPromises: Promise<void>[] = [];
+    const channelTasks: (() => Promise<void>)[] = [];
 
     for (const channel of params.guild.channels.cache.values()) {
       if (channel.type === ChannelType.GuildForum) {
-        channelPromises.push((async () => {
+        channelTasks.push(async () => {
           const threads = await (channel as ForumChannel).threads
             .fetchActive()
             .catch(error);
           if (threads) {
-            await Promise.allSettled(
-              threads.threads.map((thread) => processThread(thread)),
-            );
+            for (const thread of threads.threads.values()) {
+              await processThread(thread);
+            }
           }
-        })());
+        });
       } else if (
         [
           ChannelType.GuildText,
@@ -159,7 +211,9 @@ export class DeleteUserMessagesService {
           ChannelType.GuildMedia,
         ].includes(channel.type)
       ) {
-        channelPromises.push(deleteMessages(channel as GuildTextBasedChannel));
+        channelTasks.push(() =>
+          deleteMessages(channel as GuildTextBasedChannel),
+        );
       } else if (
         [
           ChannelType.PublicThread,
@@ -167,12 +221,17 @@ export class DeleteUserMessagesService {
           ChannelType.AnnouncementThread,
         ].includes(channel.type)
       ) {
-        channelPromises.push(processThread(channel as ThreadChannel));
+        channelTasks.push(() => processThread(channel as ThreadChannel));
       }
     }
 
-    await Promise.allSettled(channelPromises);
-    log(`[DeleteUserMessages] Finished. Deleted ${totalDeleted} messages total for user ${params.memberId}`);
+    log(
+      `[DeleteUserMessages] Processing ${channelTasks.length} channels (concurrency: ${CHANNEL_CONCURRENCY})`,
+    );
+    await runWithConcurrency(channelTasks, CHANNEL_CONCURRENCY);
+    log(
+      `[DeleteUserMessages] Finished. Deleted ${totalDeleted} messages total for user ${params.memberId}`,
+    );
   }
 
   private static async sendJailNotification(params: {
@@ -181,7 +240,6 @@ export class DeleteUserMessagesService {
     memberId: string;
     reason?: string;
   }) {
-    // Find jail channel (channel with "jail" in name)
     const jailChannel = params.guild.channels.cache.find(
       (ch) =>
         ch.type === ChannelType.GuildText &&
@@ -190,7 +248,6 @@ export class DeleteUserMessagesService {
 
     if (!jailChannel) return;
 
-    // Get user info from DB for fallback
     const dbMember = await db.query.member.findFirst({
       where: eq(member.memberId, params.memberId),
       with: {
@@ -218,6 +275,3 @@ export class DeleteUserMessagesService {
     await jailChannel.send({ embeds: [embed] }).catch(error);
   }
 }
-
-// Import needed for the where clause in sendJailNotification
-import { memberGuild } from "@/lib/db-schema";
