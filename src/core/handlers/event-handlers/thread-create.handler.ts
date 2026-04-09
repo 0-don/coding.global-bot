@@ -207,7 +207,7 @@ async function validateForumPost(
 
         try {
           const owner = await thread.guild.members.fetch(ownerId).catch(() => null);
-          await DeleteUserMessagesService.deleteUserMessages({
+          await DeleteUserMessagesService.jailAndDeleteMessages({
             guild: thread.guild,
             user: owner?.user || null,
             memberId: ownerId,

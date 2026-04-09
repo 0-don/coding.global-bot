@@ -14,7 +14,7 @@ export async function executeDeleteUserMessages(
     return { success: false, error: "Invalid user or guild" };
   }
 
-  await DeleteUserMessagesService.deleteUserMessages({
+  const params = {
     guild: interaction.guild,
     memberId,
     jail,
@@ -22,7 +22,14 @@ export async function executeDeleteUserMessages(
     reason: reason
       ? `${reason} (triggered by <@${interaction.user.id}>)`
       : `Manual moderation (triggered by <@${interaction.user.id}>)`,
-  });
+  };
 
-  return { success: true };
+  if (jail) {
+    await DeleteUserMessagesService.jailUser(params);
+    DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});
+    return { success: true, message: "User jailed. Messages are being deleted in the background." };
+  }
+
+  DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});
+  return { success: true, message: "Message deletion started in the background." };
 }

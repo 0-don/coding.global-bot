@@ -100,7 +100,7 @@ export class DuplicateSpamService {
     if (shouldJail) {
       const reason = `Sent ${count} duplicate messages`;
 
-      await DeleteUserMessagesService.deleteUserMessages({
+      await DeleteUserMessagesService.jailAndDeleteMessages({
         jail: true,
         memberId: message.author.id,
         user: message.author,
@@ -143,7 +143,7 @@ export class DuplicateSpamService {
     if (shouldJail) {
       const reason = `Posted in ${uniqueChannels} channels within 10 minutes`;
 
-      await DeleteUserMessagesService.deleteUserMessages({
+      await DeleteUserMessagesService.jailAndDeleteMessages({
         jail: true,
         memberId: message.author.id,
         user: message.author,

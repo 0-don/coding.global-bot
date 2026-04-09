@@ -71,6 +71,6 @@ export class DeleteUserMessages {
       return;
     }
 
-    await safeEditReply(interaction, { content: "user messages are deleted" });
+    await safeEditReply(interaction, { content: result.message || "user messages are deleted" });
   }
 }
