@@ -142,14 +142,29 @@ export class AiChatService {
 
   private static stripFakeGifUrls(text: string): string {
     // Strip hallucinated GIF URLs and broken markdown images from models that can't use tools
-    return text
+    let cleaned = text
       .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
       .replace(/https?:\/\/media\.tenor\.com\/[^\s)>\]]+/gi, "")
       .replace(/https?:\/\/[^\s)>\]]*klipy\.com\/[^\s)>\]]+/gi, "")
       .replace(/https?:\/\/[^\s)>\]]*giphy\.[^\s)>\]]+/gi, "")
-      .replace(/https?:\/\/[^\s)>\]]*\.gif(?:\?[^\s)>\]]*)?/gi, "")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim();
+      .replace(/https?:\/\/[^\s)>\]]*\.gif(?:\?[^\s)>\]]*)?/gi, "");
+
+    // Strip hallucinated structured JSON blocks some models emit instead of using the tool
+    // e.g. {"text": "...", "gif": "searchMemeGifs query: ..."} or multiline variants
+    cleaned = cleaned.replace(
+      /\{\s*"text"\s*:\s*"[^"]*"\s*,\s*"gif"\s*:\s*"[^"]*"\s*\}/gs,
+      "",
+    );
+
+    // If the entire response was a JSON wrapper, try to extract meaningful text from it
+    const jsonWrapper = text.match(
+      /^\s*\{\s*"text"\s*:\s*"([^"]*)"\s*,\s*"gif"\s*:\s*"[^"]*"\s*\}\s*$/s,
+    );
+    if (jsonWrapper && !cleaned.trim()) {
+      cleaned = jsonWrapper[1];
+    }
+
+    return cleaned.replace(/\n{3,}/g, "\n\n").trim();
   }
 
   private static extractGifFromSteps(steps: any[]): string | null {
