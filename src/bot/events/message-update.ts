@@ -1,3 +1,4 @@
+import { MessagesService } from "@/core/services/messages/messages.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
@@ -9,17 +10,18 @@ export class MessageUpdate {
     [oldMessage, newMessage]: ArgsOf<"messageUpdate">,
     client: Client,
   ) {
-    // Only handle messages in threads
-    if (!newMessage.channel.isThread()) return;
-
-    // Fetch full message if partial
     const message = newMessage.partial
       ? await newMessage.fetch().catch(() => null)
       : newMessage;
 
-    if (!message) return;
+    if (!message || !message.guild || message.author?.bot) return;
 
-    // Update the reply in the database
-    await ThreadService.upsertThreadMessage(message);
+    if (oldMessage.content === message.content) return;
+
+    await MessagesService.checkWarnings(message);
+
+    if (message.channel.isThread()) {
+      await ThreadService.upsertThreadMessage(message);
+    }
   }
 }
