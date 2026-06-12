@@ -1,4 +1,5 @@
 import { ThreadType } from "@/api/middleware/validators";
+import { PrivacyService } from "@/core/services/privacy/privacy.service";
 import { db } from "@/lib/db";
 import { thread, threadMessage, threadTag, tag, attachment } from "@/lib/db-schema";
 import { and, eq, gt, ne, asc, desc } from "drizzle-orm";
@@ -185,6 +186,8 @@ export class ThreadService {
     const guildId = message.guildId;
     const authorId = message.author.id;
     if (!guildId || !authorId) return;
+
+    if (await PrivacyService.hasMessageOptOut(authorId, guildId)) return;
 
     const existingThread = await db.query.thread.findFirst({ where: eq(thread.id, threadId) });
     if (!existingThread) {

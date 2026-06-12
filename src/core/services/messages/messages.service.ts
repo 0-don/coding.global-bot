@@ -1,4 +1,5 @@
 import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
+import { PrivacyService } from "@/core/services/privacy/privacy.service";
 import { db } from "@/lib/db";
 import { memberMessages, memberDeletedMessages, memberGuild } from "@/lib/db-schema";
 import { and, count, eq } from "drizzle-orm";
@@ -29,6 +30,8 @@ export class MessagesService {
     // if info doesnt exist
     if (!content || !guildId || !memberId || message.interaction?.user.bot)
       return;
+
+    if (await PrivacyService.hasMessageOptOut(memberId, guildId)) return;
 
     // catch message edits
     try {
@@ -81,6 +84,8 @@ export class MessagesService {
 
     const messageMemberId = message.member?.user?.id;
     let deletedByMemberId = messageMemberId;
+
+    if (await PrivacyService.hasMessageOptOut(messageMemberId, guildId)) return;
 
     try {
       const auditLogs = await message.guild.fetchAuditLogs({

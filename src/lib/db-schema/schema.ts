@@ -53,6 +53,8 @@ export const memberGuild = pgTable("MemberGuild", {
 	warnings: integer().default(0).notNull(),
 	muted: boolean().default(false).notNull(),
 	deafened: boolean().default(false).notNull(),
+	messageOptOut: boolean().default(false).notNull(),
+	presenceOptOut: boolean().default(false).notNull(),
 	lookback: integer().default(9999).notNull(),
 	avatarUrl: text(),
 	displayHexColor: text(),

@@ -33,6 +33,7 @@ import "./commands/mod/verify-users";
 import "./commands/user/lookback-me";
 import "./commands/user/me";
 import "./commands/user/members";
+import "./commands/user/privacy";
 import "./commands/user/top";
 import "./commands/user/translate";
 import "./commands/user/user";

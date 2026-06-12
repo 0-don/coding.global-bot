@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { botLogger } from "@/lib/telemetry";
 import { member, memberGuild, memberRole } from "@/lib/db-schema";
 import { and, eq } from "drizzle-orm";
+import { PrivacyService } from "@/core/services/privacy/privacy.service";
 import {
   prepareMemberData,
   prepareMemberGuildData,
@@ -18,6 +19,17 @@ export class MemberDataService {
       const memberData = prepareMemberData(user);
       const memberGuildData = prepareMemberGuildData(guildMember);
       const memberRoleCreates = prepareMemberRolesData(guildMember);
+
+      if (
+        await PrivacyService.hasPresenceOptOut(
+          discordMember.id,
+          discordMember.guild.id,
+        )
+      ) {
+        memberGuildData.presenceStatus = null;
+        memberGuildData.presenceActivity = null;
+        memberGuildData.presenceUpdatedAt = null;
+      }
 
       // Upsert member first (required for foreign key constraints)
       await db.insert(member)
