@@ -4,6 +4,7 @@ services:
     image: postgres:18-alpine
     restart: always
     volumes:
+      - coding-global-bot-pgdata:/var/lib/postgresql
       - ~/duplicati-volume/source/coding-global-bot-db-pgbackup:/backups
     networks:
       - proxy
@@ -61,3 +62,7 @@ networks:
   proxy:
     external: false
     name: proxy
+
+volumes:
+  coding-global-bot-pgdata:
+    external: true
