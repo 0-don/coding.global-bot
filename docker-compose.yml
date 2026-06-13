@@ -53,7 +53,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POSTGRES_DB}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.coding-global-bot.rule=Host(`bot.coding.global`)"
+      - "traefik.http.routers.coding-global-bot.rule=Host(`bot.coding-global.com`)"
       - "traefik.http.routers.coding-global-bot.entrypoints=websecure"
       - "traefik.http.routers.coding-global-bot.tls.certresolver=letsencrypt"
       - "traefik.http.services.coding-global-bot.loadbalancer.server.port=4000"
