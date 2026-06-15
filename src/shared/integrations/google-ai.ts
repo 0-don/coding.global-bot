@@ -77,6 +77,14 @@ function categorizeError(error: unknown): ErrorCategory {
   const message = error instanceof Error ? error.message : String(error);
 
   if (message.includes("Failed to download")) return "image_download";
+  // A dead/revoked key returns 400 INVALID_ARGUMENT "API Key not found" with no
+  // APICallError wrapper; must rotate to the next key, not stop the whole request.
+  if (
+    message.includes("API_KEY_INVALID") ||
+    message.includes("API Key not found") ||
+    message.includes("API key not valid")
+  )
+    return "key_error";
   if (message.includes("INVALID_ARGUMENT")) return "non_retryable";
 
   const apiError = getAPICallError(error);
@@ -85,6 +93,15 @@ function categorizeError(error: unknown): ErrorCategory {
     // Also check response body for download failures (Gemini wraps them in 4xx/5xx)
     const body = apiError.responseBody || "";
     if (body.includes("Failed to download")) return "image_download";
+
+    // Key errors first: a bad key can surface as 400/404, but should rotate
+    // keys rather than stop, so it must beat the status-based non_retryable below.
+    if (
+      body.includes("API_KEY_INVALID") ||
+      body.includes("PERMISSION_DENIED") ||
+      body.includes("API Key not found")
+    )
+      return "key_error";
 
     // HTTP status-based detection
     if (apiError.statusCode === 429) return "rate_limit";
@@ -98,8 +115,6 @@ function categorizeError(error: unknown): ErrorCategory {
       body.includes("rateLimitExceeded")
     )
       return "rate_limit";
-    if (body.includes("API_KEY_INVALID") || body.includes("PERMISSION_DENIED"))
-      return "key_error";
   }
 
   if (
