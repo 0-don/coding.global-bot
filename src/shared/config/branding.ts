@@ -21,7 +21,7 @@ export function getThreadWelcomeMessage(
   threadId: string,
   threadName: string,
 ): string {
-  const link = `[${threadName}](https://coding.global/${threadId})`;
+  const link = `[${threadName}](https://coding-global.com/${threadId})`;
 
   switch (boardType) {
     case "job-board":

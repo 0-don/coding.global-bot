@@ -51,6 +51,9 @@ jobs:
           echo ADMIN_API_KEY=${{ secrets.ADMIN_API_KEY }} >> .env
           echo POSTHOG_KEY=${{ secrets.POSTHOG_KEY }} >> .env
 
+      - name: Remove conflicting unmanaged containers
+        run: docker rm -f coding-global-bot-db coding-global-pgbackup coding-global-bot || true
+
       - name: Docker run
         run: docker compose up -d --force-recreate --build
 

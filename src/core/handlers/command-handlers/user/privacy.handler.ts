@@ -18,7 +18,7 @@ export async function executePrivacyStatus(
     `Presence tracking: ${flags.presenceOptOut ? "opted OUT" : "active"}`,
     "",
     "Use /privacy optout or /privacy optin with a scope (message, presence, all) to change this.",
-    "Full policy: https://coding.global/en/privacy",
+    "Full policy: https://coding-global.com/en/privacy",
   ].join("\n");
 }
 
