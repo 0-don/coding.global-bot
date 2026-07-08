@@ -229,9 +229,22 @@ export class MessagesService {
     );
   }
 
+  // Collapse invite-evasion tricks: invisible/zero-width chars, angle-bracket wrapping,
+  // and blockquote (">") + newline splitting that Discord reassembles into a live link.
+  static normalizeInviteContent(raw: string) {
+    return raw
+      .replace(
+        /[\u00ad\u200b-\u200f\u202a-\u202e\u2060-\u2064\u206a-\u206f\ufeff\u180e]/g,
+        "",
+      )
+      .replace(/[<>]/g, "")
+      .replace(/^\s*>+/gm, "")
+      .replace(/\s+/g, "");
+  }
+
   // Check warnings utility
   static async checkWarnings(message: Message<boolean>) {
-    const content = message.content;
+    const content = MessagesService.normalizeInviteContent(message.content);
     const member = message.member;
 
     if (!member || !message.guild) return;
