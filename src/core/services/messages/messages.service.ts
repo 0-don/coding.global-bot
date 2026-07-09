@@ -244,7 +244,8 @@ export class MessagesService {
   // General invite parser: undo every known filter-evasion trick, then extract codes.
   // Handles invisible/zero-width chars, angle-bracket wrapping, blockquote (">") +
   // newline splitting, whitespace/punctuation stuffing, percent-encoding, path
-  // traversal, and host variants (discord.gg, discord(app).com/invite, ptb/canary).
+  // traversal, host variants (discord.gg, discord(app).com/invite, ptb/canary), and
+  // third-party invite shorteners (dsc.gg, invite.gg, discord.io/li/me/st, dis.gd).
   static extractInviteCodes(raw: string) {
     let content = raw
       .replace(
@@ -259,7 +260,7 @@ export class MessagesService {
     } catch {}
     content = MessagesService.collapsePathTraversal(content.toLowerCase());
     const inviteRegex =
-      /(?:discord\.gg|(?:ptb\.|canary\.)?discord(?:app)?\.com\/invite)\/([a-z0-9-]+)/gi;
+      /(?:discord\.gg|(?:ptb\.|canary\.)?discord(?:app)?\.com\/invite|dsc\.gg|invite\.gg|discord\.(?:io|li|me|st)|dis\.gd)\/([a-z0-9-]+)/gi;
     return [...content.matchAll(inviteRegex)].map((match) => match[1]);
   }
 
