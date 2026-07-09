@@ -229,10 +229,24 @@ export class MessagesService {
     );
   }
 
-  // Collapse invite-evasion tricks: invisible/zero-width chars, angle-bracket wrapping,
-  // and blockquote (">") + newline splitting that Discord reassembles into a live link.
-  static normalizeInviteContent(raw: string) {
-    return raw
+  // Resolve URL path-traversal segments (a/../b becomes b) so
+  // "discordapp.com/x/../invite/y/../code" collapses to a real invite path.
+  static collapsePathTraversal(input: string) {
+    let prev: string;
+    let out = input;
+    do {
+      prev = out;
+      out = out.replace(/[^/]+\/\.\.\//, "");
+    } while (out !== prev);
+    return out;
+  }
+
+  // General invite parser: undo every known filter-evasion trick, then extract codes.
+  // Handles invisible/zero-width chars, angle-bracket wrapping, blockquote (">") +
+  // newline splitting, whitespace/punctuation stuffing, percent-encoding, path
+  // traversal, and host variants (discord.gg, discord(app).com/invite, ptb/canary).
+  static extractInviteCodes(raw: string) {
+    let content = raw
       .replace(
         /[\u00ad\u200b-\u200f\u202a-\u202e\u2060-\u2064\u206a-\u206f\ufeff\u180e]/g,
         "",
@@ -240,11 +254,18 @@ export class MessagesService {
       .replace(/[<>]/g, "")
       .replace(/^\s*>+/gm, "")
       .replace(/\s+/g, "");
+    try {
+      content = decodeURIComponent(content);
+    } catch {}
+    content = MessagesService.collapsePathTraversal(content.toLowerCase());
+    const inviteRegex =
+      /(?:discord\.gg|(?:ptb\.|canary\.)?discord(?:app)?\.com\/invite)\/([a-z0-9-]+)/gi;
+    return [...content.matchAll(inviteRegex)].map((match) => match[1]);
   }
 
   // Check warnings utility
   static async checkWarnings(message: Message<boolean>) {
-    const content = MessagesService.normalizeInviteContent(message.content);
+    const inviteCodes = MessagesService.extractInviteCodes(message.content);
     const member = message.member;
 
     if (!member || !message.guild) return;
@@ -255,10 +276,6 @@ export class MessagesService {
 
     if (!memberGuildData) return;
 
-    const inviteRegex =
-      /(?:discord\.gg\/|discordapp\.com\/invite\/|discord\.com\/invite\/)([a-zA-Z0-9-]+)/gi;
-    const matches = content.matchAll(inviteRegex);
-    const inviteCodes = [...matches].map((match) => match[1]);
 
     if (inviteCodes.length === 0) return;
 
