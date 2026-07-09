@@ -229,25 +229,26 @@ export class MessagesService {
     );
   }
 
-  // Resolve URL path-traversal segments (a/../b becomes b) so
-  // "discordapp.com/x/../invite/y/../code" collapses to a real invite path.
-  static collapsePathTraversal(input: string) {
-    let prev: string;
-    let out = input;
-    do {
-      prev = out;
-      out = out.replace(/[^/]+\/\.\.\//, "");
-    } while (out !== prev);
-    return out;
+  // RFC-style path normalization: a ".." segment pops the previous path segment
+  // and "."/empty segments are dropped, but ".." can never pop above the path root
+  // (it cannot remove the host), matching how a browser resolves the URL.
+  static normalizeUrlPath(path: string) {
+    const out: string[] = [];
+    for (const segment of path.split("/")) {
+      if (segment === "..") out.pop();
+      else if (segment === "." || segment === "") continue;
+      else out.push(segment);
+    }
+    return "/" + out.join("/");
   }
 
-  // General invite parser: canonicalize the URL the way Discord's client would,
-  // then extract codes. Undoes invisible/zero-width chars, angle-bracket wrapping,
+  // General invite parser: canonicalize the URL the way Discord's client would, then
+  // extract codes. Undoes invisible/zero-width chars, angle-bracket wrapping,
   // blockquote (">") + newline splitting, whitespace/punctuation stuffing, defanged
   // and unicode/full-width dots, backslashes, (double) percent-encoding, scheme +
-  // userinfo (evil@discord.gg) + port noise, redundant/traversal path segments.
-  // Matches discord.gg, discord(app).com/invite (+ ptb/canary), and third-party
-  // shorteners (dsc.gg, invite.gg, discord.io/li/me/st, dis.gd).
+  // userinfo (evil@discord.gg) + port noise, and per-host path traversal. Matches
+  // discord.gg, discord(app).com/invite (+ ptb/canary), and third-party shorteners
+  // (dsc.gg, invite.gg, discord.io/li/me/st, dis.gd).
   static extractInviteCodes(raw: string) {
     let content = raw
       .replace(
@@ -274,12 +275,19 @@ export class MessagesService {
       .toLowerCase()
       .replace(/https?:/g, "")
       .replace(/(^|\/\/|\/)[^/\s]*@/g, "$1")
-      .replace(/:\d+(?=\/)/g, "")
-      .replace(/\/{2,}/g, "/");
-    content = MessagesService.collapsePathTraversal(content);
+      .replace(/:\d+(?=\/)/g, "");
+    const hostRegex =
+      /(discord\.gg|(?:ptb\.|canary\.)?discord(?:app)?\.com|dsc\.gg|invite\.gg|discord\.(?:io|li|me|st)|dis\.gd)(\/[^\s]*)?/gi;
     const inviteRegex =
-      /(?:discord\.gg|(?:ptb\.|canary\.)?discord(?:app)?\.com\/invite|dsc\.gg|invite\.gg|discord\.(?:io|li|me|st)|dis\.gd)\/([a-z0-9-]+)/gi;
-    return [...content.matchAll(inviteRegex)].map((match) => match[1]);
+      /^(?:discord\.gg|(?:ptb\.|canary\.)?discord(?:app)?\.com\/invite|dsc\.gg|invite\.gg|discord\.(?:io|li|me|st)|dis\.gd)\/([a-z0-9-]+)/i;
+    const codes: string[] = [];
+    for (const match of content.matchAll(hostRegex)) {
+      const host = match[1];
+      const path = match[2] ? MessagesService.normalizeUrlPath(match[2]) : "";
+      const invite = (host + path).match(inviteRegex);
+      if (invite) codes.push(invite[1]);
+    }
+    return codes;
   }
 
   // Check warnings utility
