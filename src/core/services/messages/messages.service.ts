@@ -13,6 +13,7 @@ import {
   GuildTextBasedChannel,
   Message,
   PartialMessage,
+  RESTJSONErrorCodes,
   TextChannel,
 } from "discord.js";
 
@@ -292,19 +293,24 @@ export class MessagesService {
 
   // Check warnings utility
   static async checkWarnings(message: Message<boolean>) {
-    const inviteCodes = MessagesService.extractInviteCodes(message.content);
     const member = message.member;
 
     if (!member || !message.guild) return;
 
+    const inviteCodes = [
+      ...new Set(MessagesService.extractInviteCodes(message.content)),
+    ].slice(0, 5);
+
+    if (inviteCodes.length === 0) return;
+
     const memberGuildData = await db.query.memberGuild.findFirst({
-      where: eq(memberGuild.memberId, member.id),
+      where: and(
+        eq(memberGuild.memberId, member.id),
+        eq(memberGuild.guildId, message.guild.id),
+      ),
     });
 
     if (!memberGuildData) return;
-
-
-    if (inviteCodes.length === 0) return;
 
     let hasExternalInvite = false;
 
@@ -315,10 +321,18 @@ export class MessagesService {
           hasExternalInvite = true;
           break;
         }
-      } catch {
-        // Invalid invite or couldn't fetch - treat as external to be safe
-        hasExternalInvite = true;
-        break;
+      } catch (error) {
+        // Unknown Invite: the code resolves to nothing, so it was an invite-shaped
+        // link to a dead/fake server - treat as external. Transient failures
+        // (rate limit, network) are our problem, not the user's, so skip them.
+        if (
+          error instanceof Object &&
+          "code" in error &&
+          error.code === RESTJSONErrorCodes.UnknownInvite
+        ) {
+          hasExternalInvite = true;
+          break;
+        }
       }
     }
 
