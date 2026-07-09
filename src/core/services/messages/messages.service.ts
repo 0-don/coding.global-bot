@@ -241,11 +241,13 @@ export class MessagesService {
     return out;
   }
 
-  // General invite parser: undo every known filter-evasion trick, then extract codes.
-  // Handles invisible/zero-width chars, angle-bracket wrapping, blockquote (">") +
-  // newline splitting, whitespace/punctuation stuffing, percent-encoding, path
-  // traversal, host variants (discord.gg, discord(app).com/invite, ptb/canary), and
-  // third-party invite shorteners (dsc.gg, invite.gg, discord.io/li/me/st, dis.gd).
+  // General invite parser: canonicalize the URL the way Discord's client would,
+  // then extract codes. Undoes invisible/zero-width chars, angle-bracket wrapping,
+  // blockquote (">") + newline splitting, whitespace/punctuation stuffing, defanged
+  // and unicode/full-width dots, backslashes, (double) percent-encoding, scheme +
+  // userinfo (evil@discord.gg) + port noise, redundant/traversal path segments.
+  // Matches discord.gg, discord(app).com/invite (+ ptb/canary), and third-party
+  // shorteners (dsc.gg, invite.gg, discord.io/li/me/st, dis.gd).
   static extractInviteCodes(raw: string) {
     let content = raw
       .replace(
@@ -254,11 +256,27 @@ export class MessagesService {
       )
       .replace(/[<>]/g, "")
       .replace(/^\s*>+/gm, "")
+      .replace(/[[(){}]\.[\])}]/g, ".")
+      .replace(/[\u3002\uff0e\uff61\u2024]/g, ".")
+      .replace(/\\/g, "/")
       .replace(/\s+/g, "");
-    try {
-      content = decodeURIComponent(content);
-    } catch {}
-    content = MessagesService.collapsePathTraversal(content.toLowerCase());
+    for (let i = 0; i < 3; i++) {
+      if (!/%[0-9a-f]{2}/i.test(content)) break;
+      try {
+        const decoded = decodeURIComponent(content);
+        if (decoded === content) break;
+        content = decoded;
+      } catch {
+        break;
+      }
+    }
+    content = content
+      .toLowerCase()
+      .replace(/https?:/g, "")
+      .replace(/(^|\/\/|\/)[^/\s]*@/g, "$1")
+      .replace(/:\d+(?=\/)/g, "")
+      .replace(/\/{2,}/g, "/");
+    content = MessagesService.collapsePathTraversal(content);
     const inviteRegex =
       /(?:discord\.gg|(?:ptb\.|canary\.)?discord(?:app)?\.com\/invite|dsc\.gg|invite\.gg|discord\.(?:io|li|me|st)|dis\.gd)\/([a-z0-9-]+)/gi;
     return [...content.matchAll(inviteRegex)].map((match) => match[1]);
