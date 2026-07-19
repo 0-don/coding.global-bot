@@ -1,5 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod/v4";
+import { GuildChannel, PermissionFlagsBits } from "discord.js";
 import { botLogger } from "@/lib/telemetry";
 import { ConfigValidator } from "@/shared/config/validator";
 import { StatsService } from "@/core/services/stats/stats.service";
@@ -45,96 +46,119 @@ async function searchGifs(query: string, limit: number = 5): Promise<string[]> {
   }
 }
 
-export const gatherChannelContext = tool({
-  description:
-    "Gather recent messages and user context from a specific channel when you need more conversation history to provide better responses.",
-  inputSchema: z.object({
-    channelId: z
-      .string()
-      .describe("The Discord channel ID to fetch messages from"),
-    guildId: z.string().describe("The Discord guild/server ID"),
-    messageCount: z
-      .number()
-      .min(1)
-      .max(50)
-      .default(10)
-      .describe("Number of recent messages to fetch (1-50)"),
-  }),
-  execute: async ({ channelId, guildId, messageCount }) => {
-    try {
-      botLogger.info("Gathering AI context", { channelId, guildId });
-      const guild = await bot.guilds.fetch(guildId).catch(() => null);
-      if (!guild) {
-        return { success: false, error: "Guild not found" };
-      }
-
-      const channel = await guild.channels.fetch(channelId).catch(() => null);
-      if (!channel || !channel.isTextBased()) {
-        return { success: false, error: "Channel not found or not text-based" };
-      }
-
-      const messages = await channel.messages.fetch({ limit: messageCount });
-      const sortedMessages = Array.from(messages.values())
-        .sort((a, b) => a.createdTimestamp - b.createdTimestamp)
-        .filter((msg) => !msg.author.bot);
-
-      const userContexts = new Map<string, any>();
-      const messageContexts = [];
-
-      for (const message of sortedMessages) {
-        if (!userContexts.has(message.author.id)) {
-          try {
-            const userStats = await StatsService.getUserStatsEmbed(
-              message.author.id,
-              guildId,
-            );
-            userContexts.set(message.author.id, userStats);
-          } catch {
-            userContexts.set(message.author.id, null);
-          }
+function createGatherChannelContext(requestingUserId: string) {
+  return tool({
+    description:
+      "Gather recent messages and user context from a specific channel when you need more conversation history to provide better responses. You can only access channels that the requesting user is permitted to read.",
+    inputSchema: z.object({
+      channelId: z
+        .string()
+        .describe("The Discord channel ID to fetch messages from"),
+      guildId: z.string().describe("The Discord guild/server ID"),
+      messageCount: z
+        .number()
+        .min(1)
+        .max(50)
+        .default(10)
+        .describe("Number of recent messages to fetch (1-50)"),
+    }),
+    execute: async ({ channelId, guildId, messageCount }) => {
+      try {
+        botLogger.info("Gathering AI context", {
+          channelId,
+          guildId,
+          requestingUserId,
+        });
+        const guild = await bot.guilds.fetch(guildId).catch(() => null);
+        if (!guild) {
+          return { success: false, error: "Guild not found" };
         }
 
-        const userContext = userContexts.get(message.author.id);
+        const channel = await guild.channels.fetch(channelId).catch(() => null);
+        if (!channel || !channel.isTextBased()) {
+          return {
+            success: false,
+            error: "Channel not found or not text-based",
+          };
+        }
 
-        messageContexts.push({
-          timestamp: message.createdAt.toISOString(),
-          author: {
-            id: message.author.id,
-            username: message.author.username,
-            displayName: message.author.globalName,
-            stats: userContext
-              ? {
-                  roles: userContext.roles?.filter(Boolean) || [],
-                  messageCount:
-                    userContext.embed?.fields?.[0]?.value || "Unknown",
-                  voiceTime: userContext.embed?.fields?.[1]?.value || "Unknown",
-                }
-              : null,
+        // Permission check: only allow channels the requesting user can read.
+        const permissions = (channel as GuildChannel).permissionsFor(
+          requestingUserId,
+        );
+        if (!permissions?.has(PermissionFlagsBits.ReadMessageHistory)) {
+          return {
+            success: false,
+            error: "You do not have permission to read messages in this channel",
+          };
+        }
+
+        const messages = await channel.messages.fetch({ limit: messageCount });
+        const sortedMessages = Array.from(messages.values())
+          .sort((a, b) => a.createdTimestamp - b.createdTimestamp)
+          .filter((msg) => !msg.author.bot);
+
+        const userContexts = new Map<string, any>();
+        const messageContexts = [];
+
+        for (const message of sortedMessages) {
+          if (!userContexts.has(message.author.id)) {
+            try {
+              const userStats = await StatsService.getUserStatsEmbed(
+                message.author.id,
+                guildId,
+              );
+              userContexts.set(message.author.id, userStats);
+            } catch {
+              userContexts.set(message.author.id, null);
+            }
+          }
+
+          const userContext = userContexts.get(message.author.id);
+
+          messageContexts.push({
+            timestamp: message.createdAt.toISOString(),
+            author: {
+              id: message.author.id,
+              username: message.author.username,
+              displayName: message.author.globalName,
+              stats: userContext
+                ? {
+                    roles: userContext.roles?.filter(Boolean) || [],
+                    messageCount:
+                      userContext.embed?.fields?.[0]?.value || "Unknown",
+                    voiceTime:
+                      userContext.embed?.fields?.[1]?.value || "Unknown",
+                  }
+                : null,
+            },
+            content: message.content,
+            hasAttachments: message.attachments.size > 0,
+            isReply: !!message.reference,
+            replyToId: message.reference?.messageId,
+          });
+        }
+
+        return {
+          success: true,
+          context: {
+            messageCount: messageContexts.length,
+            messages: messageContexts,
+            fetchedAt: new Date().toISOString(),
           },
-          content: message.content,
-          hasAttachments: message.attachments.size > 0,
-          isReply: !!message.reference,
-          replyToId: message.reference?.messageId,
+        };
+      } catch (error) {
+        botLogger.error("Error gathering channel context", {
+          error: String(error),
         });
+        return {
+          success: false,
+          error: `Failed to gather channel context: ${error instanceof Error ? error.message : "Unknown error"}`,
+        };
       }
-
-      return {
-        success: true,
-        context: {
-          messageCount: messageContexts.length,
-          messages: messageContexts,
-          fetchedAt: new Date().toISOString(),
-        },
-      };
-    } catch (error) {
-      botLogger.error("Error gathering channel context", { error: String(error) });
-      return {
-        success: false,
-        error: `Failed to gather channel context: ${error instanceof Error ? error.message : "Unknown error"}`,
-      };
-    }
-  },
-});
+    },
+  });
+}
 
 export const searchMemeGifs = tool({
   description:
@@ -165,4 +189,9 @@ export const searchMemeGifs = tool({
 
 export const CODING_GLOBAL_PATTERN = /^coding\s?global/i;
 
-export const AI_TOOLS = { searchMemeGifs, gatherChannelContext };
+export function createAiTools(requestingUserId: string) {
+  return {
+    searchMemeGifs,
+    gatherChannelContext: createGatherChannelContext(requestingUserId),
+  };
+}
