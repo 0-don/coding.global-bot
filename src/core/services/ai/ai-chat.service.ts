@@ -11,14 +11,33 @@ import { LRUCache } from "lru-cache";
 import { AiContextService } from "./ai-context.service";
 import type { AiChatResponse } from "@/types";
 
-const channelMessages = new LRUCache<string, ModelMessage[]>({ max: 1000 });
+const channelMessages = new LRUCache<string, ModelMessage[]>({
+  max: 1000,
+  dispose: (_, channelId) => channelSummaries.delete(channelId),
+});
+const channelSummaries = new LRUCache<string, string>({ max: 1000 });
+
+// Number of recent messages kept verbatim before the older tail is compacted
+// into a running summary. Configurable via AI_SUMMARY_WINDOW (default 50).
+// Set to 0 to disable summarization entirely.
+const SUMMARY_WINDOW = (() => {
+  const parsed = Number(process.env.AI_SUMMARY_WINDOW);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 50;
+})();
+
+const SUMMARY_SYSTEM_PROMPT = `You are condensing a Discord chat history into a concise running summary.
+Rules:
+- User messages are prefixed with [Name]: — preserve these prefixes exactly so it is clear who said what.
+- Bot (assistant) messages have NO prefix — represent them as the bot's own responses.
+- Keep it concise but retain key facts, questions, decisions, and who said them.
+- Do not invent information not present in the messages.`;
 
 export class AiChatService {
   static async generateResponse(
     message: Message,
     tools: Record<string, any>,
   ): Promise<AiChatResponse | null> {
-    const userMsg = this.extractUserMessage(message);
+    const userMsg = `[${message.author.displayName}]: ${this.extractUserMessage(message)}`;
     const { replyContext, repliedImages } =
       await AiContextService.getReplyContext(message);
 
@@ -43,12 +62,26 @@ export class AiChatService {
     const messages = channelMessages.get(message.channel.id) || [];
     messages.push(userMessage);
 
+    // Compact older history into a running summary once it exceeds the window.
+    await this.compactHistory(message.channel.id, messages);
+
+    const summary = channelSummaries.get(message.channel.id);
+    const contextMessages: ModelMessage[] = summary
+      ? [
+          {
+            role: "system",
+            content: `Previous conversation summary:\n${summary}`,
+          },
+          ...messages,
+        ]
+      : [...messages];
+
     const runAI = async () => {
       return googleClient.executeWithRotation(async (model) => {
         return generateText({
           model,
           system: CHAT_SYSTEM_PROMPT,
-          messages: [...messages],
+          messages: contextMessages,
           tools,
           stopWhen: stepCountIs(3),
           maxOutputTokens: 1024,
@@ -105,6 +138,68 @@ export class AiChatService {
       .replace(mentionPattern, "")
       .replace(codingGlobalPattern, "")
       .trim();
+  }
+
+  private static async compactHistory(
+    channelId: string,
+    messages: ModelMessage[],
+  ): Promise<void> {
+    if (messages.length <= SUMMARY_WINDOW) return;
+
+    const tail = messages.slice(0, messages.length - SUMMARY_WINDOW);
+    const kept = messages.slice(messages.length - SUMMARY_WINDOW);
+    const previousSummary = channelSummaries.get(channelId);
+
+    const tailText = tail
+      .map((msg) => {
+        const content = Array.isArray(msg.content)
+          ? msg.content
+              .filter(
+                (p): p is { type: "text"; text: string } =>
+                  p.type === "text",
+              )
+              .map((p) => p.text)
+              .join(" ")
+          : msg.content;
+        const prefix =
+          msg.role === "assistant" ? "[Bot]: " : "";
+        return `${prefix}${content}`;
+      })
+      .join("\n");
+
+    const existingSummaryLine = previousSummary
+      ? `Existing summary:\n${previousSummary}\n\n`
+      : "";
+
+    try {
+      const result = await googleClient.executeWithRotation(async (model) =>
+        generateText({
+          model,
+          system: SUMMARY_SYSTEM_PROMPT,
+          messages: [
+            {
+              role: "user",
+              content: `${existingSummaryLine}New messages to incorporate:\n${tailText}\n\nReturn the updated, concise running summary.`,
+            },
+          ],
+          maxOutputTokens: 1024,
+          maxRetries: 0,
+        }),
+      );
+
+      const updated = result?.text?.trim();
+      if (updated) {
+        channelSummaries.set(channelId, updated);
+        // Replace the full history with just the recent window.
+        messages.length = 0;
+        messages.push(...kept);
+        channelMessages.set(channelId, messages);
+      }
+    } catch (error) {
+      botLogger.error("Failed to compact chat history", {
+        error: String(error),
+      });
+    }
   }
 
   private static buildUserMessage(
