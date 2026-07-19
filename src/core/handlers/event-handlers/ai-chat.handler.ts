@@ -1,6 +1,6 @@
 import { AiChatService } from "@/core/services/ai/ai-chat.service";
 import { PrivacyService } from "@/core/services/privacy/privacy.service";
-import { AI_TOOLS, CODING_GLOBAL_PATTERN } from "@/shared/ai/ai-tools";
+import { createAiTools, CODING_GLOBAL_PATTERN } from "@/shared/ai/ai-tools";
 import { ConfigValidator } from "@/shared/config/validator";
 import { error } from "console";
 import { Message, MessageFlags, TextChannel } from "discord.js";
@@ -37,7 +37,10 @@ export async function handleAiChatMessage(
   }
 
   try {
-    const response = await AiChatService.generateResponse(message, AI_TOOLS);
+    const response = await AiChatService.generateResponse(
+      message,
+      createAiTools(message.author.id),
+    );
 
     if (!response || (!response.text && !response.gifUrl)) return;
 
