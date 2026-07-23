@@ -263,14 +263,18 @@ export class MessagesService {
       .replace(/\\/g, "/")
       .replace(/\s+/g, "");
     for (let i = 0; i < 3; i++) {
-      if (!/%[0-9a-f]{2}/i.test(content)) break;
-      try {
-        const decoded = decodeURIComponent(content);
-        if (decoded === content) break;
-        content = decoded;
-      } catch {
-        break;
-      }
+      // Decode each maximal run of %XX bytes on its own. A single malformed
+      // escape (e.g. "%.") would make decodeURIComponent throw for the whole
+      // string; Discord decodes valid sequences and leaves bad ones literal.
+      const decoded = content.replace(/(?:%[0-9a-f]{2})+/gi, (run) => {
+        try {
+          return decodeURIComponent(run);
+        } catch {
+          return run;
+        }
+      });
+      if (decoded === content) break;
+      content = decoded;
     }
     content = content
       .toLowerCase()
