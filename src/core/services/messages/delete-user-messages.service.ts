@@ -102,10 +102,6 @@ export class DeleteUserMessagesService {
       });
     });
 
-    const role = params.guild.roles.cache.get(jailRoleId);
-    if (discordMember && role?.editable)
-      await discordMember.roles.add(jailRoleId).catch(error);
-
     if (discordMember) {
       const originalNickname = discordMember.nickname ?? null;
       await db
@@ -125,6 +121,15 @@ export class DeleteUserMessagesService {
         params.reason || "no reason",
       );
       await discordMember.setNickname(jailedNickname).catch(error);
+
+      const role = params.guild.roles.cache.get(jailRoleId);
+      if (role?.editable)
+        await discordMember.roles.add(jailRoleId).catch(error);
+
+      for (const r of discordMember.roles.cache.values()) {
+        if (r.id === jailRoleId || r.id === params.guild.id) continue;
+        await discordMember.roles.remove(r).catch(() => {});
+      }
     }
 
     if (!alreadyJailed) {
@@ -214,6 +219,8 @@ export class DeleteUserMessagesService {
         error(err);
       }
     };
+
+    await params.guild.channels.fetchActiveThreads().catch(() => {});
 
     const channelTasks: (() => Promise<void>)[] = [];
 

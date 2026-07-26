@@ -157,20 +157,29 @@ export class RolesService {
       );
 
       if (!args.newMember.partial && newAddedRole === JAIL) {
-        const originalNickname = args.newMember.nickname ?? null;
-        await db
-          .insert(memberGuild)
-          .values({
-            memberId: args.newMember.id,
-            guildId: args.newMember.guild.id,
-            preJailDisplayName: originalNickname,
-            status: false,
-          })
-          .onConflictDoUpdate({
-            target: [memberGuild.memberId, memberGuild.guildId],
-            set: { preJailDisplayName: originalNickname },
-          })
-          .catch(() => {});
+        const mg = await db.query.memberGuild.findFirst({
+          where: and(
+            eq(memberGuild.memberId, args.newMember.id),
+            eq(memberGuild.guildId, args.newMember.guild.id),
+          ),
+        });
+
+        if (mg?.preJailDisplayName === null || mg?.preJailDisplayName === undefined) {
+          const originalNickname = args.newMember.nickname ?? null;
+          await db
+            .insert(memberGuild)
+            .values({
+              memberId: args.newMember.id,
+              guildId: args.newMember.guild.id,
+              preJailDisplayName: originalNickname,
+              status: false,
+            })
+            .onConflictDoUpdate({
+              target: [memberGuild.memberId, memberGuild.guildId],
+              set: { preJailDisplayName: originalNickname },
+            })
+            .catch(() => {});
+        }
         await args.newMember.setNickname("no reason").catch(() => {});
       }
 
