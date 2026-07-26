@@ -1,10 +1,10 @@
 import type { GuildMember, PartialGuildMember } from "discord.js";
-import { EVERYONE } from "@/shared/config/roles";
+import { EVERYONE, JAIL } from "@/shared/config/roles";
 import { MemberUpdateQueueService } from "@/core/services/members/member-update-queue.service";
 import { MembersService } from "@/core/services/members/members.service";
 import { RolesService } from "@/core/services/roles/roles.service";
 import { db } from "@/lib/db";
-import { memberRole } from "@/lib/db-schema";
+import { memberGuild, memberRole } from "@/lib/db-schema";
 import { and, eq } from "drizzle-orm";
 
 export async function handleGuildMemberUpdate(
@@ -46,6 +46,33 @@ export async function handleGuildMemberUpdate(
   });
 
   MembersService.updateNickname(oldMember, newMember);
+
+  const jailRole = guildRoles.find((role) => role.name === JAIL);
+  if (jailRole) {
+    const wasJailed = oldRoles.some((role) => role.id === jailRole.id);
+    const isStillJailed = newRoles.some((role) => role.id === jailRole.id);
+    if (wasJailed && !isStillJailed) {
+      const mg = await db.query.memberGuild.findFirst({
+        where: and(
+          eq(memberGuild.memberId, newMember.id),
+          eq(memberGuild.guildId, newMember.guild.id),
+        ),
+      });
+      if (mg?.preJailDisplayName !== undefined) {
+        await newMember.setNickname(mg.preJailDisplayName).catch(() => {});
+        await db
+          .update(memberGuild)
+          .set({ preJailDisplayName: null })
+          .where(
+            and(
+              eq(memberGuild.memberId, newMember.id),
+              eq(memberGuild.guildId, newMember.guild.id),
+            ),
+          )
+          .catch(() => {});
+      }
+    }
+  }
 
   MemberUpdateQueueService.queueMemberUpdate(newMember.id, newMember.guild.id);
 }

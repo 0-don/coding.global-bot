@@ -78,6 +78,7 @@ export const memberGuild = pgTable("MemberGuild", {
 	kickable: boolean().default(true).notNull(),
 	manageable: boolean().default(true).notNull(),
 	moderatable: boolean().default(true).notNull(),
+	preJailDisplayName: text(),
 }, (table) => [
 	uniqueIndex("MemberGuild_memberId_guildId_key").using("btree", table.memberId.asc().nullsLast().op("text_ops"), table.guildId.asc().nullsLast().op("text_ops")),
 	foreignKey({

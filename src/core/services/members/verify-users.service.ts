@@ -157,6 +157,29 @@ export class VerifyAllUsersService {
                 if (role?.editable) await discordMember.roles.add(verifiedId);
               }
             }
+
+            const mg = await db.query.memberGuild.findFirst({
+              where: and(
+                eq(memberGuild.memberId, discordMember.id),
+                eq(memberGuild.guildId, discordGuild.id),
+              ),
+            });
+            if (mg?.preJailDisplayName !== undefined) {
+              await discordMember
+                .setNickname(mg.preJailDisplayName)
+                .catch(() => {});
+              await db
+                .update(memberGuild)
+                .set({ preJailDisplayName: null })
+                .where(
+                  and(
+                    eq(memberGuild.memberId, discordMember.id),
+                    eq(memberGuild.guildId, discordGuild.id),
+                  ),
+                )
+                .catch(() => {});
+            }
+
             await MemberDataService.updateCompleteMemberData(discordMember);
           }
           processedIds.add(discordMember.id);

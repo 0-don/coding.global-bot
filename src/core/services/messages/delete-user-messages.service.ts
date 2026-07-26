@@ -20,6 +20,12 @@ import { error, log } from "node:console";
 
 const CHANNEL_CONCURRENCY = 3;
 const MAX_DELETE_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
+const MAX_NICKNAME_LENGTH = 32;
+
+function truncateToNickname(text: string): string {
+	if (text.length <= MAX_NICKNAME_LENGTH) return text;
+	return text.slice(0, MAX_NICKNAME_LENGTH - 3) + "...";
+}
 
 async function runWithConcurrency<T>(
   tasks: (() => Promise<T>)[],
@@ -99,6 +105,27 @@ export class DeleteUserMessagesService {
     const role = params.guild.roles.cache.get(jailRoleId);
     if (discordMember && role?.editable)
       await discordMember.roles.add(jailRoleId).catch(error);
+
+    if (discordMember) {
+      const originalNickname = discordMember.nickname ?? null;
+      await db
+        .insert(memberGuild)
+        .values({
+          memberId: params.memberId,
+          guildId: params.guild.id,
+          preJailDisplayName: originalNickname,
+          status: false,
+        })
+        .onConflictDoUpdate({
+          target: [memberGuild.memberId, memberGuild.guildId],
+          set: { preJailDisplayName: originalNickname },
+        })
+        .catch(error);
+      const jailedNickname = truncateToNickname(
+        params.reason || "no reason",
+      );
+      await discordMember.setNickname(jailedNickname).catch(error);
+    }
 
     if (!alreadyJailed) {
       await this.sendJailNotification(params);

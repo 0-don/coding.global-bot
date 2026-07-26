@@ -15,6 +15,13 @@
       "when": 1781268114434,
       "tag": "0001_add_privacy_optout",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1751481600000,
+      "tag": "0002_add_pre_jail_display_name",
+      "breakpoints": true
     }
   ]
 }

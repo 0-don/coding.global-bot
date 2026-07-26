@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { memberRole, memberMessages, memberHelper } from "@/lib/db-schema";
+import { memberGuild, memberRole, memberMessages, memberHelper } from "@/lib/db-schema";
 import { and, count, eq, ne } from "drizzle-orm";
 import { LEVEL_LIST } from "@/shared/config/levels";
 import {
@@ -155,6 +155,24 @@ export class RolesService {
           role.name !== newAddedRole &&
           args.newMember.roles.remove(role).catch(() => {}),
       );
+
+      if (!args.newMember.partial && newAddedRole === JAIL) {
+        const originalNickname = args.newMember.nickname ?? null;
+        await db
+          .insert(memberGuild)
+          .values({
+            memberId: args.newMember.id,
+            guildId: args.newMember.guild.id,
+            preJailDisplayName: originalNickname,
+            status: false,
+          })
+          .onConflictDoUpdate({
+            target: [memberGuild.memberId, memberGuild.guildId],
+            set: { preJailDisplayName: originalNickname },
+          })
+          .catch(() => {});
+        await args.newMember.setNickname("no reason").catch(() => {});
+      }
 
       return await db.delete(memberRole)
         .where(
