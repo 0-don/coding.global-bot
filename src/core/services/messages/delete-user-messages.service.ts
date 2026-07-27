@@ -107,20 +107,23 @@ export class DeleteUserMessagesService {
       await discordMember.roles.add(jailRoleId).catch(error);
 
     if (discordMember) {
-      const originalNickname = discordMember.nickname ?? null;
-      await db
-        .insert(memberGuild)
-        .values({
-          memberId: params.memberId,
-          guildId: params.guild.id,
-          preJailDisplayName: originalNickname,
-          status: false,
-        })
-        .onConflictDoUpdate({
-          target: [memberGuild.memberId, memberGuild.guildId],
-          set: { preJailDisplayName: originalNickname },
-        })
-        .catch(error);
+      // preserve original nickname on first jail only
+      if (!alreadyJailed) {
+        const originalNickname = discordMember.nickname ?? null;
+        await db
+          .insert(memberGuild)
+          .values({
+            memberId: params.memberId,
+            guildId: params.guild.id,
+            preJailDisplayName: originalNickname,
+            status: false,
+          })
+          .onConflictDoUpdate({
+            target: [memberGuild.memberId, memberGuild.guildId],
+            set: { preJailDisplayName: originalNickname },
+          })
+          .catch(error);
+      }
       const jailedNickname = truncateToNickname(
         params.reason || "no reason",
       );

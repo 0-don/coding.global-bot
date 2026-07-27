@@ -56,7 +56,7 @@ export class RolesService {
         guildId: args.newMember.guild.id,
       };
 
-      db.insert(memberRole)
+      await db.insert(memberRole)
         .values(roleData)
         .onConflictDoUpdate({
           target: [memberRole.memberId, memberRole.roleId],
@@ -74,7 +74,7 @@ export class RolesService {
       if (!newRemovedRole) return;
 
       // try catch delete removed role from db
-      db.delete(memberRole)
+      await db.delete(memberRole)
         .where(
           and(
             eq(memberRole.memberId, args.newMember.id),
@@ -108,28 +108,29 @@ export class RolesService {
           (role) => role.id === dbRestrictedRole.roleId,
         )?.name;
 
-        // Remove all roles except the restricted one
-        for (const role of args.newMember.roles.cache.values()) {
-          if (role.name === restrictedRoleName) continue;
-          await args.newMember.roles.remove(role).catch(() => {});
-        }
+        // guard against undefined role name to avoid stripping the restricted role
+        if (restrictedRoleName) {
+          for (const role of args.newMember.roles.cache.values()) {
+            if (role.name === restrictedRoleName) continue;
+            await args.newMember.roles.remove(role).catch(() => {});
+          }
 
-        // Add restricted role if not on user
-        if (
-          !args.newMember.roles.cache.some(
-            (role) => role.name === restrictedRoleName,
-          )
-        )
-          args.newMember.roles.add(dbRestrictedRole.roleId).catch(() => {});
-
-        db.delete(memberRole)
-          .where(
-            and(
-              eq(memberRole.memberId, args.newMember.id),
-              eq(memberRole.guildId, args.newMember.guild.id),
-              ne(memberRole.roleId, dbRestrictedRole.roleId),
+          if (
+            !args.newMember.roles.cache.some(
+              (role) => role.name === restrictedRoleName,
             )
-          );
+          )
+            await args.newMember.roles.add(dbRestrictedRole.roleId).catch(() => {});
+
+          await db.delete(memberRole)
+            .where(
+              and(
+                eq(memberRole.memberId, args.newMember.id),
+                eq(memberRole.guildId, args.newMember.guild.id),
+                ne(memberRole.roleId, dbRestrictedRole.roleId),
+              )
+            );
+        }
 
         return;
       }
@@ -146,42 +147,48 @@ export class RolesService {
 
     // Handle JAIL or VOICE_ONLY role addition
     if (newAddedRole === JAIL || newAddedRole === VOICE_ONLY) {
-      const restrictedRole = args.newMember.roles.cache.find(
-        (role) => role.name === newAddedRole,
-      );
-
       args.newMember.roles.cache.forEach(
         (role) =>
           role.name !== newAddedRole &&
           args.newMember.roles.remove(role).catch(() => {}),
       );
 
+      // save original nickname for manual jail scenario
       if (!args.newMember.partial && newAddedRole === JAIL) {
-        const originalNickname = args.newMember.nickname ?? null;
+        const displayName = args.newMember.nickname ?? null;
         await db
           .insert(memberGuild)
           .values({
             memberId: args.newMember.id,
             guildId: args.newMember.guild.id,
-            preJailDisplayName: originalNickname,
+            preJailDisplayName: displayName,
             status: false,
           })
           .onConflictDoUpdate({
             target: [memberGuild.memberId, memberGuild.guildId],
-            set: { preJailDisplayName: originalNickname },
+            set: { preJailDisplayName: displayName },
           })
           .catch(() => {});
-        await args.newMember.setNickname("no reason").catch(() => {});
       }
 
-      return await db.delete(memberRole)
-        .where(
-          and(
-            eq(memberRole.memberId, args.newMember.id),
-            eq(memberRole.guildId, args.newMember.guild.id),
-            ne(memberRole.roleId, restrictedRole?.id ?? ""),
-          )
-        );
+      // resolve role ID from guild cache (more reliable than member cache)
+      const restrictedRoleId = args.guildRoles.find(
+        (role) => role.name === newAddedRole,
+      )?.id;
+
+      // guard against undefined role ID to avoid nuking all DB roles
+      if (restrictedRoleId) {
+      await db.delete(memberRole)
+          .where(
+            and(
+              eq(memberRole.memberId, args.newMember.id),
+              eq(memberRole.guildId, args.newMember.guild.id),
+              ne(memberRole.roleId, restrictedRoleId),
+            )
+          );
+      }
+
+      return;
     }
 
     // Check if role is a status role; if yes, remove unused status roles

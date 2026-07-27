@@ -142,10 +142,11 @@ export class MessagesService {
       return;
     }
 
+    // case-insensitive jail check
     const memberInJail = message.member?.roles.cache.some(
       (role) =>
-        JAIL === role.name.toLowerCase() ||
-        VOICE_ONLY === role.name.toLowerCase(),
+        JAIL.toLowerCase() === role.name.toLowerCase() ||
+        VOICE_ONLY.toLowerCase() === role.name.toLowerCase(),
     );
 
     if (memberInJail) return;
