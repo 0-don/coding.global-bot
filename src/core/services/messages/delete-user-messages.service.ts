@@ -127,7 +127,9 @@ export class DeleteUserMessagesService {
       const jailedNickname = truncateToNickname(
         params.reason || "no reason",
       );
-      await discordMember.setNickname(jailedNickname).catch(error);
+      if (discordMember.manageable) {
+        await discordMember.setNickname(jailedNickname).catch(error);
+      }
     }
 
     if (!alreadyJailed) {

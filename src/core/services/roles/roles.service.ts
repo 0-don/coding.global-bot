@@ -1,5 +1,10 @@
 import { db } from "@/lib/db";
-import { memberGuild, memberRole, memberMessages, memberHelper } from "@/lib/db-schema";
+import {
+  memberGuild,
+  memberRole,
+  memberMessages,
+  memberHelper,
+} from "@/lib/db-schema";
 import { and, count, eq, ne } from "drizzle-orm";
 import { LEVEL_LIST } from "@/shared/config/levels";
 import {
@@ -56,7 +61,8 @@ export class RolesService {
         guildId: args.newMember.guild.id,
       };
 
-      await db.insert(memberRole)
+      await db
+        .insert(memberRole)
         .values(roleData)
         .onConflictDoUpdate({
           target: [memberRole.memberId, memberRole.roleId],
@@ -74,12 +80,13 @@ export class RolesService {
       if (!newRemovedRole) return;
 
       // try catch delete removed role from db
-      await db.delete(memberRole)
+      await db
+        .delete(memberRole)
         .where(
           and(
             eq(memberRole.memberId, args.newMember.id),
             eq(memberRole.roleId, newRemovedRole.id),
-          )
+          ),
         )
         .catch(() => {});
     }
@@ -120,15 +127,18 @@ export class RolesService {
               (role) => role.name === restrictedRoleName,
             )
           )
-            await args.newMember.roles.add(dbRestrictedRole.roleId).catch(() => {});
+            await args.newMember.roles
+              .add(dbRestrictedRole.roleId)
+              .catch(() => {});
 
-          await db.delete(memberRole)
+          await db
+            .delete(memberRole)
             .where(
               and(
                 eq(memberRole.memberId, args.newMember.id),
                 eq(memberRole.guildId, args.newMember.guild.id),
                 ne(memberRole.roleId, dbRestrictedRole.roleId),
-              )
+              ),
             );
         }
 
@@ -164,9 +174,10 @@ export class RolesService {
             preJailDisplayName: displayName,
             status: false,
           })
+          //  keep preJailDisplayName from jailUser() if already set, avoid overwriting with jail nickname
           .onConflictDoUpdate({
             target: [memberGuild.memberId, memberGuild.guildId],
-            set: { preJailDisplayName: displayName },
+            set: { status: false },
           })
           .catch(() => {});
       }
@@ -178,13 +189,14 @@ export class RolesService {
 
       // guard against undefined role ID to avoid nuking all DB roles
       if (restrictedRoleId) {
-      await db.delete(memberRole)
+        await db
+          .delete(memberRole)
           .where(
             and(
               eq(memberRole.memberId, args.newMember.id),
               eq(memberRole.guildId, args.newMember.guild.id),
               ne(memberRole.roleId, restrictedRoleId),
-            )
+            ),
           );
       }
 
@@ -213,7 +225,7 @@ export class RolesService {
           and(
             eq(memberMessages.memberId, args.newMember?.id),
             eq(memberMessages.guildId, args.newMember?.guild?.id),
-          )
+          ),
         );
 
       const memberMessagesCount = result?.count ?? 0;

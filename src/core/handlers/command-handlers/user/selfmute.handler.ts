@@ -1,4 +1,5 @@
 import type { CommandInteraction, GuildMember } from "discord.js";
+import { searchGifs } from "@/shared/ai/ai-tools";
 
 export const MAX_SELF_MUTE_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -7,6 +8,7 @@ export interface SelfMuteResult {
 	days: number;
 	hours: number;
 	minutes: number;
+	gifUrl?: string;
 }
 
 export async function executeSelfMute(
@@ -28,7 +30,16 @@ export async function executeSelfMute(
 		return "7 days is the maximum you can go for self mute";
 	}
 
-	await member.disableCommunicationUntil(new Date(Date.now() + totalMs));
+	try {
+		await member.disableCommunicationUntil(
+			new Date(Date.now() + totalMs),
+		);
+	} catch {
+		return "I can't mute someone with a higher role than me.";
+	}
 
-	return { success: true, days, hours, minutes };
+	const queries = ["grass", "nature", "touch grass"];
+	const gifs = await searchGifs(queries[Math.floor(Math.random() * queries.length)], 1);
+
+	return { success: true, days, hours, minutes, gifUrl: gifs[0] };
 }

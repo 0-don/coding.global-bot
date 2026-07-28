@@ -9,7 +9,7 @@ import { bot } from "@/main";
 const KLIPY_API_KEY = process.env.KLIPY_API_KEY;
 const KLIPY_BASE_URL = `https://api.klipy.com/api/v1/${KLIPY_API_KEY}/gifs/search`;
 
-async function searchGifs(query: string, limit: number = 5): Promise<string[]> {
+export async function searchGifs(query: string, limit: number = 5): Promise<string[]> {
   if (!KLIPY_API_KEY) {
     botLogger.warn("KLIPY_API_KEY not configured - GIF search disabled");
     return [];
