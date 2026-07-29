@@ -44,9 +44,23 @@ export class DeleteUserMessages {
       required: false,
     })
     reason: string | undefined,
+    @SlashOption({
+      name: "proof",
+      description: "Discord message link of the rule-breaking message (right-click → Copy Message Link)",
+      type: ApplicationCommandOptionType.String,
+      required: false,
+    })
+    proof: string | undefined,
     interaction: CommandInteraction,
   ) {
     if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] }))) return;
+    if (proof && !/discord\.com\/channels\/\d+\/\d+\/\d+/.test(proof)) {
+      await safeEditReply(
+        interaction,
+        "The proof field must be a Discord message link (right-click → Copy Message Link).",
+      );
+      return;
+    }
     if (interaction.member?.user.id && interaction.guildId) {
       db.insert(memberCommandHistory)
         .values({
@@ -64,6 +78,7 @@ export class DeleteUserMessages {
       userId,
       jail,
       reason,
+      proof,
     );
 
     if (result.error) {

@@ -10,7 +10,19 @@ export const userJailedEmbed = (params: UserJailedEmbedParams): APIEmbed => ({
     `**Username:** ${params.displayName} (${params.username})`,
     `**Member ID:** ${params.memberId}`,
     `**Reason:** ${params.reason || "No reason provided"}`,
+    `**Jailed by:** ${params.moderatorId ? `<@${params.moderatorId}>` : "System"}`,
   ].join("\n"),
+  fields: [
+    {
+      name: "Proof",
+      //  embed field caps at 1024 chars, truncate with ellipsis
+      value: params.proofContent
+        ? params.proofContent.length > 1020
+          ? params.proofContent.slice(0, 1020) + "..."
+          : params.proofContent
+        : "no proof attached",
+    },
+  ],
   timestamp: new Date().toISOString(),
   footer: {
     text: "Jail System",

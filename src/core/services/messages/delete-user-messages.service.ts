@@ -23,8 +23,8 @@ const MAX_DELETE_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
 const MAX_NICKNAME_LENGTH = 32;
 
 function truncateToNickname(text: string): string {
-	if (text.length <= MAX_NICKNAME_LENGTH) return text;
-	return text.slice(0, MAX_NICKNAME_LENGTH - 3) + "...";
+  if (text.length <= MAX_NICKNAME_LENGTH) return text;
+  return text.slice(0, MAX_NICKNAME_LENGTH - 3) + "...";
 }
 
 async function runWithConcurrency<T>(
@@ -68,8 +68,7 @@ export class DeleteUserMessagesService {
    * Apply jail role, update DB, send notification. Fast operation (~2s).
    */
   static async jailUser(params: DeleteUserMessagesParams) {
-    const jailRoleId = RolesService.getGuildStatusRoles(params.guild)[JAIL]
-      ?.id;
+    const jailRoleId = RolesService.getGuildStatusRoles(params.guild)[JAIL]?.id;
     if (!jailRoleId) return;
 
     const memberId = params.user?.id || params.memberId;
@@ -87,12 +86,14 @@ export class DeleteUserMessagesService {
         })
         .onConflictDoNothing();
 
-      await tx.delete(memberRole).where(
-        and(
-          eq(memberRole.memberId, params.memberId),
-          eq(memberRole.guildId, params.guild.id),
-        ),
-      );
+      await tx
+        .delete(memberRole)
+        .where(
+          and(
+            eq(memberRole.memberId, params.memberId),
+            eq(memberRole.guildId, params.guild.id),
+          ),
+        );
 
       await tx.insert(memberRole).values({
         roleId: jailRoleId,
@@ -124,9 +125,7 @@ export class DeleteUserMessagesService {
           })
           .catch(error);
       }
-      const jailedNickname = truncateToNickname(
-        params.reason || "no reason",
-      );
+      const jailedNickname = truncateToNickname(params.reason || "no reason");
       if (discordMember.manageable) {
         await discordMember.setNickname(jailedNickname).catch(error);
       }
@@ -167,8 +166,7 @@ export class DeleteUserMessagesService {
 
           const userMessages = messages.filter(
             (m) =>
-              m.author.id === params.memberId &&
-              m.createdTimestamp >= cutoff,
+              m.author.id === params.memberId && m.createdTimestamp >= cutoff,
           );
 
           if (userMessages.size > 0) {
@@ -190,8 +188,7 @@ export class DeleteUserMessagesService {
           log(
             `[DeleteUserMessages] Channel ${channel.id} no longer exists, cleaning up DB records`,
           );
-          if (channel.isThread())
-            await ThreadService.deleteThread(channel.id);
+          if (channel.isThread()) await ThreadService.deleteThread(channel.id);
           return;
         }
         error(err);
@@ -266,12 +263,9 @@ export class DeleteUserMessagesService {
     );
   }
 
-  private static async sendJailNotification(params: {
-    guild: Guild;
-    user: User | null;
-    memberId: string;
-    reason?: string;
-  }) {
+  private static async sendJailNotification(
+    params: DeleteUserMessagesParams,
+  ) {
     const jailChannel = params.guild.channels.cache.find(
       (ch) =>
         ch.type === ChannelType.GuildText &&
@@ -297,11 +291,47 @@ export class DeleteUserMessagesService {
       "Unknown";
     const username = dbMember?.username || "Unknown";
 
+    let proofContent: string | undefined;
+    const proofMessageId = params.proofMessageId;
+    if (proofMessageId) {
+      // Parse Discord message link: https://discord.com/channels/{guild}/{channel}/{message}
+      const linkMatch = proofMessageId.match(
+        /discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/,
+      );
+      const channelId = linkMatch?.[2];
+      const messageId = linkMatch?.[3] || proofMessageId;
+
+      const channel = channelId
+        ? params.guild.channels.cache.get(channelId)
+        : null;
+
+      // single fetch via message link, O(1) instead of iterating all channels
+      if (channel?.isTextBased()) {
+        try {
+          const msg = await channel.messages.fetch(messageId);
+          if (msg) {
+            //  guard against wrong-link copy-paste, reject proof from non-jailed users
+            if (msg.author.id === params.memberId) {
+              proofContent = msg.content || "[no text content]";
+            } else {
+              proofContent =
+                "[invalid proof — message not sent by jailed user]";
+            }
+            await msg.delete().catch(() => {});
+          }
+        } catch {
+          // message not found or deleted
+        }
+      }
+    }
+
     const embed = userJailedEmbed({
       memberId: params.memberId,
       displayName,
       username,
       reason: params.reason,
+      proofContent,
+      moderatorId: params.moderatorId,
     });
 
     await jailChannel.send({ embeds: [embed] }).catch(error);

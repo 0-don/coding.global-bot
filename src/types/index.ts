@@ -110,6 +110,8 @@ export interface UserJailedEmbedParams {
   displayName: string;
   username: string;
   reason?: string;
+  proofContent?: string;
+  moderatorId?: string;
 }
 
 // Service types
@@ -119,6 +121,8 @@ export interface DeleteUserMessagesParams {
   memberId: string;
   jail: string | number | boolean;
   reason?: string;
+  proofMessageId?: string;
+  moderatorId?: string;
 }
 
 // Roles service types

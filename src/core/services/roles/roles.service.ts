@@ -174,7 +174,7 @@ export class RolesService {
             preJailDisplayName: displayName,
             status: false,
           })
-          //  keep preJailDisplayName from jailUser() if already set, avoid overwriting with jail nickname
+
           .onConflictDoUpdate({
             target: [memberGuild.memberId, memberGuild.guildId],
             set: { status: false },

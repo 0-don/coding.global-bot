@@ -8,6 +8,7 @@ export async function executeDeleteUserMessages(
   userId: string | undefined,
   jail: boolean,
   reason: string | undefined,
+  proof: string | undefined,
 ): Promise<CommandResult> {
   const memberId = user?.id ?? userId;
   if (!memberId || !interaction.guild) {
@@ -20,6 +21,8 @@ export async function executeDeleteUserMessages(
     jail,
     user: user ?? null,
     reason: reason || "Manual moderation",
+    proofMessageId: proof,
+    moderatorId: interaction.user.id,
   };
 
   if (jail) {
