@@ -10,10 +10,12 @@ import { Message, MessageType, TextChannel } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
 
 export async function handleMessageCreate(message: Message): Promise<void> {
-  // Without the MessageContent intent every message arrives with empty content,
-  // which would make the scam and invite filters report clean on everything.
-  // Skip them outright rather than let them pass traffic they cannot inspect.
+  // Duplicate-spam detection keys off attachment hashes and channel spread, so it
+  // still catches image floods when message content is unavailable. The scam and
+  // invite filters read text, and without the intent every message looks empty to
+  // them, so they would report clean on everything: skip those instead.
   if (!CAN_READ_MESSAGE_CONTENT) {
+    await DuplicateSpamService.checkDuplicateSpam(message);
     await MessagesService.addMessageDb(message);
     await MessagesService.levelUpMessage(message);
     return;
