@@ -15,6 +15,7 @@ type ModelId = RawModelId extends infer T
   : never;
 
 const FALLBACK_MODELS: ModelId[] = [
+  "gemini-3.7-flash",
   "gemini-3.6-flash",
   "gemini-3.5-flash-lite",
   "gemini-3.5-flash",
@@ -59,11 +60,7 @@ function getAPICallError(
 }
 
 type ErrorCategory =
-  | "rate_limit"
-  | "key_error"
-  | "non_retryable"
-  | "image_download"
-  | "unknown";
+  "rate_limit" | "key_error" | "non_retryable" | "image_download" | "unknown";
 
 export class ImageDownloadError extends Error {
   constructor(message: string) {

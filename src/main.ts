@@ -3,7 +3,8 @@ import "@dotenvx/dotenvx/config";
 import { AttachmentRefreshQueueService } from "@/core/services/attachments/attachment-refresh-queue.service";
 import { MemberUpdateQueueService } from "@/core/services/members/member-update-queue.service";
 import { botLogger, shutdownTelemetry } from "@/lib/telemetry";
-import { PRIVILEGED_INTENTS_ENABLED } from "@/shared/config/features";
+import { setIntentState } from "@/shared/config/features";
+import { fetchGrantedIntents, intentBitsFor } from "@/shared/config/intents";
 import { ConfigValidator } from "@/shared/config/validator";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
 import { Client } from "discordx";
@@ -15,18 +16,27 @@ ConfigValidator.validateConfig();
 const token = process.env.TOKEN;
 
 // Requesting a privileged intent Discord has not granted closes the gateway with
-// 4014 and the process cannot start at all, so they are opt-in per environment.
-const privilegedIntents = PRIVILEGED_INTENTS_ENABLED
-  ? [
-      GatewayIntentBits.GuildMembers,
-      GatewayIntentBits.GuildPresences,
-      GatewayIntentBits.MessageContent,
-    ]
-  : [];
+// 4014 and the process cannot start at all, so ask Discord what is granted first
+// and request exactly that. Access is provisional below the 10k-user review
+// threshold and can be revoked, so this is resolved per start rather than configured.
+const grantedIntents = await fetchGrantedIntents(token ?? "");
+setIntentState(grantedIntents);
 
-if (!PRIVILEGED_INTENTS_ENABLED) {
+const privilegedIntents = intentBitsFor(grantedIntents);
+
+const missingIntents = (
+  [
+    ["member events", grantedIntents.guildMembers],
+    ["presence", grantedIntents.guildPresences],
+    ["message content", grantedIntents.messageContent],
+  ] as const
+)
+  .filter(([, granted]) => !granted)
+  .map(([name]) => name);
+
+if (missingIntents.length) {
   botLogger.warn(
-    "Running without privileged intents: member events, presence and message content are unavailable, so moderation filters and member tracking are disabled",
+    `Running without privileged intents: ${missingIntents.join(", ")} unavailable, so the filters that depend on them are disabled`,
   );
 }
 
@@ -121,7 +131,7 @@ const main = async () => {
   await bot.login(token);
 
   bot.user?.setPresence(
-    PRIVILEGED_INTENTS_ENABLED
+    missingIntents.length === 0
       ? { activities: [{ name: ".gg/coding", type: ActivityType.Watching }] }
       : {
           status: "idle",

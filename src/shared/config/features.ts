@@ -1,3 +1,5 @@
+import type { GrantedIntents } from "./intents";
+
 // Feature flags parsed from environment variables
 
 export const IS_CONSTRAINED_TO_BOT_CHANNEL =
@@ -12,11 +14,21 @@ export const SHOULD_COUNT_MEMBERS =
 export const SHOULD_USER_LEVEL_UP =
   process.env.SHOULD_USER_LEVEL_UP?.trim() === "true";
 
-// Opt-out rather than opt-in: privileged intents are the normal state, and a
-// missing variable must not silently disable moderation.
-export const PRIVILEGED_INTENTS_ENABLED =
-  process.env.PRIVILEGED_INTENTS_ENABLED?.trim() !== "false";
+// Which privileged intents Discord actually granted, resolved at startup by
+// intents.ts. Defaults to granted so a failed lookup never silently disables
+// moderation; setIntentState overwrites it before the client connects.
+let intentState: GrantedIntents = {
+  guildMembers: true,
+  guildPresences: true,
+  messageContent: true,
+};
 
-export const CAN_READ_MESSAGE_CONTENT = PRIVILEGED_INTENTS_ENABLED;
+export function setIntentState(granted: GrantedIntents): void {
+  intentState = granted;
+}
 
-export const CAN_TRACK_MEMBERS = PRIVILEGED_INTENTS_ENABLED;
+export const canReadMessageContent = () => intentState.messageContent;
+
+export const canTrackMembers = () => intentState.guildMembers;
+
+export const canReadPresence = () => intentState.guildPresences;

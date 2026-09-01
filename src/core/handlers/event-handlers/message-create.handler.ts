@@ -3,7 +3,7 @@ import { RolesService } from "@/core/services/roles/roles.service";
 import { DuplicateSpamService } from "@/core/services/spam/duplicate-spam.service";
 import { SpamDetectionService } from "@/core/services/spam/spam-detection.service";
 import { ThreadService } from "@/core/services/threads/thread.service";
-import { CAN_READ_MESSAGE_CONTENT } from "@/shared/config/features";
+import { canReadMessageContent } from "@/shared/config/features";
 import { ConfigValidator } from "@/shared/config/validator";
 import { translate } from "@/shared/integrations/deepl";
 import { Message, MessageType, TextChannel } from "discord.js";
@@ -14,7 +14,7 @@ export async function handleMessageCreate(message: Message): Promise<void> {
   // still catches image floods when message content is unavailable. The scam and
   // invite filters read text, and without the intent every message looks empty to
   // them, so they would report clean on everything: skip those instead.
-  if (!CAN_READ_MESSAGE_CONTENT) {
+  if (!canReadMessageContent()) {
     await DuplicateSpamService.checkDuplicateSpam(message);
     await MessagesService.addMessageDb(message);
     await MessagesService.levelUpMessage(message);
