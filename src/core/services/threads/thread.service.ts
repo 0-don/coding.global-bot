@@ -1,7 +1,7 @@
 import { ThreadType } from "@/api/middleware/validators";
 import { PrivacyService } from "@/core/services/privacy/privacy.service";
 import { db } from "@/lib/db";
-import { thread, threadMessage, threadTag, tag, attachment } from "@/lib/db-schema";
+import { thread, threadMessage, threadTag, tag, attachment, member } from "@/lib/db-schema";
 import { and, eq, gt, ne, asc, desc } from "drizzle-orm";
 import {
   mapAttachmentToDb,
@@ -19,10 +19,43 @@ import {
   GuildForumTag,
   Message,
   ThreadChannel,
+  User,
 } from "discord.js";
 import { Static } from "elysia";
+import { bot } from "@/main";
 
 export class ThreadService {
+  // Thread and ThreadMessage carry a foreign key to Member, so an author the bot
+  // has never recorded fails the insert and the row is lost.
+  private static async ensureMember(
+    author: User | null,
+    authorId: string,
+  ): Promise<void> {
+    const user = author ?? (await bot.users.fetch(authorId).catch(() => null));
+    if (!user) return;
+
+    await db
+      .insert(member)
+      .values({
+        memberId: user.id,
+        username: user.username,
+        globalName: user.globalName,
+        bot: user.bot,
+        system: user.system,
+        avatarUrl: user.displayAvatarURL(),
+        createdAt: user.createdAt?.toISOString() ?? null,
+      })
+      .onConflictDoUpdate({
+        target: member.memberId,
+        set: {
+          username: user.username,
+          globalName: user.globalName,
+          avatarUrl: user.displayAvatarURL(),
+        },
+      })
+      .catch(() => {});
+  }
+
   static async upsertThread(
     discordThread: ThreadChannel,
     threadType: string,
@@ -31,6 +64,8 @@ export class ThreadService {
     const guildId = discordThread.guildId;
     const authorId = discordThread.ownerId;
     if (!guildId || !authorId) return;
+
+    await this.ensureMember(null, authorId);
 
     const data = {
       id: discordThread.id,
@@ -188,6 +223,8 @@ export class ThreadService {
     if (!guildId || !authorId) return;
 
     if (await PrivacyService.hasMessageOptOut(authorId, guildId)) return;
+
+    await this.ensureMember(message.author, authorId);
 
     const existingThread = await db.query.thread.findFirst({ where: eq(thread.id, threadId) });
     if (!existingThread) {
