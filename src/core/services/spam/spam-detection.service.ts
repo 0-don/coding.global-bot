@@ -12,6 +12,7 @@ import { Message, ThreadChannel } from "discord.js";
 
 export class SpamDetectionService {
   private static _spamDetectionWarningLogged = false;
+  private static analyzing = new Set<string>();
 
   private static async isFirstMessage(
     memberId: string,
@@ -83,6 +84,10 @@ export class SpamDetectionService {
     );
     if (!isFirst) return false;
 
+    // isFirstMessage reads the DB, so a burst of first messages all see an empty
+    // row set and each one would run its own classification and jail sweep.
+    if (this.analyzing.has(message.author.id)) return false;
+
     const hasText = message.content.trim().length > 0;
     const hasImages = message.attachments.some((att) =>
       att.contentType?.startsWith("image/"),
@@ -92,6 +97,7 @@ export class SpamDetectionService {
       return false;
     }
 
+    this.analyzing.add(message.author.id);
     try {
       const userProfile = await this.getUserProfile(message);
       const messageImages = await extractImageUrls(message);
@@ -152,6 +158,8 @@ export class SpamDetectionService {
     } catch (error) {
       botLogger.error("Spam detection error", { error: String(error) });
       return false;
+    } finally {
+      this.analyzing.delete(message.author.id);
     }
   }
 }

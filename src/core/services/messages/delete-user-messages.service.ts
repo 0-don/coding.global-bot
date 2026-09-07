@@ -111,6 +111,28 @@ export class DeleteUserMessagesService {
    * Delete user messages across all channels. Scoped to last 14 days.
    */
   static async deleteUserMessages(params: DeleteUserMessagesParams) {
+    // A spammer's messages arrive faster than one sweep of 275 channels takes, and
+    // every detector that catches them calls this, so without a guard the same user
+    // gets several concurrent sweeps that each re-scan what the others deleted.
+    const sweepKey = `${params.guild.id}:${params.memberId}`;
+    if (this.activeSweeps.has(sweepKey)) {
+      log(
+        `[DeleteUserMessages] Sweep already running for user ${params.memberId}, skipping`,
+      );
+      return;
+    }
+    this.activeSweeps.add(sweepKey);
+
+    try {
+      await this.runDeletion(params);
+    } finally {
+      this.activeSweeps.delete(sweepKey);
+    }
+  }
+
+  private static activeSweeps = new Set<string>();
+
+  private static async runDeletion(params: DeleteUserMessagesParams) {
     log(
       `[DeleteUserMessages] Starting message deletion for user ${params.memberId} in guild ${params.guild.name}`,
     );

@@ -12,6 +12,7 @@ import type { UserSpamState } from "@/types";
 
 export class DuplicateSpamService {
   private static userStates = new Map<string, UserSpamState>();
+  private static jailing = new Set<string>();
 
   static async checkDuplicateSpam(message: Message): Promise<boolean> {
     if (message.author.bot) return false;
@@ -20,6 +21,10 @@ export class DuplicateSpamService {
     const attachments = Array.from(message.attachments.values());
 
     if (!content && attachments.length === 0) return false;
+
+    // Hashing downloads every attachment, so a burst of messages from one spammer
+    // all reach the threshold check before the first of them clears the state.
+    if (this.jailing.has(message.author.id)) return true;
 
     const attachmentHashes = await Promise.all(
       attachments.map((a) => this.hashAttachmentContent(a)),
@@ -99,6 +104,7 @@ export class DuplicateSpamService {
 
     if (shouldJail) {
       const reason = `Sent ${count} duplicate messages`;
+      this.jailing.add(userId);
 
       await DeleteUserMessagesService.jailAndDeleteMessages({
         jail: true,
@@ -117,6 +123,7 @@ export class DuplicateSpamService {
       }
 
       this.userStates.delete(userId);
+      this.jailing.delete(userId);
     } else {
       const warningMessage = `Stop posting duplicate messages. This is warning ${count - DUPLICATE_WARNING_THRESHOLD + 1}, you will be muted at ${DUPLICATE_JAIL_THRESHOLD - DUPLICATE_WARNING_THRESHOLD + 1} warnings.`;
 
@@ -142,6 +149,7 @@ export class DuplicateSpamService {
 
     if (shouldJail) {
       const reason = `Posted in ${uniqueChannels} channels within 10 minutes`;
+      this.jailing.add(userId);
 
       await DeleteUserMessagesService.jailAndDeleteMessages({
         jail: true,
@@ -160,6 +168,7 @@ export class DuplicateSpamService {
       }
 
       this.userStates.delete(userId);
+      this.jailing.delete(userId);
     } else {
       const warningMessage = `Stop posting in multiple channels rapidly. This is warning ${uniqueChannels - CHANNEL_WARNING_THRESHOLD + 1}, you will be muted at ${CHANNEL_JAIL_THRESHOLD - CHANNEL_WARNING_THRESHOLD + 1} warnings.`;
 
