@@ -375,3 +375,20 @@ export const syncProgress = pgTable("SyncProgress", {
 }, (table) => [
 	primaryKey({ columns: [table.type, table.guildId], name: "SyncProgress_pkey"}),
 ]);
+
+// No foreign keys: this row is what authorises an unmute, so a missing Member or
+// Guild row must never make the insert fail and leave a timeout nobody can lift.
+export const memberMute = pgTable("MemberMute", {
+	id: serial().primaryKey().notNull(),
+	memberId: text().notNull(),
+	guildId: text().notNull(),
+	moderatorId: text().notNull(),
+	moderatorTier: text().notNull(),
+	reason: text(),
+	expiresAt: timestamp({ precision: 3, mode: 'string' }).notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	liftedAt: timestamp({ precision: 3, mode: 'string' }),
+	liftedByMemberId: text(),
+}, (table) => [
+	index("MemberMute_memberId_guildId_idx").using("btree", table.memberId.asc().nullsLast().op("text_ops"), table.guildId.asc().nullsLast().op("text_ops")),
+]);
