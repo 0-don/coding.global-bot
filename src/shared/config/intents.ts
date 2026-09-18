@@ -25,12 +25,6 @@ const ALL_GRANTED: GrantedIntents = {
   messageContent: true,
 };
 
-const NONE_GRANTED: GrantedIntents = {
-  guildMembers: false,
-  guildPresences: false,
-  messageContent: false,
-};
-
 function fromFlags(flags: number): GrantedIntents {
   const has = (full: number, limited: number) =>
     (flags & full) !== 0 || (flags & limited) !== 0;
@@ -59,13 +53,6 @@ function fromFlags(flags: number): GrantedIntents {
 export async function fetchGrantedIntents(
   token: string,
 ): Promise<GrantedIntents> {
-  // PRIVILEGED_INTENTS_ENABLED=false forces limited mode regardless of the grant,
-  // for testing the degraded path without waiting on Discord to revoke anything.
-  if (process.env.PRIVILEGED_INTENTS_ENABLED?.trim() === "false") {
-    botLogger.warn("Privileged intents disabled by environment override");
-    return NONE_GRANTED;
-  }
-
   try {
     const res = await fetch("https://discord.com/api/v10/applications/@me", {
       headers: {
