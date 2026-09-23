@@ -63,6 +63,8 @@
 | `/members`     | Member flow and count           |                       |
 | `/translate`   | Translate text to English       | `text`                |
 | `/lookback-me` | Change your lookback date range | `lookback`            |
+| `/warnings`    | List your own warnings          | `page` (optional)     |
+| `/report`      | Report a member to the mods     | `user`, `reason`      |
 
 #### Mod (Manage Roles)
 
@@ -74,6 +76,13 @@
 | `/lookback-members`             | Change lookback date range for the guild | `lookback`                          |
 | `/log-command-history`          | Show command history                     | `count` (optional)                  |
 | `/log-deleted-messages-history` | Show deleted messages                    | `count` (optional)                  |
+| `/warn`                         | Warn a member (DMs them, logs it)        | `user`, `reason`                    |
+| `/warnings`                     | List another member's warnings           | `user`, `page` (optional)           |
+| `/edit-warning`                 | Change a warning's reason                | `warning_id`, `new_reason`          |
+| `/delete-warning`               | Delete one warning                       | `warning_id`                        |
+| `/top-warnings`                 | Most-warned members                      | `page` (optional)                   |
+| `/jail`                         | Jail a member, optionally purging msgs   | `user`/`user-id`, `reason`, `purge`, `days` |
+| `/unjail`                       | Release a member from jail               | `user`/`user-id`, `reason`          |
 
 #### Admin
 
@@ -81,3 +90,10 @@
 | ------------------ | ---------------------------------------- | -------------------------- |
 | `/troll-move-user` | Move user around empty voice channels    | `user`, `count`, `timeout` |
 | `/audit-roles`     | Audit all roles for elevated permissions |                            |
+| `/clear-warnings`  | Remove all of a member's warnings        | `user`                     |
+
+#### Moderation log
+
+Set `MOD_LOG_CHANNELS` to post every warning, jail, unjail, kick, ban, unban and timeout to a channel. Entries are also stored in the `ModLog` table even when no channel is set. Kicks, bans and timeouts done in Discord directly are attributed through the audit log, so the bot needs the **View Audit Log** permission. `/report` posts to `REPORT_CHANNELS`.
+
+Warnings from `/warn` and from the invite-link filter share one count: the invite filter jails a member when a new violation brings them to 4 warnings.

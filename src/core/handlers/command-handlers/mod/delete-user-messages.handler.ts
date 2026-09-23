@@ -19,6 +19,8 @@ export async function executeDeleteUserMessages(
     memberId,
     jail,
     user: user ?? null,
+    moderatorId: interaction.user.id,
+    moderatorName: interaction.user.username,
     reason: reason
       ? `${reason} (triggered by <@${interaction.user.id}>)`
       : `Manual moderation (triggered by <@${interaction.user.id}>)`,

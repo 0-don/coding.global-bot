@@ -47,6 +47,9 @@ export const bot = new Client({
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMessageReactions,
+    // Not privileged; without it guildBanAdd/guildBanRemove never arrive and
+    // bans go missing from the mod log.
+    GatewayIntentBits.GuildModeration,
     ...privilegedIntents,
   ],
   partials: [

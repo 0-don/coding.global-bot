@@ -119,6 +119,11 @@ export interface DeleteUserMessagesParams {
   memberId: string;
   jail: string | number | boolean;
   reason?: string;
+  /** Left unset for automod, which is what makes the mod log read "Automod". */
+  moderatorId?: string;
+  moderatorName?: string;
+  /** How far back the message sweep reaches, 1-14 days. Defaults to 14. */
+  days?: number;
 }
 
 // Roles service types

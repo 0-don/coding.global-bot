@@ -1,3 +1,4 @@
+import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { db } from "@/lib/db";
 import { memberMute } from "@/lib/db-schema";
 import {
@@ -124,6 +125,17 @@ export class MuteService {
       expiresAt: expiresAt.toISOString(),
     });
 
+    await ModLogService.postLog({
+      guild: params.target.guild,
+      action: "timeout",
+      targetId: params.target.id,
+      targetName: params.target.user.username,
+      targetUser: params.target.user,
+      moderatorId: params.moderator.id,
+      moderatorName: params.moderator.user.username,
+      reason: `${params.reason ?? "No reason provided"} (${formatDuration(params.minutes)}, until <t:${Math.floor(expiresAt.getTime() / 1000)}:f>)`,
+    });
+
     return {
       ok: true,
       message: `Muted <@${params.target.id}> for ${formatDuration(params.minutes)}.`,
@@ -158,6 +170,16 @@ export class MuteService {
         })
         .where(eq(memberMute.id, record.id));
     }
+
+    await ModLogService.postLog({
+      guild: params.target.guild,
+      action: "untimeout",
+      targetId: params.target.id,
+      targetName: params.target.user.username,
+      targetUser: params.target.user,
+      moderatorId: params.moderator.id,
+      moderatorName: params.moderator.user.username,
+    });
 
     return { ok: true, message: `Unmuted <@${params.target.id}>.` };
   }

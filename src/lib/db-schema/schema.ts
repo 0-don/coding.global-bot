@@ -392,3 +392,60 @@ export const memberMute = pgTable("MemberMute", {
 }, (table) => [
 	index("MemberMute_memberId_guildId_idx").using("btree", table.memberId.asc().nullsLast().op("text_ops"), table.guildId.asc().nullsLast().op("text_ops")),
 ]);
+
+export const memberWarning = pgTable("MemberWarning", {
+	id: serial().primaryKey().notNull(),
+	guildId: text().notNull(),
+	memberId: text().notNull(),
+	moderatorId: text(),
+	reason: text().notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+	updatedAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [
+	index("MemberWarning_memberId_guildId_idx").using("btree", table.memberId.asc().nullsLast().op("text_ops"), table.guildId.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.guildId],
+			foreignColumns: [guild.guildId],
+			name: "MemberWarning_guildId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.memberId],
+			foreignColumns: [member.memberId],
+			name: "MemberWarning_memberId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.moderatorId],
+			foreignColumns: [member.memberId],
+			name: "MemberWarning_moderatorId_fkey"
+		}).onUpdate("cascade").onDelete("set null"),
+]);
+
+export const modLog = pgTable("ModLog", {
+	id: serial().primaryKey().notNull(),
+	guildId: text().notNull(),
+	action: text().notNull(),
+	targetId: text().notNull(),
+	moderatorId: text(),
+	reason: text(),
+	channelId: text(),
+	logMessageId: text(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [
+	index("ModLog_guildId_createdAt_idx").using("btree", table.guildId.asc().nullsLast().op("text_ops"), table.createdAt.desc().nullsLast()),
+	index("ModLog_guildId_targetId_action_idx").using("btree", table.guildId.asc().nullsLast().op("text_ops"), table.targetId.asc().nullsLast().op("text_ops"), table.action.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.guildId],
+			foreignColumns: [guild.guildId],
+			name: "ModLog_guildId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.targetId],
+			foreignColumns: [member.memberId],
+			name: "ModLog_targetId_fkey"
+		}).onUpdate("cascade").onDelete("cascade"),
+	foreignKey({
+			columns: [table.moderatorId],
+			foreignColumns: [member.memberId],
+			name: "ModLog_moderatorId_fkey"
+		}).onUpdate("cascade").onDelete("set null"),
+]);

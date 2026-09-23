@@ -55,6 +55,16 @@ export class ConfigValidator {
       feature: "Join/Leave Event Logging",
     },
     {
+      key: "MOD_LOG_CHANNELS",
+      required: false,
+      feature: "Moderation Log",
+    },
+    {
+      key: "REPORT_CHANNELS",
+      required: false,
+      feature: "Member Reports",
+    },
+    {
       key: "MEMBERS_COUNT_CHANNELS",
       required: false,
       feature: "Member Count Display",

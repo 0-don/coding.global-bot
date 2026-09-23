@@ -29,6 +29,8 @@ interface FeatureBotEnvironment {
   VOICE_EVENT_CHANNELS: string;
   JOIN_EVENT_CHANNELS: string;
   MEMBERS_COUNT_CHANNELS: string;
+  MOD_LOG_CHANNELS: string;
+  REPORT_CHANNELS: string;
 
   // Behavior Control Features
   IS_CONSTRAINED_TO_BOT_CHANNEL: string;

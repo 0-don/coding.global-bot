@@ -11,11 +11,73 @@ import {
   VOICE_ONLY,
 } from "@/shared/config/roles";
 import { ConfigValidator } from "@/shared/config/validator";
+import {
+  AuditLogEvent,
+  findAuditActor,
+} from "@/core/services/moderation/audit-log";
+import { ModLogService } from "@/core/services/moderation/modlog.service";
 import type { HandleHelperReactionParams, UpdateDbRolesArgs } from "@/types";
-import { Guild, Message, Role, TextChannel } from "discord.js";
+import {
+  Guild,
+  GuildMember,
+  Message,
+  PartialGuildMember,
+  Role,
+  TextChannel,
+} from "discord.js";
 
 export class RolesService {
   private static _helperSystemWarningLogged = false;
+
+  /**
+   * Record a jail or release done by adding or removing the jail role by hand,
+   * rather than through /jail or /unjail.
+   *
+   * The commands write their own ModLog entry, so without this anyone who
+   * simply drags the role on or off leaves no record at all. The audit log is
+   * the only thing that says who made the change.
+   *
+   * Changes the bot made are skipped - the command that made them already
+   * logged - and so is anything logged for this member moments ago, which
+   * covers the audit lookup coming back empty for a bot-made change.
+   */
+  private static async logManualJailChange(
+    newMember: GuildMember | PartialGuildMember,
+    action: "jail" | "unjail",
+  ) {
+    const actor = await findAuditActor(
+      newMember.guild,
+      AuditLogEvent.MemberRoleUpdate,
+      newMember.id,
+    );
+
+    const botId = newMember.client.user?.id;
+    if (actor?.moderatorId && botId && actor.moderatorId === botId) return;
+
+    if (
+      await ModLogService.alreadyLoggedRecently(
+        newMember.guild.id,
+        newMember.id,
+        action,
+      )
+    )
+      return;
+
+    await ModLogService.postLog({
+      guild: newMember.guild,
+      action,
+      targetId: newMember.id,
+      targetName: newMember.user.username,
+      moderatorId: actor?.moderatorId,
+      moderatorName: actor?.moderatorName,
+      reason:
+        actor?.reason ??
+        (action === "jail"
+          ? "Jail role applied manually"
+          : "Jail role removed manually"),
+    });
+  }
+
   static async updateDbRoles(args: UpdateDbRolesArgs) {
     // check if new role was added
     if (
@@ -66,6 +128,17 @@ export class RolesService {
         .catch(() => {});
     }
     if (args.newRoles.length < args.oldRoles.length) {
+      // Tested by name against both lists rather than via newRemovedRole
+      // below, which only reports the first removal.
+      const jailReleased =
+        args.oldRoles.some((role) => role.name === JAIL) &&
+        !args.newRoles.some((role) => role.name === JAIL);
+
+      if (jailReleased)
+        RolesService.logManualJailChange(args.newMember, "unjail").catch(
+          () => {},
+        );
+
       // get the removed role
       const newRemovedRole = args.oldRoles.find(
         (role) => !args.newRoles.includes(role),
@@ -152,6 +225,11 @@ export class RolesService {
 
     // Handle JAIL or VOICE_ONLY role addition
     if (newAddedRole === JAIL || newAddedRole === VOICE_ONLY) {
+      if (newAddedRole === JAIL)
+        RolesService.logManualJailChange(args.newMember, "jail").catch(
+          () => {},
+        );
+
       args.newMember.roles.cache.forEach(
         (role) =>
           role.name !== newAddedRole &&

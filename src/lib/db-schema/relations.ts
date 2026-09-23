@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { guild, guildVoiceEvents, member, memberGuild, memberRole, memberCommandHistory, memberDeletedMessages, memberHelper, memberMessages, tag, thread, threadMessage, attachment, threadTag } from "./schema";
+import { guild, guildVoiceEvents, member, memberGuild, memberRole, memberCommandHistory, memberDeletedMessages, memberHelper, memberMessages, tag, thread, threadMessage, attachment, threadTag, memberWarning, modLog } from "./schema";
 
 export const guildVoiceEventsRelations = relations(guildVoiceEvents, ({one}) => ({
 	guild: one(guild, {
@@ -23,6 +23,8 @@ export const guildRelations = relations(guild, ({many}) => ({
 	tags: many(tag),
 	threadMessages: many(threadMessage),
 	threads: many(thread),
+	memberWarnings: many(memberWarning),
+	modLogs: many(modLog),
 }));
 
 export const memberRelations = relations(member, ({many}) => ({
@@ -40,6 +42,18 @@ export const memberRelations = relations(member, ({many}) => ({
 	memberMessages: many(memberMessages),
 	threadMessages: many(threadMessage),
 	threads: many(thread),
+	memberWarnings_memberId: many(memberWarning, {
+		relationName: "memberWarning_member"
+	}),
+	memberWarnings_moderatorId: many(memberWarning, {
+		relationName: "memberWarning_moderator"
+	}),
+	modLogs_targetId: many(modLog, {
+		relationName: "modLog_target"
+	}),
+	modLogs_moderatorId: many(modLog, {
+		relationName: "modLog_moderator"
+	}),
 }));
 
 export const memberGuildRelations = relations(memberGuild, ({one}) => ({
@@ -166,5 +180,38 @@ export const threadTagRelations = relations(threadTag, ({one}) => ({
 	tag: one(tag, {
 		fields: [threadTag.tagId],
 		references: [tag.id]
+	}),
+}));
+export const memberWarningRelations = relations(memberWarning, ({one}) => ({
+	guild: one(guild, {
+		fields: [memberWarning.guildId],
+		references: [guild.guildId]
+	}),
+	member: one(member, {
+		fields: [memberWarning.memberId],
+		references: [member.memberId],
+		relationName: "memberWarning_member"
+	}),
+	moderator: one(member, {
+		fields: [memberWarning.moderatorId],
+		references: [member.memberId],
+		relationName: "memberWarning_moderator"
+	}),
+}));
+
+export const modLogRelations = relations(modLog, ({one}) => ({
+	guild: one(guild, {
+		fields: [modLog.guildId],
+		references: [guild.guildId]
+	}),
+	target: one(member, {
+		fields: [modLog.targetId],
+		references: [member.memberId],
+		relationName: "modLog_target"
+	}),
+	moderator: one(member, {
+		fields: [modLog.moderatorId],
+		references: [member.memberId],
+		relationName: "modLog_moderator"
 	}),
 }));
