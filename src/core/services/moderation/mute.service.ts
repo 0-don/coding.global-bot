@@ -1,3 +1,7 @@
+import {
+  cancelBotAction,
+  expectBotAction,
+} from "@/core/services/moderation/bot-actions";
 import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { db } from "@/lib/db";
 import { memberMute } from "@/lib/db-schema";
@@ -113,7 +117,14 @@ export class MuteService {
     const expiresAt = new Date(Date.now() + params.minutes * 60_000);
     const reason = `${params.reason ?? "No reason provided"} (by ${params.moderator.user.username})`;
 
-    await params.target.timeout(params.minutes * 60_000, reason);
+    // Noted first so guildMemberUpdate does not log this a second time.
+    expectBotAction(params.target.guild.id, params.target.id, "timeout");
+    try {
+      await params.target.timeout(params.minutes * 60_000, reason);
+    } catch (e) {
+      cancelBotAction(params.target.guild.id, params.target.id, "timeout");
+      throw e;
+    }
 
     // Written after the timeout lands so a record never claims a mute that failed.
     await db.insert(memberMute).values({
@@ -168,7 +179,13 @@ export class MuteService {
     if (!params.target.moderatable)
       return { ok: false, error: "I cannot lift that timeout. My role must sit above theirs." };
 
-    await params.target.timeout(null, `Timeout lifted by ${params.moderator.user.username}`);
+    expectBotAction(params.target.guild.id, params.target.id, "untimeout");
+    try {
+      await params.target.timeout(null, `Timeout lifted by ${params.moderator.user.username}`);
+    } catch (e) {
+      cancelBotAction(params.target.guild.id, params.target.id, "untimeout");
+      throw e;
+    }
 
     if (record) {
       await db

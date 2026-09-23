@@ -17,7 +17,12 @@ export async function executeTopWarnings(
   );
 
   if (rows.length === 0) {
-    return { error: "No warnings have been issued in this server yet." };
+    return {
+      error:
+        page > 1
+          ? `Page ${page} is past the end of the leaderboard.`
+          : "No warnings have been issued in this server yet.",
+    };
   }
 
   const embed = simpleEmbedExample();

@@ -12,7 +12,7 @@ import type { CommandInteraction, Guild, User } from "discord.js";
  *
  * Returns the refusal to show, or null when the jail may proceed.
  */
-async function refuseByRank(
+export async function refuseByRank(
   guild: Guild,
   invokerId: string,
   targetId: string,
@@ -82,11 +82,19 @@ export async function executeJail(
     reason: reason ?? `Jailed by <@${interaction.user.id}>`,
   };
 
-  const { alreadyJailed } = await DeleteUserMessagesService.jailUser(params);
+  const { status } = await DeleteUserMessagesService.jailUser(params);
+
+  if (status === "no-jail-role") {
+    return {
+      success: false,
+      error:
+        "This server has no jail role configured (check STATUS_ROLES), so nobody was jailed.",
+    };
+  }
 
   // Refused rather than repeated: a second jail cannot punish them further,
   // and logging it again would put two jails in the mod log for one.
-  if (alreadyJailed) {
+  if (status === "already-jailed") {
     return {
       success: false,
       error:

@@ -51,6 +51,12 @@ export async function executeWarnings(
     };
   }
 
+  if (warnings.length === 0) {
+    return {
+      error: `There ${totalPages === 1 ? "is only 1 page" : `are only ${totalPages} pages`} of warnings.`,
+    };
+  }
+
   const embed = simpleEmbedExample();
 
   // Labelled "ID", not "#". /delete-warning and /edit-warning both ask for a

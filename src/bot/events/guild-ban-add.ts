@@ -26,6 +26,7 @@ export class GuildBanAdd {
       targetUser: ban.user,
       moderatorId: actor?.moderatorId,
       moderatorName: actor?.moderatorName,
+      moderatorFromAuditLog: true,
       reason: actor?.reason ?? ban.reason ?? undefined,
     });
   }

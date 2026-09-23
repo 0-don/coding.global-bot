@@ -24,6 +24,7 @@ export class GuildBanRemove {
       targetUser: ban.user,
       moderatorId: actor?.moderatorId,
       moderatorName: actor?.moderatorName,
+      moderatorFromAuditLog: true,
       reason: actor?.reason,
     });
   }

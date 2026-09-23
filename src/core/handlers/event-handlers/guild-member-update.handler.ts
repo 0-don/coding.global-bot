@@ -7,6 +7,7 @@ import {
   AuditLogEvent,
   findAuditActor,
 } from "@/core/services/moderation/audit-log";
+import { consumeBotAction } from "@/core/services/moderation/bot-actions";
 import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { db } from "@/lib/db";
 import { memberRole } from "@/lib/db-schema";
@@ -85,23 +86,20 @@ async function logTimeoutChange(
 
   const action = isActive ? "timeout" : "untimeout";
 
+  if (consumeBotAction(newMember.guild.id, newMember.id, action)) return;
+
+  // Only timeout changes count: MemberUpdate also covers nickname and other
+  // edits, and one of those may be the newest entry for this member.
   const actor = await findAuditActor(
     newMember.guild,
     AuditLogEvent.MemberUpdate,
     newMember.id,
+    (entry) =>
+      entry.changes.some((c) => c.key === "communication_disabled_until"),
   );
 
   const botId = newMember.client.user?.id;
   if (actor?.moderatorId && botId && actor.moderatorId === botId) return;
-
-  if (
-    await ModLogService.alreadyLoggedRecently(
-      newMember.guild.id,
-      newMember.id,
-      action,
-    )
-  )
-    return;
 
   await ModLogService.postLog({
     guild: newMember.guild,
@@ -111,6 +109,7 @@ async function logTimeoutChange(
     targetUser: newMember.user,
     moderatorId: actor?.moderatorId,
     moderatorName: actor?.moderatorName,
+    moderatorFromAuditLog: true,
     reason: isActive
       ? `${actor?.reason ?? "No reason provided"} (until <t:${Math.floor((after as number) / 1000)}:f>)`
       : actor?.reason,

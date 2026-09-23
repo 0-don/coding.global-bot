@@ -11,10 +11,7 @@ import {
   VOICE_ONLY,
 } from "@/shared/config/roles";
 import { ConfigValidator } from "@/shared/config/validator";
-import {
-  AuditLogEvent,
-  findAuditActor,
-} from "@/core/services/moderation/audit-log";
+import { findRoleChangeActor } from "@/core/services/moderation/audit-log";
 import { ModLogService } from "@/core/services/moderation/modlog.service";
 import type { HandleHelperReactionParams, UpdateDbRolesArgs } from "@/types";
 import {
@@ -37,31 +34,28 @@ export class RolesService {
    * simply drags the role on or off leaves no record at all. The audit log is
    * the only thing that says who made the change.
    *
-   * Changes the bot made are skipped - the command that made them already
-   * logged - and so is anything logged for this member moments ago, which
-   * covers the audit lookup coming back empty for a bot-made change.
+   * Callers decide whether the change was manual from the MemberRole rows as
+   * they stood before this event: every path where the bot applies the jail
+   * role writes the jail row first, and /unjail deletes it first, so the DB
+   * already agrees with any change the bot made. Only a disagreement is a
+   * manual change. That holds without the audit log, and without racing the
+   * command's own ModLog insert.
    */
   private static async logManualJailChange(
     newMember: GuildMember | PartialGuildMember,
+    jailRoleId: string,
     action: "jail" | "unjail",
   ) {
-    const actor = await findAuditActor(
+    const actor = await findRoleChangeActor(
       newMember.guild,
-      AuditLogEvent.MemberRoleUpdate,
       newMember.id,
+      jailRoleId,
+      action === "jail" ? "$add" : "$remove",
     );
 
+    // Belt and braces: a bot-made change the DB check above did not catch.
     const botId = newMember.client.user?.id;
     if (actor?.moderatorId && botId && actor.moderatorId === botId) return;
-
-    if (
-      await ModLogService.alreadyLoggedRecently(
-        newMember.guild.id,
-        newMember.id,
-        action,
-      )
-    )
-      return;
 
     await ModLogService.postLog({
       guild: newMember.guild,
@@ -70,6 +64,7 @@ export class RolesService {
       targetName: newMember.user.username,
       moderatorId: actor?.moderatorId,
       moderatorName: actor?.moderatorName,
+      moderatorFromAuditLog: true,
       reason:
         actor?.reason ??
         (action === "jail"
@@ -130,14 +125,22 @@ export class RolesService {
     if (args.newRoles.length < args.oldRoles.length) {
       // Tested by name against both lists rather than via newRemovedRole
       // below, which only reports the first removal.
-      const jailReleased =
-        args.oldRoles.some((role) => role.name === JAIL) &&
-        !args.newRoles.some((role) => role.name === JAIL);
+      const releasedJailRole = args.oldRoles.find(
+        (role) =>
+          role.name === JAIL && !args.newRoles.some((r) => r.id === role.id),
+      );
 
-      if (jailReleased)
-        RolesService.logManualJailChange(args.newMember, "unjail").catch(
-          () => {},
-        );
+      // /unjail deletes the jail row before removing the role, so a row still
+      // here means someone took the role off by hand.
+      if (
+        releasedJailRole &&
+        args.memberDbRoles.some((r) => r.roleId === releasedJailRole.id)
+      )
+        RolesService.logManualJailChange(
+          args.newMember,
+          releasedJailRole.id,
+          "unjail",
+        ).catch(() => {});
 
       // get the removed role
       const newRemovedRole = args.oldRoles.find(
@@ -225,10 +228,20 @@ export class RolesService {
 
     // Handle JAIL or VOICE_ONLY role addition
     if (newAddedRole === JAIL || newAddedRole === VOICE_ONLY) {
-      if (newAddedRole === JAIL)
-        RolesService.logManualJailChange(args.newMember, "jail").catch(
-          () => {},
-        );
+      // Every path where the bot applies the jail role (/jail, the automod,
+      // rejoin and onboarding re-application, !verify-users) writes the jail
+      // row first, so only a jail with no row behind it was done by hand.
+      const jailRoleId = args.guildRoles.find((role) => role.name === JAIL)?.id;
+      if (
+        newAddedRole === JAIL &&
+        jailRoleId &&
+        !args.memberDbRoles.some((r) => r.roleId === jailRoleId)
+      )
+        RolesService.logManualJailChange(
+          args.newMember,
+          jailRoleId,
+          "jail",
+        ).catch(() => {});
 
       args.newMember.roles.cache.forEach(
         (role) =>

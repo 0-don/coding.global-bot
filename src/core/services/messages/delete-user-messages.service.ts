@@ -66,14 +66,15 @@ export class DeleteUserMessagesService {
   /**
    * Apply jail role, update DB, send notification. Fast operation (~2s).
    *
-   * Reports whether the member already held the jail role, so /jail can refuse
-   * a second jail instead of logging it twice. The role and DB writes still run
-   * either way: the automod and /delete-user-messages rely on them to repair a
-   * jail whose DB row went missing.
+   * Reports "already-jailed" when the member already held the jail role, so
+   * /jail can refuse a second jail instead of logging it twice. The role and DB
+   * writes still run in that case: the automod and /delete-user-messages rely
+   * on them to repair a jail whose DB row went missing. "no-jail-role" means
+   * nothing happened, and callers must not report a jail.
    */
   static async jailUser(
     params: DeleteUserMessagesParams,
-  ): Promise<{ alreadyJailed: boolean }> {
+  ): Promise<{ status: "jailed" | "already-jailed" | "no-jail-role" }> {
     const jailRoleId = RolesService.getGuildStatusRoles(params.guild)[JAIL]
       ?.id;
 
@@ -89,7 +90,7 @@ export class DeleteUserMessagesService {
           reason: params.reason,
         },
       );
-      return { alreadyJailed: false };
+      return { status: "no-jail-role" };
     }
 
     const memberId = params.user?.id || params.memberId;
@@ -140,7 +141,7 @@ export class DeleteUserMessagesService {
       await this.sendJailNotification(params);
     }
 
-    return { alreadyJailed };
+    return { status: alreadyJailed ? "already-jailed" : "jailed" };
   }
 
   /**
@@ -174,8 +175,41 @@ export class DeleteUserMessagesService {
       params.guild.members.cache.get(params.memberId) ||
       (await params.guild.members.fetch(params.memberId).catch(() => null));
 
+    // /jail works on members who have left - the jail row is re-applied if they
+    // rejoin - so releasing them has to work the same way: clear the row.
     if (!discordMember) {
-      return { ok: false, message: "That member is not in the server." };
+      const cleared = await db
+        .delete(memberRole)
+        .where(
+          and(
+            eq(memberRole.memberId, params.memberId),
+            eq(memberRole.guildId, params.guild.id),
+            eq(memberRole.roleId, jailRoleId),
+          ),
+        )
+        .returning({ roleId: memberRole.roleId });
+
+      if (!cleared.length) {
+        return {
+          ok: false,
+          message: "That member is not in the server and has no jail on record.",
+        };
+      }
+
+      await ModLogService.postLog({
+        guild: params.guild,
+        action: "unjail",
+        targetId: params.memberId,
+        targetName: params.user?.username,
+        moderatorId: params.moderatorId,
+        moderatorName: params.moderatorName,
+        reason: params.reason,
+      });
+
+      return {
+        ok: true,
+        message: `<@${params.memberId}> is not in the server. Their jail record is cleared, so it will not be re-applied if they rejoin.`,
+      };
     }
 
     if (!discordMember.roles.cache.has(jailRoleId)) {

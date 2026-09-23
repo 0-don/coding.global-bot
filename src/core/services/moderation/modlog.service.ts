@@ -4,10 +4,8 @@ import { member, modLog } from "@/lib/db-schema";
 import { logEmbed, type LogTone } from "@/core/embeds/log.embed";
 import { MOD_LOG_CHANNELS } from "@/shared/config/channels";
 import { ConfigValidator } from "@/shared/config/validator";
-import { and, eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { APIEmbed, Guild, TextChannel, User } from "discord.js";
-
-const DUPLICATE_ACTION_WINDOW_SECONDS = 15;
 
 export type ModLogAction =
   | "warn"
@@ -64,39 +62,6 @@ const ACTION_TITLES: Record<ModLogAction, string> = {
 export class ModLogService {
   private static _warningLogged = false;
 
-  /**
-   * Whether this action was already recorded for this member moments ago.
-   *
-   * The event handlers that log role and timeout changes skip the bot's own
-   * changes by matching the audit executor, which only works when the entry is
-   * found. When the lookup comes back empty, this stops them writing a second,
-   * moderator-less entry for an action a command already recorded.
-   *
-   * The window is computed in SQL: createdAt is `timestamp without time zone`
-   * holding UTC, so comparing it against a JS ISO string would misread every
-   * row. Using the database clock on both sides also avoids process skew.
-   */
-  static async alreadyLoggedRecently(
-    guildId: string,
-    targetId: string,
-    action: ModLogAction,
-  ): Promise<boolean> {
-    const [recent] = await db
-      .select({ id: modLog.id })
-      .from(modLog)
-      .where(
-        and(
-          eq(modLog.guildId, guildId),
-          eq(modLog.targetId, targetId),
-          eq(modLog.action, action),
-          sql`${modLog.createdAt} > (now() at time zone 'utc') - make_interval(secs => ${DUPLICATE_ACTION_WINDOW_SECONDS})`,
-        ),
-      )
-      .limit(1);
-
-    return Boolean(recent);
-  }
-
   private static findLogChannel(guild: Guild) {
     return guild.channels.cache.find(
       ({ name }) => name !== undefined && MOD_LOG_CHANNELS.includes(name),
@@ -129,6 +94,7 @@ export class ModLogService {
     targetUser,
     moderatorId,
     moderatorName,
+    moderatorFromAuditLog,
     reason,
   }: {
     guild: Guild;
@@ -139,6 +105,11 @@ export class ModLogService {
     targetUser?: User | null;
     moderatorId?: string;
     moderatorName?: string;
+    /**
+     * The moderator came from an audit-log lookup, so a missing one means
+     * "could not tell who", not the automod.
+     */
+    moderatorFromAuditLog?: boolean;
     reason?: string;
   }) {
     try {
@@ -169,7 +140,9 @@ export class ModLogService {
               `**Moderator:** ${
                 moderatorId
                   ? `<@${moderatorId}> (${moderatorName ?? "unknown"})`
-                  : "Automod"
+                  : moderatorFromAuditLog
+                    ? "Unknown (needs View Audit Log)"
+                    : "Automod"
               }`,
               `**Reason:** ${reason || "No reason provided"}`,
               `-# ${targetId}`,
