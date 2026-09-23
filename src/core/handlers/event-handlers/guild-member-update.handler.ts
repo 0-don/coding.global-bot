@@ -60,7 +60,7 @@ export async function handleGuildMemberUpdate(
 /**
  * Log a timeout set or lifted from Discord's own member menu.
  *
- * /mute and /unmute write their own entry with the moderator's name, so
+ * /timeout and /untimeout write their own entry with the moderator's name, so
  * changes the bot made are skipped. Discord has no timeout event: it is a
  * field change on guildMemberUpdate, attributed through the audit log.
  */

@@ -83,6 +83,8 @@
 | `/top-warnings`                 | Most-warned members                      | `page` (optional)                   |
 | `/jail`                         | Jail a member, optionally purging msgs   | `user`/`user-id`, `reason`, `purge`, `days` |
 | `/unjail`                       | Release a member from jail               | `user`/`user-id`, `reason`          |
+| `/timeout`                      | Time out a member (staff up to 28d, helpers up to 1h) | `user`, `duration`, `reason` |
+| `/untimeout`                    | Lift a timeout                           | `user`                              |
 
 #### Admin
 

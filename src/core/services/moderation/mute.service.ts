@@ -57,14 +57,14 @@ export class MuteService {
     if (!record)
       return {
         record,
-        error: "That mute was not set through this bot, so only staff can change it.",
+        error: "That timeout was not set through this bot, so only staff can change it.",
       };
 
     if (record.moderatorTier !== "helper")
-      return { record, error: "Only staff can change a mute set by staff." };
+      return { record, error: "Only staff can change a timeout set by staff." };
 
     if (record.moderatorId !== moderator.id)
-      return { record, error: "You can only change a mute you set yourself." };
+      return { record, error: "You can only change a timeout you set yourself." };
 
     return { record };
   }
@@ -79,22 +79,22 @@ export class MuteService {
     if (!tier) return { ok: false, error: "You are not allowed to use this command." };
 
     if (params.target.id === params.moderator.id)
-      return { ok: false, error: "You cannot mute yourself." };
+      return { ok: false, error: "You cannot time yourself out." };
 
     if (params.target.user.bot)
-      return { ok: false, error: "You cannot mute a bot." };
+      return { ok: false, error: "You cannot time out a bot." };
 
     if (this.isStaff(params.target))
-      return { ok: false, error: "You cannot mute a staff member." };
+      return { ok: false, error: "You cannot time out a staff member." };
 
     if (tier === "helper" && this.isHelper(params.target))
-      return { ok: false, error: "Helpers cannot mute other helpers." };
+      return { ok: false, error: "Helpers cannot time out other helpers." };
 
     const limit = MUTE_LIMIT_MINUTES[tier];
     if (params.minutes > limit) {
       return {
         ok: false,
-        error: `Your role can mute for at most ${formatDuration(limit)}.`,
+        error: `Your role can time out for at most ${formatDuration(limit)}.`,
       };
     }
 
@@ -138,7 +138,7 @@ export class MuteService {
 
     return {
       ok: true,
-      message: `Muted <@${params.target.id}> for ${formatDuration(params.minutes)}.`,
+      message: `Timed out <@${params.target.id}> for ${formatDuration(params.minutes)}.`,
     };
   }
 
@@ -150,7 +150,7 @@ export class MuteService {
     if (!tier) return { ok: false, error: "You are not allowed to use this command." };
 
     if (!params.target.isCommunicationDisabled())
-      return { ok: false, error: "That member is not muted." };
+      return { ok: false, error: "That member is not timed out." };
 
     const existing = await this.checkExistingMute(params.target, params.moderator, tier);
     if (existing.error) return { ok: false, error: existing.error };
@@ -159,7 +159,7 @@ export class MuteService {
     if (!params.target.moderatable)
       return { ok: false, error: "I cannot lift that timeout. My role must sit above theirs." };
 
-    await params.target.timeout(null, `Unmuted by ${params.moderator.user.username}`);
+    await params.target.timeout(null, `Timeout lifted by ${params.moderator.user.username}`);
 
     if (record) {
       await db
@@ -181,6 +181,6 @@ export class MuteService {
       moderatorName: params.moderator.user.username,
     });
 
-    return { ok: true, message: `Unmuted <@${params.target.id}>.` };
+    return { ok: true, message: `Lifted the timeout on <@${params.target.id}>.` };
   }
 }

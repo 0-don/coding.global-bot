@@ -1,4 +1,4 @@
-import { executeUnmute } from "@/core/handlers/command-handlers/mod/unmute.handler";
+import { executeTimeout } from "@/core/handlers/command-handlers/mod/timeout.handler";
 import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
 import { db } from "@/lib/db";
 import { memberCommandHistory } from "@/lib/db-schema";
@@ -10,20 +10,36 @@ import {
 import { Discord, Slash, SlashOption } from "discordx";
 
 @Discord()
-export class Unmute {
+export class Timeout {
+  // No defaultMemberPermissions: helpers hold no moderation permission by design,
+  // so the role check in MuteService is the gate.
   @Slash({
-    name: "unmute",
-    description: "Lift a member's timeout",
+    name: "timeout",
+    description: "Time out a member",
     dmPermission: false,
   })
-  async unmute(
+  async timeout(
     @SlashOption({
       name: "user",
-      description: "Member to unmute",
+      description: "Member to time out",
       type: ApplicationCommandOptionType.User,
       required: true,
     })
     target: GuildMember,
+    @SlashOption({
+      name: "duration",
+      description: "How long, for example 10m, 2h, 1d",
+      type: ApplicationCommandOptionType.String,
+      required: true,
+    })
+    duration: string,
+    @SlashOption({
+      name: "reason",
+      description: "Reason for the timeout",
+      type: ApplicationCommandOptionType.String,
+      required: false,
+    })
+    reason: string | undefined,
     interaction: CommandInteraction,
   ) {
     if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] })))
@@ -35,12 +51,12 @@ export class Unmute {
           channelId: interaction.channelId,
           memberId: interaction.member.user.id,
           guildId: interaction.guildId,
-          command: "unmute",
+          command: "timeout",
         })
         .catch(() => {});
     }
 
-    const result = await executeUnmute(interaction, target);
+    const result = await executeTimeout(interaction, target, duration, reason);
 
     await safeEditReply(interaction, {
       content: result.error ?? result.message ?? "Done.",

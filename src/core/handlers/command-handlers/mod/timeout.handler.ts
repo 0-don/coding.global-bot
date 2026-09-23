@@ -3,7 +3,7 @@ import { parseDurationMinutes } from "@/shared/config/moderation";
 import type { CommandResult } from "@/types";
 import type { CommandInteraction, GuildMember } from "discord.js";
 
-export async function executeMute(
+export async function executeTimeout(
   interaction: CommandInteraction,
   target: GuildMember,
   duration: string,
