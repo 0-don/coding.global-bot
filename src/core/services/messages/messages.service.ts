@@ -1,12 +1,10 @@
 import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
 import { ModLogService } from "@/core/services/moderation/modlog.service";
-import { WarningsService } from "@/core/services/moderation/warnings.service";
 import { PrivacyService } from "@/core/services/privacy/privacy.service";
 import { db } from "@/lib/db";
 import { memberMessages, memberDeletedMessages, memberGuild } from "@/lib/db-schema";
 import { and, count, eq } from "drizzle-orm";
 import { LEVEL_LIST, LEVEL_MESSAGES } from "@/shared/config/levels";
-import { isJailWarning, nextJailWarning } from "@/shared/config/moderation";
 import { JAIL, VOICE_ONLY } from "@/shared/config/roles";
 import { ConfigValidator } from "@/shared/config/validator";
 import {
@@ -390,18 +388,11 @@ export class MessagesService {
     if (hasExternalInvite) {
       await message.delete();
 
-      // Recorded through WarningsService rather than bumping
-      // memberGuild.warnings directly. That column is now derived from the
-      // MemberWarning rows, so an increment here would be overwritten the next
-      // time a moderator warned or cleared this member.
-      const reason = "Posted Discord invite links";
+      const currentWarnings = memberGuildData.warnings + 1;
 
-      const { warningCount: currentWarnings } = await WarningsService.addWarning({
-        guildId: message.guild.id,
-        memberId: member.id,
-        username: member.user.username,
-        reason,
-      });
+      await db.update(memberGuild)
+        .set({ warnings: currentWarnings })
+        .where(eq(memberGuild.id, memberGuildData.id));
 
       // No moderatorId, which is what makes the entry read as "Automod".
       await ModLogService.postLog({
@@ -409,13 +400,13 @@ export class MessagesService {
         action: "warn",
         targetId: member.id,
         targetName: member.user.username,
-        reason: `${reason} (warning ${currentWarnings})`,
+        reason: `Posted Discord invite links (invite warning ${currentWarnings})`,
       });
 
-      if (!isJailWarning(currentWarnings)) {
+      if (currentWarnings < 4) {
         try {
           await member.send(
-            `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be jailed at ${nextJailWarning(currentWarnings)} warnings.`,
+            `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be jailed at 4 warnings.`,
           );
         } catch (error) {}
       } else {
@@ -428,9 +419,7 @@ export class MessagesService {
         });
 
         try {
-          await member.send(
-            `You have been jailed after ${currentWarnings} warnings. Ask a mod to release you.`,
-          );
+          await member.send(`You have been jailed. Ask a mod to release you.`);
         } catch (error) {}
       }
     }

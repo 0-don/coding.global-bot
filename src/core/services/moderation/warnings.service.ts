@@ -1,15 +1,14 @@
 import { ensureMemberRows } from "@/core/services/members/ensure-member";
 import { db } from "@/lib/db";
-import { member, memberGuild, memberWarning } from "@/lib/db-schema";
+import { member, memberWarning } from "@/lib/db-schema";
 import { and, count, desc, eq, sql } from "drizzle-orm";
 
 const PAGE_SIZE = 10;
 
 export class WarningsService {
-  // MemberWarning is the source of truth; memberGuild.warnings is a derived
-  // counter kept in sync so the jail-escalation logic (checkWarnings in
-  // messages.service.ts) reads the same number the warning list shows.
-  private static async syncWarningCount(memberId: string, guildId: string) {
+  // Counts /warn warnings only. The invite filter keeps its own separate
+  // counter in memberGuild.warnings, which this deliberately never touches.
+  private static async countWarnings(memberId: string, guildId: string) {
     const [result] = await db
       .select({ count: count() })
       .from(memberWarning)
@@ -20,22 +19,7 @@ export class WarningsService {
         ),
       );
 
-    const warningCount = result?.count ?? 0;
-
-    await db
-      .insert(memberGuild)
-      .values({
-        memberId,
-        guildId,
-        status: true,
-        warnings: warningCount,
-      })
-      .onConflictDoUpdate({
-        target: [memberGuild.memberId, memberGuild.guildId],
-        set: { warnings: warningCount },
-      });
-
-    return warningCount;
+    return result?.count ?? 0;
   }
 
   static async addWarning({
@@ -64,7 +48,7 @@ export class WarningsService {
       .values({ guildId, memberId, moderatorId, reason })
       .returning();
 
-    const warningCount = await this.syncWarningCount(memberId, guildId);
+    const warningCount = await this.countWarnings(memberId, guildId);
 
     return { warning, warningCount };
   }
@@ -148,8 +132,6 @@ export class WarningsService {
       )
       .returning();
 
-    if (deleted) await this.syncWarningCount(deleted.memberId, guildId);
-
     return deleted;
   }
 
@@ -163,8 +145,6 @@ export class WarningsService {
         ),
       )
       .returning();
-
-    await this.syncWarningCount(memberId, guildId);
 
     return deleted.length;
   }

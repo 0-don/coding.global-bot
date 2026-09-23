@@ -1,4 +1,3 @@
-import { refuseByRank } from "@/core/handlers/command-handlers/mod/jail.handler";
 import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
 import type { CommandResult } from "@/types";
 import type { CommandInteraction, User } from "discord.js";
@@ -28,24 +27,15 @@ export async function executeDeleteUserMessages(
   };
 
   if (jail) {
-    // Same rank rule as /jail, which this would otherwise route around.
-    const refusal = await refuseByRank(
-      interaction.guild,
-      interaction.user.id,
-      memberId,
-    );
-    if (refusal) return { success: false, error: refusal };
-
     const { status } = await DeleteUserMessagesService.jailUser(params);
-    if (status === "no-jail-role") {
-      return {
-        success: false,
-        error:
-          "This server has no jail role configured (check STATUS_ROLES), so nobody was jailed and no messages were deleted.",
-      };
-    }
     DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});
-    return { success: true, message: "User jailed. Messages are being deleted in the background." };
+    return {
+      success: true,
+      message:
+        status === "no-jail-role"
+          ? "This server has no jail role configured (check STATUS_ROLES), so they were not jailed. Messages are being deleted in the background."
+          : "User jailed. Messages are being deleted in the background.",
+    };
   }
 
   DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});

@@ -12,7 +12,7 @@ import type { CommandInteraction, Guild, User } from "discord.js";
  *
  * Returns the refusal to show, or null when the jail may proceed.
  */
-export async function refuseByRank(
+async function refuseByRank(
   guild: Guild,
   invokerId: string,
   targetId: string,
