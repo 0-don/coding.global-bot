@@ -11,7 +11,7 @@ export class Warnings {
   // Not permission-gated at the Discord level: anyone may look up their own
   // record, and executeWarnings requires ManageRoles only to view someone
   // else's. A member who cannot see where they stand has no warning of the
-  // jail coming at four.
+  // jail coming at every third warning.
   @Slash({
     name: "warnings",
     description: "List your warnings, or another member's if you can moderate",

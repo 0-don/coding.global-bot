@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { memberMessages, memberDeletedMessages, memberGuild } from "@/lib/db-schema";
 import { and, count, eq } from "drizzle-orm";
 import { LEVEL_LIST, LEVEL_MESSAGES } from "@/shared/config/levels";
+import { isJailWarning, nextJailWarning } from "@/shared/config/moderation";
 import { JAIL, VOICE_ONLY } from "@/shared/config/roles";
 import { ConfigValidator } from "@/shared/config/validator";
 import {
@@ -411,10 +412,10 @@ export class MessagesService {
         reason: `${reason} (warning ${currentWarnings})`,
       });
 
-      if (currentWarnings < 4) {
+      if (!isJailWarning(currentWarnings)) {
         try {
           await member.send(
-            `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be muted at 3 warnings.`,
+            `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be jailed at ${nextJailWarning(currentWarnings)} warnings.`,
           );
         } catch (error) {}
       } else {
@@ -427,7 +428,9 @@ export class MessagesService {
         });
 
         try {
-          await member.send(`You have been muted asks a mod to unmute you.`);
+          await member.send(
+            `You have been jailed after ${currentWarnings} warnings. Ask a mod to release you.`,
+          );
         } catch (error) {}
       }
     }

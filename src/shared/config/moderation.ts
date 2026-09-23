@@ -1,5 +1,15 @@
 export type ModeratorTier = "staff" | "helper";
 
+// Every third warning jails (3, 6, 9, ...), so a released member gets two more
+// chances before the next jail rather than being one strike from it forever.
+export const WARNINGS_PER_JAIL = 3;
+
+export const isJailWarning = (warningCount: number) =>
+  warningCount > 0 && warningCount % WARNINGS_PER_JAIL === 0;
+
+export const nextJailWarning = (warningCount: number) =>
+  (Math.floor(warningCount / WARNINGS_PER_JAIL) + 1) * WARNINGS_PER_JAIL;
+
 // Discord refuses a timeout longer than 28 days.
 export const MAX_TIMEOUT_MINUTES = 28 * 24 * 60;
 
