@@ -136,9 +136,18 @@ export class MuteService {
       reason: `${params.reason ?? "No reason provided"} (${formatDuration(params.minutes)}, until <t:${Math.floor(expiresAt.getTime() / 1000)}:f>)`,
     });
 
+    // Sent after the timeout lands so nobody is told about one that failed.
+    // The moderator is left out on purpose, the same as /warn.
+    const notified = await params.target
+      .send(
+        `You have been timed out in **${params.target.guild.name}** for ${formatDuration(params.minutes)}, until <t:${Math.floor(expiresAt.getTime() / 1000)}:f>.\n**Reason:** ${params.reason ?? "No reason provided"}`,
+      )
+      .then(() => true)
+      .catch(() => false);
+
     return {
       ok: true,
-      message: `Timed out <@${params.target.id}> for ${formatDuration(params.minutes)}.`,
+      message: `Timed out <@${params.target.id}> for ${formatDuration(params.minutes)}.${notified ? "" : " Their DMs are closed, so they were not told why."}`,
     };
   }
 
