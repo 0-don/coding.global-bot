@@ -1,7 +1,7 @@
 import { ensureMemberRows } from "@/core/services/members/ensure-member";
 import { db } from "@/lib/db";
 import { member, memberGuild, memberWarning } from "@/lib/db-schema";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, lte, sql } from "drizzle-orm";
 
 const PAGE_SIZE = 10;
 
@@ -22,18 +22,19 @@ export class WarningsService {
 
     const warningCount = result?.count ?? 0;
 
+    // Update only. Inserting here would create a MemberGuild row with
+    // status true for someone who is not in the server - counting them as a
+    // current member in stats - or fail the Member foreign key outright for
+    // someone the bot has never synced.
     await db
-      .insert(memberGuild)
-      .values({
-        memberId,
-        guildId,
-        status: true,
-        warnings: warningCount,
-      })
-      .onConflictDoUpdate({
-        target: [memberGuild.memberId, memberGuild.guildId],
-        set: { warnings: warningCount },
-      });
+      .update(memberGuild)
+      .set({ warnings: warningCount })
+      .where(
+        and(
+          eq(memberGuild.memberId, memberId),
+          eq(memberGuild.guildId, guildId),
+        ),
+      );
 
     return warningCount;
   }
@@ -64,9 +65,23 @@ export class WarningsService {
       .values({ guildId, memberId, moderatorId, reason })
       .returning();
 
-    const warningCount = await this.syncWarningCount(memberId, guildId);
+    await this.syncWarningCount(memberId, guildId);
 
-    return { warning, warningCount };
+    // This warning's own position in the member's record, not the total after
+    // it. Two warnings landing together would otherwise both read the total
+    // past a multiple of three, and the jail on that multiple would never fire.
+    const [position] = await db
+      .select({ count: count() })
+      .from(memberWarning)
+      .where(
+        and(
+          eq(memberWarning.memberId, memberId),
+          eq(memberWarning.guildId, guildId),
+          lte(memberWarning.id, warning.id),
+        ),
+      );
+
+    return { warning, warningCount: position?.count ?? 1 };
   }
 
   static async getWarnings(

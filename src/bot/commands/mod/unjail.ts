@@ -32,6 +32,7 @@ export class Unjail {
     @SlashOption({
       name: "reason",
       description: "Why they are being released",
+      maxLength: 500,
       type: ApplicationCommandOptionType.String,
       required: false,
     })

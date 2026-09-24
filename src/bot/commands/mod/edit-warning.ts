@@ -1,3 +1,4 @@
+import { refuseWarningChange } from "@/core/handlers/command-handlers/mod/warning-guard";
 import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { WarningsService } from "@/core/services/moderation/warnings.service";
 import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
@@ -28,6 +29,7 @@ export class EditWarning {
       name: "new_reason",
       description: "The new reason text",
       required: true,
+      maxLength: 500,
       type: ApplicationCommandOptionType.String,
     })
     newReason: string,
@@ -58,6 +60,22 @@ export class EditWarning {
       interaction.guildId,
       warningId,
     );
+
+    if (!previous) {
+      return safeEditReply(
+        interaction,
+        `No warning found with ID #${warningId}`,
+      );
+    }
+
+    if (interaction.guild) {
+      const refusal = await refuseWarningChange(
+        interaction.guild,
+        interaction.user.id,
+        previous.memberId,
+      );
+      if (refusal) return safeEditReply(interaction, refusal);
+    }
 
     const updated = await WarningsService.editWarning(
       interaction.guildId,

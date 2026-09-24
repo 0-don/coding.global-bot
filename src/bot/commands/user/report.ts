@@ -26,6 +26,7 @@ export class Report {
       name: "reason",
       description: "Why are you reporting this member?",
       required: true,
+      maxLength: 500,
       type: ApplicationCommandOptionType.String,
     })
     reason: string,

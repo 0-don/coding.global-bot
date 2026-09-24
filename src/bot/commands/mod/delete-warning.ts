@@ -1,3 +1,4 @@
+import { refuseWarningChange } from "@/core/handlers/command-handlers/mod/warning-guard";
 import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { WarningsService } from "@/core/services/moderation/warnings.service";
 import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
@@ -45,6 +46,27 @@ export class DeleteWarning {
           command: "delete-warning",
         })
         .catch(() => {});
+    }
+
+    const existing = await WarningsService.getWarningById(
+      interaction.guildId,
+      warningId,
+    );
+
+    if (!existing) {
+      return safeEditReply(
+        interaction,
+        `No warning found with ID #${warningId}`,
+      );
+    }
+
+    if (interaction.guild) {
+      const refusal = await refuseWarningChange(
+        interaction.guild,
+        interaction.user.id,
+        existing.memberId,
+      );
+      if (refusal) return safeEditReply(interaction, refusal);
     }
 
     const deleted = await WarningsService.deleteWarning(

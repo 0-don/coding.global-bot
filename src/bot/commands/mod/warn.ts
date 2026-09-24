@@ -27,6 +27,7 @@ export class Warn {
       name: "reason",
       description: "Reason for the warning",
       required: true,
+      maxLength: 500,
       type: ApplicationCommandOptionType.String,
     })
     reason: string,

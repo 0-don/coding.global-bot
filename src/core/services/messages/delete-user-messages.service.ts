@@ -67,9 +67,10 @@ export class DeleteUserMessagesService {
    *
    * Reports "already-jailed" when the member already held the jail role, so
    * callers can say so and the mod log does not record the jail twice. The role
-   * and DB writes still run in that case: the automod and /delete-user-messages
-   * rely on them to repair a jail whose DB row went missing. "no-jail-role" means
-   * nothing happened, and callers must not report a jail.
+   * and DB writes still run in that case, so the automod repairs a jail whose DB
+   * row went missing; /delete-user-messages refuses an already-jailed member
+   * before getting here. "no-jail-role" means nothing happened, and callers
+   * must not report a jail.
    */
   static async jailUser(
     params: DeleteUserMessagesParams,
@@ -237,7 +238,30 @@ export class DeleteUserMessagesService {
         ),
       );
 
-    await discordMember.roles.remove(jailRoleId).catch(error);
+    try {
+      await discordMember.roles.remove(jailRoleId);
+    } catch (err) {
+      error(err);
+
+      // They still hold the role, so put the row back: the DB must keep
+      // agreeing that they are jailed, or the jail stops being re-applied.
+      await db
+        .insert(memberRole)
+        .values({
+          roleId: jailRoleId,
+          memberId: params.memberId,
+          guildId: params.guild.id,
+          name: JAIL,
+        })
+        .onConflictDoNothing()
+        .catch(error);
+
+      return {
+        ok: false,
+        message:
+          "Discord refused to remove the jail role, so they are still jailed. Try again in a moment.",
+      };
+    }
 
     const defaultRoles = new Set(
       [VERIFIED, ...MEMBER_ROLES].filter((name): name is string => !!name),
