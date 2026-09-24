@@ -1,4 +1,9 @@
 import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
+import { RolesService } from "@/core/services/roles/roles.service";
+import { db } from "@/lib/db";
+import { memberRole } from "@/lib/db-schema";
+import { JAIL } from "@/shared/config/roles";
+import { and, eq } from "drizzle-orm";
 import type { CommandResult } from "@/types";
 import type { CommandInteraction, Guild, User } from "discord.js";
 
@@ -53,10 +58,19 @@ export async function executeDeleteUserMessages(
   userId: string | undefined,
   jail: boolean,
   reason: string | undefined,
+  purge: boolean = true,
+  days: number | undefined = undefined,
 ): Promise<CommandResult> {
   const memberId = user?.id ?? userId;
   if (!memberId || !interaction.guild) {
     return { success: false, error: "Invalid user or guild" };
+  }
+
+  if (!jail && !purge) {
+    return {
+      success: false,
+      error: "Nothing to do: turn on jail, purge, or both.",
+    };
   }
 
   const refusal = await refuseByRank(
@@ -67,6 +81,39 @@ export async function executeDeleteUserMessages(
   );
   if (refusal) return { success: false, error: refusal };
 
+  // Refused rather than repeated: a second jail cannot punish them further.
+  // Deleting more of a jailed member's messages is still a jail:false away.
+  if (jail) {
+    const jailRoleId = RolesService.getGuildStatusRoles(interaction.guild)[
+      JAIL
+    ]?.id;
+    const target = await interaction.guild.members
+      .fetch(memberId)
+      .catch(() => null);
+
+    // A member who left while jailed has no roles to read, only the stored
+    // jail row that is re-applied when they return.
+    const alreadyJailed =
+      !!jailRoleId &&
+      (target
+        ? target.roles.cache.has(jailRoleId)
+        : !!(await db.query.memberRole.findFirst({
+            where: and(
+              eq(memberRole.memberId, memberId),
+              eq(memberRole.guildId, interaction.guild.id),
+              eq(memberRole.roleId, jailRoleId),
+            ),
+          })));
+
+    if (alreadyJailed) {
+      return {
+        success: false,
+        error:
+          "That member is already jailed. Run this with jail:false to delete more of their messages.",
+      };
+    }
+  }
+
   const params = {
     guild: interaction.guild,
     memberId,
@@ -74,25 +121,44 @@ export async function executeDeleteUserMessages(
     user: user ?? null,
     moderatorId: interaction.user.id,
     moderatorName: interaction.user.username,
+    days,
     reason: reason
       ? `${reason} (triggered by <@${interaction.user.id}>)`
       : `Manual moderation (triggered by <@${interaction.user.id}>)`,
   };
 
+  const window = `last ${days ?? 14} day${(days ?? 14) === 1 ? "" : "s"}`;
+
   if (jail) {
     const { status } = await DeleteUserMessagesService.jailUser(params);
-    DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});
+
+    if (status === "no-jail-role" && !purge) {
+      return {
+        success: false,
+        error:
+          "This server has no jail role configured (check STATUS_ROLES), so nobody was jailed.",
+      };
+    }
+
+    if (purge)
+      DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});
+
+    const jailPart =
+      status === "no-jail-role"
+        ? "This server has no jail role configured (check STATUS_ROLES), so they were not jailed."
+        : "User jailed.";
+
     return {
       success: true,
-      message:
-        status === "no-jail-role"
-          ? "This server has no jail role configured (check STATUS_ROLES), so they were not jailed. Messages are being deleted in the background."
-          : status === "already-jailed"
-            ? "They were already jailed. Messages are being deleted in the background."
-            : "User jailed. Messages are being deleted in the background.",
+      message: purge
+        ? `${jailPart} Deleting their messages from the ${window} in the background.`
+        : `${jailPart} No messages were deleted.`,
     };
   }
 
   DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});
-  return { success: true, message: "Message deletion started in the background." };
+  return {
+    success: true,
+    message: `Deleting their messages from the ${window} in the background.`,
+  };
 }

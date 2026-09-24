@@ -23,7 +23,8 @@ import {
 import { error, log } from "node:console";
 
 const CHANNEL_CONCURRENCY = 3;
-const MAX_DELETE_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
+const DAY_MS = 24 * 60 * 60 * 1000;
+const MAX_DELETE_DAYS = 14; // Discord refuses to bulk-delete anything older
 
 async function runWithConcurrency<T>(
   tasks: (() => Promise<T>)[],
@@ -272,7 +273,8 @@ export class DeleteUserMessagesService {
   }
 
   /**
-   * Delete user messages across all channels. Scoped to last 14 days.
+   * Delete user messages across all channels. Scoped to the last `days` days
+   * (14 at most, and by default).
    */
   static async deleteUserMessages(params: DeleteUserMessagesParams) {
     // A spammer's messages arrive faster than one sweep of 275 channels takes, and
@@ -301,7 +303,11 @@ export class DeleteUserMessagesService {
       `[DeleteUserMessages] Starting message deletion for user ${params.memberId} in guild ${params.guild.name}`,
     );
     let totalDeleted = 0;
-    const cutoff = Date.now() - MAX_DELETE_AGE_MS;
+    const days = Math.min(
+      Math.max(params.days ?? MAX_DELETE_DAYS, 1),
+      MAX_DELETE_DAYS,
+    );
+    const cutoff = Date.now() - days * DAY_MS;
 
     const deleteMessages = async (channel: GuildTextBasedChannel) => {
       try {
@@ -317,7 +323,7 @@ export class DeleteUserMessagesService {
 
           lastMessageId = messages.last()!.id;
 
-          // Stop if we've gone past the 14-day cutoff
+          // Stop if we've gone past the cutoff
           const oldestMessage = messages.last()!;
           const pastCutoff = oldestMessage.createdTimestamp < cutoff;
 

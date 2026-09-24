@@ -71,7 +71,7 @@
 | Command                         | Description                              | Options                             |
 | ------------------------------- | ---------------------------------------- | ----------------------------------- |
 | `/delete-messages`              | Delete messages from a channel           | `amount`                            |
-| `/delete-user-messages`         | Delete a user's last 14 days of messages, optionally jailing them (not on someone at or above your rank) | `user`, `user-id`, `jail`, `reason` |
+| `/delete-user-messages`         | Delete a user's messages and/or jail them (not on someone at or above your rank) | `user`, `user-id`, `jail`, `reason`, `purge` (default on), `days` (1-14, default 14) |
 | `/delete-member-db`             | Remove a member from the server database | `user`                              |
 | `/lookback-members`             | Change lookback date range for the guild | `lookback`                          |
 | `/log-command-history`          | Show command history                     | `count` (optional)                  |
