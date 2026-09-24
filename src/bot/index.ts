@@ -28,7 +28,6 @@ import "./commands/mod/delete-messages";
 import "./commands/mod/delete-user-messages";
 import "./commands/mod/delete-warning";
 import "./commands/mod/edit-warning";
-import "./commands/mod/jail";
 import "./commands/mod/log-command-history";
 import "./commands/mod/log-deleted-messages-history";
 import "./commands/mod/lookback-members";

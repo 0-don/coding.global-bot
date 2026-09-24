@@ -228,9 +228,10 @@ export class RolesService {
 
     // Handle JAIL or VOICE_ONLY role addition
     if (newAddedRole === JAIL || newAddedRole === VOICE_ONLY) {
-      // Every path where the bot applies the jail role (/jail, the automod,
-      // rejoin and onboarding re-application, !verify-users) writes the jail
-      // row first, so only a jail with no row behind it was done by hand.
+      // Every path where the bot applies the jail role (/delete-user-messages,
+      // /warn, the automod, rejoin and onboarding re-application,
+      // !verify-users) writes the jail row first, so only a jail with no row
+      // behind it was done by hand.
       const jailRoleId = args.guildRoles.find((role) => role.name === JAIL)?.id;
       if (
         newAddedRole === JAIL &&

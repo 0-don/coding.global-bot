@@ -71,7 +71,7 @@
 | Command                         | Description                              | Options                             |
 | ------------------------------- | ---------------------------------------- | ----------------------------------- |
 | `/delete-messages`              | Delete messages from a channel           | `amount`                            |
-| `/delete-user-messages`         | Delete messages from a specific user     | `user`, `user-id`, `jail`, `reason` |
+| `/delete-user-messages`         | Delete a user's last 14 days of messages, optionally jailing them (not on someone at or above your rank) | `user`, `user-id`, `jail`, `reason` |
 | `/delete-member-db`             | Remove a member from the server database | `user`                              |
 | `/lookback-members`             | Change lookback date range for the guild | `lookback`                          |
 | `/log-command-history`          | Show command history                     | `count` (optional)                  |
@@ -81,7 +81,6 @@
 | `/edit-warning`                 | Change a warning's reason                | `warning_id`, `new_reason`          |
 | `/delete-warning`               | Delete one warning                       | `warning_id`                        |
 | `/top-warnings`                 | Most-warned members                      | `page` (optional)                   |
-| `/jail`                         | Jail a member, optionally purging msgs   | `user`/`user-id`, `reason`, `purge`, `days` |
 | `/unjail`                       | Release a member from jail               | `user`/`user-id`, `reason`          |
 | `/timeout`                      | Time out a member (staff up to 28d, helpers up to 1h) | `user`, `duration`, `reason` |
 | `/untimeout`                    | Lift a timeout                           | `user`                              |

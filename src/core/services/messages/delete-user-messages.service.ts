@@ -23,8 +23,7 @@ import {
 import { error, log } from "node:console";
 
 const CHANNEL_CONCURRENCY = 3;
-const DAY_MS = 24 * 60 * 60 * 1000;
-const MAX_DELETE_DAYS = 14; // Discord refuses to bulk-delete anything older
+const MAX_DELETE_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
 
 async function runWithConcurrency<T>(
   tasks: (() => Promise<T>)[],
@@ -67,9 +66,9 @@ export class DeleteUserMessagesService {
    * Apply jail role, update DB, send notification. Fast operation (~2s).
    *
    * Reports "already-jailed" when the member already held the jail role, so
-   * /jail can refuse a second jail instead of logging it twice. The role and DB
-   * writes still run in that case: the automod and /delete-user-messages rely
-   * on them to repair a jail whose DB row went missing. "no-jail-role" means
+   * callers can say so and the mod log does not record the jail twice. The role
+   * and DB writes still run in that case: the automod and /delete-user-messages
+   * rely on them to repair a jail whose DB row went missing. "no-jail-role" means
    * nothing happened, and callers must not report a jail.
    */
   static async jailUser(
@@ -175,8 +174,8 @@ export class DeleteUserMessagesService {
       params.guild.members.cache.get(params.memberId) ||
       (await params.guild.members.fetch(params.memberId).catch(() => null));
 
-    // /jail works on members who have left - the jail row is re-applied if they
-    // rejoin - so releasing them has to work the same way: clear the row.
+    // Jailing works on members who have left - the jail row is re-applied if
+    // they rejoin - so releasing them has to work the same way: clear the row.
     if (!discordMember) {
       const cleared = await db
         .delete(memberRole)
@@ -273,8 +272,7 @@ export class DeleteUserMessagesService {
   }
 
   /**
-   * Delete user messages across all channels. Scoped to the last `days` days
-   * (14 at most).
+   * Delete user messages across all channels. Scoped to last 14 days.
    */
   static async deleteUserMessages(params: DeleteUserMessagesParams) {
     // A spammer's messages arrive faster than one sweep of 275 channels takes, and
@@ -303,11 +301,7 @@ export class DeleteUserMessagesService {
       `[DeleteUserMessages] Starting message deletion for user ${params.memberId} in guild ${params.guild.name}`,
     );
     let totalDeleted = 0;
-    const days = Math.min(
-      Math.max(params.days ?? MAX_DELETE_DAYS, 1),
-      MAX_DELETE_DAYS,
-    );
-    const cutoff = Date.now() - days * DAY_MS;
+    const cutoff = Date.now() - MAX_DELETE_AGE_MS;
 
     const deleteMessages = async (channel: GuildTextBasedChannel) => {
       try {
@@ -323,7 +317,7 @@ export class DeleteUserMessagesService {
 
           lastMessageId = messages.last()!.id;
 
-          // Stop if we've gone past the cutoff
+          // Stop if we've gone past the 14-day cutoff
           const oldestMessage = messages.last()!;
           const pastCutoff = oldestMessage.createdTimestamp < cutoff;
 
