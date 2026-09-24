@@ -15,7 +15,7 @@ export const MAX_TIMEOUT_MINUTES = 28 * 24 * 60;
 
 export const MUTE_LIMIT_MINUTES: Record<ModeratorTier, number> = {
   staff: MAX_TIMEOUT_MINUTES,
-  helper: 60,
+  helper: 7 * 24 * 60, // 1 week
 };
 
 const DURATION_PATTERN = /^(\d+)\s*(m|min|mins|h|hr|hrs|d|day|days)$/i;
