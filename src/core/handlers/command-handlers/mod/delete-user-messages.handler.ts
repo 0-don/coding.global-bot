@@ -8,45 +8,30 @@ import type { CommandResult } from "@/types";
 import type { CommandInteraction, Guild, User } from "discord.js";
 
 /**
- * Whether this moderator may act on this member.
+ * Whether the bot can carry out this jail.
  *
- * Manage Roles is a single permission, so without this any moderator could
- * wipe or jail any other - or an administrator. Discord gates its own role
- * actions on the acting member's highest role sitting above the target's, and
- * this reads the same way rather than inventing a second rule.
+ * Moderators may jail anyone regardless of rank, but the bot cannot strip roles
+ * that sit above its own. Jailing anyway half-jails the member - they gain the
+ * jail role while keeping every role the bot could not strip - which is worse
+ * than refusing outright.
  *
- * Returns the refusal to show, or null when the action may proceed.
+ * Returns the refusal to show, or null when the jail may proceed.
  */
-async function refuseByRank(
+async function refuseJail(
   guild: Guild,
   invokerId: string,
   targetId: string,
-  jail: boolean,
 ): Promise<string | null> {
-  if (jail && invokerId === targetId) return "You cannot jail yourself.";
+  if (invokerId === targetId) return "You cannot jail yourself.";
 
   const target = await guild.members.fetch(targetId).catch(() => null);
 
-  // Not in the server: there are no roles to weigh, and a jail is only a
+  // Not in the server: there are no roles to strip, and the jail is only a
   // database record until they return.
   if (!target) return null;
 
-  // The bot's own position is a separate limit from the moderator's. Ignoring
-  // it half-jails the member - they gain the jail role while keeping every
-  // role the bot could not strip - which is worse than refusing outright.
-  if (jail && !target.manageable) {
+  if (!target.manageable) {
     return "I cannot jail that member - their highest role sits above mine, so I cannot remove their roles.";
-  }
-
-  // The owner outranks everyone, and your own messages are yours to delete.
-  if (invokerId === guild.ownerId || invokerId === targetId) return null;
-
-  const invoker = await guild.members.fetch(invokerId).catch(() => null);
-  if (!invoker)
-    return "I could not check your roles, so I have not done anything.";
-
-  if (target.roles.highest.position >= invoker.roles.highest.position) {
-    return "You cannot use this on someone whose highest role is equal to or above your own.";
   }
 
   return null;
@@ -64,17 +49,16 @@ export async function executeDeleteUserMessages(
     return { success: false, error: "Invalid user or guild" };
   }
 
-  const refusal = await refuseByRank(
-    interaction.guild,
-    interaction.user.id,
-    memberId,
-    jail,
-  );
-  if (refusal) return { success: false, error: refusal };
-
   // Refused rather than repeated: a second jail cannot punish them further.
   // Deleting more of a jailed member's messages still works without jail.
   if (jail) {
+    const refusal = await refuseJail(
+      interaction.guild,
+      interaction.user.id,
+      memberId,
+    );
+    if (refusal) return { success: false, error: refusal };
+
     const jailRoleId = RolesService.getGuildStatusRoles(interaction.guild)[
       JAIL
     ]?.id;
