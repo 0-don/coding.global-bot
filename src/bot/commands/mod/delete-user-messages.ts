@@ -24,7 +24,7 @@ export class DeleteUserMessages {
       description: "Select existing user",
       type: ApplicationCommandOptionType.User,
     })
-    rawUser: User | GuildMember,
+    rawUser: User | GuildMember | undefined,
     @SlashOption({
       name: "user-id",
       description: "Input user ID which messages should be deleted",
@@ -46,7 +46,7 @@ export class DeleteUserMessages {
     reason: string | undefined,
     interaction: CommandInteraction,
   ) {
-    const user = toUser(rawUser)!;
+    const user = toUser(rawUser);
     if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] }))) return;
     if (interaction.member?.user.id && interaction.guildId) {
       db.insert(memberCommandHistory)

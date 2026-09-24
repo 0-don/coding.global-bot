@@ -145,7 +145,20 @@ export class DeleteUserMessagesService {
           error(err);
           return false;
         });
-      if (!added && !alreadyJailed) return { status: "failed" };
+      if (!added && !alreadyJailed) {
+        // Undo the jail row, or it would be applied when they next rejoin.
+        await db
+          .delete(memberRole)
+          .where(
+            and(
+              eq(memberRole.memberId, params.memberId),
+              eq(memberRole.guildId, params.guild.id),
+              eq(memberRole.roleId, jailRoleId),
+            ),
+          )
+          .catch(error);
+        return { status: "failed" };
+      }
     }
 
     if (!alreadyJailed) {
