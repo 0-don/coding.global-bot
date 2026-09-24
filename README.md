@@ -98,4 +98,4 @@
 
 Set `MOD_LOG_CHANNELS` to post every warning, jail, unjail, kick, ban, unban and timeout to a channel. Entries are also stored in the `ModLog` table even when no channel is set. Kicks, bans and timeouts done in Discord directly are attributed through the audit log, so the bot needs the **View Audit Log** permission. `/report` posts to `REPORT_CHANNELS`.
 
-Every third `/warn` warning (3, 6, 9, ...) jails the member, without deleting their messages. The invite-link filter is unchanged and keeps its own separate count: it jails on the 4th invite and deletes the member's last 14 days of messages. Its warnings appear in the mod log but not in `/warnings`.
+Warnings from `/warn` and from the invite-link filter share one count, and every third warning (3, 6, 9, ...) jails the member. A jail from the invite filter also deletes their last 14 days of messages; a jail from `/warn` does not.

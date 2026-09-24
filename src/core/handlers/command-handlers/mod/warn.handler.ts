@@ -70,9 +70,8 @@ export async function executeWarn(
     reason,
   });
 
-  // Every third /warn warning jails. The invite filter keeps its own separate
-  // count and threshold. No message purge here: a warning for rudeness is no
-  // reason to wipe two weeks of posts.
+  // Same threshold as the invite filter, since both feed one count. No message
+  // purge here: a warning for rudeness is no reason to wipe two weeks of posts.
   let jailNote = "";
   let jailed = false;
 
