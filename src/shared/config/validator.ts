@@ -57,12 +57,7 @@ export class ConfigValidator {
     {
       key: "MOD_LOG_CHANNELS",
       required: false,
-      feature: "Moderation Log",
-    },
-    {
-      key: "REPORT_CHANNELS",
-      required: false,
-      feature: "Member Reports",
+      feature: "Moderation Log & Member Reports",
     },
     {
       key: "MEMBERS_COUNT_CHANNELS",

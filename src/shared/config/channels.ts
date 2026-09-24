@@ -17,8 +17,5 @@ export const MEMBERS_COUNT_CHANNELS =
 export const MOD_LOG_CHANNELS =
   process.env.MOD_LOG_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
 
-export const REPORT_CHANNELS =
-  process.env.REPORT_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
-
 export const TEMPLATE_VALIDATION_CHANNELS =
   process.env.TEMPLATE_VALIDATION_CHANNELS?.split(",")?.map((s) => s.trim()) || [];

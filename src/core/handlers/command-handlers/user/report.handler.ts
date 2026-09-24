@@ -1,5 +1,5 @@
 import { simpleEmbedExample } from "@/core/embeds/simple.embed";
-import { REPORT_CHANNELS } from "@/shared/config/channels";
+import { MOD_LOG_CHANNELS } from "@/shared/config/channels";
 import { ConfigValidator } from "@/shared/config/validator";
 import type { MessageResult } from "@/types";
 import type { CommandInteraction, TextChannel, User } from "discord.js";
@@ -54,8 +54,9 @@ export async function executeReport(
     };
   }
 
-  if (!ConfigValidator.isFeatureEnabled("REPORT_CHANNELS")) {
-    ConfigValidator.logFeatureDisabled("Member Reports", "REPORT_CHANNELS");
+  // Reports share the mod log channel, so staff watch one place.
+  if (!ConfigValidator.isFeatureEnabled("MOD_LOG_CHANNELS")) {
+    ConfigValidator.logFeatureDisabled("Member Reports", "MOD_LOG_CHANNELS");
     return {
       error:
         "Reports aren't configured on this server yet. Please contact a mod directly.",
@@ -63,7 +64,7 @@ export async function executeReport(
   }
 
   const reportChannel = interaction.guild.channels.cache.find(({ name }) =>
-    REPORT_CHANNELS.includes(name),
+    MOD_LOG_CHANNELS.includes(name),
   );
 
   if (!reportChannel || !reportChannel.isTextBased()) {
