@@ -125,7 +125,9 @@ export async function executeDeleteUserMessages(
       message:
         status === "no-jail-role"
           ? "This server has no jail role configured (check STATUS_ROLES), so they were not jailed. Messages are being deleted in the background."
-          : "User jailed. Messages are being deleted in the background.",
+          : status === "failed"
+            ? "I could not apply the jail role, so they were not jailed. Messages are being deleted in the background."
+            : "User jailed. Messages are being deleted in the background.",
     };
   }
 

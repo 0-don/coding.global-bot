@@ -43,7 +43,9 @@ async function lookup(
   targetId: string,
   filter: EntryFilter | undefined,
 ): Promise<AuditActor | null> {
-  const logs = await guild.fetchAuditLogs({ type, limit: 10 });
+  // Wide enough that the bot's own follow-up changes (one entry per role it
+  // strips from a newly jailed member) cannot push the entry we want out.
+  const logs = await guild.fetchAuditLogs({ type, limit: 50 });
 
   // The target union spans every audit-loggable entity, and a few of them
   // (Invite, for one) carry no id at all, so it has to be probed rather than

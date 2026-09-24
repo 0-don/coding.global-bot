@@ -1,9 +1,7 @@
 import { executeReport } from "@/core/handlers/command-handlers/user/report.handler";
-import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
-import { db } from "@/lib/db";
-import { memberCommandHistory } from "@/lib/db-schema";
+import { safeDeferReply, safeEditReply, toUser } from "@/core/utils/command.utils";
 import { MessageFlags } from "discord.js";
-import type { CommandInteraction, User } from "discord.js";
+import type { CommandInteraction, User, GuildMember } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 
@@ -21,7 +19,7 @@ export class Report {
       required: true,
       type: ApplicationCommandOptionType.User,
     })
-    user: User,
+    rawUser: User | GuildMember,
     @SlashOption({
       name: "reason",
       description: "Why are you reporting this member?",
@@ -32,20 +30,12 @@ export class Report {
     reason: string,
     interaction: CommandInteraction,
   ) {
+    const user = toUser(rawUser)!;
     if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] })))
       return;
 
-    if (interaction.member?.user.id && interaction.guildId) {
-      db.insert(memberCommandHistory)
-        .values({
-          channelId: interaction.channelId,
-          memberId: interaction.member.user.id,
-          guildId: interaction.guildId,
-          command: "report",
-        })
-        .catch(() => {});
-    }
-
+    // Not written to command history: /log-command-history would reveal who
+    // sent each anonymous report.
     const result = await executeReport(interaction, user, reason);
 
     if ("error" in result) return safeEditReply(interaction, result.error);

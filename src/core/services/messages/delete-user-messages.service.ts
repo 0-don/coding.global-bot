@@ -58,8 +58,9 @@ export class DeleteUserMessagesService {
    * Returns as soon as the jail is applied.
    */
   static async jailAndDeleteMessages(params: DeleteUserMessagesParams) {
-    await this.jailUser(params);
+    const { status } = await this.jailUser(params);
     this.deleteUserMessages(params).catch(error);
+    return status;
   }
 
   /**
@@ -69,12 +70,14 @@ export class DeleteUserMessagesService {
    * callers can say so and the mod log does not record the jail twice. The role
    * and DB writes still run in that case, so the automod repairs a jail whose DB
    * row went missing; /delete-user-messages refuses an already-jailed member
-   * before getting here. "no-jail-role" means nothing happened, and callers
-   * must not report a jail.
+   * before getting here. "no-jail-role" and "failed" mean they are not jailed,
+   * and callers must not report a jail.
    */
   static async jailUser(
     params: DeleteUserMessagesParams,
-  ): Promise<{ status: "jailed" | "already-jailed" | "no-jail-role" }> {
+  ): Promise<{
+    status: "jailed" | "already-jailed" | "no-jail-role" | "failed";
+  }> {
     const jailRoleId = RolesService.getGuildStatusRoles(params.guild)[JAIL]
       ?.id;
 
@@ -98,6 +101,17 @@ export class DeleteUserMessagesService {
       params.guild.members.cache.get(memberId) ||
       (await params.guild.members.fetch(memberId).catch(() => null));
     const alreadyJailed = !!discordMember?.roles.cache.has(jailRoleId);
+
+    // Checked before the transaction, which wipes their stored roles: a jail
+    // the bot cannot apply must not cost them those.
+    const role = params.guild.roles.cache.get(jailRoleId);
+    if (discordMember && !alreadyJailed && !role?.editable) {
+      botLogger.error("Cannot jail member: the jail role sits above the bot's", {
+        guildId: params.guild.id,
+        memberId: params.memberId,
+      });
+      return { status: "failed" };
+    }
 
     await db.transaction(async (tx) => {
       await tx
@@ -123,9 +137,16 @@ export class DeleteUserMessagesService {
       });
     });
 
-    const role = params.guild.roles.cache.get(jailRoleId);
-    if (discordMember && role?.editable)
-      await discordMember.roles.add(jailRoleId).catch(error);
+    if (discordMember && role?.editable) {
+      const added = await discordMember.roles
+        .add(jailRoleId)
+        .then(() => true)
+        .catch((err) => {
+          error(err);
+          return false;
+        });
+      if (!added && !alreadyJailed) return { status: "failed" };
+    }
 
     if (!alreadyJailed) {
       await ModLogService.postLog({
@@ -273,8 +294,14 @@ export class DeleteUserMessagesService {
       if (!roleToAdd?.editable) continue;
       if (discordMember.roles.cache.has(roleToAdd.id)) continue;
 
-      await discordMember.roles.add(roleToAdd.id).catch(error);
-      restored.push(name);
+      const added = await discordMember.roles
+        .add(roleToAdd.id)
+        .then(() => true)
+        .catch((err) => {
+          error(err);
+          return false;
+        });
+      if (added) restored.push(name);
     }
 
     await ModLogService.postLog({

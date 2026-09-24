@@ -1,9 +1,9 @@
 import { executeWarn } from "@/core/handlers/command-handlers/mod/warn.handler";
 import { db } from "@/lib/db";
 import { memberCommandHistory } from "@/lib/db-schema";
-import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply, toUser } from "@/core/utils/command.utils";
 import { MessageFlags } from "discord.js";
-import type { CommandInteraction, User } from "discord.js";
+import type { CommandInteraction, User, GuildMember } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 
@@ -22,7 +22,7 @@ export class Warn {
       required: true,
       type: ApplicationCommandOptionType.User,
     })
-    user: User,
+    rawUser: User | GuildMember,
     @SlashOption({
       name: "reason",
       description: "Reason for the warning",
@@ -33,6 +33,7 @@ export class Warn {
     reason: string,
     interaction: CommandInteraction,
   ) {
+    const user = toUser(rawUser)!;
     if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] })))
       return;
 

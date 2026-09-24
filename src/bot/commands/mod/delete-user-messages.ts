@@ -1,8 +1,8 @@
 import { executeDeleteUserMessages } from "@/core/handlers/command-handlers/mod/delete-user-messages.handler";
-import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply, toUser } from "@/core/utils/command.utils";
 import { db } from "@/lib/db";
 import { memberCommandHistory } from "@/lib/db-schema";
-import type { CommandInteraction, User } from "discord.js";
+import type { CommandInteraction, User, GuildMember } from "discord.js";
 import {
   ApplicationCommandOptionType,
   MessageFlags,
@@ -24,7 +24,7 @@ export class DeleteUserMessages {
       description: "Select existing user",
       type: ApplicationCommandOptionType.User,
     })
-    user: User,
+    rawUser: User | GuildMember,
     @SlashOption({
       name: "user-id",
       description: "Input user ID which messages should be deleted",
@@ -46,6 +46,7 @@ export class DeleteUserMessages {
     reason: string | undefined,
     interaction: CommandInteraction,
   ) {
+    const user = toUser(rawUser)!;
     if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] }))) return;
     if (interaction.member?.user.id && interaction.guildId) {
       db.insert(memberCommandHistory)

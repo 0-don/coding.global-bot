@@ -1,10 +1,10 @@
 import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { WarningsService } from "@/core/services/moderation/warnings.service";
-import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply, toUser } from "@/core/utils/command.utils";
 import { db } from "@/lib/db";
 import { memberCommandHistory } from "@/lib/db-schema";
 import { MessageFlags } from "discord.js";
-import type { CommandInteraction, User } from "discord.js";
+import type { CommandInteraction, User, GuildMember } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 
@@ -23,9 +23,10 @@ export class ClearWarnings {
       required: true,
       type: ApplicationCommandOptionType.User,
     })
-    user: User,
+    rawUser: User | GuildMember,
     interaction: CommandInteraction,
   ) {
+    const user = toUser(rawUser)!;
     if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] })))
       return;
 

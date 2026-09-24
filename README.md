@@ -64,7 +64,7 @@
 | `/translate`   | Translate text to English       | `text`                |
 | `/lookback-me` | Change your lookback date range | `lookback`            |
 | `/warnings`    | List your own warnings          | `page` (optional)     |
-| `/report`      | Report a member to the mods     | `user`, `reason`      |
+| `/report`      | Anonymously report a member     | `user`, `reason`      |
 
 #### Mod (Manage Roles)
 

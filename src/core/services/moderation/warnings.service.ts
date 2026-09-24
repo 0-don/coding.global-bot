@@ -97,7 +97,7 @@ export class WarningsService {
           eq(memberWarning.guildId, guildId),
           eq(memberWarning.memberId, memberId),
         ),
-        orderBy: desc(memberWarning.createdAt),
+        orderBy: [desc(memberWarning.createdAt), desc(memberWarning.id)],
         limit: PAGE_SIZE,
         offset,
         with: {
@@ -197,7 +197,7 @@ export class WarningsService {
       .innerJoin(member, eq(member.memberId, memberWarning.memberId))
       .where(eq(memberWarning.guildId, guildId))
       .groupBy(memberWarning.memberId, member.username)
-      .orderBy(desc(count(memberWarning.id)))
+      .orderBy(desc(count(memberWarning.id)), memberWarning.memberId)
       .limit(PAGE_SIZE)
       .offset(offset);
 

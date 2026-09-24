@@ -1,8 +1,8 @@
 import { executeUnjail } from "@/core/handlers/command-handlers/mod/unjail.handler";
-import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply, toUser } from "@/core/utils/command.utils";
 import { db } from "@/lib/db";
 import { memberCommandHistory } from "@/lib/db-schema";
-import type { CommandInteraction, User } from "discord.js";
+import type { CommandInteraction, User, GuildMember } from "discord.js";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 
@@ -21,7 +21,7 @@ export class Unjail {
       type: ApplicationCommandOptionType.User,
       required: false,
     })
-    user: User | undefined,
+    rawUser: User | GuildMember | undefined,
     @SlashOption({
       name: "user-id",
       description: "Member ID, if they cannot be picked from the list",
@@ -39,6 +39,7 @@ export class Unjail {
     reason: string | undefined,
     interaction: CommandInteraction,
   ) {
+    const user = toUser(rawUser);
     if (!(await safeDeferReply(interaction))) return;
 
     if (interaction.member?.user.id && interaction.guildId) {

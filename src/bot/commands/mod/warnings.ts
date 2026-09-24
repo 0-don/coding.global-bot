@@ -1,8 +1,8 @@
 import { executeWarnings } from "@/core/handlers/command-handlers/mod/warnings.handler";
-import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
+import { safeDeferReply, safeEditReply, toUser } from "@/core/utils/command.utils";
 import { db } from "@/lib/db";
 import { memberCommandHistory } from "@/lib/db-schema";
-import type { CommandInteraction, User } from "discord.js";
+import type { CommandInteraction, User, GuildMember } from "discord.js";
 import { ApplicationCommandOptionType, MessageFlags } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
 
@@ -24,7 +24,7 @@ export class Warnings {
       required: false,
       type: ApplicationCommandOptionType.User,
     })
-    user: User | undefined,
+    rawUser: User | GuildMember | undefined,
     @SlashOption({
       name: "page",
       description: "Page number (default 1)",
@@ -35,6 +35,7 @@ export class Warnings {
     page: number = 1,
     interaction: CommandInteraction,
   ) {
+    const user = toUser(rawUser);
     // Your own record stays private; a moderator pulling up someone else keeps
     // the existing in-channel behaviour.
     const isSelf = !user || user.id === interaction.user.id;

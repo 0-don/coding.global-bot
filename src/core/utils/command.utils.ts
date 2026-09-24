@@ -2,10 +2,17 @@ import { BOT_CHANNELS } from "@/shared/config/channels";
 import { ConfigValidator } from "@/shared/config/validator";
 import type {
   CommandInteraction,
+  GuildMember,
   InteractionDeferReplyOptions,
   InteractionEditReplyOptions,
   MessagePayload,
+  User,
 } from "discord.js";
+
+// discordx resolves a User option to the GuildMember when the user is in the
+// server, and a GuildMember has no .bot or .username of its own.
+export const toUser = (user: User | GuildMember | undefined) =>
+  user && "user" in user ? user.user : user;
 
 // Discord API error codes for missing resources
 export const UNKNOWN_MESSAGE = 10008;

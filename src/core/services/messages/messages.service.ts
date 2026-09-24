@@ -419,7 +419,7 @@ export class MessagesService {
           );
         } catch (error) {}
       } else {
-        await DeleteUserMessagesService.jailAndDeleteMessages({
+        const status = await DeleteUserMessagesService.jailAndDeleteMessages({
           jail: true,
           memberId: member.id,
           user: member.user,
@@ -427,11 +427,13 @@ export class MessagesService {
           reason: `Posted Discord invite links (${currentWarnings} warnings)`,
         });
 
-        try {
-          await member.send(
-            `You have been jailed after ${currentWarnings} warnings. Ask a mod to release you.`,
-          );
-        } catch (error) {}
+        if (status === "jailed") {
+          try {
+            await member.send(
+              `You have been jailed after ${currentWarnings} warnings. Ask a mod to release you.`,
+            );
+          } catch (error) {}
+        }
       }
     }
   }

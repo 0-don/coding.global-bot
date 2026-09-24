@@ -104,7 +104,9 @@ export async function executeWarn(
           ? `\nThat is warning ${warningCount}, so they have been jailed.`
           : status === "already-jailed"
             ? `\nThat is warning ${warningCount}; they were already jailed.`
-            : `\nThat is warning ${warningCount}, but this server has no jail role configured, so they were not jailed.`;
+            : status === "failed"
+              ? `\nThat is warning ${warningCount}, but I could not apply the jail role, so they were not jailed.`
+              : `\nThat is warning ${warningCount}, but this server has no jail role configured, so they were not jailed.`;
     }
   }
 
