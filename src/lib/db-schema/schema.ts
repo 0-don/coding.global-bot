@@ -392,3 +392,15 @@ export const memberMute = pgTable("MemberMute", {
 }, (table) => [
 	index("MemberMute_memberId_guildId_idx").using("btree", table.memberId.asc().nullsLast().op("text_ops"), table.guildId.asc().nullsLast().op("text_ops")),
 ]);
+
+export const modLog = pgTable("ModLog", {
+	id: serial().primaryKey().notNull(),
+	guildId: text().notNull(),
+	action: text().notNull(),
+	targetId: text().notNull(),
+	moderatorId: text(),
+	reason: text(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [
+	index("ModLog_guildId_targetId_idx").using("btree", table.guildId.asc().nullsLast().op("text_ops"), table.targetId.asc().nullsLast().op("text_ops")),
+]);

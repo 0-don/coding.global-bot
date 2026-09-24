@@ -1,6 +1,7 @@
 // Events
 import "./events/_ready";
 import "./events/ai-chat";
+import "./events/guild-audit-log-entry-create";
 import "./events/guild-member-add";
 import "./events/guild-member-remove";
 import "./events/guild-member-update";
@@ -26,8 +27,9 @@ import "./commands/mod/delete-user-messages";
 import "./commands/mod/log-command-history";
 import "./commands/mod/log-deleted-messages-history";
 import "./commands/mod/lookback-members";
-import "./commands/mod/mute";
-import "./commands/mod/unmute";
+import "./commands/mod/modlog";
+import "./commands/mod/timeout";
+import "./commands/mod/untimeout";
 import "./commands/mod/verify-threads";
 import "./commands/mod/verify-users";
 

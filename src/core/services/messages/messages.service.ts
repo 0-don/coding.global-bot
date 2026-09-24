@@ -2,6 +2,7 @@ import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-
 import { PrivacyService } from "@/core/services/privacy/privacy.service";
 import { db } from "@/lib/db";
 import { memberMessages, memberDeletedMessages, memberGuild } from "@/lib/db-schema";
+import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { and, count, eq } from "drizzle-orm";
 import { LEVEL_LIST, LEVEL_MESSAGES } from "@/shared/config/levels";
 import { JAIL, VOICE_ONLY } from "@/shared/config/roles";
@@ -392,6 +393,13 @@ export class MessagesService {
       await db.update(memberGuild)
         .set({ warnings: currentWarnings })
         .where(eq(memberGuild.id, memberGuildData.id));
+
+      await ModLogService.record(message.guild, {
+        action: "warn",
+        targetId: member.id,
+        moderatorId: message.client.user.id,
+        reason: `Posted a Discord invite link (warning ${currentWarnings})`,
+      });
 
       if (currentWarnings < 4) {
         try {

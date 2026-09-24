@@ -100,7 +100,7 @@ export class DeleteUserMessagesService {
 
     const role = params.guild.roles.cache.get(jailRoleId);
     if (discordMember && role?.editable)
-      await discordMember.roles.add(jailRoleId).catch(error);
+      await discordMember.roles.add(jailRoleId, params.reason).catch(error);
 
     if (!alreadyJailed) {
       await this.sendJailNotification(params);

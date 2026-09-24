@@ -2,7 +2,7 @@ import { MuteService } from "@/core/services/moderation/mute.service";
 import type { CommandResult } from "@/types";
 import type { CommandInteraction, GuildMember } from "discord.js";
 
-export async function executeUnmute(
+export async function executeUntimeout(
   interaction: CommandInteraction,
   target: GuildMember,
 ): Promise<CommandResult> {

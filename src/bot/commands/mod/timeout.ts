@@ -1,4 +1,4 @@
-import { executeMute } from "@/core/handlers/command-handlers/mod/mute.handler";
+import { executeTimeout } from "@/core/handlers/command-handlers/mod/timeout.handler";
 import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
 import { db } from "@/lib/db";
 import { memberCommandHistory } from "@/lib/db-schema";
@@ -10,18 +10,18 @@ import {
 import { Discord, Slash, SlashOption } from "discordx";
 
 @Discord()
-export class Mute {
+export class Timeout {
   // No defaultMemberPermissions: helpers hold no moderation permission by design,
   // so the role check in MuteService is the gate.
   @Slash({
-    name: "mute",
+    name: "timeout",
     description: "Time out a member",
     dmPermission: false,
   })
-  async mute(
+  async timeout(
     @SlashOption({
       name: "user",
-      description: "Member to mute",
+      description: "Member to time out",
       type: ApplicationCommandOptionType.User,
       required: true,
     })
@@ -35,7 +35,7 @@ export class Mute {
     duration: string,
     @SlashOption({
       name: "reason",
-      description: "Reason for the mute",
+      description: "Reason for the timeout",
       type: ApplicationCommandOptionType.String,
       required: false,
     })
@@ -51,12 +51,12 @@ export class Mute {
           channelId: interaction.channelId,
           memberId: interaction.member.user.id,
           guildId: interaction.guildId,
-          command: "mute",
+          command: "timeout",
         })
         .catch(() => {});
     }
 
-    const result = await executeMute(interaction, target, duration, reason);
+    const result = await executeTimeout(interaction, target, duration, reason);
 
     await safeEditReply(interaction, {
       content: result.error ?? result.message ?? "Done.",

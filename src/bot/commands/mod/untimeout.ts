@@ -1,4 +1,4 @@
-import { executeUnmute } from "@/core/handlers/command-handlers/mod/unmute.handler";
+import { executeUntimeout } from "@/core/handlers/command-handlers/mod/untimeout.handler";
 import { safeDeferReply, safeEditReply } from "@/core/utils/command.utils";
 import { db } from "@/lib/db";
 import { memberCommandHistory } from "@/lib/db-schema";
@@ -10,16 +10,16 @@ import {
 import { Discord, Slash, SlashOption } from "discordx";
 
 @Discord()
-export class Unmute {
+export class Untimeout {
   @Slash({
-    name: "unmute",
+    name: "untimeout",
     description: "Lift a member's timeout",
     dmPermission: false,
   })
-  async unmute(
+  async untimeout(
     @SlashOption({
       name: "user",
-      description: "Member to unmute",
+      description: "Member to remove the timeout from",
       type: ApplicationCommandOptionType.User,
       required: true,
     })
@@ -35,12 +35,12 @@ export class Unmute {
           channelId: interaction.channelId,
           memberId: interaction.member.user.id,
           guildId: interaction.guildId,
-          command: "unmute",
+          command: "untimeout",
         })
         .catch(() => {});
     }
 
-    const result = await executeUnmute(interaction, target);
+    const result = await executeUntimeout(interaction, target);
 
     await safeEditReply(interaction, {
       content: result.error ?? result.message ?? "Done.",

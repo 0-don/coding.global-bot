@@ -47,6 +47,7 @@ export const bot = new Client({
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildModeration,
     ...privilegedIntents,
   ],
   partials: [
