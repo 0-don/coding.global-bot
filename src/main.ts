@@ -28,7 +28,7 @@ const missingIntents = (
   [
     ["member events", grantedIntents.guildMembers],
     ["presence", grantedIntents.guildPresences],
-    ["message content", grantedIntents.messageContent],
+    ["message content", grantedIntents.messageContent]
   ] as const
 )
   .filter(([, granted]) => !granted)
@@ -36,7 +36,7 @@ const missingIntents = (
 
 if (missingIntents.length) {
   botLogger.warn(
-    `Running without privileged intents: ${missingIntents.join(", ")} unavailable, so the filters that depend on them are disabled`,
+    `Running without privileged intents: ${missingIntents.join(", ")} unavailable, so the filters that depend on them are disabled`
   );
 }
 
@@ -48,7 +48,7 @@ export const bot = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.GuildModeration,
-    ...privilegedIntents,
+    ...privilegedIntents
   ],
   partials: [
     Partials.Message,
@@ -56,10 +56,10 @@ export const bot = new Client({
     Partials.Reaction,
     Partials.GuildMember,
     Partials.GuildScheduledEvent,
-    Partials.User,
+    Partials.User
   ],
   silent: true,
-  botGuilds: ["693908458986143824", "1314599700657340436"],
+  botGuilds: ["693908458986143824", "1314599700657340436"]
 });
 
 bot.once("clientReady", async () => {
@@ -87,13 +87,17 @@ bot.on("messageCreate", (message) => {
 
 bot.on(
   "messageReactionAdd",
-  (reaction, user) => void bot.executeReaction(reaction, user),
+  (reaction, user) => void bot.executeReaction(reaction, user)
 );
 
 // discord.js rethrows an unhandled "error" event
-bot.on("error", (e) => botLogger.error("Discord client error", { error: String(e) }));
+bot.on("error", (e) =>
+  botLogger.error("Discord client error", { error: String(e) })
+);
 
-bot.on("shardError", (e) => botLogger.error("Shard error", { error: String(e) }));
+bot.on("shardError", (e) =>
+  botLogger.error("Shard error", { error: String(e) })
+);
 
 // A transient network fault must degrade, not kill the process: the container's
 // restart policy can be defeated by a stale containerd task, turning a blip into
@@ -139,28 +143,12 @@ const main = async () => {
           activities: [
             {
               name: "limited mode - scam filters offline",
-              type: ActivityType.Watching,
-            },
-          ],
-        },
+              type: ActivityType.Watching
+            }
+          ]
+        }
   );
 };
-
-const PING_URL = "https://isolated-emili-spectredev-9a803c60.koyeb.app/api/api";
-const PING_TIMEOUT_MS = 30_000;
-
-const ping = async () => {
-  try {
-    const res = await fetch(PING_URL, {
-      signal: AbortSignal.timeout(PING_TIMEOUT_MS),
-    });
-    res.body?.cancel().catch(() => {});
-  } catch (e) {
-    botLogger.warn("Ping failed", { error: String(e) });
-  }
-};
-
-setInterval(() => void ping(), 300000);
 
 main().catch((e) => {
   botLogger.error("Fatal startup error", { error: String(e) });
