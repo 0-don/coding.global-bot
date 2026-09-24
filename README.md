@@ -82,7 +82,7 @@
 | `/delete-warning`               | Delete one warning                       | `warning_id`                        |
 | `/top-warnings`                 | Most-warned members                      | `page` (optional)                   |
 | `/unjail`                       | Release a member from jail               | `user`/`user-id`, `reason`          |
-| `/timeout`                      | Time out a member (staff up to 28d, helpers up to 1 week) | `user`, `duration`, `reason` |
+| `/timeout`                      | Time out a member (staff up to 28d, helpers up to 1 day) | `user`, `duration`, `reason` |
 | `/untimeout`                    | Lift a timeout                           | `user`                              |
 
 #### Admin
