@@ -58,19 +58,10 @@ export async function executeDeleteUserMessages(
   userId: string | undefined,
   jail: boolean,
   reason: string | undefined,
-  purge: boolean = true,
-  days: number | undefined = undefined,
 ): Promise<CommandResult> {
   const memberId = user?.id ?? userId;
   if (!memberId || !interaction.guild) {
     return { success: false, error: "Invalid user or guild" };
-  }
-
-  if (!jail && !purge) {
-    return {
-      success: false,
-      error: "Nothing to do: turn on jail, purge, or both.",
-    };
   }
 
   const refusal = await refuseByRank(
@@ -82,7 +73,7 @@ export async function executeDeleteUserMessages(
   if (refusal) return { success: false, error: refusal };
 
   // Refused rather than repeated: a second jail cannot punish them further.
-  // Deleting more of a jailed member's messages is still a jail:false away.
+  // Deleting more of a jailed member's messages still works without jail.
   if (jail) {
     const jailRoleId = RolesService.getGuildStatusRoles(interaction.guild)[
       JAIL
@@ -109,7 +100,7 @@ export async function executeDeleteUserMessages(
       return {
         success: false,
         error:
-          "That member is already jailed. Run this with jail:false to delete more of their messages.",
+          "That member is already jailed. Run it without jail to delete more of their messages.",
       };
     }
   }
@@ -121,44 +112,23 @@ export async function executeDeleteUserMessages(
     user: user ?? null,
     moderatorId: interaction.user.id,
     moderatorName: interaction.user.username,
-    days,
     reason: reason
       ? `${reason} (triggered by <@${interaction.user.id}>)`
       : `Manual moderation (triggered by <@${interaction.user.id}>)`,
   };
 
-  const window = `last ${days ?? 14} day${(days ?? 14) === 1 ? "" : "s"}`;
-
   if (jail) {
     const { status } = await DeleteUserMessagesService.jailUser(params);
-
-    if (status === "no-jail-role" && !purge) {
-      return {
-        success: false,
-        error:
-          "This server has no jail role configured (check STATUS_ROLES), so nobody was jailed.",
-      };
-    }
-
-    if (purge)
-      DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});
-
-    const jailPart =
-      status === "no-jail-role"
-        ? "This server has no jail role configured (check STATUS_ROLES), so they were not jailed."
-        : "User jailed.";
-
+    DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});
     return {
       success: true,
-      message: purge
-        ? `${jailPart} Deleting their messages from the ${window} in the background.`
-        : `${jailPart} No messages were deleted.`,
+      message:
+        status === "no-jail-role"
+          ? "This server has no jail role configured (check STATUS_ROLES), so they were not jailed. Messages are being deleted in the background."
+          : "User jailed. Messages are being deleted in the background.",
     };
   }
 
   DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});
-  return {
-    success: true,
-    message: `Deleting their messages from the ${window} in the background.`,
-  };
+  return { success: true, message: "Message deletion started in the background." };
 }

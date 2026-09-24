@@ -44,22 +44,6 @@ export class DeleteUserMessages {
       required: false,
     })
     reason: string | undefined,
-    @SlashOption({
-      name: "purge",
-      description: "Delete their messages (default: true). Turn off to only jail",
-      type: ApplicationCommandOptionType.Boolean,
-      required: false,
-    })
-    purge: boolean = true,
-    @SlashOption({
-      name: "days",
-      description: "How many days back to delete (default 14, max 14)",
-      type: ApplicationCommandOptionType.Integer,
-      minValue: 1,
-      maxValue: 14,
-      required: false,
-    })
-    days: number | undefined,
     interaction: CommandInteraction,
   ) {
     if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] }))) return;
@@ -80,8 +64,6 @@ export class DeleteUserMessages {
       userId,
       jail,
       reason,
-      purge,
-      days,
     );
 
     if (result.error) {
