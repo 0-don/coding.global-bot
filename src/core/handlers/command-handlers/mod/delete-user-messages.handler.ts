@@ -5,15 +5,16 @@ import { memberRole } from "@/lib/db-schema";
 import { JAIL } from "@/shared/config/roles";
 import { and, eq } from "drizzle-orm";
 import type { CommandResult } from "@/types";
+import { PermissionFlagsBits } from "discord.js";
 import type { CommandInteraction, Guild, User } from "discord.js";
 
 /**
  * Whether the bot can carry out this jail.
  *
- * Moderators may jail anyone regardless of rank, but the bot cannot strip roles
- * that sit above its own. Jailing anyway half-jails the member - they gain the
- * jail role while keeping every role the bot could not strip - which is worse
- * than refusing outright.
+ * Moderators may jail anyone regardless of rank, except the server owner and
+ * administrators. The bot also cannot strip roles that sit above its own, and
+ * jailing anyway half-jails the member - they gain the jail role while keeping
+ * every role the bot could not strip - which is worse than refusing outright.
  *
  * Returns the refusal to show, or null when the jail may proceed.
  */
@@ -23,12 +24,17 @@ async function refuseJail(
   targetId: string,
 ): Promise<string | null> {
   if (invokerId === targetId) return "You cannot jail yourself.";
+  if (targetId === guild.ownerId) return "You cannot jail the server owner.";
 
   const target = await guild.members.fetch(targetId).catch(() => null);
 
   // Not in the server: there are no roles to strip, and the jail is only a
   // database record until they return.
   if (!target) return null;
+
+  if (target.permissions.has(PermissionFlagsBits.Administrator)) {
+    return "You cannot jail an administrator.";
+  }
 
   if (!target.manageable) {
     return "I cannot jail that member - their highest role sits above mine, so I cannot remove their roles.";

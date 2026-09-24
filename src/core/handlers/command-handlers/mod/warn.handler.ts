@@ -3,6 +3,7 @@ import { WarningsService } from "@/core/services/moderation/warnings.service";
 import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { isJailWarning, nextJailWarning } from "@/shared/config/moderation";
 import type { MessageResult } from "@/types";
+import { PermissionFlagsBits } from "discord.js";
 import type { CommandInteraction, User } from "discord.js";
 
 export async function executeWarn(
@@ -78,7 +79,9 @@ export async function executeWarn(
   if (isJailWarning(warningCount)) {
     // Checked here rather than left to jailUser: the jail role would land but
     // the roles above the bot's could not be stripped, half-jailing them.
-    if (targetMember && !targetMember.manageable) {
+    if (targetMember?.permissions.has(PermissionFlagsBits.Administrator)) {
+      jailNote = `\nThat is warning ${warningCount}, but administrators are never jailed.`;
+    } else if (targetMember && !targetMember.manageable) {
       jailNote = `\nThat is warning ${warningCount}, but I cannot jail them: their highest role is above mine.`;
     } else {
       const { status } = await DeleteUserMessagesService.jailUser({
