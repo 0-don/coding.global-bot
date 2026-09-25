@@ -395,7 +395,7 @@ export class MessagesService {
         .where(eq(memberGuild.id, memberGuildData.id));
 
       await ModLogService.record(message.guild, {
-        action: "warn",
+        action: "User Warned",
         targetId: member.id,
         moderatorId: message.client.user.id,
         reason: `Posted a Discord invite link (warning ${currentWarnings})`,
