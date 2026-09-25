@@ -13,14 +13,13 @@ import { and, desc, eq } from "drizzle-orm";
 import { error } from "node:console";
 
 export type ModAction =
-  | "warn"
-  | "jail"
-  | "unjail"
-  | "kick"
-  | "ban"
-  | "unban"
-  | "timeout"
-  | "untimeout";
+  | "User Warned"
+  | "User Unjailed"
+  | "User Kicked"
+  | "User Banned"
+  | "User Unbanned"
+  | "User Timed Out"
+  | "User Untimed Out";
 
 interface ModLogEntry {
   action: ModAction;
@@ -29,34 +28,32 @@ interface ModLogEntry {
   reason: string | null;
 }
 
-const changesJail = (entry: GuildAuditLogsEntry, key: "$add" | "$remove") =>
+const removesJail = (entry: GuildAuditLogsEntry) =>
   entry.changes.some(
     (change) =>
-      change.key === key &&
+      change.key === "$remove" &&
       Array.isArray(change.new) &&
       change.new.some((role) => role.name === JAIL),
   );
 
 export class ModLogService {
-  // Covers actions done by hand in Discord as well as the bot's own.
   static actionFromAudit(entry: GuildAuditLogsEntry): ModAction | null {
     switch (entry.action) {
       case AuditLogEvent.MemberKick:
-        return "kick";
+        return "User Kicked";
       case AuditLogEvent.MemberBanAdd:
-        return "ban";
+        return "User Banned";
       case AuditLogEvent.MemberBanRemove:
-        return "unban";
+        return "User Unbanned";
       case AuditLogEvent.MemberUpdate: {
         const change = entry.changes.find(
           (c) => c.key === "communication_disabled_until",
         );
         if (!change) return null;
-        return change.new ? "timeout" : "untimeout";
+        return change.new ? "User Timed Out" : "User Untimed Out";
       }
       case AuditLogEvent.MemberRoleUpdate:
-        if (changesJail(entry, "$add")) return "jail";
-        if (changesJail(entry, "$remove")) return "unjail";
+        if (removesJail(entry)) return "User Unjailed";
         return null;
       default:
         return null;
