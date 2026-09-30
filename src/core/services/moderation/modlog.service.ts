@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { modLog } from "@/lib/db-schema";
-import { BOT_ICON, RED_COLOR } from "@/shared/config/branding";
+import { logEmbed, type LogTone } from "@/core/embeds/log.embed";
 import { MOD_LOG_CHANNELS } from "@/shared/config/channels";
 import { JAIL } from "@/shared/config/roles";
 import {
@@ -29,7 +29,22 @@ interface ModLogEntry {
   targetId: string;
   moderatorId: string | null;
   reason?: string | null;
+  /** Shown on its own line, even for actions that carry no reason. */
+  note?: string;
 }
+
+// Colour by severity, so a ban and an unban read differently at a glance.
+const ACTION_TONES: Record<ModAction, LogTone> = {
+  "User Warned": "caution",
+  "User Jailed": "negative",
+  "User Unjailed": "positive",
+  "User Kicked": "negative",
+  "User Banned": "negative",
+  "User Unbanned": "positive",
+  "User Timed Out": "caution",
+  "User Untimed Out": "positive",
+  "Messages Deleted": "negative",
+};
 
 // Only who acted is shown for these: lifts need no justification, and kicks and
 // bans come from Discord's own dialog, which has no reason to rely on.
@@ -89,14 +104,23 @@ export class ModLogService {
       })
       .catch(error);
 
-    const description = [
-      `**Member:** <@${entry.targetId}> (${entry.targetId})`,
-      `**By:** ${entry.moderatorId ? `<@${entry.moderatorId}>` : "unknown"}`,
-    ];
-    if (!lift)
-      description.push(
-        `**Reason:** ${reason?.slice(0, 1000) ?? "No reason provided"}`,
-      );
+    const user = await guild.client.users
+      .fetch(entry.targetId)
+      .catch(() => null);
+
+    const embed = logEmbed({
+      tone: ACTION_TONES[entry.action],
+      title: entry.action,
+      user,
+      lines: [
+        `<@${entry.targetId}> (${user?.username ?? "unknown"})`,
+        `**By:** ${entry.moderatorId ? `<@${entry.moderatorId}>` : "unknown"}`,
+        lift ? null : `**Reason:** ${reason?.slice(0, 1000) ?? "No reason provided"}`,
+        entry.note ? `**Note:** ${entry.note}` : null,
+        `-# ${entry.targetId}`,
+      ],
+      footer: "Mod Log",
+    });
 
     for (const channel of guild.channels.cache.values()) {
       if (
@@ -105,18 +129,7 @@ export class ModLogService {
       )
         continue;
       await channel
-        .send({
-          embeds: [
-            {
-              color: RED_COLOR,
-              title: entry.action,
-              description: description.join("\n"),
-              timestamp: new Date().toISOString(),
-              footer: { text: "Mod Log", icon_url: BOT_ICON },
-            },
-          ],
-          allowedMentions: { users: [], roles: [] },
-        })
+        .send({ embeds: [embed], allowedMentions: { users: [], roles: [] } })
         .catch(error);
     }
   }
