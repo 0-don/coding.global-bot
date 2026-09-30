@@ -10,6 +10,7 @@ export const userJailedEmbed = (params: UserJailedEmbedParams): APIEmbed => ({
     `**Username:** ${params.displayName} (${params.username})`,
     `**Member ID:** ${params.memberId}`,
     `**Reason:** ${params.reason || "No reason provided"}`,
+    ...(params.moderatorId ? [`**By:** <@${params.moderatorId}>`] : []),
   ].join("\n"),
   timestamp: new Date().toISOString(),
   footer: {

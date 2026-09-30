@@ -14,6 +14,7 @@ import { error } from "node:console";
 
 export type ModAction =
   | "User Warned"
+  | "User Jailed"
   | "User Unjailed"
   | "User Kicked"
   | "User Banned"
@@ -25,13 +26,16 @@ interface ModLogEntry {
   action: ModAction;
   targetId: string;
   moderatorId: string | null;
-  reason: string | null;
+  reason?: string | null;
 }
 
-const removesJail = (entry: GuildAuditLogsEntry) =>
+// Lifting a punishment needs no justification, so these carry no reason.
+const LIFTS: ModAction[] = ["User Unjailed", "User Untimed Out"];
+
+const changesJail = (entry: GuildAuditLogsEntry, key: "$add" | "$remove") =>
   entry.changes.some(
     (change) =>
-      change.key === "$remove" &&
+      change.key === key &&
       Array.isArray(change.new) &&
       change.new.some((role) => role.name === JAIL),
   );
@@ -53,7 +57,8 @@ export class ModLogService {
         return change.new ? "User Timed Out" : "User Untimed Out";
       }
       case AuditLogEvent.MemberRoleUpdate:
-        if (removesJail(entry)) return "User Unjailed";
+        if (changesJail(entry, "$add")) return "User Jailed";
+        if (changesJail(entry, "$remove")) return "User Unjailed";
         return null;
       default:
         return null;
@@ -61,10 +66,28 @@ export class ModLogService {
   }
 
   static async record(guild: Guild, entry: ModLogEntry) {
+    const lift = LIFTS.includes(entry.action);
+    const reason = lift ? null : entry.reason?.trim() || null;
+
     await db
       .insert(modLog)
-      .values({ guildId: guild.id, ...entry })
+      .values({
+        guildId: guild.id,
+        action: entry.action,
+        targetId: entry.targetId,
+        moderatorId: entry.moderatorId,
+        reason,
+      })
       .catch(error);
+
+    const description = [
+      `**Member:** <@${entry.targetId}> (${entry.targetId})`,
+      `**By:** ${entry.moderatorId ? `<@${entry.moderatorId}>` : "unknown"}`,
+    ];
+    if (!lift)
+      description.push(
+        `**Reason:** ${reason?.slice(0, 1000) ?? "No reason provided"}`,
+      );
 
     for (const channel of guild.channels.cache.values()) {
       if (
@@ -78,11 +101,7 @@ export class ModLogService {
             {
               color: RED_COLOR,
               title: entry.action,
-              description: [
-                `**Member:** <@${entry.targetId}> (${entry.targetId})`,
-                `**By:** ${entry.moderatorId ? `<@${entry.moderatorId}>` : "unknown"}`,
-                `**Reason:** ${entry.reason || "No reason provided"}`,
-              ].join("\n"),
+              description: description.join("\n"),
               timestamp: new Date().toISOString(),
               footer: { text: "Mod Log", icon_url: BOT_ICON },
             },
