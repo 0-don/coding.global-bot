@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { Attachment, Message } from "discord.js";
 import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
+import { ModLogService } from "@/core/services/moderation/modlog.service";
 import {
   CHANNEL_JAIL_THRESHOLD,
   CHANNEL_SPAM_WINDOW_MS,
@@ -125,7 +126,15 @@ export class DuplicateSpamService {
       this.userStates.delete(userId);
       this.jailing.delete(userId);
     } else {
-      const warningMessage = `Stop posting duplicate messages. This is warning ${count - DUPLICATE_WARNING_THRESHOLD + 1}, you will be muted at ${DUPLICATE_JAIL_THRESHOLD - DUPLICATE_WARNING_THRESHOLD + 1} warnings.`;
+      const warning = count - DUPLICATE_WARNING_THRESHOLD + 1;
+      const warningMessage = `Stop posting duplicate messages. This is warning ${warning}, you will be muted at ${DUPLICATE_JAIL_THRESHOLD - DUPLICATE_WARNING_THRESHOLD + 1} warnings.`;
+
+      await ModLogService.record(message.guild, {
+        action: "User Warned",
+        targetId: message.author.id,
+        moderatorId: message.client.user.id,
+        reason: `Sent ${count} duplicate messages (warning ${warning})`,
+      });
 
       try {
         await message.author.send(warningMessage);
@@ -170,7 +179,15 @@ export class DuplicateSpamService {
       this.userStates.delete(userId);
       this.jailing.delete(userId);
     } else {
-      const warningMessage = `Stop posting in multiple channels rapidly. This is warning ${uniqueChannels - CHANNEL_WARNING_THRESHOLD + 1}, you will be muted at ${CHANNEL_JAIL_THRESHOLD - CHANNEL_WARNING_THRESHOLD + 1} warnings.`;
+      const warning = uniqueChannels - CHANNEL_WARNING_THRESHOLD + 1;
+      const warningMessage = `Stop posting in multiple channels rapidly. This is warning ${warning}, you will be muted at ${CHANNEL_JAIL_THRESHOLD - CHANNEL_WARNING_THRESHOLD + 1} warnings.`;
+
+      await ModLogService.record(message.guild, {
+        action: "User Warned",
+        targetId: message.author.id,
+        moderatorId: message.client.user.id,
+        reason: `Posted in ${uniqueChannels} channels within 10 minutes (warning ${warning})`,
+      });
 
       try {
         await message.author.send(warningMessage);

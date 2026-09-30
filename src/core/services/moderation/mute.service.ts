@@ -1,3 +1,4 @@
+import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { db } from "@/lib/db";
 import { memberMute } from "@/lib/db-schema";
 import {
@@ -124,6 +125,13 @@ export class MuteService {
       expiresAt: expiresAt.toISOString(),
     });
 
+    await ModLogService.record(params.target.guild, {
+      action: "User Timed Out",
+      targetId: params.target.id,
+      moderatorId: params.moderator.id,
+      reason: `${params.reason ?? "No reason provided"} (${formatDuration(params.minutes)})`,
+    });
+
     return {
       ok: true,
       message: `Timed out <@${params.target.id}> for ${formatDuration(params.minutes)}.`,
@@ -148,6 +156,12 @@ export class MuteService {
       return { ok: false, error: "I cannot lift that timeout. My role must sit above theirs." };
 
     await params.target.timeout(null, `Timeout removed by ${params.moderator.user.username}`);
+
+    await ModLogService.record(params.target.guild, {
+      action: "User Untimed Out",
+      targetId: params.target.id,
+      moderatorId: params.moderator.id,
+    });
 
     if (record) {
       await db
