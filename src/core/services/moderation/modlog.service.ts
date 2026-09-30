@@ -8,6 +8,7 @@ import {
   ChannelType,
   type Guild,
   type GuildAuditLogsEntry,
+  type GuildMember,
 } from "discord.js";
 import { and, desc, eq } from "drizzle-orm";
 import { error } from "node:console";
@@ -110,6 +111,43 @@ export class ModLogService {
         })
         .catch(error);
     }
+  }
+
+  // Staff often unjail by giving a status role (Verified); the bot then strips
+  // Jail itself, so that removal's audit entry names the bot. Credit whoever
+  // added the status role instead.
+  static async recordStatusRoleUnjail(
+    target: Pick<GuildMember, "id" | "guild">,
+    addedRole: string,
+  ) {
+    const findAdder = async () => {
+      const logs = await target.guild
+        .fetchAuditLogs({ type: AuditLogEvent.MemberRoleUpdate, limit: 10 })
+        .catch(() => null);
+      return logs?.entries.find(
+        (entry) =>
+          entry.targetId === target.id &&
+          entry.changes.some(
+            (change) =>
+              change.key === "$add" &&
+              Array.isArray(change.new) &&
+              change.new.some((role) => role.name === addedRole),
+          ),
+      );
+    };
+
+    // The audit entry can land a moment after the member update event.
+    let entry = await findAdder();
+    if (!entry) {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      entry = await findAdder();
+    }
+
+    await this.record(target.guild, {
+      action: "User Unjailed",
+      targetId: target.id,
+      moderatorId: entry?.executorId ?? null,
+    });
   }
 
   static recent(guildId: string, targetId?: string) {
