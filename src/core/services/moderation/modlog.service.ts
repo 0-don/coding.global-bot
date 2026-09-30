@@ -128,6 +128,8 @@ export class ModLogService {
       return logs?.entries.find(
         (entry) =>
           entry.targetId === target.id &&
+          // An older grant of the same role must not take the credit.
+          Date.now() - entry.createdTimestamp < 60_000 &&
           entry.changes.some(
             (change) =>
               change.key === "$add" &&
