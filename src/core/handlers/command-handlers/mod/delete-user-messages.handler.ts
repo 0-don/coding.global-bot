@@ -1,4 +1,5 @@
 import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
+import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { RolesService } from "@/core/services/roles/roles.service";
 import { JAIL } from "@/shared/config/roles";
 import type { CommandResult } from "@/types";
@@ -44,6 +45,13 @@ export async function executeDeleteUserMessages(
     reason: reason || "Manual moderation",
     moderatorId: interaction.user.id,
   };
+
+  await ModLogService.record(guild, {
+    action: "Messages Deleted",
+    targetId: memberId,
+    moderatorId: interaction.user.id,
+    reason: params.reason,
+  });
 
   if (jail) {
     await DeleteUserMessagesService.jailUser(params);
