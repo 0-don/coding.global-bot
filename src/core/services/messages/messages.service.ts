@@ -6,6 +6,7 @@ import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { and, count, eq } from "drizzle-orm";
 import { LEVEL_LIST, LEVEL_MESSAGES } from "@/shared/config/levels";
 import { JAIL, VOICE_ONLY } from "@/shared/config/roles";
+import { INVITE_JAIL_WARNINGS } from "@/shared/config/spam";
 import { ConfigValidator } from "@/shared/config/validator";
 import {
   AuditLogEvent,
@@ -366,7 +367,8 @@ export class MessagesService {
     }
 
     if (hasExternalInvite) {
-      await message.delete();
+      // A failed delete (already gone, missing permission) must not skip the warning.
+      await message.delete().catch(() => {});
 
       const currentWarnings = memberGuildData.warnings + 1;
 
@@ -374,17 +376,17 @@ export class MessagesService {
         .set({ warnings: currentWarnings })
         .where(eq(memberGuild.id, memberGuildData.id));
 
-      await ModLogService.record(message.guild, {
-        action: "User Warned",
-        targetId: member.id,
-        moderatorId: message.client.user.id,
-        reason: `Posted a Discord invite link (warning ${currentWarnings})`,
-      });
+      if (currentWarnings < INVITE_JAIL_WARNINGS) {
+        await ModLogService.record(message.guild, {
+          action: "User Warned",
+          targetId: member.id,
+          moderatorId: message.client.user.id,
+          reason: `Posted a Discord invite link (warning ${currentWarnings})`,
+        });
 
-      if (currentWarnings < 4) {
         try {
           await member.send(
-            `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be muted at 3 warnings.`,
+            `Stop posting invites, you have been warned. Warnings: ${currentWarnings}, you will be muted at ${INVITE_JAIL_WARNINGS} warnings.`,
           );
         } catch (error) {}
       } else {
@@ -397,7 +399,7 @@ export class MessagesService {
         });
 
         try {
-          await member.send(`You have been muted asks a mod to unmute you.`);
+          await member.send("You have been muted. Ask a mod to unmute you.");
         } catch (error) {}
       }
     }
