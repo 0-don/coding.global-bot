@@ -28,7 +28,6 @@ interface ModLogEntry {
   targetId: string;
   moderatorId: string | null;
   reason?: string | null;
-  /** Shown on its own line, even for actions that carry no reason. */
   note?: string;
 }
 
@@ -44,16 +43,6 @@ const ACTION_TONES: Record<ModAction, LogTone> = {
   "User Untimed Out": "positive",
   "Messages Deleted": "negative",
 };
-
-// Only who acted is shown for these: lifts need no justification, and kicks and
-// bans come from Discord's own dialog, which has no reason to rely on.
-const NO_REASON: ModAction[] = [
-  "User Unjailed",
-  "User Untimed Out",
-  "User Kicked",
-  "User Banned",
-  "User Unbanned",
-];
 
 const normalize = (value: string) =>
   value.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -115,8 +104,7 @@ export class ModLogService {
   }
 
   static async record(guild: Guild, entry: ModLogEntry) {
-    const lift = NO_REASON.includes(entry.action);
-    const reason = lift ? null : entry.reason?.trim() || null;
+    const reason = entry.reason?.trim() || null;
 
     await db
       .insert(modLog)
@@ -140,7 +128,7 @@ export class ModLogService {
       lines: [
         `<@${entry.targetId}> (${user?.username ?? "unknown"})`,
         `**By:** ${entry.moderatorId ? `<@${entry.moderatorId}>` : "unknown"}`,
-        lift ? null : `**Reason:** ${reason?.slice(0, 1000) ?? "No reason provided"}`,
+        reason && `**Reason:** ${reason.slice(0, 1000)}`,
         entry.note ? `**Note:** ${entry.note}` : null,
         `-# ${entry.targetId}`,
       ],
