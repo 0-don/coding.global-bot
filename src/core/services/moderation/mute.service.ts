@@ -7,7 +7,7 @@ import {
   type ModeratorTier,
 } from "@/shared/config/moderation";
 import { HELPER_ROLES, STAFF_ROLES } from "@/shared/config/roles";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, gt, isNull } from "drizzle-orm";
 import type { GuildMember } from "discord.js";
 
 type MuteRecord = typeof memberMute.$inferSelect;
@@ -36,6 +36,8 @@ export class MuteService {
     return member.roles.highest.position;
   }
 
+  // Discord logs nothing when a timeout runs out and AutoMod timeouts are not
+  // recorded here, so only an unexpired record counts as the standing timeout.
   private static async activeMute(
     target: GuildMember,
   ): Promise<MuteRecord | undefined> {
@@ -47,6 +49,7 @@ export class MuteService {
           eq(memberMute.memberId, target.id),
           eq(memberMute.guildId, target.guild.id),
           isNull(memberMute.liftedAt),
+          gt(memberMute.expiresAt, new Date().toISOString()),
         ),
       )
       .orderBy(desc(memberMute.createdAt))
