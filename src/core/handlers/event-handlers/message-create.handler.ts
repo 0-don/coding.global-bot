@@ -15,7 +15,7 @@ export async function handleMessageCreate(message: Message): Promise<void> {
   // invite filters read text, and without the intent every message looks empty to
   // them, so they would report clean on everything: skip those instead.
   if (!canReadMessageContent()) {
-    await DuplicateSpamService.checkDuplicateSpam(message);
+    if (await DuplicateSpamService.checkDuplicateSpam(message)) return;
     await MessagesService.addMessageDb(message);
     await MessagesService.levelUpMessage(message);
     return;
@@ -27,7 +27,9 @@ export async function handleMessageCreate(message: Message): Promise<void> {
     return;
   }
 
-  await DuplicateSpamService.checkDuplicateSpam(message);
+  // The duplicate check deleted and warned for this message, so it is done:
+  // one warning per message, and a removed message must not count toward levels.
+  if (await DuplicateSpamService.checkDuplicateSpam(message)) return;
 
   await MessagesService.checkWarnings(message);
 
