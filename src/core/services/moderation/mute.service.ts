@@ -33,9 +33,7 @@ export class MuteService {
   // Rank follows the server's role order, so reordering roles in Discord is all
   // it takes to change who may override whose timeout.
   private static rank(member: GuildMember): number {
-    return member.id === member.guild.ownerId
-      ? Number.POSITIVE_INFINITY
-      : member.roles.highest.position;
+    return member.roles.highest.position;
   }
 
   private static async activeMute(
@@ -56,9 +54,9 @@ export class MuteService {
     return record;
   }
 
-  // The member who set a timeout, when they rank at or above `actorId` and so
-  // may only be overridden by someone higher. Null when the change is allowed,
-  // including when the setter has left and there is no rank left to protect.
+  // The member who set a timeout, when they rank strictly above `actorId`; peers
+  // may undo each other. Null when the change is allowed, including when the
+  // setter has left and there is no rank left to protect.
   private static async outrankingSetter(
     target: GuildMember,
     record: MuteRecord,
@@ -70,9 +68,9 @@ export class MuteService {
       target.guild.members.fetch(record.moderatorId).catch(() => null),
       target.guild.members.fetch(actorId).catch(() => null),
     ]);
-    if (!setter || !actor) return null;
+    if (!setter || !actor || setter.user.bot) return null;
 
-    return this.rank(setter) >= this.rank(actor) ? setter : null;
+    return this.rank(setter) > this.rank(actor) ? setter : null;
   }
 
   // A new timeout replaces the old one, so every open record for the member is
@@ -119,7 +117,7 @@ export class MuteService {
     if (setter)
       return {
         record,
-        error: `That timeout was set by ${setter.user.username}, who ranks at or above you, so only someone higher can change it.`,
+        error: `That timeout was set by ${setter.user.username}, who ranks above you, so only someone of their rank or higher can change it.`,
       };
 
     return { record };
