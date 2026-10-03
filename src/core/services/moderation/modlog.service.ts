@@ -55,6 +55,14 @@ const NO_REASON: ModAction[] = [
   "User Unbanned",
 ];
 
+const normalize = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const MOD_LOG_NAMES = MOD_LOG_CHANNELS.map(normalize).filter(Boolean);
+
+const isModLogChannel = (name: string) =>
+  MOD_LOG_NAMES.some((wanted) => normalize(name).includes(wanted));
+
 const changesRole = (
   entry: GuildAuditLogsEntry,
   key: "$add" | "$remove",
@@ -142,7 +150,7 @@ export class ModLogService {
     for (const channel of guild.channels.cache.values()) {
       if (
         channel.type !== ChannelType.GuildText ||
-        !MOD_LOG_CHANNELS.includes(channel.name)
+        !isModLogChannel(channel.name)
       )
         continue;
       await channel

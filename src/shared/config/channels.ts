@@ -17,5 +17,12 @@ export const MEMBERS_COUNT_CHANNELS =
 export const TEMPLATE_VALIDATION_CHANNELS =
   process.env.TEMPLATE_VALIDATION_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
 
-export const MOD_LOG_CHANNELS =
-  process.env.MOD_LOG_CHANNELS?.split(",")?.map((s) => s.trim()) || [];
+// Matched as part of the channel name with emoji and separators dropped, so the
+// default finds "🗄️│mod-logs".
+const modLogChannels = process.env.MOD_LOG_CHANNELS?.split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+export const MOD_LOG_CHANNELS = modLogChannels?.length
+  ? modLogChannels
+  : ["mod-logs"];
