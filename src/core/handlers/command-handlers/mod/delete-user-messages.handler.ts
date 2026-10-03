@@ -16,6 +16,9 @@ export async function executeDeleteUserMessages(
   if (!memberId || !interaction.guild) {
     return { success: false, error: "Invalid user or guild" };
   }
+  if (!/^\d{17,20}$/.test(memberId)) {
+    return { success: false, error: "user-id must be a Discord user ID." };
+  }
 
   const guild = interaction.guild;
   const [moderator, target] = await Promise.all([
@@ -32,9 +35,17 @@ export async function executeDeleteUserMessages(
     };
   }
 
-  const jailRoleId = RolesService.getGuildStatusRoles(guild)[JAIL]?.id;
-  if (jail && jailRoleId && target?.roles.cache.has(jailRoleId)) {
-    return { success: false, error: "That member is already jailed." };
+  if (jail) {
+    const jailRole = RolesService.getGuildStatusRoles(guild)[JAIL];
+    if (!jailRole?.editable) {
+      return {
+        success: false,
+        error: "Jail failed, the jail role is missing or above the bot's role.",
+      };
+    }
+    if (target?.roles.cache.has(jailRole.id)) {
+      return { success: false, error: "That member is already jailed." };
+    }
   }
 
   const params = {
