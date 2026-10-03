@@ -9,8 +9,6 @@ import { JAIL, VOICE_ONLY } from "@/shared/config/roles";
 import { ConfigValidator } from "@/shared/config/validator";
 import {
   AuditLogEvent,
-  Collection,
-  FetchMessagesOptions,
   GuildTextBasedChannel,
   Message,
   PartialMessage,
@@ -199,37 +197,19 @@ export class MessagesService {
     channel: GuildTextBasedChannel,
     limit: number = 100,
   ): Promise<Message[]> {
-    let out: Message[] = [];
-    if (limit <= 100) {
-      let messages: Collection<string, Message> = await channel.messages.fetch({
-        limit: limit,
+    const out: Message[] = [];
+    while (out.length < limit) {
+      // Ask only for what is still owed: a full page on the last round would
+      // hand the caller more than the limit it asked for.
+      const page = Math.min(100, limit - out.length);
+      const messages = await channel.messages.fetch({
+        limit: page,
+        ...(out.length ? { before: out[out.length - 1]!.id } : {}),
       });
-      const messagesArray = Array.from(messages.values(), (value) => value);
-      out.push(...messagesArray);
-    } else {
-      const rounds = limit / 100 + (limit % 100 ? 1 : 0);
-      let lastId: string = "";
-      for (let x = 0; x < rounds; x++) {
-        const options: FetchMessagesOptions = {
-          limit: 100,
-        };
-
-        if (lastId.length > 0) options.before = lastId;
-
-        const messages: Collection<string, Message> =
-          await channel.messages.fetch(options);
-
-        const messagesArray = Array.from(messages.values(), (value) => value);
-        out.push(...messagesArray);
-
-        lastId = messagesArray[messagesArray.length - 1]?.id || "";
-      }
+      out.push(...messages.values());
+      if (messages.size < page) break;
     }
-    // remove duplicates
-    return out.filter(
-      (message, index, self) =>
-        self.findIndex((m) => m.id === message.id) === index,
-    );
+    return out;
   }
 
   // Hosts where the first path segment is the invite code (discord.gg/CODE).
