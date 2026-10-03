@@ -2,15 +2,14 @@ import { db } from "@/lib/db";
 import { modLog } from "@/lib/db-schema";
 import { logEmbed, type LogTone } from "@/core/embeds/log.embed";
 import { MOD_LOG_CHANNELS } from "@/shared/config/channels";
-import { JAIL } from "@/shared/config/roles";
+import { JAIL, STATUS_ROLES } from "@/shared/config/roles";
 import {
   AuditLogEvent,
   ChannelType,
   type Guild,
   type GuildAuditLogsEntry,
-  type GuildMember,
 } from "discord.js";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { error } from "node:console";
 
 export type ModAction =
@@ -56,16 +55,27 @@ const NO_REASON: ModAction[] = [
   "User Unbanned",
 ];
 
-const changesJail = (entry: GuildAuditLogsEntry, key: "$add" | "$remove") =>
+const changesRole = (
+  entry: GuildAuditLogsEntry,
+  key: "$add" | "$remove",
+  matches: (name: string) => boolean,
+) =>
   entry.changes.some(
     (change) =>
       change.key === key &&
       Array.isArray(change.new) &&
-      change.new.some((role) => role.name === JAIL),
+      change.new.some((role) => matches(role.name)),
   );
 
+const isJail = (name: string) => name === JAIL;
+const isOtherStatusRole = (name: string) =>
+  !isJail(name) && STATUS_ROLES.includes(name);
+
 export class ModLogService {
-  static actionFromAudit(entry: GuildAuditLogsEntry): ModAction | null {
+  static async actionFromAudit(
+    guild: Guild,
+    entry: GuildAuditLogsEntry,
+  ): Promise<ModAction | null> {
     switch (entry.action) {
       case AuditLogEvent.MemberKick:
         return "User Kicked";
@@ -81,9 +91,16 @@ export class ModLogService {
         return change.new ? "User Timed Out" : "User Untimed Out";
       }
       case AuditLogEvent.MemberRoleUpdate:
-        if (changesJail(entry, "$add")) return "User Jailed";
-        if (changesJail(entry, "$remove")) return "User Unjailed";
-        return null;
+        if (!JAIL || !entry.targetId) return null;
+        if (changesRole(entry, "$add", isJail)) return "User Jailed";
+        if (changesRole(entry, "$remove", isJail)) return "User Unjailed";
+        // Staff often unjail by giving a status role (Verified); the bot then
+        // strips Jail itself, so that removal's audit entry names the bot. The
+        // entry for the status role names who did it.
+        return changesRole(entry, "$add", isOtherStatusRole) &&
+          (await this.isJailed(guild, entry.targetId))
+          ? "User Unjailed"
+          : null;
       default:
         return null;
     }
@@ -134,43 +151,25 @@ export class ModLogService {
     }
   }
 
-  // Staff often unjail by giving a status role (Verified); the bot then strips
-  // Jail itself, so that removal's audit entry names the bot. Credit whoever
-  // added the status role instead.
-  static async recordStatusRoleUnjail(
-    target: Pick<GuildMember, "id" | "guild">,
-    addedRole: string,
-  ) {
-    const findAdder = async () => {
-      const logs = await target.guild
-        .fetchAuditLogs({ type: AuditLogEvent.MemberRoleUpdate, limit: 10 })
-        .catch(() => null);
-      return logs?.entries.find(
-        (entry) =>
-          entry.targetId === target.id &&
-          // An older grant of the same role must not take the credit.
-          Date.now() - entry.createdTimestamp < 60_000 &&
-          entry.changes.some(
-            (change) =>
-              change.key === "$add" &&
-              Array.isArray(change.new) &&
-              change.new.some((role) => role.name === addedRole),
-          ),
-      );
-    };
+  // The bot may have stripped Jail before the audit entry arrives, so when the
+  // role is gone the newest jail or unjail entry decides.
+  static async isJailed(guild: Guild, targetId: string): Promise<boolean> {
+    const member = guild.members.cache.get(targetId);
+    if (member?.roles.cache.some((role) => isJail(role.name))) return true;
 
-    // The audit entry can land a moment after the member update event.
-    let entry = await findAdder();
-    if (!entry) {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      entry = await findAdder();
-    }
-
-    await this.record(target.guild, {
-      action: "User Unjailed",
-      targetId: target.id,
-      moderatorId: entry?.executorId ?? null,
-    });
+    const [latest] = await db
+      .select({ action: modLog.action })
+      .from(modLog)
+      .where(
+        and(
+          eq(modLog.guildId, guild.id),
+          eq(modLog.targetId, targetId),
+          inArray(modLog.action, ["User Jailed", "User Unjailed"]),
+        ),
+      )
+      .orderBy(desc(modLog.createdAt), desc(modLog.id))
+      .limit(1);
+    return latest?.action === "User Jailed";
   }
 
   static recent(guildId: string, targetId?: string) {

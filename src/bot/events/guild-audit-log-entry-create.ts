@@ -14,7 +14,7 @@ export class GuildAuditLogEntryCreate {
     // who ran the command; here they would all read "by the bot".
     if (entry.executorId === guild.client.user.id) return;
 
-    const action = ModLogService.actionFromAudit(entry);
+    const action = await ModLogService.actionFromAudit(guild, entry);
     if (!action || !entry.targetId) return;
 
     // A timeout changed in Discord's member menu skips /timeout's rank check, so
