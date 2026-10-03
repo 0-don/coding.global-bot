@@ -116,8 +116,11 @@ export class DeleteUserMessagesService {
 
   /**
    * Delete user messages across all channels. Scoped to last 14 days.
+   * Returns how many were deleted, or null when a sweep was already running.
    */
-  static async deleteUserMessages(params: DeleteUserMessagesParams) {
+  static async deleteUserMessages(
+    params: DeleteUserMessagesParams,
+  ): Promise<number | null> {
     // A spammer's messages arrive faster than one sweep of 275 channels takes, and
     // every detector that catches them calls this, so without a guard the same user
     // gets several concurrent sweeps that each re-scan what the others deleted.
@@ -126,12 +129,12 @@ export class DeleteUserMessagesService {
       log(
         `[DeleteUserMessages] Sweep already running for user ${params.memberId}, skipping`,
       );
-      return;
+      return null;
     }
     this.activeSweeps.add(sweepKey);
 
     try {
-      await this.runDeletion(params);
+      return await this.runDeletion(params);
     } finally {
       this.activeSweeps.delete(sweepKey);
     }
@@ -263,6 +266,7 @@ export class DeleteUserMessagesService {
     log(
       `[DeleteUserMessages] Finished. Deleted ${totalDeleted} messages total for user ${params.memberId}`,
     );
+    return totalDeleted;
   }
 
   private static async sendJailNotification(params: {

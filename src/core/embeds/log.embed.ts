@@ -27,6 +27,8 @@ export function logEmbed(params: {
   user?: User | null;
   lines?: (string | null | undefined)[];
   footer: string;
+  /** When it happened; an edited entry keeps the time it was first posted. */
+  at?: Date;
 }): APIEmbed {
   const body = (params.lines ?? []).filter(
     (line): line is string => typeof line === "string" && line.length > 0,
@@ -41,7 +43,7 @@ export function logEmbed(params: {
         }
       : undefined,
     description: [`**${params.title}**`, ...body].join("\n"),
-    timestamp: new Date().toISOString(),
+    timestamp: (params.at ?? new Date()).toISOString(),
     footer: { text: params.footer, icon_url: BOT_ICON },
   };
 }

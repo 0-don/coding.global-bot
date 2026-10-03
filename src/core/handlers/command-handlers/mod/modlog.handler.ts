@@ -1,4 +1,7 @@
-import { ModLogService } from "@/core/services/moderation/modlog.service";
+import {
+  ModLogService,
+  targetMention,
+} from "@/core/services/moderation/modlog.service";
 import { MuteService } from "@/core/services/moderation/mute.service";
 import type { CommandResult } from "@/types";
 import type { CommandInteraction, User } from "discord.js";
@@ -28,7 +31,8 @@ export async function executeModLog(
     );
     const by = row.moderatorId ? ` by <@${row.moderatorId}>` : "";
     const reason = row.reason ? `: ${row.reason.slice(0, 80)}` : "";
-    return `<t:${when}:R> **${row.action}** <@${row.targetId}>${by}${reason}`;
+    const amount = row.amount === null ? "" : ` (${row.amount})`;
+    return `<t:${when}:R> **${row.action}**${amount} ${targetMention(row.action, row.targetId)}${by}${reason}`;
   });
 
   return { success: true, message: lines.join("\n").slice(0, 2000) };

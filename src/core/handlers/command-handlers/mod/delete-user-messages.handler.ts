@@ -46,20 +46,28 @@ export async function executeDeleteUserMessages(
     moderatorId: interaction.user.id,
   };
 
-  await ModLogService.record(guild, {
+  // Recorded before the sweep so a restart mid-run cannot lose the entry; the
+  // count is filled in once the sweep ends.
+  const logged = await ModLogService.record(guild, {
     action: "Messages Deleted",
     targetId: memberId,
     moderatorId: interaction.user.id,
     reason: params.reason,
   });
+  const sweep = () =>
+    DeleteUserMessagesService.deleteUserMessages(params)
+      .then((amount) => {
+        if (amount !== null) return ModLogService.setAmount(logged, amount);
+      })
+      .catch(() => {});
 
   if (jail) {
     await DeleteUserMessagesService.jailUser(params);
-    DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});
+    sweep();
     return { success: true, message: "User jailed. Messages are being deleted in the background." };
   }
 
-  DeleteUserMessagesService.deleteUserMessages(params).catch(() => {});
+  sweep();
   return { success: true, message: "Message deletion started in the background." };
 }
 

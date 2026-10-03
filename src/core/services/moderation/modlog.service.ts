@@ -8,6 +8,8 @@ import {
   ChannelType,
   type Guild,
   type GuildAuditLogsEntry,
+  type Message,
+  type User,
 } from "discord.js";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { error } from "node:console";
@@ -21,7 +23,8 @@ export type ModAction =
   | "User Unbanned"
   | "User Timed Out"
   | "User Untimed Out"
-  | "Messages Deleted";
+  | "Messages Deleted"
+  | "Channel Purged";
 
 interface ModLogEntry {
   action: ModAction;
@@ -29,6 +32,14 @@ interface ModLogEntry {
   moderatorId: string | null;
   reason?: string | null;
   note?: string;
+  amount?: number;
+}
+
+interface LoggedEntry {
+  id?: number;
+  entry: ModLogEntry;
+  user: User | null;
+  messages: Message[];
 }
 
 // Colour by severity, so a ban and an unban read differently at a glance.
@@ -42,7 +53,14 @@ const ACTION_TONES: Record<ModAction, LogTone> = {
   "User Timed Out": "caution",
   "User Untimed Out": "positive",
   "Messages Deleted": "negative",
+  "Channel Purged": "negative",
 };
+
+// A purge targets a channel, every other action targets a member.
+const targetsChannel = (action: string) => action === "Channel Purged";
+
+export const targetMention = (action: string, targetId: string) =>
+  targetsChannel(action) ? `<#${targetId}>` : `<@${targetId}>`;
 
 const normalize = (value: string) =>
   value.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -103,37 +121,59 @@ export class ModLogService {
     }
   }
 
-  static async record(guild: Guild, entry: ModLogEntry) {
-    const reason = entry.reason?.trim() || null;
+  private static embed(entry: ModLogEntry, user: User | null, at: Date) {
+    const mention = targetMention(entry.action, entry.targetId);
 
-    await db
+    return logEmbed({
+      tone: ACTION_TONES[entry.action],
+      title: entry.action,
+      user,
+      lines: [
+        targetsChannel(entry.action)
+          ? mention
+          : `${mention} (${user?.username ?? "unknown"})`,
+        `**By:** ${entry.moderatorId ? `<@${entry.moderatorId}>` : "unknown"}`,
+        entry.amount === undefined ? null : `**Amount:** ${entry.amount}`,
+        entry.reason && `**Reason:** ${entry.reason.slice(0, 1000)}`,
+        entry.note ? `**Note:** ${entry.note}` : null,
+        `-# ${entry.targetId}`,
+      ],
+      footer: "Mod Log",
+      at,
+    });
+  }
+
+  static async record(guild: Guild, input: ModLogEntry): Promise<LoggedEntry> {
+    const entry = { ...input, reason: input.reason?.trim() || null };
+
+    const [row] = await db
       .insert(modLog)
       .values({
         guildId: guild.id,
         action: entry.action,
         targetId: entry.targetId,
         moderatorId: entry.moderatorId,
-        reason,
+        reason: entry.reason,
+        amount: entry.amount ?? null,
       })
-      .catch(error);
+      .returning({ id: modLog.id })
+      .catch((err) => {
+        error(err);
+        return [];
+      });
+    const logged: LoggedEntry = {
+      id: row?.id,
+      entry,
+      user: null,
+      messages: [],
+    };
 
-    const user = await guild.client.users
-      .fetch(entry.targetId)
-      .catch(() => null);
+    if (!targetsChannel(entry.action))
+      logged.user = await guild.client.users
+        .fetch(entry.targetId)
+        .catch(() => null);
 
-    const embed = logEmbed({
-      tone: ACTION_TONES[entry.action],
-      title: entry.action,
-      user,
-      lines: [
-        `<@${entry.targetId}> (${user?.username ?? "unknown"})`,
-        `**By:** ${entry.moderatorId ? `<@${entry.moderatorId}>` : "unknown"}`,
-        reason && `**Reason:** ${reason.slice(0, 1000)}`,
-        entry.note ? `**Note:** ${entry.note}` : null,
-        `-# ${entry.targetId}`,
-      ],
-      footer: "Mod Log",
-    });
+    const embed = this.embed(entry, logged.user, new Date());
 
     for (const channel of guild.channels.cache.values()) {
       if (
@@ -141,10 +181,36 @@ export class ModLogService {
         !isModLogChannel(channel.name)
       )
         continue;
-      await channel
+      const message = await channel
         .send({ embeds: [embed], allowedMentions: { users: [], roles: [] } })
         .catch(error);
+      if (message) logged.messages.push(message);
     }
+    return logged;
+  }
+
+  // Fills in the count on an entry recorded before the work that produces it.
+  static async setAmount(logged: LoggedEntry, amount: number) {
+    if (logged.id !== undefined)
+      await db
+        .update(modLog)
+        .set({ amount })
+        .where(eq(modLog.id, logged.id))
+        .catch(error);
+
+    for (const message of logged.messages)
+      await message
+        .edit({
+          embeds: [
+            this.embed(
+              { ...logged.entry, amount },
+              logged.user,
+              message.createdAt,
+            ),
+          ],
+          allowedMentions: { users: [], roles: [] },
+        })
+        .catch(error);
   }
 
   // The bot may have stripped Jail before the audit entry arrives, so when the
