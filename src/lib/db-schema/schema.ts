@@ -400,6 +400,7 @@ export const modLog = pgTable("ModLog", {
 	targetId: text().notNull(),
 	moderatorId: text(),
 	reason: text(),
+	amount: integer(),
 	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 }, (table) => [
 	index("ModLog_guildId_targetId_idx").using("btree", table.guildId.asc().nullsLast().op("text_ops"), table.targetId.asc().nullsLast().op("text_ops")),

@@ -1,5 +1,6 @@
 import type { CommandInteraction, Message, TextChannel } from "discord.js";
 import { MessagesService } from "@/core/services/messages/messages.service";
+import { ModLogService } from "@/core/services/moderation/modlog.service";
 import type { CommandResult } from "@/types";
 
 export async function executeDeleteMessages(
@@ -26,10 +27,21 @@ export async function executeDeleteMessages(
     [[]] as Message<boolean>[][],
   );
 
+  let deleted = 0;
   for (const batch of messageList) {
     if ("bulkDelete" in channel) {
-      await channel.bulkDelete(batch, true);
+      const removed = await channel.bulkDelete(batch, true);
+      deleted += removed.size;
     }
+  }
+
+  if (deleted > 0) {
+    await ModLogService.record(channel.guild, {
+      action: "Channel Purged",
+      targetId: channel.id,
+      moderatorId: interaction.user.id,
+      amount: deleted,
+    });
   }
 
   return { success: true };
