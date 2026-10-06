@@ -63,6 +63,7 @@ export const bot = new Client({
 });
 
 bot.once("clientReady", async () => {
+  await bot.application?.commands.set([]);
   await bot.initApplicationCommands();
   process.env.DOCKER && MemberUpdateQueueService.start();
   process.env.DOCKER && AttachmentRefreshQueueService.start();
