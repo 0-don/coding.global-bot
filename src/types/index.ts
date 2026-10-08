@@ -122,6 +122,7 @@ export interface DeleteUserMessagesParams {
   reason?: string;
   // Staff member behind a command jail; unset means the bot acted on its own.
   moderatorId?: string;
+  startChannelId?: string;
 }
 
 // Roles service types

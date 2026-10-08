@@ -212,6 +212,7 @@ async function validateForumPost(
             user: owner?.user || null,
             memberId: ownerId,
             jail: true,
+            startChannelId: thread.id,
             reason: `Auto-jailed: ${currentStrikes} post removals from validated boards`,
           });
           removalStrikes.delete(strikeKey);

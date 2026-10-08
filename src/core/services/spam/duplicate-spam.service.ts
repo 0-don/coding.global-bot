@@ -113,6 +113,7 @@ export class DuplicateSpamService {
         user: message.author,
         guild: message.guild,
         reason,
+        startChannelId: message.channelId,
       });
 
       try {
@@ -166,6 +167,7 @@ export class DuplicateSpamService {
         user: message.author,
         guild: message.guild,
         reason,
+        startChannelId: message.channelId,
       });
 
       try {

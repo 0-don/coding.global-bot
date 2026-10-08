@@ -395,6 +395,7 @@ export class MessagesService {
           memberId: member.id,
           user: member.user,
           guild: message.guild,
+          startChannelId: message.channelId,
           reason: `Posted Discord invite links (${currentWarnings} warnings)`,
         });
 

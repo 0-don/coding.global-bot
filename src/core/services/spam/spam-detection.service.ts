@@ -150,6 +150,7 @@ export class SpamDetectionService {
           memberId: message.author.id,
           user: message.author,
           guild: message.guild!,
+          startChannelId: message.channelId,
           reason: result.reason,
         });
         return true;
