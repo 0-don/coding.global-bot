@@ -1,4 +1,5 @@
 import { MessagesService } from "@/core/services/messages/messages.service";
+import { RecentMessagesService } from "@/core/services/messages/recent-messages.service";
 import { RolesService } from "@/core/services/roles/roles.service";
 import { DuplicateSpamService } from "@/core/services/spam/duplicate-spam.service";
 import { SpamDetectionService } from "@/core/services/spam/spam-detection.service";
@@ -10,6 +11,9 @@ import { Message, MessageType, TextChannel } from "discord.js";
 import type { SimpleCommandMessage } from "discordx";
 
 export async function handleMessageCreate(message: Message): Promise<void> {
+  // Before the spam checks: their early returns must not hide a message from a sweep.
+  void RecentMessagesService.record(message);
+
   // Duplicate-spam detection keys off attachment hashes and channel spread, so it
   // still catches image floods when message content is unavailable. The scam and
   // invite filters read text, and without the intent every message looks empty to
