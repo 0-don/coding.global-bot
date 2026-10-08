@@ -235,6 +235,19 @@ export const memberMessages = pgTable("MemberMessages", {
 		}).onUpdate("cascade").onDelete("cascade"),
 ]);
 
+// Every guild message for the 14 days bulk delete can reach, so a member sweep is a
+// lookup instead of a crawl of every channel.
+export const recentMessages = pgTable("RecentMessages", {
+	messageId: text().primaryKey().notNull(),
+	guildId: text().notNull(),
+	channelId: text().notNull(),
+	authorId: text().notNull(),
+	createdAt: timestamp({ precision: 3, mode: 'string' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+}, (table) => [
+	index("RecentMessages_guildId_authorId_idx").using("btree", table.guildId.asc().nullsLast().op("text_ops"), table.authorId.asc().nullsLast().op("text_ops")),
+	index("RecentMessages_createdAt_idx").using("btree", table.createdAt.asc().nullsLast()),
+]);
+
 export const tag = pgTable("Tag", {
 	id: text().primaryKey().notNull(),
 	guildId: text().notNull(),

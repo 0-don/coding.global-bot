@@ -44,6 +44,14 @@ export class DeleteUserMessages {
       required: false,
     })
     reason: string | undefined,
+    @SlashOption({
+      name: "thorough",
+      description:
+        "Also scan every channel's history for messages the bot missed (slow)",
+      type: ApplicationCommandOptionType.Boolean,
+      required: false,
+    })
+    thorough: boolean = false,
     interaction: CommandInteraction,
   ) {
     if (!(await safeDeferReply(interaction, { flags: [MessageFlags.Ephemeral] }))) return;
@@ -64,13 +72,18 @@ export class DeleteUserMessages {
       userId,
       jail,
       reason,
+      thorough,
     );
 
+    // A thorough crawl can outlive the 15 minute interaction token.
+
     if (result.error) {
-      await safeEditReply(interaction, result.error);
+      await safeEditReply(interaction, result.error).catch(() => {});
       return;
     }
 
-    await safeEditReply(interaction, { content: result.message || "user messages are deleted" });
+    await safeEditReply(interaction, {
+      content: result.message || "user messages are deleted",
+    }).catch(() => {});
   }
 }

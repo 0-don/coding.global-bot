@@ -7,6 +7,7 @@ import { setIntentState } from "@/shared/config/features";
 import { fetchGrantedIntents, intentBitsFor } from "@/shared/config/intents";
 import { ConfigValidator } from "@/shared/config/validator";
 import { ActivityType, GatewayIntentBits, Partials } from "discord.js";
+import { RecentMessagesService } from "@/core/services/messages/recent-messages.service";
 import { Client } from "discordx";
 import "./bot";
 import "./elysia";
@@ -67,6 +68,7 @@ bot.once("clientReady", async () => {
   await bot.initApplicationCommands();
   process.env.DOCKER && MemberUpdateQueueService.start();
   process.env.DOCKER && AttachmentRefreshQueueService.start();
+  RecentMessagesService.startPrune();
   botLogger.info("Bot started", { clientId: bot.user?.id });
 });
 

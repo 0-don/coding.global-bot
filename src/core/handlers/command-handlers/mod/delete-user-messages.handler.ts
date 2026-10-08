@@ -1,6 +1,7 @@
 import { DeleteUserMessagesService } from "@/core/services/messages/delete-user-messages.service";
 import { ModLogService } from "@/core/services/moderation/modlog.service";
 import { RolesService } from "@/core/services/roles/roles.service";
+import { safeEditReply } from "@/core/utils/command.utils";
 import { JAIL } from "@/shared/config/roles";
 import type { CommandResult } from "@/types";
 import type { CommandInteraction, GuildMember, User } from "discord.js";
@@ -11,6 +12,7 @@ export async function executeDeleteUserMessages(
   userId: string | undefined,
   jail: boolean,
   reason: string | undefined,
+  thorough: boolean,
 ): Promise<CommandResult> {
   const memberId = user?.id ?? userId;
   if (!memberId || !interaction.guild) {
@@ -32,6 +34,13 @@ export async function executeDeleteUserMessages(
     return {
       success: false,
       error: "You cannot use this on someone at or above your rank.",
+    };
+  }
+
+  if (DeleteUserMessagesService.isSweeping(guild.id, memberId)) {
+    return {
+      success: false,
+      error: "A deletion for this user is already running.",
     };
   }
 
@@ -65,21 +74,32 @@ export async function executeDeleteUserMessages(
     moderatorId: interaction.user.id,
     reason: params.reason,
   });
-  const sweep = () =>
-    DeleteUserMessagesService.deleteUserMessages(params)
-      .then((amount) => {
-        if (amount !== null) return ModLogService.setAmount(logged, amount);
-      })
-      .catch(() => {});
 
-  if (jail) {
-    await DeleteUserMessagesService.jailUser(params);
-    sweep();
-    return { success: true, message: "User jailed. Messages are being deleted in the background." };
+  if (jail) await DeleteUserMessagesService.jailUser(params);
+  await safeEditReply(
+    interaction,
+    jail ? "User jailed. Deleting messages..." : "Deleting messages...",
+  );
+
+  const result = await DeleteUserMessagesService.deleteUserMessages(
+    params,
+    thorough,
+  );
+  if (!result) {
+    return {
+      success: false,
+      error: "A deletion for this user is already running.",
+    };
   }
-
-  sweep();
-  return { success: true, message: "Message deletion started in the background." };
+  await ModLogService.setAmount(logged, result.deleted);
+  return {
+    success: true,
+    message:
+      `Deleted ${result.deleted} message${result.deleted === 1 ? "" : "s"}.` +
+      (result.unreadable.length
+        ? ` Could not reach ${result.unreadable.join(", ")}.`
+        : ""),
+  };
 }
 
 function outranks(moderator: GuildMember, target: GuildMember): boolean {
