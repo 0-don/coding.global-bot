@@ -83,7 +83,7 @@ Required information:
 - Project Description (what needs to be done, at least 1-2 sentences of detail)
 - Required Skills (specific technologies or skills needed)
 - Budget Range (MANDATORY: must mention a concrete $/h, total $, or price range. "To be decided", "let's discuss", "sharing profits", "revenue split", "profit sharing", "equity", or any non-monetary compensation does NOT count as a budget. Posts without a concrete budget MUST be rejected. Profit sharing and revenue sharing arrangements are NEVER acceptable as a budget and the post must always be marked invalid.)
-- Contact Method (how to reach the poster: DM, email, etc.)
+- Contact Method (how to reach the poster: DM, email, etc. WhatsApp and phone numbers are NOT allowed, see validation rules)
 
 Optional:
 - Timeline (when it needs to be done or estimated duration)
@@ -97,7 +97,7 @@ Required information:
 - Experience Level (some indication of junior/mid/senior/expert level, years of experience also counts)
 - Availability (hours per week, full-time/part-time, or "flexible")
 - Rate/Hour (hourly rate, rate range, or "negotiable". Must acknowledge pricing somehow)
-- Contact Method (how to reach them: DM, email, etc.)
+- Contact Method (how to reach them: DM, email, etc. WhatsApp and phone numbers are NOT allowed, see validation rules)
 
 Optional:
 - Portfolio Link (link to portfolio, GitHub, or previous work)
@@ -141,6 +141,7 @@ VALIDATION RULES:
 - "Negotiable" counts as a rate/budget ONLY on the Dev Board (not on Job Board where a concrete number is needed)
 - On the Job Board, "profit sharing", "revenue split", "equity", or any non-monetary compensation MUST be treated as a missing Budget Range and the post MUST be rejected. The suggestion should tell them to include a concrete budget in dollars.
 - Experience implied by content counts (e.g. "7+ years" implies senior level)
+- On the Job Board and Dev Board, WhatsApp or a phone number as a contact method is against the guidelines: mark the post invalid, list "Contact Method" as missing, rate scamRisk at least "medium", and tell them to use Discord DM or email instead. This applies even when another contact method is also given.
 
 RESPONSE:
 - isValid: true if all required information is present (even in non-standard format)
@@ -164,6 +165,7 @@ SCAM INDICATORS (rate as "medium"):
 - Too good to be true offers ("make big money", "$2k per offer")
 - Copy paste generic posts with no project specifics
 - Asking to move communication off Discord immediately to external platforms (Telegram, WhatsApp)
+- A WhatsApp contact or phone number on the Job Board or Dev Board (also always a rejection, see validation rules)
 - "Profit sharing", "revenue split", "equity only", or any arrangement where the developer is not paid a concrete monetary amount. On the Job Board, this should ALWAYS result in rejection (missing Budget Range) AND a medium scam risk
 - Posts that are clearly advertising/promoting a service or platform rather than hiring or offering dev services
 
