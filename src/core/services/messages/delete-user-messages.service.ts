@@ -59,6 +59,23 @@ async function runWithConcurrency<T>(
   return results;
 }
 
+// 403s count toward Discord's invalid request limit (10k per 10 min ban), so
+// check first. A voice channel's text chat is hidden without Connect, even with View.
+function canSweep(channel: GuildTextBasedChannel) {
+  const me = channel.guild.members.me;
+  return !!(
+    me &&
+    channel
+      .permissionsFor(me)
+      ?.has([
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.ReadMessageHistory,
+        PermissionFlagsBits.ManageMessages,
+        ...(channel.isVoiceBased() ? [PermissionFlagsBits.Connect] : []),
+      ])
+  );
+}
+
 export class DeleteUserMessagesService {
   /**
    * Jail user and start message deletion in background.
@@ -156,7 +173,6 @@ export class DeleteUserMessagesService {
     );
     let totalDeleted = 0;
     const cutoff = Date.now() - MAX_DELETE_AGE_MS;
-    const me = params.guild.members.me;
 
     const deleteMessages = async (channel: GuildTextBasedChannel) => {
       if (
@@ -164,16 +180,7 @@ export class DeleteUserMessagesService {
         SnowflakeUtil.timestampFrom(channel.lastMessageId) < cutoff
       )
         return;
-      // 403s count toward Discord's invalid request limit (10k per 10 min ban)
-      const perms = me && channel.permissionsFor(me);
-      if (
-        !perms?.has([
-          PermissionFlagsBits.ViewChannel,
-          PermissionFlagsBits.ReadMessageHistory,
-          PermissionFlagsBits.ManageMessages,
-        ])
-      )
-        return;
+      if (!canSweep(channel)) return;
       try {
         let deleted = 0;
         let lastMessageId: string | undefined;
@@ -335,7 +342,7 @@ export class DeleteUserMessagesService {
     let deleted = 0;
     const tasks = [...byChannel].map(([channelId, ids]) => async () => {
       const channel = params.guild.channels.cache.get(channelId);
-      if (!channel?.isTextBased()) return;
+      if (!channel?.isTextBased() || !canSweep(channel)) return;
       for (let i = 0; i < ids.length; i += 100) {
         const result = await channel.bulkDelete(ids.slice(i, i + 100), true);
         deleted += result.size;
