@@ -127,6 +127,15 @@ SHOWCASE REJECTION CRITERIA (always mark as invalid):
 - Posts with only a local file path (file:///) and no actual hosted link
 - Posts that are clearly advertising a commercial product rather than showcasing something they built
 
+AUTOMATED / AI AGENT POSTS (all boards, always mark as invalid):
+Some posts are written and submitted by an AI agent driving a browser, often several accounts posting near identical text minutes apart. Using AI to polish wording is fine; reject only when the post is a hollow filled template with nothing concrete or verifiable. Mark invalid when MOST of these hold:
+- Every template field is filled, but each value is a generic placeholder sentence: "Available upon request", "Negotiable.", "Direct message (DM).", "Freelance and long-term projects.", "Expert", with no name, link, number or project behind it
+- No portfolio, GitHub, live link or named project anywhere in the post (Dev Board and Showcase)
+- Skills and previous projects are a list of buzzword categories ("AI automation, reverse engineering, browser automation, anti-bot research, web scraping, workflow automation", "monitoring bots, inventory trackers, queue-processing systems, account management tools, AIO/ACO tooling, AI-powered applications") instead of things they actually built
+- Title is a pipe separated list of roles (e.g. "AI & Automation | Reverse Engineering | Bot Developer")
+- Uniform machine formatting: every field one short sentence ending in a period, identical spacing, no personal voice, no typos, nothing specific to this person
+When rejecting for this reason: set isValid false, list the hollow fields (e.g. "Portfolio Link", "Previous Projects/Examples") in missingFields, rate scamRisk "high", give scamReason "Generic automated template with no verifiable details, likely an AI agent account", and suggest they repost with a real portfolio or GitHub link and concrete projects they built.
+
 VALIDATION RULES:
 - Be LENIENT with format: information can be stated in any format, not just template headings
 - A post that says "I charge $50/h" satisfies the rate requirement even without the heading
